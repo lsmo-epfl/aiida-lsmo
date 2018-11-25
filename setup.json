@@ -1,0 +1,22 @@
+{
+    "version": "0.1",
+    "name": "aiida-lsmo-worklows",
+    "author": "Aliaksandr Yakutovich, Daniele Ongari",
+    "author_email": "aliaksandr.yakutovich@epfl.ch",
+    "description": "AiiDA workflows for the LSMO laboratory at EPFL",
+    "url": "https://github.com/yakutovicha/aiida-lsmo-workflows",
+    "license": "MIT License",
+    "classifiers": [
+        "Programming Language :: Python"
+    ],
+    "setup_requires": ["reentry"],
+    "reentry_register": true,
+    "install_requires": [
+        "aiida >= 0.12.2"
+    ],
+    "entry_points": {
+        "aiida.workflows": [
+            "raspa.converge = aiida_lsmo_workflows.isotherm:Isotherm"
+        ]
+    }
+}
