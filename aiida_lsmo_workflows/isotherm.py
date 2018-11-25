@@ -1,14 +1,11 @@
 from aiida.orm import CalculationFactory, DataFactory
-from aiida.orm import load_node
 from aiida.orm.code import Code
-from aiida.orm.data.base import Bool, Str, Float
+from aiida.orm.data.base import Float
 from aiida.work import workfunction as wf
-from aiida.work.run import run, submit
-from aiida.work.workchain import WorkChain, ToContext, if_, while_, Outputs
+from aiida.work.run import submit
+from aiida.work.workchain import WorkChain, ToContext, while_, Outputs
 
 # subworkflows
-from aiida_cp2k.workflows import Cp2kRobustGeoOptWorkChain
-from aiida_ddec.workflows import DdecCp2kChargesWorkChain
 from aiida_raspa.workflows import RaspaConvergeWorkChain
 from aiida_zeopp.workflows import ZeoppBlockPocketsWorkChain
 
@@ -79,57 +76,6 @@ def multiply_unit_cell (cif, threshold):
     diag = np.diag(cell)
     return tuple(int(i) for i in np.ceil(threshold/diag*2.))
 
-spin = {
-        "H"  : 0.0,
-        "Li" : 0.0,
-        "Be" : 0.0,
-        "B"  : 0.0,
-        "C"  : 0.0,
-        "N"  : 0.0,
-        "O"  : 0.0,
-        "F"  : 0.0,
-        "Na" : 0.0,
-        "Mg" : 0.0,
-        "Al" : 0.0,
-        "Si" : 0.0,
-        "P"  : 0.0,
-        "S"  : 0.0,
-        "Cl" : 0.0,
-        "K"  : 0.0,
-        "Ca" : 0.0,
-        "Sc" : 1.0 / 2.0,  # oxidation state +2, high spin
-        "Ti" : 2.0 / 2.0,  # oxidation state +2, high spin
-        "V"  : 3.0 / 2.0,  # oxidation state +2, high spin
-        "Cr" : 4.0 / 2.0,  # oxidation state +2, high spin
-        "Mn" : 5.0 / 2.0,  # oxidation state +2, high spin
-        "Fe" : 4.0 / 2.0,  # oxidation state +2, high spin
-        "Co" : 3.0 / 2.0,  # oxidation state +2, high spin
-        "Ni" : 2.0 / 2.0,  # oxidation state +2, high spin
-        "Cu" : 1.0 / 2.0,  # oxidation state +2, high spin
-        "Zn" : 0.0,        # oxidation state +2, high spin
-        "Zr" : 2.0 / 2.0,  # oxidation state +2, high spin
-        }
-
-@wf
-def guess_multiplicity(structure):
-    multiplicity = 1
-    all_atoms = structure.get_ase().get_chemical_symbols()
-    for key, value in spin.iteritems():
-        multiplicity += all_atoms.count(key) * value * 2.0
-    multiplicity = int(round(multiplicity))
-    multiplicity_dict = {'FORCE_EVAL': {'DFT': {'MULTIPLICITY' :multiplicity}}}
-    if multiplicity != 1:
-        multiplicity_dict['FORCE_EVAL']['DFT']['UKS'] = True
-    return ParameterData(dict =multiplicity_dict)
-
-@wf
-def from_cif_to_structuredata(cif, threshold):
-    """Helper function that converts CifData object into StructureData"""
-    repeat = multiply_unit_cell(cif, threshold=threshold.value)
-    structure = cif.get_ase().repeat(repeat)
-    return StructureData(ase=structure).store()
-
-
 class Isotherm(WorkChain):
     """Workchain that for a given matherial will compute an isotherm of a
     certain gaz adsorption."""
@@ -143,15 +89,6 @@ class Isotherm(WorkChain):
         spec.input("pressures", valid_type=ArrayData)
         spec.input("min_cell_size", valid_type=Float)
 
-        # cp2k
-        spec.input('cp2k_code', valid_type=Code)
-        spec.input("_cp2k_options", valid_type=dict, default=None, required=False)
-        spec.input('cp2k_parent_folder', valid_type=RemoteData, default=None, required=False)
-
-        # ddec
-        spec.input('ddec_code', valid_type=Code)
-        spec.input("_ddec_options", valid_type=dict, default=None, required=False)
-
         # zeopp
         spec.input('zeopp_code', valid_type=Code)
         spec.input("_zeopp_options", valid_type=dict, default=None, required=False)
@@ -164,18 +101,11 @@ class Isotherm(WorkChain):
         # settings
         spec.input("_interactive", valid_type=bool, default=False, required=False)
         spec.input("_usecharges", valid_type=bool, default=False, required=False)
-        spec.input('_guess_multiplicity', valid_type=bool, default=False)
 
         # workflow
         spec.outline(
             cls.init,                    #read pressures, switch on cif charges if _usecharges=True
-            cls.run_geo_opt,             #robust 4 stesps cellopt, first expands the uc according to min_cell_size 
-            cls.parse_geo_opt,           
-            if_(cls.should_use_charges)( #if charges are needed, wfn > (E_DENSITY & core_el) > DDEC charges
-                cls.run_point_charges,   
-                cls.parse_point_charges,
-            ),
-            cls.run_geom_zeopp,          #computes sa, vol, povol, res, e chan. Block pore?
+            cls.run_block_pockets,       #computes sa, vol, povol, res, e chan. Block pore?
             cls.init_raspa_calc,         #assign HeliumVoidFraction=POAV and UnitCells
             cls.run_henry_raspa,         #NumberOfInitializationCycles=0, remove ExternalPressure, WidomProbability=1
             while_(cls.should_run_loading_raspa)( 
@@ -205,81 +135,6 @@ class Isotherm(WorkChain):
             self.ctx.raspa_parameters['GeneralSettings']['UseChargesFromCIFFile'] = "yes"
         self.ctx.restart_raspa_calc = None
 
-    def run_geo_opt(self):
-        """Optimize the geometry using the robust 4 steps process"""
-
-        # Expand the unit cell so that: min(perpendicular_width) > threshold
-        threshold = self.inputs.min_cell_size
-        new_structure = from_cif_to_structuredata(cif=self.ctx.structure, threshold=threshold)
-
-        inputs = {
-            'code'      : self.inputs.cp2k_code,
-            'structure' : new_structure,
-            '_options'  : self.inputs._cp2k_options,
-            '_label'    : "Cp2kRobustGeoOptWorkChain",
-        }
-
-        # Trying to guess the multiplicity of the system
-        if self.inputs._guess_multiplicity:
-            self.report("Guessing multiplicity")
-            self.ctx.cp2k_parameters = guess_multiplicity(new_structure)
-            inputs['parameters'] = self.ctx.cp2k_parameters
-
-        # uncomment for the test runs
-        # FROM HERE
-        #params_dict = ParameterData(dict={
-        #        'MOTION':{
-        #            'MD':{
-        #                'STEPS': 5,
-        #                },
-        #            'GEO_OPT': {
-        #                'MAX_ITER': 5,
-        #            },
-        #            'CELL_OPT': {
-        #                'MAX_ITER': 5,
-        #            },
-        #        },
-        #        }).store()
-        #inputs['parameters'] = merge_ParameterData(self.ctx.cp2k_parameters, params_dict)
-        # TILL HERE
-
-        # Create the calculation process and launch it
-        running = submit(Cp2kRobustGeoOptWorkChain, **inputs)
-        self.report("pk: {} | Running Cp2kRobustGeoOptWorkChain to optimize geometry".format(running.pid))
-        return ToContext(geo_opt_calc=Outputs(running))
-
-    def parse_geo_opt(self):
-        """Extract optimized structure and put it into self.ctx.structure"""
-        self.ctx.structure = self.ctx.geo_opt_calc['output_structure']
-
-    def should_use_charges(self):
-        """Whether it is needed to employ charges."""
-        return self.inputs._usecharges
-
-    def run_point_charges(self):
-        """Compute the charge-density of a structure that can be later
-        used for extracting ddec point charges."""
-
-        inputs = {
-            'structure'          : self.ctx.structure,
-            'cp2k_code'          : self.inputs.cp2k_code,
-            'cp2k_parameters'    : self.ctx.cp2k_parameters,
-            '_cp2k_options'      : self.inputs._cp2k_options,
-            'cp2k_parent_folder' : self.ctx.geo_opt_calc['remote_folder'],
-            # ddec parameters
-            'ddec_code'          : self.inputs.ddec_code,
-            '_ddec_options'      : self.inputs._ddec_options,
-            '_label'             : "DdecCp2kChargesWorkChain",
-        }
-
-        # Create the calculation process and launch it
-        running = submit(DdecCp2kChargesWorkChain, **inputs)
-        self.report("pk: {} | Running DdecCp2kChargesWorkChain to compute the point charges".format(running.pid))
-        return ToContext(point_charges_calc=Outputs(running))
-
-    def parse_point_charges(self):
-        """Extract structure with charges and put it into self.ctx.structure"""
-        self.ctx.structure = self.ctx.point_charges_calc['output_structure']
 
     def run_geom_zeopp(self):
         """Zeo++ calculation for geometric properties"""

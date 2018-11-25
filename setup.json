@@ -16,7 +16,8 @@
     ],
     "entry_points": {
         "aiida.workflows": [
-            "raspa.converge = aiida_lsmo_workflows.isotherm:Isotherm"
+            "aiida_lsmo_workflows.isotherm=aiida_lsmo_workflows.isotherm:Isotherm",
+            "aiida_lsmo_workflows.geoopt_charges=aiida_lsmo_workflows.geoopt_charges:Cp2kGeoOptDdecWorkChain"
         ]
     }
 }
