@@ -99,7 +99,7 @@ def multiply_unit_cell (struct, threshold):
     gamma = angle(struct.cell[0], struct.cell[1])
 
     # first step is computing cell parameters according to  https://en.wikipedia.org/wiki/Fractional_coordinates
-    # Note: this is the algorithm implemented in Raspa (framework.c/UnitCellBox). There also is a simpler one but it is less robust.
+    # Note: this is the algoriGthm implemented in Raspa (framework.c/UnitCellBox). There also is a simpler one but it is less robust.
     v = sqrt(1-cos(alpha)**2-cos(beta)**2-cos(gamma)**2+2*cos(alpha)*cos(beta)*cos(gamma))
     cell=np.zeros((3,3))
     cell[0,:] = [a, 0, 0]
@@ -207,3 +207,4 @@ class Cp2kGeoOptDdecWorkChain(WorkChain):
     
     def return_results(self):
         self.out('output_structure', self.ctx.structure)
+        self.report("Cp2kGeoOptDdecWorkChain is completed.")
