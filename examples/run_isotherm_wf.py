@@ -49,8 +49,7 @@ raspa_parameters = ParameterData(dict={
         #"NumberOfInitializationCycles"     : 10000,   # 20000
         "NumberOfInitializationCycles"     : 2000,   # 20000
 
-        #"PrintEvery"                       : 10000,
-        "PrintEvery"                       : 1000,
+        #"PrintEvery"                       : 10000, "PrintEvery"                       : 1000,
 
         "ChargeMethod"                     : "Ewald",
         "CutOff"                           : 12.0,

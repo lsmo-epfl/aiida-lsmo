@@ -151,7 +151,7 @@ class Cp2kGeoOptDdecWorkChain(WorkChain):
     def run_geo_opt(self):
         """Optimize the geometry using the robust 5 steps process"""
         self.ctx.structure = multiply_unit_cell(self.inputs.structure, self.inputs.min_cell_size)
-        self.ctx.cp2k_parameters = deepcopy(self.inputs.cp2k_parameters.get_dict())
+        cp2k_parameters = deepcopy(self.inputs.cp2k_parameters.get_dict())
 
        # Expand the unit cell so that: min(perpendicular_width) > threshold
         inputs = {
@@ -165,28 +165,11 @@ class Cp2kGeoOptDdecWorkChain(WorkChain):
         # Trying to guess the multiplicity of the system
         if self.inputs._guess_multiplicity:
             self.report("Guessing multiplicity")
-            dict_merge(self.ctx.cp2k_parameters, guess_multiplicity(self.ctx.structure).get_dict())
+            dict_merge(cp2k_parameters, guess_multiplicity(self.ctx.structure).get_dict())
 
         # Take parameters
-        inputs['parameters'] = ParameterData(dict=self.ctx.cp2k_parameters)
-
-        # uncomment for the test runs
-        # FROM HERE
-        #params_dict = ParameterData(dict={
-        #        'MOTION':{
-        #            'MD':{
-        #                'STEPS': 5,
-        #                },
-        #            'GEO_OPT': {
-        #                'MAX_ITER': 5,
-        #            },
-        #            'CELL_OPT': {
-        #                'MAX_ITER': 5,
-        #            },
-        #        },
-        #        }).store()
-        #inputs['parameters'] = merge_ParameterData(self.ctx.cp2k_parameters, params_dict)
-        # TILL HERE
+        self.ctx.cp2k_parameters = ParameterData(dict=cp2k_parameters)
+        inputs['parameters'] = self.ctx.cp2k_parameters
 
         # Create the calculation process and launch it
         running = submit(Cp2kRobustGeoOptWorkChain, **inputs)
