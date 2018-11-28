@@ -4,12 +4,21 @@ from aiida.orm.data.base import Float
 from aiida.work import workfunction as wf
 from aiida.work.run import submit
 from aiida.work.workchain import WorkChain, ToContext, while_, Outputs
+from copy import deepcopy
 
 # subworkflows
 from aiida_raspa.workflows import RaspaConvergeWorkChain
-from aiida_zeopp.workflows import ZeoppBlockPocketsWorkChain
 
-from copy import deepcopy
+# calculation objects
+ZeoppCalculation = CalculationFactory('zeopp.network')
+
+# data objects
+ArrayData = DataFactory('array')
+CifData = DataFactory('cif')
+NetworkParameters = DataFactory('zeopp.parameters')
+ParameterData = DataFactory('parameter')
+RemoteData = DataFactory('remote')
+StructureData = DataFactory('structure')
 
 def dict_merge(dct, merge_dct):
     """ Taken from https://gist.github.com/angstwad/bf22d1822c38a92ec0a9
@@ -36,14 +45,6 @@ def merge_ParameterData(p1, p2):
     dict_merge(p1_dict, p2_dict)
     return ParameterData(dict=p1_dict).store()
 
-# data objects
-ArrayData = DataFactory('array')
-CifData = DataFactory('cif')
-NetworkParameters = DataFactory('zeopp.parameters')
-ParameterData = DataFactory('parameter')
-RemoteData = DataFactory('remote')
-StructureData = DataFactory('structure')
-
 def multiply_unit_cell (cif, threshold):
     """Resurns the multiplication factors (tuple of 3 int) for the cell vectors
     that are needed to respect: min(perpendicular_width) > threshold
@@ -51,7 +52,6 @@ def multiply_unit_cell (cif, threshold):
     from math import cos, sin, sqrt, pi
     import numpy as np
     deg2rad=pi/180.
-    threshold /= 2.0
 
     struct=cif.values.dictionary.itervalues().next()
 
@@ -76,6 +76,20 @@ def multiply_unit_cell (cif, threshold):
     diag = np.diag(cell)
     return tuple(int(i) for i in np.ceil(threshold/diag*2.))
 
+@wf
+def get_zeopp_block_parameters(probe_radius):
+    """Create NetworkParameters from probe radius.
+    :param sigma: Probe radius (A)
+    """
+    sigma = probe_radius.value
+
+    params = {
+        'ha': True,
+        'block': [sigma, 100],
+    }
+
+    return NetworkParameters(dict=params)
+
 class Isotherm(WorkChain):
     """Workchain that for a given matherial will compute an isotherm of a
     certain gaz adsorption."""
@@ -85,9 +99,8 @@ class Isotherm(WorkChain):
 
         # structure, adsorbant, pressures
         spec.input('structure', valid_type=CifData)
-        spec.input("probe_molecule", valid_type=ParameterData)
+        spec.input("probe_radius", valid_type=Float)
         spec.input("pressures", valid_type=ArrayData)
-        spec.input("min_cell_size", valid_type=Float)
 
         # zeopp
         spec.input('zeopp_code', valid_type=Code)
@@ -105,7 +118,7 @@ class Isotherm(WorkChain):
         # workflow
         spec.outline(
             cls.init,                    #read pressures, switch on cif charges if _usecharges=True
-            cls.run_block_pockets,       #computes sa, vol, povol, res, e chan. Block pore?
+            cls.run_block_zeopp,          #computes sa, vol, povol, res, e chan, block pockets
             cls.init_raspa_calc,         #assign HeliumVoidFraction=POAV and UnitCells
             cls.run_henry_raspa,         #NumberOfInitializationCycles=0, remove ExternalPressure, WidomProbability=1
             while_(cls.should_run_loading_raspa)( 
@@ -123,7 +136,10 @@ class Isotherm(WorkChain):
         self.ctx.structure = self.inputs.structure
         self.ctx.pressures = self.inputs.pressures.get_array("pressures")
         self.ctx.current_p_index = 0
-        self.ctx.result = []
+        self.ctx.isotherm = []
+        self.ctx.isotherm_dev = []
+        self.ctx.enthalpy_of_adsorption = []
+        self.ctx.enthalpy_of_adsorption_dev = []
 
         self.ctx.cp2k_parameters = None
 
@@ -133,37 +149,35 @@ class Isotherm(WorkChain):
             self.ctx.raspa_parameters['ChargeMethod'] = "Ewald"
             self.ctx.raspa_parameters['EwaldPrecision'] = 1e-6
             self.ctx.raspa_parameters['GeneralSettings']['UseChargesFromCIFFile'] = "yes"
+        else:
+            self.ctx.raspa_parameters['GeneralSettings']['UseChargesFromCIFFile'] = "no"
+
         self.ctx.restart_raspa_calc = None
 
-
-    def run_geom_zeopp(self):
-        """Zeo++ calculation for geometric properties"""
-        # network parameters
-        sigma = self.inputs.probe_molecule.dict.sigma
-
-        # Create the input dictionary
+    def run_block_zeopp(self):  # pylint: disable=protected-access
+        """This is the main function that will perform a zeo++ block pocket calculation."""
+        # pylint: disable=protected-access
         inputs = {
-            'probe_radius' : Float(sigma),
-            'structure'    : self.ctx.structure,
-            'zeopp_code'   : self.inputs.zeopp_code,
-            '_options'     : self.inputs._zeopp_options,
-            '_label'       : "ZeoppBlockPocketsWorkChain",
+            'code'      : self.inputs.zeopp_code,
+            'structure' : self.inputs.structure,
+            'parameters': get_zeopp_block_parameters(self.inputs.probe_radius),
+            '_options'  : self.inputs._zeopp_options,
+            '_label'    : "run_block_zeopp",
         }
 
         # Create the calculation process and launch it
-        running = submit(ZeoppBlockPocketsWorkChain, **inputs)
-        self.report("pk: {} | Running geometry analysis with zeo++".format(running.pid))
-
-        return ToContext(zeopp=Outputs(running))
+        future = submit(ZeoppCalculation.process(), **inputs)
+        self.report("pk: {} | Running zeo++ block volume calculation".format(
+            future.pid))
+        return ToContext(zeopp_block=Outputs(future))
 
     def init_raspa_calc(self):
         """Parse the output of Zeo++ and instruct the input for Raspa. """
         # Use probe-occupiable available void fraction as the helium void fraction (for excess uptake)
-        self.ctx.raspa_parameters['GeneralSettings']['HeliumVoidFraction'] = \
-        self.ctx.zeopp["output_parameters"].dict.POAV_Volume_fraction
+        self.ctx.raspa_parameters['GeneralSettings']['HeliumVoidFraction'] = 0.0
         # Compute the UnitCells expansion considering the CutOff
         cutoff = self.ctx.raspa_parameters['GeneralSettings']['CutOff']                           
-        ucs = multiply_unit_cell(self.ctx.structure,2*cutoff)
+        ucs = multiply_unit_cell(self.ctx.structure, cutoff)
         self.ctx.raspa_parameters['GeneralSettings']['UnitCells'] = "{} {} {}".format(ucs[0], ucs[1], ucs[2])
 
     def run_henry_raspa(self):
@@ -197,7 +211,7 @@ class Isotherm(WorkChain):
 
         # Check if there are poket blocks to be loaded
         try:
-            inputs['block_component_0'] = self.ctx.zeopp['block']
+            inputs['block_component_0'] = self.ctx.zeopp_block['block']
         except:
             pass
 
@@ -228,7 +242,7 @@ class Isotherm(WorkChain):
         }
         # Check if there are poket blocks to be loaded
         try:
-            inputs['block_component_0'] = self.ctx.zeopp['block']
+            inputs['block_component_0'] = self.ctx.zeopp_block['block']
         except:
             pass
 
@@ -246,11 +260,41 @@ class Isotherm(WorkChain):
         self.ctx.restart_raspa_calc = self.ctx.raspa_loading['retrieved_parent_folder']
         pressure = self.ctx.raspa_parameters['GeneralSettings']['ExternalPressure']/1e5
         loading_average = self.ctx.raspa_loading["component_0"].dict.loading_absolute_average
-        self.ctx.result.append((pressure, loading_average))
+        loading_dev = self.ctx.raspa_loading["component_0"].dict.loading_absolute_dev
+        enthalpy_of_adsorption = self.ctx.raspa_loading["output_parameters"].dict.enthalpy_of_adsorption_average
+        enthalpy_of_adsorption_dev = self.ctx.raspa_loading["output_parameters"].dict.enthalpy_of_adsorption_dev
+        self.ctx.isotherm.append((pressure, loading_average))
+        self.ctx.isotherm_dev.append((pressure, loading_dev))
+        self.ctx.enthalpy_of_adsorption.append((pressure, enthalpy_of_adsorption))
+        self.ctx.enthalpy_of_adsorption_dev.append((pressure, enthalpy_of_adsorption_dev))
 
     def return_results(self):
         """Attach the results of the raspa calculation and the initial structure to the outputs."""
-        self.out("result", ParameterData(dict={"isotherm": self.ctx.result}).store())
+        result_dict = {}
+        result_dict['pressure_units'] = 'bar'
+
+        # isotherm related things
+        result_dict['isotherm'] = self.ctx.isotherm
+        result_dict['isotherm_dev'] = self.ctx.isotherm_dev
+        result_dict['loading_units'] = self.ctx.raspa_loading["component_0"].dict.loading_absolute_units
+        result_dict['conversion_factor_molec_uc_to_cm3stp_cm3'] = self.ctx.raspa_loading["component_0"].dict.conversion_factor_molec_uc_to_cm3stp_cm3
+        result_dict['conversion_factor_molec_uc_to_gr_gr'] = self.ctx.raspa_loading["component_0"].dict.conversion_factor_molec_uc_to_gr_gr
+
+        # enthalpy of adsorption related things
+        result_dict['enthalpy_of_adsorption'] = self.ctx.enthalpy_of_adsorption
+        result_dict['enthalpy_of_adsorption_dev'] = self.ctx.enthalpy_of_adsorption_dev
+        result_dict['enthalpy_of_adsorption_units'] = \
+                self.ctx.raspa_loading["output_parameters"].dict.enthalpy_of_adsorption_units
+
+        result_dict['henry_coefficient'] = self.ctx.raspa_henry["component_0"].dict.henry_coefficient_average
+
+        # Check if there are block pockets to be returned
+        try:
+            self.out("block_pockets", self.ctx.zeopp_block['block'])
+        except:
+            self.report("No block pockets were computed")
+
+        self.out("results", ParameterData(dict=result_dict).store())
         self.report("Workchain <{}> completed successfully".format(self.calc.pk))
         return
 
