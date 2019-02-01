@@ -17,7 +17,8 @@
     "entry_points": {
         "aiida.workflows": [
             "aiida_lsmo_workflows.isotherm=aiida_lsmo_workflows.isotherm:Isotherm",
-            "aiida_lsmo_workflows.geoopt_charges=aiida_lsmo_workflows.geoopt_charges:Cp2kGeoOptDdecWorkChain"
+            "aiida_lsmo_workflows.geoopt_charges=aiida_lsmo_workflows.geoopt_charges:Cp2kGeoOptDdecWorkChain",
+            "aiida_lsmo_workflows.volpo_kh=aiida_lsmo_workflows.volpo_Kh:VolpoKh"
         ]
     }
 }
