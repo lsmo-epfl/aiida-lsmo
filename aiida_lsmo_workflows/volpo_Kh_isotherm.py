@@ -294,12 +294,23 @@ class VolpoKhIsothermWorkChain(WorkChain):
 
         # Store results
         pressure = self.ctx.raspa_parameters['GeneralSettings']['ExternalPressure']/1e5
+
         conv1 = self.ctx.raspa_gcmc["component_0"].get_dict()["conversion_factor_molec_uc_to_mol_kg"]
-        loading_average = conv1 * self.ctx.raspa_gcmc["component_0"].get_dict()['loading_absolute_average']
-        loading_dev = conv1 * self.ctx.raspa_gcmc["component_0"].get_dict()['loading_absolute_dev']
+        try:
+            loading_average = conv1 * self.ctx.raspa_gcmc["component_0"].get_dict()['loading_absolute_average']
+            loading_dev = conv1 * self.ctx.raspa_gcmc["component_0"].get_dict()['loading_absolute_dev']
+        except TypeError:
+            loading_average = None
+            loading_dev = None
+
         conv2 = 1/120.273 # K to kJ/mol
-        enthalpy_of_adsorption = conv2 * self.ctx.raspa_gcmc["output_parameters"].get_dict()['enthalpy_of_adsorption_average']
-        enthalpy_of_adsorption_dev = conv2 * self.ctx.raspa_gcmc["output_parameters"].get_dict()['enthalpy_of_adsorption_dev']
+        try:
+            enthalpy_of_adsorption = conv2 * self.ctx.raspa_gcmc["output_parameters"].get_dict()['enthalpy_of_adsorption_average']
+            enthalpy_of_adsorption_dev = conv2 * self.ctx.raspa_gcmc["output_parameters"].get_dict()['enthalpy_of_adsorption_dev']
+        except TypeError:
+            enthalpy_of_adsorption = None
+            enthalpy_of_adsorption_dev = None
+
         self.ctx.isotherm_loading.append((pressure, loading_average,loading_dev))
         self.ctx.isotherm_enthalpy.append((pressure, enthalpy_of_adsorption, enthalpy_of_adsorption_dev))
 
