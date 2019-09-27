@@ -1,25 +1,37 @@
 {
-    "version": "0.1",
-    "name": "aiida-lsmo-workflows",
+    "name": "aiida-lsmo",
     "author": "Aliaksandr Yakutovich, Daniele Ongari",
     "author_email": "aliaksandr.yakutovich@epfl.ch",
     "description": "AiiDA workflows for the LSMO laboratory at EPFL",
     "url": "https://github.com/yakutovicha/aiida-lsmo-workflows",
     "license": "MIT License",
     "classifiers": [
-        "Programming Language :: Python"
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7"
     ],
+    "version": "1.0.0a1",
     "setup_requires": ["reentry"],
     "reentry_register": true,
     "install_requires": [
-        "aiida >= 0.12.2"
+        "aiida_core >= 1.0.0b6"
     ],
     "entry_points": {
         "aiida.workflows": [
-            "aiida_lsmo_workflows.isotherm=aiida_lsmo_workflows.isotherm:Isotherm",
-            "aiida_lsmo_workflows.geoopt_charges=aiida_lsmo_workflows.geoopt_charges:Cp2kGeoOptDdecWorkChain",
-            "aiida_lsmo_workflows.volpo_kh=aiida_lsmo_workflows.volpo_Kh:VolpoKh",
-            "aiida_lsmo_workflows.volpo_kh_isotherm=volpo_Kh_isotherm.py.volpo_Kh:VolpoKhIsothermWorkChain"
+            "aiida_lsmo.isotherm = aiida_lsmo.workchains:IsothermWorkChain"
+        ]
+    },
+    "data_files": [
+        [".", ["setup.json"]]
+    ],
+    "extras_require": {
+        "testing": [
+            "pytest==4.4.1"
+        ],
+        "pre-commit": [
+                "pre-commit==1.16.1",
+                "yapf==0.27.0",
+                "prospector==1.1.6.2",
+                "pylint==2.2.2"
         ]
     }
 }
