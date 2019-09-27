@@ -413,9 +413,8 @@ class IsothermWorkChain(WorkChain):
         try:
             loading_average = conv1 * output_params["components"][
                 self.ctx.component_name]['loading_absolute_average']
-            loading_dev = conv1 * [
-                "components"
-            ][self.ctx.component_name]['loading_absolute_dev']
+            loading_dev = conv1 * output_params["components"][
+                self.ctx.component_name]['loading_absolute_dev']
         except TypeError:
             loading_average = None
             loading_dev = None

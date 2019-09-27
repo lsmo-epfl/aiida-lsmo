@@ -20,21 +20,22 @@ NetworkParameters = DataFactory('zeopp.parameters')  # pylint: disable=invalid-n
 
 
 @click.command('cli')
-@click.argument('label_raspa_code')
-@click.argument('label_zeopp_code')
-def main(label_raspa_code, label_zeopp_code):
+@click.argument('raspa_code_label')
+@click.argument('zeopp_code_label')
+@click.argument('structure_label')
+def main(raspa_code_label, zeopp_code_label, structure_label):
     """Prepare inputs and submit the Isotherm workchain."""
     # Test the codes and specify the nodes and walltime
     try:
-        raspa_code = Code.get_from_string(label_raspa_code)
+        raspa_code = Code.get_from_string(raspa_code_label)
     except NotExistent:
-        print("The code '{}' does not exist".format(label_raspa_code))
+        print("The code '{}' does not exist".format(raspa_code_label))
         sys.exit(1)
 
     try:
-        zeopp_code = Code.get_from_string(label_zeopp_code)
+        zeopp_code = Code.get_from_string(zeopp_code_label)
     except NotExistent:
-        print("The code '{}' does not exist".format(label_zeopp_code))
+        print("The code '{}' does not exist".format(zeopp_code_label))
         sys.exit(1)
 
     builder = IsothermWorkChain.get_builder()
@@ -42,7 +43,7 @@ def main(label_raspa_code, label_zeopp_code):
     builder.metadata.label = "Volpo-Kh-Isotherm"
 
     # Import and attach the structure
-    builder.structure = CifData(file=os.path.abspath("HKUST1.cif"),
+    builder.structure = CifData(file=os.path.abspath(structure_label),
                                 label="HKUST1")
 
     builder.raspa_molsatdens = Float(2.5e4)
@@ -62,7 +63,7 @@ def main(label_raspa_code, label_zeopp_code):
                 "CutOff": 12.0,
             },
             "System": {
-                "hkust1": {
+                "framework_1": {
                     "type": "Framework",
                     "UnitCells": "1 1 1",
                     "ExternalTemperature": 300.0,
