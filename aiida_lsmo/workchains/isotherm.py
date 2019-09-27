@@ -49,7 +49,8 @@ def multiply_unit_cell(params, structure):
     cutoff = params["GeneralSettings"]["CutOff"]
     new_params = params.get_dict()
     mult = check_resize_unit_cell(structure, 2 * cutoff)
-    new_params["GeneralSettings"]["CutOff"] = "{} {} {}".format(
+    framework_name = list(params['System'].keys())[0]
+    new_params["System"][framework_name]["UnitCells"] = "{} {} {}".format(
         mult[0], mult[1], mult[2])
     return Dict(dict=new_params)
 
