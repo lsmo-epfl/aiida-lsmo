@@ -95,7 +95,7 @@ def main(label_raspa_code, label_zeopp_code):
 
     # Zeopp parameters
     builder.zeopp.parameters = NetworkParameters(dict={
-        #'ha': 'DEF',
+        'ha': 'DEF',
         'volpo': [1.82, 1.82, 1000],
         'block': [1.82, 100],
     })
