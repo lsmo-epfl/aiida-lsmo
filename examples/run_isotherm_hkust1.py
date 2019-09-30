@@ -9,10 +9,10 @@ import click
 from aiida.engine import run
 from aiida.common import NotExistent
 from aiida.plugins import DataFactory, WorkflowFactory
-from aiida.orm import Code, Dict, Float, Int, SinglefileData
+from aiida.orm import Code, Dict, Float, Int, Str, SinglefileData
 
-# Workchain object
-IsothermWorkChain = WorkflowFactory('aiida_lsmo.isotherm')  # pylint: disable=invalid-name
+# Workchain objects
+IsothermWorkChain = WorkflowFactory('lsmo.isotherm')  # pylint: disable=invalid-name
 
 # Data objects
 CifData = DataFactory('cif')  # pylint: disable=invalid-name
@@ -22,66 +22,18 @@ NetworkParameters = DataFactory('zeopp.parameters')  # pylint: disable=invalid-n
 @click.command('cli')
 @click.argument('raspa_code_label')
 @click.argument('zeopp_code_label')
-@click.argument('structure_label')
-def main(raspa_code_label, zeopp_code_label, structure_label):
-    """Prepare inputs and submit the Isotherm workchain."""
-    # Test the codes and specify the nodes and walltime
-    try:
-        raspa_code = Code.get_from_string(raspa_code_label)
-    except NotExistent:
-        print("The code '{}' does not exist".format(raspa_code_label))
-        sys.exit(1)
-
-    try:
-        zeopp_code = Code.get_from_string(zeopp_code_label)
-    except NotExistent:
-        print("The code '{}' does not exist".format(zeopp_code_label))
-        sys.exit(1)
+def main(raspa_code_label, zeopp_code_label):
+    """Prepare inputs and submit the Isotherm workchain.
+    Usage: verdi run run_isotherm_hkust1.py raspa@localhost network@localhost"""
 
     builder = IsothermWorkChain.get_builder()
 
-    builder.metadata.label = "Volpo-Kh-Isotherm"
+    builder.metadata.label = "test"
 
-    # Import and attach the structure
-    builder.structure = CifData(file=os.path.abspath(structure_label),
-                                label="HKUST1")
+    builder.raspa_base.raspa.code = Code.get_from_string(raspa_code_label)
+    builder.zeopp.code = Code.get_from_string(zeopp_code_label)
 
-    builder.raspa_molsatdens = Float(2.5e4)
-
-    # Raspa parameters
-    builder.raspa_base.raspa.parameters = Dict(
-        dict={
-            "GeneralSettings": {
-                "SimulationType": "MonteCarlo",
-                "NumberOfCycles": 1000,
-                "PrintPropertiesEvery": 100,  # info on henry coeff
-                "NumberOfInitializationCycles": 2000,
-                "PrintEvery": 200,
-                "Forcefield": "GenericMOFs",
-                "RemoveAtomNumberCodeFromLabel": True,
-                "EwaldPrecision": 1e-6,
-                "CutOff": 12.0,
-            },
-            "System": {
-                "framework_1": {
-                    "type": "Framework",
-                    "UnitCells": "1 1 1",
-                    "ExternalTemperature": 300.0,
-                    "ExternalPressure": 0,  # Will be set by the workchain
-                }
-            },
-            "Component": {
-                "CO2": {
-                    "MoleculeDefinition": "TraPPE",
-                },
-            },
-        })
-
-    # Raspa code
-    builder.raspa_base.raspa.code = raspa_code
-
-    # Raspa options
-    builder.raspa_base.raspa.metadata.options = {
+    options = {
         "resources": {
             "num_machines": 1,
             "tot_num_mpiprocs": 1,
@@ -90,34 +42,22 @@ def main(raspa_code_label, zeopp_code_label, structure_label):
         "withmpi": False,
     }
 
-    # Radius file for the framework
-    builder.zeopp.atomic_radii = SinglefileData(
-        file=os.path.abspath("UFF.rad"))
+    builder.raspa_base.raspa.metadata.options = options
+    builder.zeopp.metadata.options = options
 
-    # Zeopp parameters
-    builder.zeopp.parameters = NetworkParameters(dict={
-        'ha': 'DEF',
-        'volpo': [1.82, 1.82, 1000],
-        'block': [1.82, 100],
-    })
-
-    # Zeopp code
-    builder.zeopp.code = zeopp_code
-
-    builder.raspa_widom_cycle_mult = Int(2)
-
-    # Zeopp options
-    builder.zeopp.metadata.options = {
-        "resources": {
-            "num_machines": 1,
-            "tot_num_mpiprocs": 1,
-        },
-        "max_wallclock_seconds": 1 * 60 * 60,
-        "withmpi": False,
-    }
+    builder.structure = CifData(file=os.path.abspath('data/HKUST-1.cif'), label="HKUST1")
+    builder.molecule = Str('co2')
+    builder.forcefield = Str('UFF-TraPPE')
+    builder.structure_radii = Str('UFF')
+    builder.temperature = Float(400)           # Higher temperature will have less adsorbate and it is faster
+    builder.zeopp_volpo_samples = Int(1000)    # Default: 1e5 *NOTE: default is good for standard real-case!
+    builder.zeopp_block_samples = Int(10)      # Default: 100
+    builder.raspa_widom_cycles = Int(100)      # Default: 1e5
+    builder.raspa_gcmc_init_cycles = Int(10)   # Default: 1e3
+    builder.raspa_gcmc_prod_cycles = Int(100)  # Default: 1e4
+    builder.pressure_range = List(list=[0.01, 10])
 
     run(builder)
-
 
 if __name__ == '__main__':
     main()  # pylint: disable=no-value-for-parameter

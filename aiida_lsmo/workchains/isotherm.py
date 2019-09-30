@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
 """Isothem workchain."""
 from __future__ import absolute_import
+
+import os
+
 from aiida.plugins import CalculationFactory, DataFactory, WorkflowFactory
-from aiida.orm import Dict, Float, Int
+from aiida.orm import Dict, Float, Int, Str, List, SinglefileData
 from aiida.engine import calcfunction
 from aiida.engine import WorkChain, ToContext, while_, if_
-from aiida_lsmo.utils import aiida_dict_merge, check_resize_unit_cell
+from aiida_lsmo.utils import check_resize_unit_cell
 
 # sub-workchains
 RaspaBaseWorkChain = WorkflowFactory('raspa.base')  # pylint: disable=invalid-name
@@ -15,26 +18,26 @@ ZeoppCalculation = CalculationFactory('zeopp.network')  # pylint: disable=invali
 
 # data objects
 CifData = DataFactory('cif')  # pylint: disable=invalid-name
+ZeoppParameters = DataFactory('zeopp.parameters')  # pylint: disable=invalid-name
 
 
-def choose_pressure_points(k_henry, qsat, dpa, dpmax, pmax):
+def choose_pressure_points(kh, qsat, dpa, dpmax, prange):
     """Model the isotherm as single-site langmuir and return the most important
-    pressure points to evaluate for an isotherm. Returns a list of pressures.
+    pressure points to evaluate for an isotherm in a list.
 
-    :param k_henry: Henry coefficient (mol/kg/Pa)
-    :param qsat: saturations loading (mol/kg)
-    :param dpa: precision of the sampling at low pressure (0.1 is a good one)
-    :param dpmax: maximum distance between two pressure points (Pa)
-    :param pmax: max pressure to sample (Pa)
+    :float kh: Henry coefficient (mol/kg/Pa)
+    :float qsat: saturations loading (mol/kg)
+    :float dpa: precision of the sampling at low pressure (0.1 is a good one)
+    :float dpmax: maximum distance between two pressure points (bar)
+    :list prange: [min,max] pressures to sample (bar)
     """
-    b_value = k_henry / qsat  #(1/Pa)
-    pmin = 0.001e5  #(Pa)
+    pmin, pmax = prange
+    b_value = kh / qsat * 1e5  #(1/bar)
 
     pressure_points = [pmin]
     while True:
         pold = pressure_points[-1]
-        delta_p = min(dpmax,
-                      dpa * (b_value * pold**2 + 2 * pold + 1 / b_value))
+        delta_p = min(dpmax, dpa * (b_value * pold**2 + 2 * pold + 1 / b_value))
         pnew = pold + delta_p
         if pnew <= pmax:
             pressure_points.append(pnew)
@@ -44,79 +47,144 @@ def choose_pressure_points(k_henry, qsat, dpa, dpmax, pmax):
 
 
 @calcfunction
-def multiply_unit_cell(params, structure):
-    """Return parameter Dict object that is multiplied according to the cutoff value."""
-    cutoff = params["GeneralSettings"]["CutOff"]
-    new_params = params.get_dict()
-    mult = check_resize_unit_cell(structure, 2 * cutoff)
-    framework_name = list(params['System'].keys())[0]
-    new_params["System"][framework_name]["UnitCells"] = "{} {} {}".format(
-        mult[0], mult[1], mult[2])
-    return Dict(dict=new_params)
+def get_atomic_radii(filename):
+    """Get {structure_radii}.rad as SinglefileData"""
+    thisdir = os.path.dirname(os.path.abspath(__file__))
+    fullfilename = filename.value + ".rad"
+    return SinglefileData(file=os.path.join(thisdir, "isotherm_data", fullfilename))
 
 
 @calcfunction
-def update_aiida_dict(input_dict, updated_parameters):
-    return aiida_dict_merge(input_dict, updated_parameters)
+def get_molecule_dict(molecule_name):
+    """Get a Dict from the isotherm_molecules.yaml"""
+    import ruamel.yaml as yaml
+    thisdir = os.path.dirname(os.path.abspath(__file__))
+    yamlfile = os.path.join(thisdir, "isotherm_data", "isotherm_molecules.yaml")
+    with open(yamlfile, 'r') as stream:
+        yaml_dict = yaml.safe_load(stream)
+    molecule_dict = yaml_dict[molecule_name.value]
+    return Dict(dict=molecule_dict)
+
+
+@calcfunction
+def get_zeopp_parameters(molecule_dict, volpo_samples, block_samples):
+    """Get the ZeoppParameters from the inputs of the workchain"""
+    probe_rad = molecule_dict["proberad"]
+    param_dict = {
+        'ha': 'DEF',
+        'volpo': [probe_rad, probe_rad, volpo_samples.value],
+        'block': [probe_rad, block_samples.value],
+    }
+    return ZeoppParameters(dict=param_dict)
 
 
 class IsothermWorkChain(WorkChain):
     """Workchain that computes volpo and blocking spheres: if accessible volpo>0
     it also runs a raspa widom calculation for the Henry coefficient.
     """
-    ACC_VOL_FRAC_CRITERIA = 1e-5
 
     @classmethod
     def define(cls, spec):
         super(IsothermWorkChain, cls).define(spec)
-        # structure
-        spec.input('structure', valid_type=CifData)
 
-        # zeopp main
-        spec.expose_inputs(ZeoppCalculation,
-                           namespace='zeopp',
-                           exclude=['structure'])
+        spec.expose_inputs(ZeoppCalculation, namespace='zeopp', include=['code', 'metadata'])
 
-        # raspa main
-        spec.expose_inputs(RaspaBaseWorkChain,
-                           namespace='raspa_base',
-                           exclude=['raspa.framework'])
+        spec.expose_inputs(RaspaBaseWorkChain, namespace='raspa_base', exclude=['raspa.structure', 'raspa.parameters'])
 
-        #
-        spec.input(
-            "raspa_minKh",
-            valid_type=Float,
-            default=Float(1e-10),
-            required=False
-        )  # Henry coefiicient limit to identify whether to run isotherm or not
+        spec.input('structure', valid_type=CifData, help='Adsorbent framework CIF')
 
-        # advanced settings (TODO: add and discuss)
-        spec.input(
-            "raspa_verbosity", valid_type=Int, default=Int(10), required=False
-        )  # How rare do we want to print the output properties: number of cycles / raspa_verbosity
-        spec.input("raspa_widom_cycle_mult",
+        spec.input("molecule",
+                   valid_type=(Str, Dict),
+                   help='Adsorbate molecule: settings to be read from the yaml.' +
+                   'Advanced: input a Dict for non-standard settings.')
+
+        spec.input("forcefield", valid_type=Str, help='Forcefield used in Raspa')
+
+        spec.input('structure_radii',
+                   valid_type=(Str, SinglefileData),
+                   help='Zeopp .rad definition of the structure, coherent with FF.' +
+                   'If Str is used it will take {Str}.rad as Singlefile.')
+
+        spec.input('temperature',
+                   valid_type=Float,
+                   default=Float(300),
+                   required=False,
+                   help='Temperature of the simulation')
+
+        spec.input("zeopp_volpo_samples",
+                   valid_type=Int,
+                   default=Int(1e5),
+                   required=False,
+                   help='Number of samples for VOLPO calculation (per UC volume)')
+
+        spec.input("zeopp_block_samples",
+                   valid_type=Int,
+                   default=Int(100),
+                   required=False,
+                   help='Number of samples for BLOCK calculation (per A^3)')
+
+        spec.input("raspa_minKh",
+                   valid_type=Float,
+                   default=Float(1e-10),
+                   required=False,
+                   help='If Henry coefiicient < raspa_minKh do not run the isotherm (mol/kg/Pa)')
+
+        spec.input("raspa_verbosity",
                    valid_type=Int,
                    default=Int(10),
-                   required=False
-                   )  # Multiplicator for the number of widom insertion cylces
+                   required=False,
+                   help='Print stats every: number of cycles / raspa_verbosity')
 
-        # Parameters required to set the pressure points where to run the simulations
-        spec.input("raspa_molsatdens", valid_type=Float
-                   )  # Density of the liquid phase of the molecule in mol/m3
-        spec.input(
-            "raspa_gcmc_press_precision",
-            valid_type=Float,
-            default=Float(0.1),
-            required=False
-        )  # Precision in the sampling of the isotherm: 0.1 ok for full isotherm, 0.01 better for lowP range
-        spec.input("raspa_gcmc_press_maxstep",
+        spec.input("raspa_widom_cycles",
+                   valid_type=Int,
+                   default=Int(1e5),
+                   required=False,
+                   help='Number of widom cycles')
+
+        spec.input("raspa_gcmc_init_cycles",
+                   valid_type=Int,
+                   default=Int(1e3),
+                   required=False,
+                   help='Number of GCMC initialization cycles')
+
+        spec.input("raspa_gcmc_prod_cycles",
+                   valid_type=Int,
+                   default=Int(1e4),
+                   required=False,
+                   help='Number of GCMC production cycles')
+
+        spec.input("raspa_cutoff",
                    valid_type=Float,
-                   default=Float(5e5),
-                   required=False)  # Max distance between pressure points (Pa)
-        spec.input("raspa_gcmc_press_max",
+                   default=Float(12.0),
+                   required=False,
+                   help='CutOff truncation for the VdW interactions (Angstrom)')
+
+        #TODO: allow to modify the probability list
+
+        spec.input("pressure_list",
+                   valid_type=List,
+                   required=False,
+                   help='Pressure list for the isotherm (bar): if given it will' +
+                   'use this list instead of guessing the pressure points.')
+
+        spec.input("pressure_precision",
                    valid_type=Float,
-                   default=Float(30e5),
-                   required=False)  # Max P of the isotherm (Pa)
+                   default=Float(0.1),
+                   required=False,
+                   help='Precision in the sampling of the isotherm:' +
+                   '0.1 ok for full isotherm, 0.05 better for lowP range')
+
+        spec.input("pressure_maxstep",
+                   valid_type=Float,
+                   default=Float(5),
+                   required=False,
+                   help='Max distance between pressure points (bar)')
+        #
+        spec.input("pressure_range",
+                   valid_type=List,
+                   default=List(list=[0.001, 30]),
+                   required=False,
+                   help='Range of min and max pressure (bar)')
 
         # workflow
         spec.outline(
@@ -124,11 +192,9 @@ class IsothermWorkChain(WorkChain):
             cls.run_zeopp,  # computes volpo and blocks
             if_(cls.should_run_widom)(  # run Widom only if porous
                 cls.run_raspa_widom,  # run raspa widom calculation
-                if_(cls.should_run_gcmc)
-                (  # make decision (e.g., Kh is high enough)
+                if_(cls.should_run_gcmc)(  # Kh is high enough
                     cls.init_raspa_gcmc,  # initializate setting for GCMC
-                    while_(cls.should_run_another_gcmc)
-                    (  # new pressure to compute
+                    while_(cls.should_run_another_gcmc)(  # new pressure
                         cls.run_raspa_gcmc,  # run raspa GCMC calculation
                         cls.parse_raspa_gcmc,  # parse the result @ T,P
                     ),
@@ -140,217 +206,187 @@ class IsothermWorkChain(WorkChain):
         spec.outputs.dynamic = True  # any outputs are accepted
 
     def setup(self):
-        """Check that everything is ready to run the simulations."""
-        # Check frameworks
-        if len(self.inputs.raspa_base.raspa.parameters['Component'].keys()
-               ) != 1:
-            raise ValueError("We accept one framework only")
-        self.ctx.framework_name = list(
-            self.inputs.raspa_base.raspa.parameters['System'].keys())[0]
+        """Initialize the parameters"""
 
-        # Check components
-        if len(self.inputs.raspa_base.raspa.parameters['Component'].keys()
-               ) != 1:
-            raise ValueError("We accept one component only")
-        self.ctx.component_name = list(
-            self.inputs.raspa_base.raspa.parameters['Component'].keys())[0]
-
-        # Check zeopp inputs
-        if 'block' not in self.inputs.zeopp.parameters.get_dict():
-            raise ValueError(
-                "Block pocket calculation must be requested. Please provide 'block' parameter in the Zeo++ input."
-            )
-
-        if 'volpo' not in self.inputs.zeopp.parameters.get_dict():
-            raise ValueError(
-                "Accessible volume calculation calculation must be requested. "
-                "Please provide 'volpo' parameter in the Zeo++ input.")
-
-        if 'ha' not in self.inputs.zeopp.parameters.get_dict():
-            raise ValueError(
-                "Please enable high accuracty. Put 'ha': 'DEF' in the Zeo++ input"
-            )
-
-        self.ctx.print_every = int(
-            self.inputs.raspa_base.raspa.parameters["GeneralSettings"]
-            ["NumberOfCycles"] / self.inputs.raspa_verbosity.value)
-
-        self.ctx.raspa_input_parameters = multiply_unit_cell(
-            self.inputs.raspa_base.raspa.parameters, self.inputs.structure)
-
-        # Initializate counter and set restart to None. Used only for the isotherm calculations
-        self.ctx.current_p_index = 0
-        self.ctx.restart_raspa_calc = None
+        # Get the molecule Dict
+        # if self.inputs.molecule == Str # TODO
+        self.ctx.molecule = get_molecule_dict(self.inputs.molecule)
+        # else: use Dict directly # TODO
 
     def run_zeopp(self):
-        """Main function that performs zeo++ block and VOLPO calculations."""
-        try:
-            inputs = self.exposed_inputs(ZeoppCalculation, 'zeopp')
-        except AttributeError:
-            raise AttributeError(
-                'No calculation input dictionary was defined in `self.inputs.zeopp`'
-            )
+        """Perform Zeo++ block and VOLPO calculations."""
+
+        # create inputs: exposed are code and metadata
+        inputs = self.exposed_inputs(ZeoppCalculation, 'zeopp')
+
+        # Set specific metadata
+        inputs['metadata']['call_link_label'] = 'run_zeopp_block_and_volpo'
+        inputs['metadata']['label'] = "ZeoppVolpoBlock"
 
         # Set input structure
         inputs['structure'] = self.inputs.structure
 
-        # Set the `CALL` link label and calculation label
-        inputs['metadata']['call_link_label'] = 'run_zeopp_block_and_volpo'
+        # Set atomic_radii: use the SinglefileData or load it as {Str}.rad
+        # if self.inputs.structure_radii == Str: # TODO:
+        inputs['atomic_radii'] = get_atomic_radii(self.inputs.structure_radii)
+        # else: simply load it TODO
 
-        # If the label is not provided - use the default value
-        if "label" not in inputs['metadata']:
-            inputs['metadata']['label'] = "ZeoppVolpoBlock"
+        # Set parameters
+        inputs['parameters'] = get_zeopp_parameters(self.ctx.molecule, self.inputs.zeopp_volpo_samples,
+                                                    self.inputs.zeopp_block_samples)
 
         running = self.submit(ZeoppCalculation, **inputs)
-        self.report(
-            "pk: {} | Running zeo++ block and volpo calculations".format(
-                running.id))
+        self.report("Running zeo++ block and volpo Calculation<{}>".format(running.id))
         return ToContext(zeopp=running)
 
-    def _prepare_raspa(self,
-                       label,
-                       call_link_label,
-                       updated_parameters,
-                       block,
-                       silent=True):
-        """Prepare inputs for a raspa calculation."""
-        try:
-            inputs = self.exposed_inputs(RaspaBaseWorkChain, 'raspa_base')
-        except AttributeError:
-            raise AttributeError(
-                'No calculation input dictionary was defined in `self.inputs.raspa_base`'
-            )
+    def should_run_widom(self):
+        """Submit widom calculation only if there is some accessible volume,
+        also check the number of blocking spheres"""
 
-        # Set input framework
-        inputs['raspa']['framework'] = {
-            self.ctx.framework_name: self.inputs.structure
+        self.ctx.is_porous = self.ctx.zeopp.outputs.output_parameters['POAV_Volume_fraction'] > 0.001
+
+        if self.ctx.is_porous:
+            self.report("Found accessible pore volume: continue")
+
+            self.ctx.n_block_spheres = int(self.ctx.zeopp.outputs.block.get_content().splitlines()[0].strip())
+            if self.ctx.n_block_spheres > 0:
+                self.report("Found {} blocking spheres".format(n_block_spheres))
+            else:
+                self.report("No blocking spheres found")
+        else:
+            self.report("No accessible pore volume: stop")
+
+        return self.ctx.is_porous
+
+    def _get_widom_param(self):
+        """Write Raspa input parameters from scratch, for a Widom calculation"""
+
+        vf = self.ctx.zeopp.outputs.output_parameters["POAV_Volume_fraction"]
+        param = {
+            "GeneralSettings": {
+                "SimulationType": "MonteCarlo",
+                "NumberOfInitializationCycles": 0,
+                "NumberOfCycles": self.inputs.raspa_widom_cycles,  #toCheck: not sure I can avoid to use .value
+                "PrintPropertiesEvery": self.inputs.raspa_widom_cycles / self.inputs.raspa_verbosity,
+                "PrintEvery": int(1e6),
+                "RemoveAtomNumberCodeFromLabel": True,  # be careful!
+                "Forcefield": self.inputs.forcefield,
+                "UseChargesFromCIFFile": "yes",
+                "CutOff": self.inputs.raspa_cutoff,
+            },
+            "System": {
+                "framework_1": {
+                    "type": "Framework",
+                    "HeliumVoidFraction": vf,
+                    "ExternalTemperature": self.inputs.temperature,
+                }
+            },
+            "Component": {
+                self.ctx.molecule['name']: {
+                    "MoleculeDefinition": self.ctx.molecule["forcefield"],
+                    "WidomProbability": 1.0,
+                },
+            },
         }
 
-        if "label" not in inputs['metadata']:
-            inputs['metadata']['label'] = label
+        # Check particular conditions and settings
+        mult = check_resize_unit_cell(self.inputs.structure, 2 * self.inputs.raspa_cutoff)
+        param["System"]["framework_1"]["UnitCells"] = "{} {} {}".format(mult[0], mult[1], mult[2])
 
-        # Set the `CALL` link label and calculation label
-        inputs['metadata']['call_link_label'] = call_link_label
+        if self.ctx.n_block_spheres > 0:
+            param["Component"][self.ctx.molecule['name']].update({"BlockPocketsFileName": "block_pocket"})
 
-        # Block pockets
-        self.ctx.number_blocking_spheres = int(
-            block.get_content().splitlines()[0].strip())
-        if self.ctx.number_blocking_spheres > 0:
-            updated_parameters[self.ctx.component_name] = {
-                "BlockPocketsFileName": "block_pocket"
-            }
-            inputs["raspa"]["block_pocket"] = self.ctx.zeopp.outputs.block
-            if not silent:
-                self.report(
-                    "{} blocking spheres are present and used for Raspa".
-                    format(self.ctx.number_blocking_spheres))
-        else:
-            if not silent:
-                self.report("No blocking spheres found")
-
-        inputs['raspa']['parameters'] = update_aiida_dict(
-            self.ctx.raspa_input_parameters,
-            Dict(dict=updated_parameters).store())
-
-        return inputs
-
-    def should_run_widom(self):
-        """Submit widom calculation only if there is some accessible volume."""
-        if self.ctx.zeopp.outputs.output_parameters[
-                'POAV_Volume_fraction'] > self.ACC_VOL_FRAC_CRITERIA:
-            self.report(
-                "Found accessible pore volume: continue with widom calculation"
-            )
-            return True
-        self.report(
-            "Accessible pore volume wasn't found: stopping the work chain")
-        return False
+        if self.ctx.molecule['charged']:
+            param["GeneralSettings"].update({"ChargeMethod": "Ewald", "EwaldPrecision": 1e-6})
+        return param
 
     def run_raspa_widom(self):
         """Run a Widom calculation in Raspa."""
 
-        # Updated parametes to be used in raspa widom calculations
-        updated_parameters = {
-            "GeneralSettings": {
-                "SimulationType":
-                "MonteCarlo",
-                "NumberOfInitializationCycles":
-                0,
-                "NumberOfCycles":
-                self.inputs.raspa_widom_cycle_mult.value *
-                self.inputs.raspa_base.raspa.parameters["GeneralSettings"]
-                ["NumberOfCycles"],
-                "PrintPropertiesEvery":
-                self.ctx.print_every,
-                "PrintEvery":
-                int(1e6),
-            },
-            "Component": {
-                self.ctx.component_name: {
-                    "WidomProbability": 1.0,
-                    "TranslationProbability": 0.0,
-                    "ReinsertionProbability": 0.0,
-                    "SwapProbability": 0.0,
-                },
-            },
-        }
-        inputs = self._prepare_raspa(label="RaspaWidom",
-                                     call_link_label="run_raspa_widom",
-                                     updated_parameters=updated_parameters,
-                                     block=self.ctx.zeopp.outputs.block,
-                                     silent=False)
-        running = self.submit(RaspaBaseWorkChain, **inputs)
-        self.report(
-            "pk: {} | Running Raspa Widom for the Henry coefficient".format(
-                running.id))
+        # Initialize the input for raspa_base, that later will need only
+        # minor updates
+        self.ctx.inp = self.exposed_inputs(RaspaBaseWorkChain, 'raspa_base')
+        self.ctx.inp['metadata']['label'] = "RaspaWidom"
+        self.ctx.inp['metadata']['call_link_label'] = "run_raspa_widom"
+
+        self.ctx.inp['raspa']['framework'] = {"framework_1": self.inputs.structure}
+        if self.ctx.n_block_spheres > 0:
+            self.ctx.inp["raspa"]["block_pocket"] = self.ctx.zeopp.outputs.block
+
+        self.ctx.raspa_param = self._get_widom_param()
+        self.ctx.inp['raspa']['parameters'] = Dict(dict=self.ctx.raspa_param).store()
+
+        running = self.submit(RaspaBaseWorkChain, **self.ctx.inp)
+        self.report("Running Raspa Widom for the Henry coefficient")
 
         return ToContext(raspa_widom=running)
 
     def should_run_gcmc(self):
         """Compute the isotherm only if the material meets the user defined criteria."""
 
-        k_h = self.ctx.raspa_widom.outputs.output_parameters[
-            self.ctx.framework_name]["components"][
-                self.ctx.component_name]['henry_coefficient_average']
-        if k_h > self.inputs.raspa_minKh.value:
-            self.report("Kh larger than the threshold: compute isotherm")
-            return True
-        self.report("Kh lower than the threshold: don't compute isotherm")
-        return False
+        self.ctx.kh = self.ctx.raspa_widom.outputs.output_parameters["framework_1"]["components"][
+            self.ctx.molecule['name']]['henry_coefficient_average']
+        self.ctx.is_kh_ehough = self.ctx.kh > self.inputs.raspa_minKh
+        if self.ctx.is_kh_ehough:
+            self.report("kH larger than the threshold: continue")
+        else:
+            self.report("kHh lower than the threshold: stop")
+        return self.ctx.is_kh_ehough
+
+    def _update_param_for_gcmc(self):
+        """Update Raspa input parameter, from Widom to GCMC"""
+
+        param = self.ctx.raspa_param
+        param["GeneralSettings"].update({
+            "NumberOfInitializationCycles": self.inputs.raspa_gcmc_init_cycles,
+            "NumberOfCycles": self.inputs.raspa_gcmc_prod_cycles,
+            "PrintPropertiesEvery": int(1e6),
+            "PrintEvery": self.inputs.raspa_gcmc_prod_cycles / self.inputs.raspa_verbosity,
+        })
+        param["Component"][self.ctx.molecule['name']].update({
+            "WidomProbability": 0.0,
+            "TranslationProbability": 1.0,
+            "ReinsertionProbability": 1.0,
+            "SwapProbability": 2.0,
+        })
+        # Check particular conditions
+        if not self.ctx.molecule['singlebead']:
+            param["Component"][self.ctx.molecule['name']].update({"RotationProbability": 1.0})
+
+        return param
 
     def init_raspa_gcmc(self):
         """Initialize variables and the pressures we want to compute."""
 
+        # Initializate counter, and result lists.
+        self.ctx.current_p_index = 0
         self.ctx.isotherm_loading = []
         self.ctx.isotherm_enthalpy = []
 
-        # Estimate the total loading qsat and choose the pressure points
-        pore_vol = self.ctx.zeopp.outputs.output_parameters[
-            'POAV_cm^3/g']  # (cm3/g = l/kg)
-        self.ctx.estimated_qsat = pore_vol * self.inputs.raspa_molsatdens.value  # (mol/kg) = l/kg * mol/l
+        # Estimate the total loading qsat (mol/kg) and choose the pressures
+        # Note: cm3/g = l/kg and (mol/kg) = l/kg * mol/l
+        pore_vol = self.ctx.zeopp.outputs.output_parameters['POAV_cm^3/g']
+        self.ctx.estimated_qsat = pore_vol * self.ctx.molecule['molsatdens']
 
-        self.ctx.pressures = choose_pressure_points(
-            self.ctx.raspa_widom.outputs.output_parameters[
-                self.ctx.framework_name]["components"][self.ctx.component_name]
-            ['henry_coefficient_average'],  # (mol/kg/Pa)
-            self.ctx.estimated_qsat,  # (mol/kg_frame)
-            self.inputs.raspa_gcmc_press_precision.value,  # (kg*Pa/mol)
-            self.inputs.raspa_gcmc_press_maxstep.value,  # (Pa)
-            self.inputs.raspa_gcmc_press_max.value,  # (Pa)
-        )
+        if "pressure_list" in self.inputs:
+            self.ctx.pressures = self.inputs.pressure_list.get_list()
+        else:
+            self.ctx.pressures = choose_pressure_points(
+                self.ctx.kh,  # (mol/kg/Pa)
+                self.ctx.estimated_qsat,  # (mol/kg_frame)
+                self.inputs.pressure_precision.value,  # (kg*Pa/mol)
+                self.inputs.pressure_maxstep.value,  # (bar)
+                self.inputs.pressure_range.get_list()  # (bar)
+            )
 
-        self.report(
-            "Computed Kh(mol/kg/Pa)={:.2e} POAV(cm3/g)={:.3f} Qsat(mol/kg)={:.2f}"
-            .format(
-                self.ctx.raspa_widom.outputs.output_parameters[
-                    self.ctx.framework_name]["components"][
-                        self.ctx.component_name]['henry_coefficient_average'],
-                pore_vol,
-                self.ctx.estimated_qsat,
-            ))
-        self.report(
-            "Now evaluating the isotherm for {} pressure points".format(
-                len(self.ctx.pressures)))
+        self.report("Computed Kh(mol/kg/Pa)={:.2e} POAV(cm3/g)={:.3f} Qsat(mol/kg)={:.2f}".format(
+            self.ctx.kh,
+            pore_vol,
+            self.ctx.estimated_qsat,
+        ))
+        self.report("Now evaluating the isotherm for {} pressure points".format(len(self.ctx.pressures)))
+
+        self.ctx.raspa_param = self._update_param_for_gcmc()
 
     def should_run_another_gcmc(self):
         """We run another raspa calculation only if the current iteration is
@@ -361,171 +397,104 @@ class IsothermWorkChain(WorkChain):
     def run_raspa_gcmc(self):
         """Run a GCMC calculation in Raspa @ T,P. """
 
-        # Parameters to perform GCMC
-        updated_parameters = {
-            "GeneralSettings": {
-                "SimulationType": "MonteCarlo",
-                "PrintPropertiesEvery": int(1e6),
-                "PrintEvery": self.ctx.print_every,
-                "WidomProbability": 1.0,
-            },
-            "System": {
-                self.ctx.framework_name: {
-                    "ExternalPressure":
-                    self.ctx.pressures[self.ctx.current_p_index],
-                }
-            },
-            "Component": {
-                self.ctx.component_name: {
-                    "WidomProbability": 0.0,
-                    "TranslationProbability": 1.0,
-                    "ReinsertionProbability": 1.0,
-                    "SwapProbability": 2.0,
-                },
-            },
-        }
+        # Update labels
+        self.ctx.inp['metadata']['label'] = "RaspaGCMC_{}".format(self.ctx.current_p_index + 1)
+        self.ctx.inp['metadata']['call_link_label'] = "run_raspa_gcmc_{}".format(self.ctx.current_p_index + 1)
 
-        inputs = self._prepare_raspa(label="RaspaGCMC",
-                                     call_link_label="run_raspa_gcmc",
-                                     updated_parameters=updated_parameters,
-                                     block=self.ctx.zeopp.outputs.block)
+        # Update pressure (NOTE: need to convert from bar to Pa)
+        self.ctx.raspa_param["System"]["framework_1"]['ExternalPressure'] = \
+            self.ctx.pressures[self.ctx.current_p_index] * 1e5
 
-        # Check if there is a previous calculation (lower p) to restart from
-        if self.ctx.restart_raspa_calc is not None:
-            inputs['raspa'][
-                'retrieved_parent_folder'] = self.ctx.restart_raspa_calc
+        # Update parameters Dict
+        self.ctx.inp['raspa']['parameters'] = Dict(dict=self.ctx.raspa_param).store()
+
+        # Update restart (if present, i.e., if current_p_index>0)
+        if self.ctx.current_p_index > 0:
+            self.ctx.inp['raspa']['retrieved_parent_folder'] = self.ctx.raspa_gcmc.outputs.retrieved
 
         # Create the calculation process and launch it
-        running = self.submit(RaspaBaseWorkChain, **inputs)
-        self.report(
-            "pk: {} | Running Raspa GCMC at p(bar)={:.3f} ({} of {})".format(
-                running.id, self.ctx.pressures[self.ctx.current_p_index] / 1e5,
-                self.ctx.current_p_index + 1, len(self.ctx.pressures)))
+        running = self.submit(RaspaBaseWorkChain, **self.ctx.inp)
+        self.report("Running Raspa GCMC at p(bar)={:.3f} ({} of {})".format(
+            self.ctx.pressures[self.ctx.current_p_index], self.ctx.current_p_index + 1, len(self.ctx.pressures)))
         return ToContext(raspa_gcmc=running)
 
     def parse_raspa_gcmc(self):
-        """Extract the pressure and loading average of the last completed raspa calculation."""
-        pressure = self.ctx.pressures[self.ctx.current_p_index] / 1e5
-        output_params = self.ctx.raspa_gcmc.outputs.output_parameters[
-            self.ctx.framework_name]
-        conv1 = output_params["components"][
-            self.ctx.component_name]["conversion_factor_molec_uc_to_mol_kg"]
-        try:
-            loading_average = conv1 * output_params["components"][
-                self.ctx.component_name]['loading_absolute_average']
-            loading_dev = conv1 * output_params["components"][
-                self.ctx.component_name]['loading_absolute_dev']
-        except TypeError:
-            loading_average = None
-            loading_dev = None
+        """Extract the pressure and loading average of the last completed Raspa calculation"""
 
-        conv2 = 1.0 / 120.273  # K to kJ/mol
-        try:
-            enthalpy_of_adsorption = conv2 * output_params['general'][
-                'enthalpy_of_adsorption_average']
-            enthalpy_of_adsorption_dev = conv2 * output_params['general'][
-                'enthalpy_of_adsorption_dev']
-        except TypeError:
+        pressure = self.ctx.pressures[self.ctx.current_p_index]
+        output_param = self.ctx.raspa_gcmc.outputs.output_parameters["framework_1"]
+
+        conv_load = output_param["components"][self.ctx.molecule['name']]["conversion_factor_molec_uc_to_mol_kg"]
+        loading_average = conv_load * output_param["components"][self.ctx.molecule['name']]['loading_absolute_average']
+        loading_dev = conv_load * output_param["components"][self.ctx.molecule['name']]['loading_absolute_dev']
+
+        conv_ener = 1.0 / 120.273  # K to kJ/mol
+        if output_param['general']['enthalpy_of_adsorption_average']: #can be null for very low loadings
+            enthalpy_of_adsorption = conv_ener * output_param['general']['enthalpy_of_adsorption_average']
+            enthalpy_of_adsorption_dev = conv_ener * output_param['general']['enthalpy_of_adsorption_dev']
+        else:
             enthalpy_of_adsorption = None
             enthalpy_of_adsorption_dev = None
 
-        self.ctx.isotherm_loading.append(
-            (pressure, loading_average, loading_dev))
-        self.ctx.isotherm_enthalpy.append(
-            (pressure, enthalpy_of_adsorption, enthalpy_of_adsorption_dev))
+        self.ctx.isotherm_loading.append((pressure, loading_average, loading_dev))
+        self.ctx.isotherm_enthalpy.append((pressure, enthalpy_of_adsorption, enthalpy_of_adsorption_dev))
 
-        # Update counter and parent folder for restart
+        # Update counter
         self.ctx.current_p_index += 1
-        self.ctx.restart_raspa_calc = self.ctx.raspa_gcmc.outputs.retrieved
 
     def return_results(self):
-        """Attach the results to the output."""
+        """Collect the results"""
 
-        zeopp_output = self.ctx.zeopp.outputs.output_parameters
-        raspa_widom_output = self.ctx.raspa_widom.outputs.output_parameters[
-            self.ctx.framework_name]["components"][self.ctx.component_name]
-        raspa_gcmc_output = self.ctx.raspa_gcmc.outputs.output_parameters[
-            self.ctx.framework_name]["components"][self.ctx.component_name]
         result_dict = {}
 
         # Zeopp section
+        zeopp_out = self.ctx.zeopp.outputs.output_parameters
         result_dict.update({
-            'Density':
-            zeopp_output['Density'],
-            'Density_unit':
-            "g/cm^3",
-            'POAV_Volume_fraction':
-            zeopp_output['POAV_Volume_fraction'],
-            'PONAV_Volume_fraction':
-            zeopp_output['PONAV_Volume_fraction'],
-            'POAV_cm^3/g':
-            zeopp_output['POAV_cm^3/g'],
+            'Density': zeopp_out['Density'],
+            'Density_unit': "g/cm^3",
+            'POAV_Volume_fraction': zeopp_out['POAV_Volume_fraction'],
+            'PONAV_Volume_fraction': zeopp_out['PONAV_Volume_fraction'],
+            'POAV_cm^3/g': zeopp_out['POAV_cm^3/g'],
+            'number_blocking_spheres': self.ctx.n_block_spheres
         })
 
-        # Block pockets
-        try:
-            result_dict[
-                'number_blocking_spheres'] = self.ctx.number_blocking_spheres
-        except AttributeError:
-            pass
-
         # Raspa Widom section
-        try:
+        if self.ctx.is_porous:
+            widom_out = self.ctx.raspa_widom.outputs.output_parameters["framework_1"]["components"][
+                self.ctx.molecule["name"]]
+
             result_dict.update({
-                'temperature':
-                self.inputs.raspa_base.raspa.parameters["System"][
-                    self.ctx.framework_name]["ExternalTemperature"],
-                'temperature_unit':
-                "K",
-                'henry_coefficient_average':
-                raspa_widom_output['henry_coefficient_average'],  #(mol/kg/Pa)
-                'henry_coefficient_dev':
-                raspa_widom_output['henry_coefficient_dev'],
-                'henry_coefficient_units':
-                raspa_widom_output['henry_coefficient_units'],
-                'adsorption_energy_average':
-                raspa_widom_output[
-                    'adsorption_energy_widom_average'],  #(kJ/mol)
-                'adsorption_energy_dev':
-                raspa_widom_output['adsorption_energy_widom_dev'],
-                'adsorption_energy_units':
-                raspa_widom_output['adsorption_energy_widom_units'],
+                'temperature': self.inputs.temperature,
+                'temperature_unit': "K",
+                'henry_coefficient_average': widom_out['henry_coefficient_average'],
+                'henry_coefficient_dev': widom_out['henry_coefficient_dev'],
+                'henry_coefficient_units': widom_out['henry_coefficient_units'],
+                'adsorption_energy_average': widom_out['adsorption_energy_widom_average'],
+                'adsorption_energy_dev': widom_out['adsorption_energy_widom_dev'],
+                'adsorption_energy_units': widom_out['adsorption_energy_widom_units'],
             })
-        except AttributeError:
-            pass
 
         # Raspa GCMC section
-        try:
+        if self.ctx.is_porous and self.ctx.is_kh_ehough:
+            gcmc_out = self.ctx.raspa_gcmc.outputs.output_parameters["framework_1"]["components"][
+                self.ctx.molecule['name']]
             result_dict.update({
-                'estimated_saturation_loading':
-                self.ctx.estimated_qsat,
-                'estimated_saturation_loading_units':
-                "mol/kg",
+                'estimated_saturation_loading': self.ctx.estimated_qsat,
+                'estimated_saturation_loading_units': "mol/kg",
                 'isotherm_loading_header': [
-                    'Pressure(bar)', 'Loading_average(molec/UC)',
-                    'Loading_deviation(molec/UC)'
+                    'Pressure(bar)', 'Loading_average(molec/UC)', 'Loading_deviation(molec/UC)'
                 ],
-                'isotherm_loading':
-                self.ctx.isotherm_loading,
+                'isotherm_loading': self.ctx.isotherm_loading,
                 'isotherm_enthalpy_header': [
                     'Pressure(bar)', 'Enthalpy_of_adsorption_average(kJ/mol)',
                     'Enthalpy_of_adsorption_deviation(kJ/mol)'
                 ],
-                'isotherm_enthalpy':
-                self.ctx.isotherm_enthalpy,
-                'conversion_factor_molec_uc_to_cm3stp_cm3':
-                raspa_gcmc_output['conversion_factor_molec_uc_to_cm3stp_cm3'],
-                'conversion_factor_molec_uc_to_gr_gr':
-                raspa_gcmc_output['conversion_factor_molec_uc_to_gr_gr'],
-                'conversion_factor_molec_uc_to_mol_kg':
-                raspa_gcmc_output['conversion_factor_molec_uc_to_mol_kg']
+                'isotherm_enthalpy': self.ctx.isotherm_enthalpy,
+                'conversion_factor_molec_uc_to_cm3stp_cm3': gcmc_out['conversion_factor_molec_uc_to_cm3stp_cm3'],
+                'conversion_factor_molec_uc_to_gr_gr': gcmc_out['conversion_factor_molec_uc_to_gr_gr'],
+                'conversion_factor_molec_uc_to_mol_kg': gcmc_out['conversion_factor_molec_uc_to_mol_kg']
             })
-        except AttributeError:
-            pass
 
         self.out("results", Dict(dict=result_dict).store())
-        self.out('blocking_spheres', self.ctx.zeopp.outputs.block)
-        self.report("Workchain completed successfully")
-
-
-# EOF
+        self.out("blocking_spheres", self.ctx.zeopp.outputs.block)
+        self.report("Workchain completed successfully: Dict<{}>".format(self.outputs['results'].pk))

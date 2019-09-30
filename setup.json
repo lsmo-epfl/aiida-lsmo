@@ -17,7 +17,9 @@
     ],
     "entry_points": {
         "aiida.workflows": [
-            "aiida_lsmo.isotherm = aiida_lsmo.workchains:IsothermWorkChain"
+            "lsmo.isotherm = aiida_lsmo.workchains:IsothermWorkChain",
+            "lsmo.zeoppmultistageddec = aiida_lsmo.workchains:ZeoppMultistageDdecWorkChain",
+            "lsmo.multistageddec = aiida_lsmo.workchains:MultistageDdecWorkChain"
         ]
     },
     "data_files": [

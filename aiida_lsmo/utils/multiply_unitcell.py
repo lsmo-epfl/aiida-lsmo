@@ -50,9 +50,7 @@ def check_resize_unit_cell(cif, threshold):  #pylint: disable=too-many-locals
     perpwidth[2] = cell[2, 2]
 
     #prevent from crashing if threshold value is zero
-    if threshold == 0:
-        thr = 0.1
-    else:
-        thr = threshold
+    thr = max(0.001, threshold)
+    
     return int(ceil(thr / perpwidth[0])), int(ceil(thr / perpwidth[1])), int(
         ceil(thr / perpwidth[2]))
