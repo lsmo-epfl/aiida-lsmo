@@ -47,15 +47,17 @@ def main(raspa_code_label, zeopp_code_label):
 
     builder.structure = CifData(file=os.path.abspath('data/HKUST-1.cif'), label="HKUST1")
     builder.molecule = Str('co2')
-    builder.forcefield = Str('UFF-TraPPE')
-    builder.structure_radii = Str('UFF')
-    builder.temperature = Float(400)           # Higher temperature will have less adsorbate and it is faster
-    builder.zeopp_volpo_samples = Int(1000)    # Default: 1e5 *NOTE: default is good for standard real-case!
-    builder.zeopp_block_samples = Int(10)      # Default: 100
-    builder.raspa_widom_cycles = Int(100)      # Default: 1e5
-    builder.raspa_gcmc_init_cycles = Int(10)   # Default: 1e3
-    builder.raspa_gcmc_prod_cycles = Int(100)  # Default: 1e4
-    builder.pressure_range = List(list=[0.01, 10])
+    builder.parameters = Dict(dict= {
+        'forcefield': 'UFF',           # Default: UFF
+        'temperature': 400,            # (K) Note: higher temperature will have less adsorbate and it is faster
+        'zeopp_volpo_samples': 1000,   # Default: 1e5 *NOTE: default is good for standard real-case!
+        'zeopp_block_samples': 10,     # Default: 100
+        'raspa_widom_cycles': 100,     # Default: 1e5
+        'raspa_gcmc_init_cycles': 10,  # Default: 1e3
+        'raspa_gcmc_prod_cycles': 100, # Default: 1e4
+        'pressure_min': 0.001,         # Default: 0.001 (bar)
+        'pressure_max': 10,            # Default: 10 (bar)
+    })
 
     run(builder)
 
