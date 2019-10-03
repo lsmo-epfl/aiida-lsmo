@@ -56,7 +56,7 @@ def main(raspa_code_label, zeopp_code_label):
         'raspa_gcmc_init_cycles': 10,  # Default: 1e3
         'raspa_gcmc_prod_cycles': 100, # Default: 1e4
         'pressure_min': 0.001,         # Default: 0.001 (bar)
-        'pressure_max': 10,            # Default: 10 (bar)
+        'pressure_max': 3,            # Default: 10 (bar)
     })
 
     run(builder)
