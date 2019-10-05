@@ -52,94 +52,88 @@ def get_zeopp_parameters(molecule_dict, isotparam):
     return ZeoppParameters(dict=param_dict)
 
 @calcfunction
-def get_estimated_qsat(zeopp_out, molecule):
-    """Compute the loading at saturation as POAV * guest_liq_dens (Note: cm3/g = l/kg and (mol/kg) = l/kg * mol/l)"""
-    return Float(zeopp_out['POAV_cm^3/g']*molecule['molsatdens'])
-
-@calcfunction
-def choose_pressure_points(parameters, raspa_widom_out, qsat):
+def choose_pressure_points(inp_param, geom, raspa_widom_out):
     """If 'presure_list' is not provide, model the isotherm as single-site langmuir and return the most important
     pressure points to evaluate for an isotherm, in a List.
     """
-    if parameters["pressure_list"]:
-        pressure_points = parameters["pressure_list"]
+    if inp_param["pressure_list"]:
+        pressure_points = inp_param["pressure_list"]
     else:
         kh = list(raspa_widom_out["framework_1"]["components"].values())[0]['henry_coefficient_average'] #(mol/kg/Pa)
-        b_value = kh / qsat.value * 1e5  #(1/bar)
-        pressure_points = [parameters['pressure_min']]
+        b_value = kh / geom['estimated_saturation_loading_mol/kg'] * 1e5  #(1/bar)
+        pressure_points = [inp_param['pressure_min']]
         while True:
             pold = pressure_points[-1]
-            delta_p = min(parameters['pressure_maxstep'],
-                parameters['pressure_precision'] * (b_value * pold**2 + 2 * pold + 1 / b_value))
+            delta_p = min(inp_param['pressure_maxstep'],
+                inp_param['pressure_precision'] * (b_value * pold**2 + 2 * pold + 1 / b_value))
             pnew = pold + delta_p
-            if pnew <= parameters['pressure_max']:
+            if pnew <= inp_param['pressure_max']:
                 pressure_points.append(pnew)
             else:
-                pressure_points.append(parameters['pressure_max'])
+                pressure_points.append(inp_param['pressure_max'])
                 break
     return List(list=pressure_points)
 
 @calcfunction
-def get_geometric_output(zeopp_out, qsat):
+def get_geometric_output(zeopp_out, molecule):
+    """Return the geometric_output Dict from Zeopp results, including Qsat and is_porous"""
     geometric_output = zeopp_out.get_dict()
     geometric_output.update({
-        'estimated_saturation_loading_mol/kg': qsat.value,
+        'estimated_saturation_loading_mol/kg': zeopp_out['POAV_cm^3/g']*molecule['molsatdens'],
         'is_porous': geometric_output["POAV_A^3"] > 0.000
     })
     return Dict(dict=geometric_output)
 
 @calcfunction
-def get_widom_output(parameters, widom_out):
+def get_isotherm_output(parameters, widom_out, pressures, **gcmc_out_dict):
+    """ Extract Widom and GCMC results to isotherm Dict """
     widom_out_mol = list(widom_out["framework_1"]["components"].values())[0]
-    widom_output = {
-        "Temperature_(K)": [int(round(parameters['temperature']))],
-        "{}K".format(int(round(parameters['temperature']))): {
-            'Henry_coefficient_average_(mol/kg/Pa)': widom_out_mol['henry_coefficient_average'],
-            'Henry_coefficient_deviation_(mol/kg/Pa)': widom_out_mol['henry_coefficient_dev'],
-            'Adsorption_energy_average_(kJ/mol)': widom_out_mol['adsorption_energy_widom_average'],
-            'Adsorption_energy_deviation_(kJ/mol)': widom_out_mol['adsorption_energy_widom_dev'],
-            'is_kh_enough': widom_out_mol['henry_coefficient_average'] > parameters['raspa_minKh']
-        }
-    }
-    return Dict(dict=widom_output)
-
-@calcfunction
-def get_isotherm_output(parameters, pressures, **gcmc_out_dict):
-    """ Extract GCMC results to isotherm Dict """
-    conv_ener = 1.0 / 120.273  # K to kJ/mol
-
-    isotherm = {
-        'Pressure_(bar)' : pressures,
-        'Loading_average_(mol/kg)': [],
-        'Loading_deviation_(mol/kg)': [],
-        'Enthalpy_of_adsorption_average_(kJ/mol)': [],
-        'Enthalpy_of_adsorption_deviation_(kJ/mol)': [],
-    }
-
-    for i in range(len(pressures)):
-        gcmc_out = gcmc_out_dict['RaspaGCMC_{}'.format(i+1)]["framework_1"]
-        gcmc_out_mol = list(gcmc_out["components"].values())[0]
-        conv_load = gcmc_out_mol["conversion_factor_molec_uc_to_mol_kg"]
-
-        isotherm['Loading_average_(mol/kg)'].append(conv_load * gcmc_out_mol['loading_absolute_average'])
-        isotherm['Loading_deviation_(mol/kg)'].append(conv_load * gcmc_out_mol['loading_absolute_dev'])
-
-        if gcmc_out['general']['enthalpy_of_adsorption_average']:
-            isotherm['Enthalpy_of_adsorption_average_(kJ/mol)'].append(
-                    conv_ener * gcmc_out['general']['enthalpy_of_adsorption_average'])
-            isotherm['Enthalpy_of_adsorption_deviation_(kJ/mol)'].append(
-                    conv_ener * gcmc_out['general']['enthalpy_of_adsorption_dev'])
-        else: # when there are no particles and Raspa return Null enthalpy
-            isotherm['Enthalpy_of_adsorption_average_(kJ/mol)'].append(None)
-            isotherm['Enthalpy_of_adsorption_deviation_(kJ/mol)'].append(None)
 
     isotherm_output = {
-        "Temperature_(K)": parameters['temperature'],
-        "Isotherm": isotherm,
-        'conversion_factor_molec_uc_to_cm3stp_cm3': gcmc_out_mol['conversion_factor_molec_uc_to_cm3stp_cm3'],
-        'conversion_factor_molec_uc_to_gr_gr': gcmc_out_mol['conversion_factor_molec_uc_to_gr_gr'],
-        'conversion_factor_molec_uc_to_mol_kg': gcmc_out_mol['conversion_factor_molec_uc_to_mol_kg']
+        "temperature_K": parameters['temperature'],
+        'henry_coefficient_average_mol/kg/Pa': widom_out_mol['henry_coefficient_average'],
+        'henry_coefficient_deviation_mol/kg/Pa': widom_out_mol['henry_coefficient_dev'],
+        'adsorption_energy_widom_average_kJ/mol': widom_out_mol['adsorption_energy_widom_average'],
+        'adsorption_energy_widom_kJ/mol': widom_out_mol['adsorption_energy_widom_dev'],
+        'is_kh_enough': widom_out_mol['henry_coefficient_average'] > parameters['raspa_minKh']
     }
+
+    if isotherm_output['is_kh_enough']:
+
+        isotherm = {
+            'pressure_bar' : pressures,
+            'loading_average_mol/kg': [],
+            'loading_deviation_mol/kg': [],
+            'enthalpy_of_adsorption_average_kJ/mol': [],
+            'enthalpy_of_adsorption_deviation_kJ/mol': [],
+        }
+
+        conv_ener = 1.0 / 120.273  # K to kJ/mol
+        for i in range(len(pressures)):
+            gcmc_out = gcmc_out_dict['RaspaGCMC_{}'.format(i+1)]["framework_1"]
+            gcmc_out_mol = list(gcmc_out["components"].values())[0]
+            conv_load = gcmc_out_mol["conversion_factor_molec_uc_to_mol_kg"]
+
+            isotherm['loading_average_mol/kg'].append(conv_load * gcmc_out_mol['loading_absolute_average'])
+            isotherm['loading_deviation_mol/kg'].append(conv_load * gcmc_out_mol['loading_absolute_dev'])
+
+            if gcmc_out['general']['enthalpy_of_adsorption_average']:
+                isotherm['enthalpy_of_adsorption_average_kJ/mol'].append(
+                        conv_ener * gcmc_out['general']['enthalpy_of_adsorption_average'])
+                isotherm['enthalpy_of_adsorption_deviation_kJ/mol'].append(
+                        conv_ener * gcmc_out['general']['enthalpy_of_adsorption_dev'])
+            else: # when there are no particles and Raspa return Null enthalpy
+                isotherm['enthalpy_of_adsorption_average_kJ/mol'].append(None)
+                isotherm['enthalpy_of_adsorption_deviation_kJ/mol'].append(None)
+
+        isotherm_output.update({
+            "isotherm": isotherm,
+            'conversion_factor_molec_uc_to_cm3stp_cm3': gcmc_out_mol['conversion_factor_molec_uc_to_cm3stp_cm3'],
+            'conversion_factor_molec_uc_to_gr_gr': gcmc_out_mol['conversion_factor_molec_uc_to_gr_gr'],
+            'conversion_factor_molec_uc_to_mol_kg': gcmc_out_mol['conversion_factor_molec_uc_to_mol_kg'],
+        })
+
+
     return Dict(dict=isotherm_output)
 
 # Deafault parameters
@@ -161,7 +155,6 @@ IsothermParameters_default = Dict(dict={ #TODO: create IsothermParameters instea
         "pressure_precision": 0.1,      # valid_type=Float, help='Precision in the sampling of the isotherm: 0.1 ok for full isotherm, 0.05 better for lowP range'
         "pressure_maxstep": 5,          # valid_type=Float, help='Max distance between pressure points (bar)'
         "pressure_min": 0.001,          # valid_type=Float, help='Lower pressure to sample (bar)'
-        "pressure_max": 30.0,           # valid_type=Float, help='Max pressure to sample (bar)'
 })
 
 class IsothermWorkChain(WorkChain):
@@ -189,7 +182,8 @@ class IsothermWorkChain(WorkChain):
                    help='Parameters for the Isotherm workchain. See IsothermParameters_defaults for types and default')
 
         spec.input("geometric",
-                   valid_type=AttributeDict,
+                   valid_type=Dict,
+                   required=False,
                    help='Already computed Geometric properties')
 
         spec.outline(
@@ -221,12 +215,15 @@ class IsothermWorkChain(WorkChain):
         # Get the parameters Dict, merging defaults with user settings
         self.ctx.parameters = aiida_dict_merge(IsothermParameters_default, self.inputs.parameters)
 
+        # Get integer temperature in context for easy reports
+        self.ctx.temperature = int(round(self.ctx.parameters['temperature']))
+
 
     def run_zeopp(self):
         """Perform Zeo++ block and VOLPO calculations."""
 
-        # Stop if the geometric properties are already provided
-        self.ctx.skip_zeopp = "geometric" in self.inputs.get_dict()
+        # Skip zeopp calculation if the geometric properties are already provided (IsothermMultiTemp)
+        self.ctx.skip_zeopp = "geometric" in self.inputs
         if self.ctx.skip_zeopp:
             return
 
@@ -250,36 +247,33 @@ class IsothermWorkChain(WorkChain):
 
     def should_run_widom(self):
         """Submit widom calculation only if there is some accessible volume,
-        also check the number of blocking spheres and estimate the saturation loading"""
+        also check the number of blocking spheres and estimate the saturation loading.
+        Also, stop if called by IsothermMultiTemp for geometric results only."""
 
-        # Skip if the geometric properties are already provided
-        self.ctx.skip_zeopp = "geometric" in self.inputs.get_dict()
+        # Use geometric properties if provided in the input (from IsothermMultiTemp)
         if self.ctx.skip_zeopp:
-            self.ctx.zeopp_out = self.inputs.geometric
-            self.ctx.estimated_qsat = get_estimated_qsat(self.inputs.geometric,self.ctx.molecule)
+            self.ctx.geom = self.inputs.geometric
             return True
 
-        self.ctx.zeopp_out = self.ctx.zeopp.outputs.output_parameters
-        self.ctx.estimated_qsat = get_estimated_qsat(self.ctx.zeopp_out,self.ctx.molecule)
         self.out("geometric_output",
-            get_geometric_output(self.ctx.zeopp_out, self.ctx.estimated_qsat))
+            get_geometric_output(self.ctx.zeopp.outputs.output_parameters, self.ctx.molecule))
+        self.ctx.geom = self.outputs['geometric_output']
 
-        if self.outputs['geometric_output']['is_porous']:
+        if self.ctx.geom['is_porous']:
             self.report("Found accessible pore volume: continue")
-            if self.ctx.zeopp_out['Number_of_blocking_spheres'] > 0:
+            if self.ctx.geom['Number_of_blocking_spheres'] > 0:
                 self.report("Found {} blocking spheres".format(n_block_spheres))
-                self.out("blocking_spheres", self.ctx.zeopp.outputs.block)
+                self.out("blocking_spheres", self.ctx.zeopp.outputs.block) #TODO:expose from zeopp
             else:
                 self.report("No blocking spheres found")
         else:
             self.report("No accessible pore volume: stop")
 
-        return self.outputs['geometric_output']['is_porous'] and not self.inputs.parameters['temperature_list']
+        return self.ctx.geom['is_porous'] and not self.ctx.parameters['temperature_list']
 
     def _get_widom_param(self):
         """Write Raspa input parameters from scratch, for a Widom calculation"""
 
-        vf = self.ctx.zeopp_out["POAV_Volume_fraction"]
         param = {
             "GeneralSettings": {
                 "SimulationType": "MonteCarlo",
@@ -301,7 +295,7 @@ class IsothermWorkChain(WorkChain):
             "System": {
                 "framework_1": {
                     "type": "Framework",
-                    "HeliumVoidFraction": vf,
+                    "HeliumVoidFraction": self.ctx.geom["POAV_Volume_fraction"],
                     "ExternalTemperature": self.ctx.parameters['temperature'],
                 }
             },
@@ -317,7 +311,7 @@ class IsothermWorkChain(WorkChain):
         mult = check_resize_unit_cell(self.inputs.structure, 2 * self.ctx.parameters['ff_cutoff'])
         param["System"]["framework_1"]["UnitCells"] = "{} {} {}".format(mult[0], mult[1], mult[2])
 
-        if self.ctx.zeopp_out['Number_of_blocking_spheres'] > 0: # Not sure this is needed
+        if self.ctx.geom['Number_of_blocking_spheres'] > 0: # Not sure this is needed
             param["Component"][self.ctx.molecule['name']].update({"BlockPocketsFileName": "block_pocket"})
 
         if self.ctx.molecule['charged']:
@@ -333,23 +327,24 @@ class IsothermWorkChain(WorkChain):
         self.ctx.inp['metadata']['call_link_label'] = "run_raspa_widom"
 
         self.ctx.inp['raspa']['framework'] = {"framework_1": self.inputs.structure}
-        if self.ctx.zeopp_out['Number_of_blocking_spheres'] > 0:
+        if self.ctx.geom['Number_of_blocking_spheres'] > 0:
             self.ctx.inp["raspa"]["block_pocket"] = self.ctx.zeopp.outputs.block
 
         self.ctx.raspa_param = self._get_widom_param()
         self.ctx.inp['raspa']['parameters'] = Dict(dict=self.ctx.raspa_param).store()
 
         running = self.submit(RaspaBaseWorkChain, **self.ctx.inp)
-        self.report("Running Raspa Widom for the Henry coefficient")
+        self.report("Running Raspa Widom @ {}K for the Henry coefficient".format(self.ctx.temperature))
 
         return ToContext(raspa_widom=running)
 
     def should_run_gcmc(self):
         """Output the widom results and decide to compute the isotherm if kH > kHmin, as defined by the user"""
 
-        self.out("widom_output", get_widom_output(self.ctx.parameters, self.ctx.raspa_widom.outputs.output_parameters))
+        self.ctx.is_kh_enough = list(self.ctx.raspa_widom.outputs['output_parameters']["framework_1"][
+            "components"].values())[0]['henry_coefficient_average'] > self.ctx.parameters['raspa_minKh']
 
-        if self.outputs['widom_output']["{}K".format(int(round(self.ctx.parameters['temperature'])))]['is_kh_enough']:
+        if self.ctx.is_kh_enough:
             self.report("kH larger than the threshold: continue")
             return True
         else:
@@ -376,20 +371,20 @@ class IsothermWorkChain(WorkChain):
         # Check particular conditions
         if not self.ctx.molecule['singlebead']:
             param["Component"][self.ctx.molecule['name']].update({"RotationProbability": 1.0})
-
         return param
 
     def init_raspa_gcmc(self):
         """Choose the pressures we want to sample, report some details, and update settings for GCMC"""
 
         self.ctx.current_p_index = 0
-        self.ctx.pressures = choose_pressure_points(self.ctx.parameters, self.ctx.raspa_widom.outputs.output_parameters, self.ctx.estimated_qsat)
+        self.ctx.pressures = choose_pressure_points(self.ctx.parameters, self.ctx.geom, self.ctx.raspa_widom.outputs.output_parameters)
 
         self.report("Computed Kh(mol/kg/Pa)={:.2e} POAV(cm3/g)={:.3f} Qsat(mol/kg)={:.2f}".format(
-            self.outputs['widom_output'][
-                "{}K".format(int(round(self.ctx.parameters['temperature'])))]['Henry_coefficient_average_(mol/kg/Pa)'],
-            self.ctx.zeopp_out['POAV_cm^3/g'], self.ctx.estimated_qsat.value))
-        self.report("Now evaluating the isotherm for {} pressure points".format(len(self.ctx.pressures)))
+            list(self.ctx.raspa_widom.outputs['output_parameters']["framework_1"]["components"].values())[0]['henry_coefficient_average'],
+            self.ctx.geom['POAV_cm^3/g'],
+            self.ctx.geom['estimated_saturation_loading_mol/kg']))
+        self.report("Now evaluating the isotherm @ {}K for {} pressure points".format(
+            self.ctx.temperature, len(self.ctx.pressures)))
 
         self.ctx.raspa_param = self._update_param_for_gcmc()
 
@@ -419,8 +414,9 @@ class IsothermWorkChain(WorkChain):
 
         # Create the calculation process, launch it and update pressure index
         running = self.submit(RaspaBaseWorkChain, **self.ctx.inp)
-        self.report("Running Raspa GCMC at p(bar)={:.3f} ({} of {})".format(
-            self.ctx.pressures[self.ctx.current_p_index], self.ctx.current_p_index + 1, len(self.ctx.pressures)))
+        self.report("Running Raspa GCMC @ {}K/{:.3f}bar (pressure {} of {})".format(
+            self.ctx.temperature, self.ctx.pressures[self.ctx.current_p_index],
+            self.ctx.current_p_index + 1, len(self.ctx.pressures)))
         self.ctx.current_p_index += 1
         return ToContext(raspa_gcmc=append_(running))
 
@@ -430,10 +426,11 @@ class IsothermWorkChain(WorkChain):
         gcmc_out_dict = {}
         for calc in self.ctx.raspa_gcmc:
             gcmc_out_dict[calc.label] = calc.outputs.output_parameters
-        self.out("isotherm_output", get_isotherm_output(self.ctx.parameters, self.ctx.pressures, **gcmc_out_dict))
 
+        self.out("isotherm_output", get_isotherm_output(
+            self.ctx.parameters, self.ctx.raspa_widom.outputs.output_parameters, self.ctx.pressures, **gcmc_out_dict))
 
-        self.report("Isotherm computed: geom Dict<{}>, widom Dict<{}>, isotherm Dict<{}>".format(
-            [self.outputs['geometric_output'].pk, self.inputs['geometric']][self.ctx.skip_zeopp],
-            self.outputs['widom_output'].pk,
-            self.outputs['isotherm_output'].pk))
+        # Report the pk of the results (for geometric results show input if provided from IsothermMultiTemp)
+        self.report("Isotherm @ {}K computed: geom Dict<{}>, isotherm Dict<{}>".format(
+            self.ctx.temperature, self.ctx.geom.pk, self.outputs['isotherm_output'].pk))
+

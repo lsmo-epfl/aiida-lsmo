@@ -16,18 +16,43 @@ IsothermWorkChain = WorkflowFactory('lsmo.isotherm')  # pylint: disable=invalid-
 def get_parameters_singletemp(i, parameters):
     parameters_singletemp = parameters.get_dict()
     parameters_singletemp['temperature'] = parameters_singletemp['temperature_list'][i]
-    parameters_singletemp'temperature_list'] = None
-    return Dict(dict=paramterers_singletemp)
+    parameters_singletemp['temperature_list'] = None
+    return Dict(dict=parameters_singletemp)
 
 @calcfunction
-def get_isotherms_output(**dict):
-    """Gather together all the results"""
-    temperature_list = 
+def get_isotherms_output(parameters, **isotherm_dict):
+    """Gather together all the results, returning lists for the multi temperature values"""
 
+    multi_temp_labels = [
+        'temperature_K',
+        'henry_coefficient_average_mol/kg/Pa',
+        'henry_coefficient_deviation_mol/kg/Pa',
+        'adsorption_energy_widom_average_kJ/mol',
+        'adsorption_energy_widom_kJ/mol',
+        'is_kh_enough',
+        'isotherm'
+    ]
+
+    isotherms_output = {}
+    for label in multi_temp_labels:
+        isotherms_output[label] = []
+
+    for i in range(len(isotherm_dict)):
+        for label in multi_temp_labels:
+            isotherm_out_i = isotherm_dict['isotherm_out_{}'.format(i)]
+            isotherms_output[label].append(isotherm_out_i[label])
+
+    # Same for all, take the last for convenience
+    isotherms_output.update({
+        'conversion_factor_molec_uc_to_cm3stp_cm3': isotherm_out_i['conversion_factor_molec_uc_to_cm3stp_cm3'],
+        'conversion_factor_molec_uc_to_gr_gr': isotherm_out_i['conversion_factor_molec_uc_to_gr_gr'],
+        'conversion_factor_molec_uc_to_mol_kg': isotherm_out_i['conversion_factor_molec_uc_to_mol_kg'],})
+
+    return Dict(dict=isotherms_output)
 
 class IsothermMultiTempWorkChain(WorkChain):
-    """Workchain that computes volpo and blocking spheres: if accessible volpo>0
-    it also runs a raspa widom calculation for the Henry coefficient.
+    """ Run IsothermWorkChain for multiple temperatures: first compute geometric properties 
+    and then submit Widom+GCMC at different temperatures in parallel
     """
 
     @classmethod
@@ -44,7 +69,7 @@ class IsothermMultiTempWorkChain(WorkChain):
                 cls.collect_isotherms
             )
 
-        spec.expose_outputs(IsothermWorkChain)
+        spec.expose_outputs(IsothermWorkChain, include=['geometric_output','blocking_spheres'])
 
         spec.outputs.dynamic = True  # any outputs are accepted
 
@@ -69,8 +94,10 @@ class IsothermMultiTempWorkChain(WorkChain):
     def should_continue(self):
         """Continue if porous"""
 
-        self.out_many(self.exposed_outputs(self.ctx.geometric, IsothermWorkChain))
-
+        self.out('geometric_output', self.ctx.geometric.outputs['geometric_output']) #TODO: use expose instead
+        # Why not working?:
+        #self.out_many(self.exposed_outputs(self.ctx.geometric, IsothermWorkChain))
+        #TODO: expose also blocking spheres if exposed from IsothermWC
         return self.outputs['geometric_output']['is_porous']
 
     def run_isotherms(self):
@@ -92,18 +119,21 @@ class IsothermMultiTempWorkChain(WorkChain):
                     'call_link_label': 'run_isotherm_{}'.format(i),
 
                 },
-                'geometric': self.outputs['geometric_output']['is_porous'],
                 'parameters': self.ctx.parameters_singletemp
             })
 
             running = self.submit(IsothermWorkChain, **inputs)
-            assert self.to_context(**{'isotherm_{}'.format(i):running})
+            self.to_context(**{'isotherm_{}'.format(i):running})
 
     def collect_isotherms(self):
         """ Collect all the results in one Dict """
+
         output_dict = {}
         for i in range(self.ctx.ntemp):
-            output_dict['widom_out_{}'] = self.ctx['isotherm_{}'.format(i)].outputs['widom_output']
-            output_dict['isotherm_out_{}'] =  self.ctx['isotherm_{}'.format(i)].outputs['widom_output']
+            output_dict['isotherm_out_{}'.format(i)] =  self.ctx['isotherm_{}'.format(i)].outputs['isotherm_output']
 
         self.out("isotherms_output", get_isotherms_output(self.inputs.parameters,**output_dict))
+
+        self.report("All the isotherms computed: geom Dict<{}>, isotherms Dict<{}>".format(
+            self.outputs['geometric_output'].pk, self.outputs['isotherms_output'].pk))
+
