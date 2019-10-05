@@ -1,4 +1,3 @@
-# aiida-lsmo-workflows
-AiiDA workflows for the LSMO laboratory at EPFL
+# aiida-lsmo Workflows
 
-Development branch "cofs" for application to COFs
+AiiDA workflows for the LSMO laboratory at EPFL
