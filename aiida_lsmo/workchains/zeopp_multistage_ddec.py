@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+"""ZeoppMultistageDdecWorkChain work chain"""
 
 from __future__ import absolute_import
 
@@ -13,14 +14,16 @@ CifData = DataFactory('cif')  # pylint: disable=invalid-name
 ZeoppCalculation = CalculationFactory("zeopp.network")  # pylint: disable=invalid-name
 NetworkParameters = DataFactory("zeopp.parameters")  # pylint: disable=invalid-name
 
-zeopp_parameters_default = NetworkParameters(dict={ #Default parameters for microporous materials
-    'ha': 'DEF',                   # Using high accuracy (mandatory!)
-    'res': True,                   # Max included, free and incl in free sphere
-    'sa': [1.86, 1.86, 100000],    # Nitrogen probe to compute surface
-    'vol': [0.0, 0.0, 1000000],    # Geometric pore volume
-    'volpo': [1.86, 1.86, 100000], # Nitrogen probe to compute PO pore volume
-    'psd': [1.2, 1.2, 10000]       # Small probe to compute the pore size distr
-})
+ZEOPP_PARAMETERS_DEFAULT = NetworkParameters(
+    dict={  #Default parameters for microporous materials
+        'ha': 'DEF',  # Using high accuracy (mandatory!)
+        'res': True,  # Max included, free and incl in free sphere
+        'sa': [1.86, 1.86, 100000],  # Nitrogen probe to compute surface
+        'vol': [0.0, 0.0, 1000000],  # Geometric pore volume
+        'volpo': [1.86, 1.86, 100000],  # Nitrogen probe to compute PO pore volume
+        'psd': [1.2, 1.2, 10000]  # Small probe to compute the pore size distr
+    })
+
 
 class ZeoppMultistageDdecWorkChain(WorkChain):
     """A workchain that combines: Zeopp + Cp2kMultistageWorkChain + Cp2kDdecWorkChain + Zeopp"""
@@ -30,41 +33,25 @@ class ZeoppMultistageDdecWorkChain(WorkChain):
         """Define workflow specification."""
         super(ZeoppMultistageDdecWorkChain, cls).define(spec)
 
-        spec.expose_inputs(ZeoppCalculation,
-            namespace='zeopp',
-            exclude=['parameters','structure'])
+        spec.expose_inputs(ZeoppCalculation, namespace='zeopp', exclude=['parameters', 'structure'])
         spec.input('zeopp.parameters',
-            valid_type=NetworkParameters,
-            default=zeopp_parameters_default,
-            required=False,
-            help='parameters for zeo++')
-        spec.input('structure',
-            valid_type=CifData,
-            help='input structure')
-        spec.expose_inputs(Cp2kMultistageWorkChain,
-            exclude=['structure'])
-        spec.expose_inputs(Cp2kDdecWorkChain,
-            exclude=['cp2k_base'])
+                   valid_type=NetworkParameters,
+                   default=ZEOPP_PARAMETERS_DEFAULT,
+                   required=False,
+                   help='parameters for zeo++')
+        spec.input('structure', valid_type=CifData, help='input structure')
+        spec.expose_inputs(Cp2kMultistageWorkChain, exclude=['structure'])
+        spec.expose_inputs(Cp2kDdecWorkChain, exclude=['cp2k_base'])
 
-        spec.outline(
-            cls.run_zeopp_before,
-            cls.run_cp2kmultistage,
-            cls.run_cp2kddec,
-            cls.run_zeopp_after,
-            cls.return_results)
+        spec.outline(cls.run_zeopp_before, cls.run_cp2kmultistage, cls.run_cp2kddec, cls.run_zeopp_after,
+                     cls.return_results)
 
-        spec.expose_outputs(ZeoppCalculation,
-            namespace='zeopp_before_opt',
-            include=['output_parameters'])
+        spec.expose_outputs(ZeoppCalculation, namespace='zeopp_before_opt', include=['output_parameters'])
 
-        spec.expose_outputs(ZeoppCalculation,
-            namespace='zeopp_after_opt',
-            include=['output_parameters'])
+        spec.expose_outputs(ZeoppCalculation, namespace='zeopp_after_opt', include=['output_parameters'])
 
-        spec.expose_outputs(Cp2kMultistageWorkChain,
-            exclude=['output_structure'])
-        spec.expose_outputs(Cp2kDdecWorkChain,
-            include=['structure_ddec'])
+        spec.expose_outputs(Cp2kMultistageWorkChain, exclude=['output_structure'])
+        spec.expose_outputs(Cp2kDdecWorkChain, include=['structure_ddec'])
 
     def run_zeopp_before(self):
         """ un Zeo++ for the starting structure"""

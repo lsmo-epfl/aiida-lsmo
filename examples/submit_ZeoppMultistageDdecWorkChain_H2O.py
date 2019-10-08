@@ -1,12 +1,15 @@
+#!/usr/bin/env python  # pylint: disable=invalid-name
+# -*- coding: utf-8 -*-
+"""Submit ZeoppMultistageDdecWorkChain for H2O"""
+
 from __future__ import print_function
 from __future__ import absolute_import
 
-import sys, os
-from ase.io import read
+import os
 
 from aiida.engine import submit
 from aiida.plugins import DataFactory, WorkflowFactory
-from aiida.orm import Code, Dict, Float, Str
+from aiida.orm import Code, Dict, Str
 
 # Workchain objects
 ZeoppMultistageDdecWorkChain = WorkflowFactory('lsmo.zeoppmultistageddec')  # pylint: disable=invalid-name
@@ -14,7 +17,6 @@ ZeoppMultistageDdecWorkChain = WorkflowFactory('lsmo.zeoppmultistageddec')  # py
 #Data objects
 CifData = DataFactory('cif')  # pylint: disable=invalid-name
 NetworkParameters = DataFactory("zeopp.parameters")  # pylint: disable=invalid-name
-
 
 cp2k_code = Code.get_from_string('cp2k@localhost')
 ddec_code = Code.get_from_string('ddec@localhost')
@@ -46,21 +48,26 @@ zeopp_options = {
 
 ddec_params = Dict(
     dict={
-        'net charge': 0.0,
-        'charge type': 'DDEC6',
+        'net charge':
+            0.0,
+        'charge type':
+            'DDEC6',
         'periodicity along A, B, and C vectors': [True, True, True],
-        'compute BOs': False,
+        'compute BOs':
+            False,
         'atomic densities directory complete path':
             '/home/daniele/Programs/aiida-database/data/chargemol_09_26_2017/atomic_densities/',
-        'input filename': 'valence_density',
+        'input filename':
+            'valence_density',
     })
 
-zeopp_params = NetworkParameters(dict={
-    'ha': 'DEF',                    # Using high accuracy (mandatory!)
-    'res': True,                   # Max included, free and incl in free sphere
-    'sa': [1.86, 1.86, 1000],    # Nitrogen probe to compute surface
-    'vol': [0.0, 0.0, 1000],    # Geometric pore volume
-})
+zeopp_params = NetworkParameters(
+    dict={
+        'ha': 'DEF',  # Using high accuracy (mandatory!)
+        'res': True,  # Max included, free and incl in free sphere
+        'sa': [1.86, 1.86, 1000],  # Nitrogen probe to compute surface
+        'vol': [0.0, 0.0, 1000],  # Geometric pore volume
+    })
 
 structure = CifData(file=os.path.join(os.getcwd(), 'data/H2O.cif')).store()
 structure.label = 'H2O'
@@ -96,7 +103,4 @@ inputs = {
 }
 wc = submit(ZeoppMultistageDdecWorkChain, **inputs)
 
-print("Submitted CifData<{}> to ZeoppMultistageDdecWorkChain<{}>".format(
-      structure.pk,
-      wc.pk
-      ))
+print("Submitted CifData<{}> to ZeoppMultistageDdecWorkChain<{}>".format(structure.pk, wc.pk))

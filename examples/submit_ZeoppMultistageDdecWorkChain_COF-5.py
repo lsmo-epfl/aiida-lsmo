@@ -1,12 +1,15 @@
+#!/usr/bin/env python  # pylint: disable=invalid-name
+# -*- coding: utf-8 -*-
+"""Submit ZeoppMultistageDdecWorkChain for COF-5"""
+
 from __future__ import print_function
 from __future__ import absolute_import
 
-import sys, os
-from ase.io import read
+import os
 
 from aiida.engine import submit
 from aiida.plugins import DataFactory, WorkflowFactory
-from aiida.orm import Code, Dict, Float, Str
+from aiida.orm import Code, Dict, Str
 
 # Workchain objects
 ZeoppMultistageDdecWorkChain = WorkflowFactory('lsmo.zeoppmultistageddec')  # pylint: disable=invalid-name
@@ -47,13 +50,17 @@ zeopp_options = {
 
 ddec_params = Dict(
     dict={
-        'net charge': 0.0,
-        'charge type': 'DDEC6',
+        'net charge':
+            0.0,
+        'charge type':
+            'DDEC6',
         'periodicity along A, B, and C vectors': [True, True, True],
-        'compute BOs': False,
+        'compute BOs':
+            False,
         'atomic densities directory complete path':
             '/home/ongari/aiida-database/data/chargemol_09_26_2017/atomic_densities/',
-        'input filename': 'valence_density',
+        'input filename':
+            'valence_density',
     })
 
 structure = CifData(file=os.path.join(os.getcwd(), 'data/COF-5.cif')).store()
@@ -90,7 +97,4 @@ inputs = {
 }
 wc = submit(ZeoppMultistageDdecWorkChain, **inputs)
 
-print("Submitted CifData<{}> to ZeoppMultistageDdecWorkChain<{}>".format(
-      structure.pk,
-      wc.pk
-      ))
+print("Submitted CifData<{}> to ZeoppMultistageDdecWorkChain<{}>".format(structure.pk, wc.pk))

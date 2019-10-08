@@ -2,16 +2,16 @@
 """IsothermMultiTemp workchain."""
 from __future__ import absolute_import
 
-import os
+from six.moves import range
 
-from aiida.plugins import CalculationFactory, DataFactory, WorkflowFactory
-from aiida.orm import Dict, Float, Int, Str, List, SinglefileData
+from aiida.plugins import WorkflowFactory
+from aiida.orm import Dict
 from aiida.engine import calcfunction
-from aiida.engine import WorkChain, ToContext, append_, while_, if_
-from aiida_lsmo.utils import check_resize_unit_cell, aiida_dict_merge
+from aiida.engine import WorkChain, ToContext, if_
 
 # Workchain objects
 IsothermWorkChain = WorkflowFactory('lsmo.isotherm')  # pylint: disable=invalid-name
+
 
 def get_parameters_singletemp(i, parameters):
     parameters_singletemp = parameters.get_dict()
@@ -19,26 +19,19 @@ def get_parameters_singletemp(i, parameters):
     parameters_singletemp['temperature_list'] = None
     return Dict(dict=parameters_singletemp)
 
+
 @calcfunction
-def get_isotherms_output(parameters, **isotherm_dict):
+def get_isotherms_output(**isotherm_dict):
     """Gather together all the results, returning lists for the multi temperature values"""
 
     multi_temp_labels = [
-        'temperature',
-        'henry_coefficient_average',
-        'henry_coefficient_dev',
-        'adsorption_energy_widom_average',
-        'adsorption_energy_widom_dev',
-        'is_kh_enough',
-        'isotherm'
+        'temperature', 'henry_coefficient_average', 'henry_coefficient_dev', 'adsorption_energy_widom_average',
+        'adsorption_energy_widom_dev', 'is_kh_enough', 'isotherm'
     ]
 
     single_temp_labels = [
-        'temperature_unit',
-        'henry_coefficient_unit',
-        'adsorption_energy_widom_unit',
-        'conversion_factor_molec_uc_to_cm3stp_cm3',
-        'conversion_factor_molec_uc_to_gr_gr',
+        'temperature_unit', 'henry_coefficient_unit', 'adsorption_energy_widom_unit',
+        'conversion_factor_molec_uc_to_cm3stp_cm3', 'conversion_factor_molec_uc_to_gr_gr',
         'conversion_factor_molec_uc_to_mol_kg'
     ]
 
@@ -57,6 +50,7 @@ def get_isotherms_output(parameters, **isotherm_dict):
 
     return Dict(dict=isotherms_output)
 
+
 class IsothermMultiTempWorkChain(WorkChain):
     """ Run IsothermWorkChain for multiple temperatures: first compute geometric properties
     and then submit Widom+GCMC at different temperatures in parallel
@@ -72,16 +66,16 @@ class IsothermMultiTempWorkChain(WorkChain):
             cls.run_geometric,
             if_(cls.should_continue)(  # if porous
                 cls.run_isotherms,  # run IsothermWorkChain in parallel at different temperatures
-                ),
-                cls.collect_isotherms
-            )
+            ),
+            cls.collect_isotherms)
 
-        spec.expose_outputs(IsothermWorkChain, include=['geometric_output','block'])
+        spec.expose_outputs(IsothermWorkChain, include=['geometric_output', 'block'])
 
-        spec.output('isotherms_output',
-                    valid_type=Dict,
-                    required=False, # only if is_porous
-                    help='Results of the widom calculations and isotherms at multiple temperature')
+        spec.output(
+            'isotherms_output',
+            valid_type=Dict,
+            required=False,  # only if is_porous
+            help='Results of the widom calculations and isotherms at multiple temperature')
 
     def run_geometric(self):
         """Perform Zeo++ block and VOLPO calculation with IsothermWC."""
@@ -126,22 +120,21 @@ class IsothermMultiTempWorkChain(WorkChain):
                 'metadata': {
                     'label': "Isotherm_{}".format(i),
                     'call_link_label': 'run_isotherm_{}'.format(i),
-
                 },
                 'parameters': self.ctx.parameters_singletemp
             })
 
             running = self.submit(IsothermWorkChain, **inputs)
-            self.to_context(**{'isotherm_{}'.format(i):running})
+            self.to_context(**{'isotherm_{}'.format(i): running})
 
     def collect_isotherms(self):
         """ Collect all the results in one Dict """
 
         output_dict = {}
         for i in range(self.ctx.ntemp):
-            output_dict['isotherm_out_{}'.format(i)] =  self.ctx['isotherm_{}'.format(i)].outputs['isotherm_output']
+            output_dict['isotherm_out_{}'.format(i)] = self.ctx['isotherm_{}'.format(i)].outputs['isotherm_output']
 
-        self.out("isotherms_output", get_isotherms_output(self.inputs.parameters,**output_dict))
+        self.out("isotherms_output", get_isotherms_output(**output_dict))
 
         self.report("All the isotherms computed: geom Dict<{}>, isotherms Dict<{}>".format(
             self.outputs['geometric_output'].pk, self.outputs['isotherms_output'].pk))

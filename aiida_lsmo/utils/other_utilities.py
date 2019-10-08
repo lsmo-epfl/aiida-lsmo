@@ -5,6 +5,7 @@ from __future__ import absolute_import
 from aiida.orm import Dict
 from aiida.engine import calcfunction
 
+
 def dict_merge(dct, merge_dct):
     """ Taken from https://gist.github.com/angstwad/bf22d1822c38a92ec0a9
     Recursive dict merge. Inspired by :meth:``dict.update()``, instead of
@@ -17,11 +18,11 @@ def dict_merge(dct, merge_dct):
     """
     import collections
     for k in merge_dct.keys():
-        if (k in dct and isinstance(dct[k], dict)
-                and isinstance(merge_dct[k], collections.Mapping)):
+        if (k in dct and isinstance(dct[k], dict) and isinstance(merge_dct[k], collections.Mapping)):
             dict_merge(dct[k], merge_dct[k])
         else:
             dct[k] = merge_dct[k]
+
 
 @calcfunction
 def aiida_dict_merge(to_dict, from_dict):

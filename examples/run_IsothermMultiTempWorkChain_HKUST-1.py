@@ -1,15 +1,15 @@
+#!/usr/bin/env python  # pylint: disable=invalid-name
 # -*- coding: utf-8 -*-
 """Run example isotherm calculation with HKUST1 framework."""
+
 from __future__ import absolute_import
 from __future__ import print_function
 import os
-import sys
 import click
 
 from aiida.engine import run
-from aiida.common import NotExistent
 from aiida.plugins import DataFactory, WorkflowFactory
-from aiida.orm import Code, Dict, Float, Int, Str, SinglefileData
+from aiida.orm import Code, Dict, Str
 
 # Workchain objects
 IsothermWorkChain = WorkflowFactory('lsmo.isotherm_multi_temp')  # pylint: disable=invalid-name
@@ -24,7 +24,7 @@ NetworkParameters = DataFactory('zeopp.parameters')  # pylint: disable=invalid-n
 @click.argument('zeopp_code_label')
 def main(raspa_code_label, zeopp_code_label):
     """Prepare inputs and submit the Isotherm workchain.
-    Usage: verdi run run_isotherm_hkust1.py raspa@localhost network@localhost"""
+    Usage: verdi run run_IsothermMultiTempWorkChain_HKUST-1.py raspa@localhost zeopp@localhost"""
 
     builder = IsothermWorkChain.get_builder()
 
@@ -47,19 +47,21 @@ def main(raspa_code_label, zeopp_code_label):
 
     builder.structure = CifData(file=os.path.abspath('data/HKUST-1.cif'), label="HKUST1")
     builder.molecule = Str('co2')
-    builder.parameters = Dict(dict= {
-        'forcefield': 'UFF',           # Default: UFF
-        'temperature_list': [400, 500],     # (K) ******* NOTE: list for multi temperature *********
-        'zeopp_volpo_samples': 1000,   # Default: 1e5 *NOTE: default is good for standard real-case!
-        'zeopp_block_samples': 10,     # Default: 100
-        'raspa_widom_cycles': 100,     # Default: 1e5
-        'raspa_gcmc_init_cycles': 10,  # Default: 1e3
-        'raspa_gcmc_prod_cycles': 100, # Default: 1e4
-        'pressure_min': 0.001,         # Default: 0.001 (bar)
-        'pressure_max': 3,             # Default: 10 (bar)
-    })
+    builder.parameters = Dict(
+        dict={
+            'forcefield': 'UFF',  # Default: UFF
+            'temperature_list': [400, 500],  # (K) ******* NOTE: list for multi temperature *********
+            'zeopp_volpo_samples': 1000,  # Default: 1e5 *NOTE: default is good for standard real-case!
+            'zeopp_block_samples': 10,  # Default: 100
+            'raspa_widom_cycles': 100,  # Default: 1e5
+            'raspa_gcmc_init_cycles': 10,  # Default: 1e3
+            'raspa_gcmc_prod_cycles': 100,  # Default: 1e4
+            'pressure_min': 0.001,  # Default: 0.001 (bar)
+            'pressure_max': 3,  # Default: 10 (bar)
+        })
 
     run(builder)
+
 
 if __name__ == '__main__':
     main()  # pylint: disable=no-value-for-parameter

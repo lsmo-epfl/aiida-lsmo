@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python  # pylint: disable=invalid-name
 # -*- coding: utf-8 -*-
 """ Test/example for the DdecCp2kChargesWorkChain"""
 
@@ -11,7 +11,6 @@ import ase.build
 from aiida.engine import run
 from aiida.plugins import DataFactory, WorkflowFactory
 from aiida.orm import Code, Dict, Str
-
 
 # Workchain object
 MultistageDdecWorkChain = WorkflowFactory('lsmo.multistageddec')  # pylint: disable=invalid-name

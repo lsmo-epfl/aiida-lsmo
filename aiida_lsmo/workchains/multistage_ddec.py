@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""DdecCp2kChargesWorkChain workchain of the AiiDA DDEC plugin"""
+"""MultistageDdecWorkChain workchain"""
 
 from __future__ import absolute_import
 
