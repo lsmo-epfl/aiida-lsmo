@@ -24,13 +24,22 @@ def get_isotherms_output(parameters, **isotherm_dict):
     """Gather together all the results, returning lists for the multi temperature values"""
 
     multi_temp_labels = [
-        'temperature_K',
-        'henry_coefficient_average_mol/kg/Pa',
-        'henry_coefficient_deviation_mol/kg/Pa',
-        'adsorption_energy_widom_average_kJ/mol',
-        'adsorption_energy_widom_kJ/mol',
+        'temperature',
+        'henry_coefficient_average',
+        'henry_coefficient_dev',
+        'adsorption_energy_widom_average',
+        'adsorption_energy_widom_dev',
         'is_kh_enough',
         'isotherm'
+    ]
+
+    single_temp_labels = [
+        'temperature_unit',
+        'henry_coefficient_unit',
+        'adsorption_energy_widom_unit',
+        'conversion_factor_molec_uc_to_cm3stp_cm3',
+        'conversion_factor_molec_uc_to_gr_gr',
+        'conversion_factor_molec_uc_to_mol_kg'
     ]
 
     isotherms_output = {}
@@ -43,15 +52,13 @@ def get_isotherms_output(parameters, **isotherm_dict):
             isotherms_output[label].append(isotherm_out_i[label])
 
     # Same for all, take the last for convenience
-    isotherms_output.update({
-        'conversion_factor_molec_uc_to_cm3stp_cm3': isotherm_out_i['conversion_factor_molec_uc_to_cm3stp_cm3'],
-        'conversion_factor_molec_uc_to_gr_gr': isotherm_out_i['conversion_factor_molec_uc_to_gr_gr'],
-        'conversion_factor_molec_uc_to_mol_kg': isotherm_out_i['conversion_factor_molec_uc_to_mol_kg'],})
+        for label in single_temp_labels:
+            isotherms_output[label] = isotherm_out_i[label]
 
     return Dict(dict=isotherms_output)
 
 class IsothermMultiTempWorkChain(WorkChain):
-    """ Run IsothermWorkChain for multiple temperatures: first compute geometric properties 
+    """ Run IsothermWorkChain for multiple temperatures: first compute geometric properties
     and then submit Widom+GCMC at different temperatures in parallel
     """
 
@@ -136,4 +143,3 @@ class IsothermMultiTempWorkChain(WorkChain):
 
         self.report("All the isotherms computed: geom Dict<{}>, isotherms Dict<{}>".format(
             self.outputs['geometric_output'].pk, self.outputs['isotherms_output'].pk))
-

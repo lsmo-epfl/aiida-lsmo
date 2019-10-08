@@ -90,22 +90,34 @@ def get_isotherm_output(parameters, widom_out, pressures, **gcmc_out_dict):
     widom_out_mol = list(widom_out["framework_1"]["components"].values())[0]
 
     isotherm_output = {
-        "temperature_K": parameters['temperature'],
-        'henry_coefficient_average_mol/kg/Pa': widom_out_mol['henry_coefficient_average'],
-        'henry_coefficient_deviation_mol/kg/Pa': widom_out_mol['henry_coefficient_dev'],
-        'adsorption_energy_widom_average_kJ/mol': widom_out_mol['adsorption_energy_widom_average'],
-        'adsorption_energy_widom_kJ/mol': widom_out_mol['adsorption_energy_widom_dev'],
+        'temperature': parameters['temperature'],
+        'temperature_unit': 'K',
         'is_kh_enough': widom_out_mol['henry_coefficient_average'] > parameters['raspa_minKh']
     }
+
+    widom_labels =  [
+        'henry_coefficient_average',
+        'henry_coefficient_dev',
+        'henry_coefficient_unit',
+        'adsorption_energy_widom_average',
+        'adsorption_energy_widom_dev',
+        'adsorption_energy_widom_unit',
+    ]
+
+    for label in widom_labels:
+        isotherm_output.update({label: widom_out_mol[label]})
 
     if isotherm_output['is_kh_enough']:
 
         isotherm = {
-            'pressure_bar' : pressures,
-            'loading_average_mol/kg': [],
-            'loading_deviation_mol/kg': [],
-            'enthalpy_of_adsorption_average_kJ/mol': [],
-            'enthalpy_of_adsorption_deviation_kJ/mol': [],
+            'pressure' : pressures,
+            'pressure_unit': 'bar',
+            'loading_absolute_average': [],
+            'loading_absolute_dev': [],
+            'loading_absolute_unit': 'mol/kg',
+            'enthalpy_of_adsorption_average': [],
+            'enthalpy_of_adsorption_dev': [],
+            'enthalpy_of_adsorption_unit': 'kJ/mol'
         }
 
         conv_ener = 1.0 / 120.273  # K to kJ/mol
@@ -114,17 +126,14 @@ def get_isotherm_output(parameters, widom_out, pressures, **gcmc_out_dict):
             gcmc_out_mol = list(gcmc_out["components"].values())[0]
             conv_load = gcmc_out_mol["conversion_factor_molec_uc_to_mol_kg"]
 
-            isotherm['loading_average_mol/kg'].append(conv_load * gcmc_out_mol['loading_absolute_average'])
-            isotherm['loading_deviation_mol/kg'].append(conv_load * gcmc_out_mol['loading_absolute_dev'])
+            for label in ['loading_absolute_average', 'loading_absolute_dev']:
+                isotherm[label].append(conv_load * gcmc_out_mol[label])
 
-            if gcmc_out['general']['enthalpy_of_adsorption_average']:
-                isotherm['enthalpy_of_adsorption_average_kJ/mol'].append(
-                        conv_ener * gcmc_out['general']['enthalpy_of_adsorption_average'])
-                isotherm['enthalpy_of_adsorption_deviation_kJ/mol'].append(
-                        conv_ener * gcmc_out['general']['enthalpy_of_adsorption_dev'])
-            else: # when there are no particles and Raspa return Null enthalpy
-                isotherm['enthalpy_of_adsorption_average_kJ/mol'].append(None)
-                isotherm['enthalpy_of_adsorption_deviation_kJ/mol'].append(None)
+            for label in ['enthalpy_of_adsorption_average', 'enthalpy_of_adsorption_dev']:
+                if gcmc_out['general'][label]:
+                    isotherm[label].append(conv_ener * gcmc_out['general'][label])
+                else: # when there are no particles and Raspa return Null enthalpy
+                    isotherm[label].append(None)
 
         isotherm_output.update({
             "isotherm": isotherm,
@@ -433,4 +442,3 @@ class IsothermWorkChain(WorkChain):
         # Report the pk of the results (for geometric results show input if provided from IsothermMultiTemp)
         self.report("Isotherm @ {}K computed: geom Dict<{}>, isotherm Dict<{}>".format(
             self.ctx.temperature, self.ctx.geom.pk, self.outputs['isotherm_output'].pk))
-
