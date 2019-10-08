@@ -60,7 +60,7 @@ def choose_pressure_points(inp_param, geom, raspa_widom_out):
         pressure_points = inp_param["pressure_list"]
     else:
         kh = list(raspa_widom_out["framework_1"]["components"].values())[0]['henry_coefficient_average'] #(mol/kg/Pa)
-        b_value = kh / geom['estimated_saturation_loading_mol/kg'] * 1e5  #(1/bar)
+        b_value = kh / geom['Estimated_saturation_loading'] * 1e5  #(1/bar)
         pressure_points = [inp_param['pressure_min']]
         while True:
             pold = pressure_points[-1]
@@ -79,7 +79,8 @@ def get_geometric_output(zeopp_out, molecule):
     """Return the geometric_output Dict from Zeopp results, including Qsat and is_porous"""
     geometric_output = zeopp_out.get_dict()
     geometric_output.update({
-        'estimated_saturation_loading_mol/kg': zeopp_out['POAV_cm^3/g']*molecule['molsatdens'],
+        'Estimated_saturation_loading': zeopp_out['POAV_cm^3/g']*molecule['molsatdens'],
+        'Estimated_saturation_loading_unit': 'mol/kg',
         'is_porous': geometric_output["POAV_A^3"] > 0.000
     })
     return Dict(dict=geometric_output)
@@ -210,16 +211,26 @@ class IsothermWorkChain(WorkChain):
             ),
         )
 
-        spec.outputs.dynamic = True  # any outputs are accepted
+        spec.expose_outputs(ZeoppCalculation)
+
+        spec.output('geometric_output',
+                    valid_type=Dict,
+                    required=False, # only if not skip_zeopp
+                    help='Results of the Zeo++ calculation (density, pore volume, etc.) plus some extra results (Qsat)')
+
+        spec.output('isotherm_output',
+                    valid_type=Dict,
+                    required=False, # only if is_porous
+                    help='Results of the widom calculation and (if is_kh_enough) isotherm at a single temperature')
 
     def setup(self):
         """Initialize the parameters"""
 
         # Get the molecule Dict
-        try: #TODO: turn into an if sentence
+        try: #TODO: turn into an "if" sentence
             self.ctx.molecule = get_molecule_dict(self.inputs.molecule)
         except: #it fails if self.inputs.molecule is already povided as Dict
-            self.ctx.molecule = get_molecule_dict(self.inputs.molecule)
+            self.ctx.molecule = self.inputs.molecule
 
         # Get the parameters Dict, merging defaults with user settings
         self.ctx.parameters = aiida_dict_merge(IsothermParameters_default, self.inputs.parameters)
@@ -270,11 +281,9 @@ class IsothermWorkChain(WorkChain):
 
         if self.ctx.geom['is_porous']:
             self.report("Found accessible pore volume: continue")
+            self.report("Found {} blocking spheres".format(self.ctx.geom['Number_of_blocking_spheres']))
             if self.ctx.geom['Number_of_blocking_spheres'] > 0:
-                self.report("Found {} blocking spheres".format(n_block_spheres))
-                self.out("blocking_spheres", self.ctx.zeopp.outputs.block) #TODO:expose from zeopp
-            else:
-                self.report("No blocking spheres found")
+                self.out_many(self.exposed_outputs(self.ctx.zeopp, ZeoppCalculation))
         else:
             self.report("No accessible pore volume: stop")
 
@@ -391,7 +400,7 @@ class IsothermWorkChain(WorkChain):
         self.report("Computed Kh(mol/kg/Pa)={:.2e} POAV(cm3/g)={:.3f} Qsat(mol/kg)={:.2f}".format(
             list(self.ctx.raspa_widom.outputs['output_parameters']["framework_1"]["components"].values())[0]['henry_coefficient_average'],
             self.ctx.geom['POAV_cm^3/g'],
-            self.ctx.geom['estimated_saturation_loading_mol/kg']))
+            self.ctx.geom['Estimated_saturation_loading']))
         self.report("Now evaluating the isotherm @ {}K for {} pressure points".format(
             self.ctx.temperature, len(self.ctx.pressures)))
 

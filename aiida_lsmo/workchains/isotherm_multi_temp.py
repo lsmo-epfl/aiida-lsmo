@@ -71,14 +71,17 @@ class IsothermMultiTempWorkChain(WorkChain):
         spec.outline(
             cls.run_geometric,
             if_(cls.should_continue)(  # if porous
-                cls.run_isotherms,  # run raspa widom calculation
+                cls.run_isotherms,  # run IsothermWorkChain in parallel at different temperatures
                 ),
                 cls.collect_isotherms
             )
 
-        spec.expose_outputs(IsothermWorkChain, include=['geometric_output','blocking_spheres'])
+        spec.expose_outputs(IsothermWorkChain, include=['geometric_output','block'])
 
-        spec.outputs.dynamic = True  # any outputs are accepted
+        spec.output('isotherms_output',
+                    valid_type=Dict,
+                    required=False, # only if is_porous
+                    help='Results of the widom calculations and isotherms at multiple temperature')
 
     def run_geometric(self):
         """Perform Zeo++ block and VOLPO calculation with IsothermWC."""
@@ -101,10 +104,9 @@ class IsothermMultiTempWorkChain(WorkChain):
     def should_continue(self):
         """Continue if porous"""
 
-        self.out('geometric_output', self.ctx.geometric.outputs['geometric_output']) #TODO: use expose instead
-        # Why not working?:
-        #self.out_many(self.exposed_outputs(self.ctx.geometric, IsothermWorkChain))
-        #TODO: expose also blocking spheres if exposed from IsothermWC
+        # Expose geometric_out (and block if present)
+        self.out_many(self.exposed_outputs(self.ctx.geometric, IsothermWorkChain))
+
         return self.outputs['geometric_output']['is_porous']
 
     def run_isotherms(self):
