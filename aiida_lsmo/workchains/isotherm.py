@@ -237,10 +237,10 @@ class IsothermWorkChain(WorkChain):
     def setup(self):
         """Initialize the parameters"""
 
-        # Get the molecule Dict
-        try:  #TODO: turn into an "if" sentence # pylint: disable=fixme
+        # Get the molecule Dict from the yaml or directly as an input
+        if isinstance(self.inputs.molecule, Str):
             self.ctx.molecule = get_molecule_dict(self.inputs.molecule)
-        except:  #it fails if self.inputs.molecule is already povided as Dict # pylint: disable=bare-except
+        elif isinstance(self.inputs.molecule, Dict):
             self.ctx.molecule = self.inputs.molecule
 
         # Get the parameters Dict, merging defaults with user settings
@@ -291,6 +291,7 @@ class IsothermWorkChain(WorkChain):
         if self.ctx.geom['is_porous']:
             self.report("Found accessible pore volume: continue")
             self.report("Found {} blocking spheres".format(self.ctx.geom['Number_of_blocking_spheres']))
+            # Return block file only if blocking spheres are present
             if self.ctx.geom['Number_of_blocking_spheres'] > 0:
                 self.out_many(self.exposed_outputs(self.ctx.zeopp, ZeoppCalculation))
         else:
