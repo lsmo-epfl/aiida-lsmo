@@ -162,14 +162,15 @@ ISOTHERMPARAMETERS_DEFAULT = Dict(
         "ff_cutoff": 12.0,  # valid_type=Float, help='CutOff truncation for the VdW interactions (Angstrom)'
         "temperature": 300,  # valid_type=Float, help='Temperature of the simulation'
         "temperature_list": None,  # valid_type=List, to be used by IsothermMultiTempWorkChain
-        "zeopp_volpo_samples": 1e5,  # valid_type=Int,help='Number of samples for VOLPO calculation (per UC volume)'
-        "zeopp_block_samples": 100,  # valid_type=Int, help='Number of samples for BLOCK calculation (per A^3)'
-        "raspa_minKh": 1e-10,
+        "zeopp_volpo_samples": int(1e5
+                                  ),  # valid_type=Int,help='Number of samples for VOLPO calculation (per UC volume)'
+        "zeopp_block_samples": int(100),  # valid_type=Int, help='Number of samples for BLOCK calculation (per A^3)'
+        "raspa_minKh": int(1e-10),
         # valid_type=Float, help='If Henry coefiicient < raspa_minKh do not run the isotherm (mol/kg/Pa)'
         "raspa_verbosity": 10,  # valid_type=Int,help='Print stats every: number of cycles / raspa_verbosity'
-        "raspa_widom_cycles": 1e5,  # valid_type=Int, help='Number of widom cycles'
-        "raspa_gcmc_init_cycles": 1e3,  # valid_type=Int, help='Number of GCMC initialization cycles'
-        "raspa_gcmc_prod_cycles": 1e4,  # valid_type=Int, help='Number of GCMC production cycles'
+        "raspa_widom_cycles": int(1e5),  # valid_type=Int, help='Number of widom cycles'
+        "raspa_gcmc_init_cycles": int(1e3),  # valid_type=Int, help='Number of GCMC initialization cycles'
+        "raspa_gcmc_prod_cycles": int(1e4),  # valid_type=Int, help='Number of GCMC production cycles'
         "pressure_list": None,
         # valid_type=List, help='Pressure list for the isotherm (bar): if given it will use this list instead of guess'
         "pressure_precision": 0.1,
