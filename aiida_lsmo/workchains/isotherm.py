@@ -176,6 +176,7 @@ ISOTHERMPARAMETERS_DEFAULT = Dict(
         # valid_type=Float, help='Precision in the sampling of the isotherm: 0.1 ok, 0.05 better for lowP range'
         "pressure_maxstep": 5,  # valid_type=Float, help='Max distance between pressure points (bar)'
         "pressure_min": 0.001,  # valid_type=Float, help='Lower pressure to sample (bar)'
+        "pressure_max": 10
     })
 
 
