@@ -156,28 +156,24 @@ def get_isotherm_output(parameters, widom_out, pressures, **gcmc_out_dict):
 # Deafault parameters
 ISOTHERMPARAMETERS_DEFAULT = Dict(
     dict={  #TODO: create IsothermParameters instead of Dict # pylint: disable=fixme
-        "forcefield": "UFF",  # valid_type=Str, help='Forcefield of the structure.'
-        "ff_tailcorr": True,  # apply tail corrections
-        "ff_shift": False,  # shift or truncate at cutoff
-        "ff_cutoff": 12.0,  # valid_type=Float, help='CutOff truncation for the VdW interactions (Angstrom)'
-        "temperature": 300,  # valid_type=Float, help='Temperature of the simulation'
-        "temperature_list": None,  # valid_type=List, to be used by IsothermMultiTempWorkChain
-        "zeopp_volpo_samples": int(1e5
-                                  ),  # valid_type=Int,help='Number of samples for VOLPO calculation (per UC volume)'
-        "zeopp_block_samples": int(100),  # valid_type=Int, help='Number of samples for BLOCK calculation (per A^3)'
-        "raspa_minKh": int(1e-10),
-        # valid_type=Float, help='If Henry coefiicient < raspa_minKh do not run the isotherm (mol/kg/Pa)'
-        "raspa_verbosity": 10,  # valid_type=Int,help='Print stats every: number of cycles / raspa_verbosity'
-        "raspa_widom_cycles": int(1e5),  # valid_type=Int, help='Number of widom cycles'
-        "raspa_gcmc_init_cycles": int(1e3),  # valid_type=Int, help='Number of GCMC initialization cycles'
-        "raspa_gcmc_prod_cycles": int(1e4),  # valid_type=Int, help='Number of GCMC production cycles'
-        "pressure_list": None,
-        # valid_type=List, help='Pressure list for the isotherm (bar): if given it will use this list instead of guess'
-        "pressure_precision": 0.1,
-        # valid_type=Float, help='Precision in the sampling of the isotherm: 0.1 ok, 0.05 better for lowP range'
-        "pressure_maxstep": 5,  # valid_type=Float, help='Max distance between pressure points (bar)'
-        "pressure_min": 0.001,  # valid_type=Float, help='Lower pressure to sample (bar)'
-        "pressure_max": 10
+        "forcefield": "UFF",  # str, Forcefield of the structure
+        "ff_tailcorr": True,  # bool, Apply tail corrections
+        "ff_shift": False,  # bool, Shift or truncate at cutoff
+        "ff_cutoff": 12.0,  # float, CutOff truncation for the VdW interactions (Angstrom)
+        "temperature": 300,  # float, Temperature of the simulation
+        "temperature_list": None,  # list, to be used by IsothermMultiTempWorkChain
+        "zeopp_volpo_samples": int(1e5),  # int, Number of samples for VOLPO calculation (per UC volume)
+        "zeopp_block_samples": int(100),  # int, Number of samples for BLOCK calculation (per A^3)
+        "raspa_minKh": 1e-10,  # float, If Henry coefiicient < raspa_minKh do not run the isotherm (mol/kg/Pa)
+        "raspa_verbosity": 10,  # int, Print stats every: number of cycles / raspa_verbosity
+        "raspa_widom_cycles": int(1e5),  # int, Number of widom cycles
+        "raspa_gcmc_init_cycles": int(1e3),  # int, Number of GCMC initialization cycles
+        "raspa_gcmc_prod_cycles": int(1e4),  # int, Number of GCMC production cycles
+        "pressure_list": None,  # list, Pressure list for the isotherm (bar): if given it will skip  guess
+        "pressure_precision": 0.1,  # float, Precision in the sampling of the isotherm: 0.1 ok, 0.05 better for high res
+        "pressure_maxstep": 5,  # float, Max distance between pressure points (bar)
+        "pressure_min": 0.001,  # float, Lower pressure to sample (bar)
+        "pressure_max": 10  # float, upper pressure to sample (bar)
     })
 
 
