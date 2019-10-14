@@ -46,7 +46,7 @@ def main(raspa_code_label, zeopp_code_label):
     builder.raspa_base.raspa.metadata.options = options
     builder.zeopp.metadata.options = options
 
-    builder.structure = CifData(file=os.path.abspath('data/HKUST-1.cif'), label="HKUST-1")
+    builder.structure = CifData(file=os.path.abspath('data/TCC1RS.cif'), label="TCC1RS")
     builder.molecule = Str('co2')
     builder.parameters = Dict(
         dict={
@@ -65,6 +65,7 @@ def main(raspa_code_label, zeopp_code_label):
 
 
 if __name__ == '__main__':
+    print('NOTE: blocking spheres will be found in this structure!')
     main()  # pylint: disable=no-value-for-parameter
 
 # EOF

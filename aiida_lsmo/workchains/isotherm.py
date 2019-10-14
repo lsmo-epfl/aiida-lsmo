@@ -342,8 +342,8 @@ class IsothermWorkChain(WorkChain):
         mult = check_resize_unit_cell(self.inputs.structure, 2 * self.ctx.parameters['ff_cutoff'])
         param["System"]["framework_1"]["UnitCells"] = "{} {} {}".format(mult[0], mult[1], mult[2])
 
-        if self.ctx.geom['Number_of_blocking_spheres'] > 0:  # Not sure this is needed
-            param["Component"][self.ctx.molecule['name']].update({"BlockPocketsFileName": "block_pocket"})
+        if self.ctx.geom['Number_of_blocking_spheres'] > 0:
+            param["Component"][self.ctx.molecule['name']]["BlockPocketsFileName"] = "block_file"
 
         if self.ctx.molecule['charged']:
             param["GeneralSettings"].update({"ChargeMethod": "Ewald", "EwaldPrecision": 1e-6})
@@ -359,7 +359,7 @@ class IsothermWorkChain(WorkChain):
 
         self.ctx.inp['raspa']['framework'] = {"framework_1": self.inputs.structure}
         if self.ctx.geom['Number_of_blocking_spheres'] > 0:
-            self.ctx.inp["raspa"]["block_pocket"] = self.ctx.zeopp.outputs.block
+            self.ctx.inp["raspa"]["block_pocket"] = {"block_file": self.ctx.zeopp.outputs.block}
 
         self.ctx.raspa_param = self._get_widom_param()
         self.ctx.inp['raspa']['parameters'] = Dict(dict=self.ctx.raspa_param).store()
