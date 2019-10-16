@@ -218,7 +218,7 @@ class IsothermWorkChain(WorkChain):
             ),
         )
 
-        spec.expose_outputs(ZeoppCalculation)
+        spec.expose_outputs(ZeoppCalculation, include=['block'])  #only if porous
 
         spec.output(
             'geometric_output',
