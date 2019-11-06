@@ -24,15 +24,12 @@ def check_resize_unit_cell(cif, threshold):  #pylint: disable=too-many-locals
     gamma = float(struct['_cell_angle_gamma']) * deg2rad
 
     # Computing triangular cell matrix
-    vol = np.sqrt(1 - cos(alpha)**2 - cos(beta)**2 - cos(gamma)**2 +
-                  2 * cos(alpha) * cos(beta) * cos(gamma))
+    vol = np.sqrt(1 - cos(alpha)**2 - cos(beta)**2 - cos(gamma)**2 + 2 * cos(alpha) * cos(beta) * cos(gamma))
     cell = np.zeros((3, 3))
     cell[0, :] = [a_len, 0, 0]
     cell[1, :] = [b_len * cos(gamma), b_len * sin(gamma), 0]
     cell[2, :] = [
-        c_len * cos(beta),
-        c_len * (cos(alpha) - cos(beta) * cos(gamma)) / (sin(gamma)),
-        c_len * vol / sin(gamma)
+        c_len * cos(beta), c_len * (cos(alpha) - cos(beta) * cos(gamma)) / (sin(gamma)), c_len * vol / sin(gamma)
     ]
     cell = np.array(cell)
 
@@ -50,9 +47,6 @@ def check_resize_unit_cell(cif, threshold):  #pylint: disable=too-many-locals
     perpwidth[2] = cell[2, 2]
 
     #prevent from crashing if threshold value is zero
-    if threshold == 0:
-        thr = 0.1
-    else:
-        thr = threshold
-    return int(ceil(thr / perpwidth[0])), int(ceil(thr / perpwidth[1])), int(
-        ceil(thr / perpwidth[2]))
+    thr = max(0.001, threshold)
+
+    return int(ceil(thr / perpwidth[0])), int(ceil(thr / perpwidth[1])), int(ceil(thr / perpwidth[2]))
