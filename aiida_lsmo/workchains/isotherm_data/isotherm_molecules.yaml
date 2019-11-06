@@ -1,0 +1,23 @@
+co2:
+  name: CO2          # Raspa's MoleculeName
+  forcefield: TraPPE # Raspa's MoleculeDefinition
+  molsatdens: 21.2   # Density of the liquid phase of the molecule in (mol/l)
+  proberad: 1.525    # radius used for computing VOLPO and Block (Angs)
+  singlebead: False  # if true: RotationProbability=0
+  charged: True      # if true: ChargeMethod=Ewald
+
+n2:
+  name: N2
+  forcefield: TraPPE
+  molsatdens: 28.3
+  proberad: 1.655
+  singlebead: False
+  charged: True
+
+ch4:
+  name: methane
+  forcefield: TraPPE
+  molsatdens: 666
+  proberad: 666
+  singlebead: True
+  charged: False
