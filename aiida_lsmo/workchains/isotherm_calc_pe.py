@@ -44,7 +44,7 @@ def get_pe(geom_co2, isot_co2, geom_n2, isot_n2, pe_parameters):
     return Dict(dict=pe_dict)
 
 
-PE_PARAMETERS_DEFAULT = Dict(dict={
+PE_PARAMETERS_DEFAULT = Dict(dict={ # Parameters used in 10.1021/acscentsci.9b00619
     'gasin': 'coal',
     'vf': 0.35,
     'process': 'TPSA',
@@ -54,11 +54,13 @@ PE_PARAMETERS_DEFAULT = Dict(dict={
     'opt': 'PE',
 })
 
-ISOTHERM_PARAMETERS_DEFAULT = Dict(
+ISOTHERM_PARAMETERS_DEFAULT = Dict( # Parameters used in 10.1021/acscentsci.9b00619
     dict={
-        "forcefield": "UFF",  # valid_type=Str, help='Forcefield of the structure.'
-        "ff_tailcorr": True,  # apply tail corrections
-        "ff_shift": False,  # shift or truncate at cutoff
+        "ff_framework": "UFF",  # valid_type=Str, help='Forcefield of the structure.'
+        "ff_shifted": True,  # shift or truncate at cutoff
+        "ff_tail_corrections": False,  # apply tail corrections
+        "ff_mixing_rule": 'Lorentz-Berthelot',  # str, Mixing rule for the forcefield
+        "ff_separate_interactions": False, # bool, if true use only ff_framework for framework-molecule interactions
         "ff_cutoff": 12.0,  # valid_type=Float, help='CutOff truncation for the VdW interactions (Angstrom)'
         "temperature": 300,  # valid_type=Float, help='Temperature of the simulation'
         "zeopp_volpo_samples": 1e5,  # valid_type=Int,help='Number of samples for VOLPO calculation (per UC volume)'
@@ -106,7 +108,7 @@ class IsothermCalcPEWorkChain(WorkChain):
     def run_isotherms(self):
         """Run Isotherm work chain for CO2 and N2."""
 
-        inputs = self.exposed_inputs(IsothermWorkChain)  ###needs to be AttributeDict(se.fexposed/..)?????????
+        inputs = self.exposed_inputs(IsothermWorkChain)
         self.report("Run Isotherm work chain for CO2 and N2, in CifData<{}> (label: {} )".format(
             self.inputs.structure.pk, self.inputs.structure.label))
 
@@ -116,7 +118,7 @@ class IsothermCalcPEWorkChain(WorkChain):
                 'metadata': {
                     'call_link_label': 'run_isotherm_for_{}'.format(mol),
                 },
-                'molecule': Str(mol),  #Shoud I store????????????
+                'molecule': Str(mol),
                 'parameters': self.inputs.parameters
             })
 

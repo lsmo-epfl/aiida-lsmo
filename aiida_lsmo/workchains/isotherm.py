@@ -16,6 +16,7 @@ RaspaBaseWorkChain = WorkflowFactory('raspa.base')  # pylint: disable=invalid-na
 
 # calculation objects
 ZeoppCalculation = CalculationFactory('zeopp.network')  # pylint: disable=invalid-name
+FFBuilder = CalculationFactory('lsmo.ff_builder')  # pylint: disable=invalid-name
 
 # data objects
 CifData = DataFactory('cif')  # pylint: disable=invalid-name
@@ -54,6 +55,20 @@ def get_zeopp_parameters(molecule_dict, isotparam):
         'block': [probe_rad, isotparam['zeopp_block_samples']],
     }
     return ZeoppParameters(dict=param_dict)
+
+
+@calcfunction
+def get_ff_parameters(molecule_dict, isotparam):
+    """Get the parameters for ff_builder."""
+    ff_params = {}
+    ff_params['ff_framework'] = isotparam['ff_framework']
+    ff_params['ff_molecules'] = {molecule_dict['name']: molecule_dict['forcefield']}
+    ff_params['shifted'] = isotparam['ff_shifted']
+    ff_params['tail_corrections'] = isotparam['ff_tail_corrections']
+    ff_params['mixing_rule'] = isotparam['ff_mixing_rule']
+    ff_params['separate_interactions'] = isotparam['ff_separate_interactions']
+
+    return Dict(dict=ff_params)
 
 
 @calcfunction
@@ -156,9 +171,11 @@ def get_isotherm_output(parameters, widom_out, pressures, **gcmc_out_dict):
 # Deafault parameters
 ISOTHERMPARAMETERS_DEFAULT = Dict(
     dict={  #TODO: create IsothermParameters instead of Dict # pylint: disable=fixme
-        "forcefield": "UFF",  # str, Forcefield of the structure
-        "ff_tailcorr": True,  # bool, Apply tail corrections
-        "ff_shift": False,  # bool, Shift or truncate at cutoff
+        "ff_framework": "UFF",  # str, Forcefield of the structure
+        "ff_shifted": False,  # bool, Shift or truncate at cutoff
+        "ff_tail_corrections": True,  # bool, Apply tail corrections
+        "ff_mixing_rule": 'Lorentz-Berthelot',  # str, Mixing rule for the forcefield
+        "ff_separate_interactions": False,  # bool, if true use only ff_framework for framework-molecule interactions
         "ff_cutoff": 12.0,  # float, CutOff truncation for the VdW interactions (Angstrom)
         "temperature": 300,  # float, Temperature of the simulation
         "temperature_list": None,  # list, to be used by IsothermMultiTempWorkChain
@@ -199,7 +216,7 @@ class IsothermWorkChain(WorkChain):
 
         spec.input("parameters",
                    valid_type=Dict,
-                   help='Parameters for the Isotherm workchain. See IsothermParameters_defaults for types and default')
+                   help='Parameters for the Isotherm workchain: will be merged with IsothermParameters_defaults.')
 
         spec.input("geometric", valid_type=Dict, required=False, help='Already computed Geometric properties')
 
@@ -315,9 +332,7 @@ class IsothermWorkChain(WorkChain):
                 "RemoveAtomNumberCodeFromLabel":
                     True,  # be careful!
                 "Forcefield":
-                    "{}_{}_{}_{}".format(self.ctx.parameters['forcefield'], self.ctx.molecule["forcefield"],
-                                         ["notc", "tc"][self.ctx.parameters['ff_tailcorr']],
-                                         ["trunc", "shift"][self.ctx.parameters['ff_shift']]),
+                    "Local",
                 "UseChargesFromCIFFile":
                     "yes",
                 "CutOff":
@@ -332,7 +347,7 @@ class IsothermWorkChain(WorkChain):
             },
             "Component": {
                 self.ctx.molecule['name']: {
-                    "MoleculeDefinition": self.ctx.molecule["forcefield"],
+                    "MoleculeDefinition": "Local",
                     "WidomProbability": 1.0,
                 },
             },
@@ -363,6 +378,12 @@ class IsothermWorkChain(WorkChain):
 
         self.ctx.raspa_param = self._get_widom_param()
         self.ctx.inp['raspa']['parameters'] = Dict(dict=self.ctx.raspa_param).store()
+
+        # Generate the force field with the ff_builder
+        ff_params = get_ff_parameters(self.ctx.molecule, self.ctx.parameters)
+
+        files_dict = FFBuilder(ff_params)
+        self.ctx.inp['raspa']['file'] = files_dict
 
         running = self.submit(RaspaBaseWorkChain, **self.ctx.inp)
         self.report("Running Raspa Widom @ {}K for the Henry coefficient".format(self.ctx.temperature))
