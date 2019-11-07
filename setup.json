@@ -21,6 +21,9 @@
         "calc-pe >= 1.0.1"
     ],
     "entry_points": {
+        "aiida.calculations": [
+          "lsmo.ff_builder = aiida_lsmo.calcfunctions:ff_builder"
+        ],
         "aiida.workflows": [
             "lsmo.isotherm = aiida_lsmo.workchains:IsothermWorkChain",
             "lsmo.isotherm_multi_temp = aiida_lsmo.workchains:IsothermMultiTempWorkChain",
