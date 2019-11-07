@@ -232,13 +232,13 @@ framework:
 
 # Small gasses
 CH4:
+  critical_constants:
+    tc: 190.56
+    pc: 4599000
+    af: 0.012
   TraPPE:
     description:
       TraPPE united atom (UA) parameterization for methane (10.1021/jp972543+).
-    critical_constants:
-      tc: 190.56
-      pc: 4599000
-      af: 0.012
     atom_types:
       CH4_sp3:
         force_field: [lennard-jones, 148.0, 3.73]
@@ -249,10 +249,6 @@ CH4:
     description: >-
       Parameters used in Raspa for GenericMOFs and GenericZeolites.
       Parametrized for zeolite-MFI in Dubbeldam2004 (10.1021/jp0376727).
-    critical_constants:
-      tc: 190.56
-      pc: 4599000
-      af: 0.012
     atom_types:
       CH4_sp3:
         force_field: [lennard-jones, 158.0, 3.73]
@@ -261,13 +257,13 @@ CH4:
         - [CH4_sp3, 0, 0, 0]
 
 CO2:
+  critical_constants:
+    tc: 304.19
+    pc: 7382000
+    af: 0.228
   TraPPE:
     description:
       TraPPE parameters for carbon dioxide, reported in Potoff2001 (10.1002/aic.690470719).
-    critical_constants:
-      tc: 304.19
-      pc: 7382000
-      af: 0.228
     atom_types:
       O_co2:
         force_field: [lennard-jones, 79.0, 3.05]
@@ -281,13 +277,13 @@ CO2:
       - [O_co2, 0, 0, -1.16]
 
 N2:
+  critical_constants:
+    tc: 126.20
+    pc: 3460000
+    af: 0.0377
   TraPPE:
     description:
       TraPPE parameters for nitrogen, reported in Potoff2001 (10.1002/aic.690470719).
-    critical_constants:
-      tc: 126.20
-      pc: 3460000
-      af: 0.0377
     atom_types:
       N_n2:
         force_field: [lennard-jones, 36.0, 3.31]
@@ -302,13 +298,13 @@ N2:
 
 # Noble gasses (in order of atomic number)
 He:
+  critical_constants:
+    tc: 5.20
+    pc: 228000
+    af: -0.385
   HIRSCHFELDER:
     description:
       Parameters computed by second virial in the book Molecular Theory of Gases and Liquids of 1954 (10.1002/pol.1955.120178311).
-    critical_constants:
-      tc: 5.20
-      pc: 228000
-      af: -0.385
     atom_types:
       He_gas:
         force_field: [lennard-jones, 10.9, 2.640]
@@ -317,13 +313,13 @@ He:
       - [He_gas 0, 0, 0]
 
 Ne:
+  critical_constants:
+    tc: 44.40
+    pc: 2653000
+    af: 0.0
   BOATO:
     description:
       Dispersion parameters from Boato1961 (10.1016/0031-8914(61)90072-6)
-    critical_constants:
-      tc: 44.40
-      pc: 2653000
-      af: 0.0
     atom_types:
       Ne_gas:
         force_field: [lennard-jones, 37.1, 2.670]
@@ -333,10 +329,6 @@ Ne:
   HIRSCHFELDER:
     description:
       Parameters computed by second virial in the book Molecular Theory of Gases and Liquids of 1954 (10.1002/pol.1955.120178311).
-    critical_constants:
-      tc: 44.40
-      pc: 2653000
-      af: 0.0
     atom_types:
       Ne_gas:
         force_field: [lennard-jones, 34.9, 2.780]
@@ -345,14 +337,14 @@ Ne:
       - [Ne_gas 0, 0, 0]
 
 Ar:
+  critical_constants:
+    tc: 150.86
+    pc: 4898000
+    af: 0.0
   HIRSCHFELDER:
     description:
       Parameters computed by second virial in the book Molecular Theory of Gases and Liquids of 1954 (10.1002/pol.1955.120178311).
       Same parameters used also as Boato. Used by Raspa in GenericMOFs.
-    critical_constants:
-      tc: 150.86
-      pc: 4898000
-      af: 0.0
     atom_types:
       Ar_gas:
         force_field: [lennard-jones, 119.8, 3.400]
@@ -361,13 +353,13 @@ Ar:
       - [Ar_gas 0, 0, 0]
 
 Kr:
+  critical_constants:
+    tc: 209.35
+    pc: 5502000
+    af: 0.0
   BOATO:
     description:
       Dispersion parameters from Boato1961 (10.1016/0031-8914(61)90072-6)
-    critical_constants:
-      tc: 209.35
-      pc: 5502000
-      af: 0.0
     atom_types:
       Kr_gas:
         force_field: [lennard-jones, 165.2, 3.660]
@@ -377,10 +369,6 @@ Kr:
   HIRSCHFELDER:
     description:
       Parameters computed by second virial in the book Molecular Theory of Gases and Liquids of 1954 (10.1002/pol.1955.120178311).
-    critical_constants:
-      tc: 209.35
-      pc: 5502000
-      af: 0.0
     atom_types:
       Kr_gas:
         force_field: [lennard-jones, 171.0, 3.600]
@@ -389,13 +377,13 @@ Kr:
       - [Kr_gas 0, 0, 0]
 
 Xe:
+  critical_constants:
+    tc: 289.74
+    pc: 5840000
+    af: 0.0
   BOATO:
     description:
       Dispersion parameters from Boato1961 (10.1016/0031-8914(61)90072-6)
-    critical_constants:
-      tc: 289.74
-      pc: 5840000
-      af: 0.0
     atom_types:
       Xe_gas:
         force_field: [lennard-jones, 229.8, 3.970]
@@ -406,10 +394,6 @@ Xe:
     description: >-
       Parameters computed by second virial in the book Molecular Theory of Gases and Liquids of 1954 (10.1002/pol.1955.120178311).
       Used by Raspa in GenericMOFs and GenericZeolites.
-    critical_constants:
-      tc: 289.74
-      pc: 5840000
-      af: 0.0
     atom_types:
       Xe_gas:
         force_field: [lennard-jones, 221.0, 4.1]

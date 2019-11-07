@@ -24,7 +24,7 @@ ff_parameters = Dict( # pylint: disable=invalid-name
     })
 
 results, node = run_get_node(FFBuilder, ff_parameters)  # pylint: disable=invalid-name
-print(("Terminated ff_builder calcfunction, pk:", node.pk))
+print("Terminated ff_builder calcfunction, pk:", node.pk)
 for key, val in results.items():
     #filepath = os.path.join(val._repository._get_base_folder().abspath, val.filename)
-    print(("Output:", val.pk, key))
+    print("Output:", val.pk, key)
