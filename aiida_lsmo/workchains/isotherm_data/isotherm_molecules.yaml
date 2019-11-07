@@ -15,9 +15,17 @@ n2:
   charged: True
 
 ch4:
-  name: methane
+  name: CH4
   forcefield: TraPPE
-  molsatdens: 666
-  proberad: 666
+  molsatdens: 37.0  # from simulation at 300K/300bar
+  proberad: 1.5     # 80% sigma/2
   singlebead: True
+  charged: False
+
+ch4-mod:
+  name: CH4
+  forcefield: TraPPE-mod
+  molsatdens: 37.0
+  proberad: 1.5
+  singlebead: False
   charged: False
