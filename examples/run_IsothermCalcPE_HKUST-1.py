@@ -47,17 +47,19 @@ def main(raspa_code_label, zeopp_code_label):
     builder.zeopp.metadata.options = options
 
     builder.structure = CifData(file=os.path.abspath('data/HKUST-1.cif'), label="HKUST-1")
+    # NOTE1: parameters are chosen for speed purpose. Use the default to be consistent to 10.1021/acscentsci.9b00619
+    # NOTE2: calc_pe can fail due to this raw sampling of the isotherm. It happens in the ca. 20% of the cases.
     builder.parameters = Dict(
         dict={
             'forcefield': 'UFF',
-            'temperature': 400,  # WARNING: use 300 K for real PE calculation!
-            'zeopp_volpo_samples': 1000,  # Default: 1e5
-            'zeopp_block_samples': 10,  # Default: 100
-            'raspa_widom_cycles': 100,  # Default: 1e5
-            'raspa_gcmc_init_cycles': 100,  # Default: 1e3
-            'raspa_gcmc_prod_cycles': 1000,  # Default: 1e4
-            'pressure_min': 0.001,  # Default: 0.001 (bar)
-            'pressure_max': 10,  # WARNING: use 30 bar for real PE calculation!
+            'temperature': 400,
+            'zeopp_volpo_samples': 1000,
+            'zeopp_block_samples': 10,
+            'raspa_widom_cycles': 100,
+            'raspa_gcmc_init_cycles': 100,
+            'raspa_gcmc_prod_cycles': 1000,
+            'pressure_min': 0.001,
+            'pressure_max': 10,
         })
 
     run(builder)

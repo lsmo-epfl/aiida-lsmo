@@ -6,6 +6,7 @@ Subpackages
 
 .. toctree::
 
+   aiida_lsmo.calcfunctions
    aiida_lsmo.utils
    aiida_lsmo.workchains
 
