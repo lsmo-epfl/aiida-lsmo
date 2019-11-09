@@ -243,14 +243,34 @@ CH4:
       CH4_sp3:
         force_field: [lennard-jones, 148.0, 3.73]
         pseudo_atom: [yes, C, C, 0, 16.04, 0.0, 0.0, 1.0, 1.00, 0, 0, relative, 0]
-      atomic_positions:
-        - [CH4_sp3, 0, 0, 0]
+    atomic_positions:
+      - [CH4_sp3, 0, 0, 0]
+  TraPPE-mod:
+    description: >-
+      Explicit hydrogen representation, to be used with separate_interatctions=True.
+      The ff_framework (e.g., UFF) will be used to compute the framework-fullmolecule interactions.
+      TraPPE-UA will be used to compute ch4-ch4 interactions, neglecting the hydrogens.
+      The molecule geometry has been optimized using UFF in Avogadro (C-H distance of 1.109 Angs).
+    atom_types:
+      C_ch4:
+        force_field: [lennard-jones, 148.0, 3.73]
+        pseudo_atom: [yes, C, C, 0, 12.00, 0.0, 0.0, 1.0, 1.00, 0, 0, relative, 0]
+      H_ch4:
+        # This is a dummy atom that will be considered only for framework-molecule interactions
+        force_field: dummy_separate
+        pseudo_atom: [yes, H, H, 0, 1.01, 0.0, 0.0, 1.0, 1.00, 0, 0, relative, 0]
+    atomic_positions:
+      - [C_ch4,  0.00000,  0.00000,  0.00000]
+      - [H_ch4,  0.00000, -0.00000,  1.10940]
+      - [H_ch4, -1.00777,  0.28004, -0.36980]
+      - [H_ch4,  0.26136, -1.01277, -0.36980]
+      - [H_ch4,  0.74641,  0.73273, -0.36980]
   Dubbeldam:
     description: >-
       Parameters used in Raspa for GenericMOFs and GenericZeolites.
       Parametrized for zeolite-MFI in Dubbeldam2004 (10.1021/jp0376727).
     atom_types:
-      CH4_sp3:
+      C_sp3:
         force_field: [lennard-jones, 158.0, 3.73]
         pseudo_atom: [yes, C, C, 0, 16.04, 0.0, 0.0, 1.0, 1.00, 0, 0, relative, 0]
       atomic_positions:
@@ -303,8 +323,9 @@ He:
     pc: 228000
     af: -0.385
   HIRSCHFELDER:
-    description:
-      Parameters computed by second virial in the book Molecular Theory of Gases and Liquids of 1954 (10.1002/pol.1955.120178311).
+    description: >-
+      Parameters computed by second virial in the book "Molecular Theory of Gases and Liquids"
+      of 1954 (10.1002/pol.1955.120178311).
     atom_types:
       He_gas:
         force_field: [lennard-jones, 10.9, 2.640]
@@ -327,8 +348,9 @@ Ne:
     atomic_positions:
       - [Ne_gas 0, 0, 0]
   HIRSCHFELDER:
-    description:
-      Parameters computed by second virial in the book Molecular Theory of Gases and Liquids of 1954 (10.1002/pol.1955.120178311).
+    description: >-
+      Parameters computed by second virial in the book "Molecular Theory of Gases and Liquids"
+      of 1954 (10.1002/pol.1955.120178311).
     atom_types:
       Ne_gas:
         force_field: [lennard-jones, 34.9, 2.780]
@@ -343,7 +365,8 @@ Ar:
     af: 0.0
   HIRSCHFELDER:
     description:
-      Parameters computed by second virial in the book Molecular Theory of Gases and Liquids of 1954 (10.1002/pol.1955.120178311).
+      Parameters computed by second virial in the book "Molecular Theory of Gases and Liquids"
+      of 1954 (10.1002/pol.1955.120178311).
       Same parameters used also as Boato. Used by Raspa in GenericMOFs.
     atom_types:
       Ar_gas:
@@ -367,8 +390,9 @@ Kr:
     atomic_positions:
       - [Kr_gas 0, 0, 0]
   HIRSCHFELDER:
-    description:
-      Parameters computed by second virial in the book Molecular Theory of Gases and Liquids of 1954 (10.1002/pol.1955.120178311).
+    description: >-
+      Parameters computed by second virial in the book "Molecular Theory of Gases and Liquids"
+      of 1954 (10.1002/pol.1955.120178311).
     atom_types:
       Kr_gas:
         force_field: [lennard-jones, 171.0, 3.600]
@@ -392,7 +416,8 @@ Xe:
       - [Xe_gas 0, 0, 0]
   HIRSCHFELDER:
     description: >-
-      Parameters computed by second virial in the book Molecular Theory of Gases and Liquids of 1954 (10.1002/pol.1955.120178311).
+      Parameters computed by second virial in the book "Molecular Theory of Gases and Liquids"
+      of 1954 (10.1002/pol.1955.120178311).
       Used by Raspa in GenericMOFs and GenericZeolites.
     atom_types:
       Xe_gas:
