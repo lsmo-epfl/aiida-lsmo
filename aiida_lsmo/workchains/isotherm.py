@@ -39,7 +39,7 @@ def get_molecule_dict(molecule_name):
 @calcfunction
 def get_atomic_radii(isotparam):
     """Get {forcefield}.rad as SinglefileData form workchain/isotherm_data"""
-    forcefield = isotparam['forcefield']
+    forcefield = isotparam['ff_framework']
     thisdir = os.path.dirname(os.path.abspath(__file__))
     fullfilename = forcefield + ".rad"
     return SinglefileData(file=os.path.join(thisdir, "isotherm_data", fullfilename))
@@ -67,7 +67,6 @@ def get_ff_parameters(molecule_dict, isotparam):
     ff_params['tail_corrections'] = isotparam['ff_tail_corrections']
     ff_params['mixing_rule'] = isotparam['ff_mixing_rule']
     ff_params['separate_interactions'] = isotparam['ff_separate_interactions']
-
     return Dict(dict=ff_params)
 
 
@@ -171,7 +170,7 @@ def get_isotherm_output(parameters, widom_out, pressures, **gcmc_out_dict):
 # Deafault parameters
 ISOTHERMPARAMETERS_DEFAULT = Dict(
     dict={  #TODO: create IsothermParameters instead of Dict # pylint: disable=fixme
-        "ff_framework": "UFF",  # str, Forcefield of the structure
+        "ff_framework": "UFF",  # str, Forcefield of the structure (used also as a definition of ff.rad for zeopp)
         "ff_shifted": False,  # bool, Shift or truncate at cutoff
         "ff_tail_corrections": True,  # bool, Apply tail corrections
         "ff_mixing_rule": 'Lorentz-Berthelot',  # str, Mixing rule for the forcefield
@@ -330,7 +329,7 @@ class IsothermWorkChain(WorkChain):
                 "PrintEvery":
                     int(1e10),
                 "RemoveAtomNumberCodeFromLabel":
-                    True,  # be careful!
+                    True,  # BE CAREFULL: needed in AiiDA-1.0.0 because of github.com/aiidateam/aiida-core/issues/3304
                 "Forcefield":
                     "Local",
                 "UseChargesFromCIFFile":
