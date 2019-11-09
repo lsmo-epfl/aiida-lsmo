@@ -59,7 +59,8 @@ class ZeoppMultistageDdecWorkChain(WorkChain):
         zeopp_inp = AttributeDict(self.exposed_inputs(ZeoppCalculation, 'zeopp'))
         zeopp_inp['parameters'] = self.inputs.zeopp.parameters
         zeopp_inp['structure'] = self.inputs.structure
-        zeopp_inp.update({'metadata': {'label': "zeopp_before_opt", 'call_link_label': 'run_zeopp_before_opt'}})
+        zeopp_inp['metadata']['label'] = "zeopp_before_opt"
+        zeopp_inp['metadata']['call_link_label'] = "call_zeopp_before_opt"
 
         running_zeopp = self.submit(ZeoppCalculation, **zeopp_inp)
         self.report("Running Zeo++ calculation <{}>".format(running_zeopp.pk))
@@ -71,7 +72,8 @@ class ZeoppMultistageDdecWorkChain(WorkChain):
         zeopp_inp = AttributeDict(self.exposed_inputs(ZeoppCalculation, 'zeopp'))
         zeopp_inp['parameters'] = self.inputs.zeopp.parameters
         zeopp_inp['structure'] = self.ctx.cp2k_ddec_wc.outputs.structure_ddec
-        zeopp_inp.update({'metadata': {'label': "zeopp_after_opt", 'call_link_label': 'run_zeopp_after_opt'}})
+        zeopp_inp['metadata']['label'] = "zeopp_after_opt"
+        zeopp_inp['metadata']['call_link_label'] = "call_zeopp_after_opt"
 
         running_zeopp = self.submit(ZeoppCalculation, **zeopp_inp)
         self.report("Running Zeo++ calculation <{}>".format(running_zeopp.pk))
@@ -81,7 +83,7 @@ class ZeoppMultistageDdecWorkChain(WorkChain):
         """Run CP2K-Multistage"""
         cp2k_ms_inputs = AttributeDict(self.exposed_inputs(Cp2kMultistageWorkChain))
         cp2k_ms_inputs['structure'] = self.inputs.structure.get_structure()
-        cp2k_ms_inputs.update({'metadata': {'call_link_label': 'run_cp2kmultistage'}})
+        cp2k_ms_inputs['metadata']['call_link_label'] = 'call_cp2kmultistage'
 
         running = self.submit(Cp2kMultistageWorkChain, **cp2k_ms_inputs)
         return ToContext(ms_wc=running)
@@ -95,7 +97,7 @@ class ZeoppMultistageDdecWorkChain(WorkChain):
         cp2k_ddec_inputs['cp2k_base']['cp2k']['parameters'] = self.ctx.ms_wc.outputs.last_input_parameters
         cp2k_ddec_inputs['cp2k_base']['cp2k']['structure'] = self.ctx.ms_wc.outputs.output_structure
         cp2k_ddec_inputs['cp2k_base']['cp2k']['parent_calc_folder'] = self.ctx.ms_wc.outputs.remote_folder
-        cp2k_ddec_inputs.update({'metadata': {'call_link_label': 'run_cp2kddec'}})
+        cp2k_ddec_inputs['metadata']['call_link_label'] = 'call_cp2kddec'
 
         running = self.submit(Cp2kDdecWorkChain, **cp2k_ddec_inputs)
         return ToContext(cp2k_ddec_wc=running)

@@ -33,6 +33,7 @@ class MultistageDdecWorkChain(WorkChain):
     def run_cp2kmultistage(self):
         """Run CP2K-Multistage"""
         cp2k_ms_inputs = AttributeDict(self.exposed_inputs(Cp2kMultistageWorkChain))
+        cp2k_ms_inputs['metadata']['call_link_label'] = 'call_cp2kmultistage'
         running = self.submit(Cp2kMultistageWorkChain, **cp2k_ms_inputs)
         self.report('Running Cp2MultistageWorkChain to move the structure')
         return ToContext(ms_wc=running)
@@ -46,6 +47,8 @@ class MultistageDdecWorkChain(WorkChain):
         cp2k_ddec_inputs['cp2k_base']['cp2k']['parameters'] = self.ctx.ms_wc.outputs.last_input_parameters
         cp2k_ddec_inputs['cp2k_base']['cp2k']['structure'] = self.ctx.ms_wc.outputs.output_structure
         cp2k_ddec_inputs['cp2k_base']['cp2k']['parent_calc_folder'] = self.ctx.ms_wc.outputs.remote_folder
+        cp2k_ddec_inputs['metadata']['call_link_label'] = 'call_cp2kddec'
+
         running = self.submit(Cp2kDdecWorkChain, **cp2k_ddec_inputs)
         return ToContext(cp2k_ddec_wc=running)
 
