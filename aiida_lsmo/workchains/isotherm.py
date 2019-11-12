@@ -384,7 +384,7 @@ class IsothermWorkChain(WorkChain):
             self.ctx.inp["raspa"]["block_pocket"] = {"block_file": self.ctx.zeopp.outputs.block}
 
         self.ctx.raspa_param = self._get_widom_param()
-        self.ctx.inp['raspa']['parameters'] = Dict(dict=self.ctx.raspa_param).store()
+        self.ctx.inp['raspa']['parameters'] = Dict(dict=self.ctx.raspa_param)
 
         # Generate the force field with the ff_builder
         ff_params = get_ff_parameters(self.ctx.molecule, self.ctx.parameters)
@@ -464,7 +464,7 @@ class IsothermWorkChain(WorkChain):
             self.ctx.pressures[self.ctx.current_p_index] * 1e5
 
         # Update parameters Dict
-        self.ctx.inp['raspa']['parameters'] = Dict(dict=self.ctx.raspa_param).store()
+        self.ctx.inp['raspa']['parameters'] = Dict(dict=self.ctx.raspa_param)
 
         # Update restart (if present, i.e., if current_p_index>0)
         if self.ctx.current_p_index > 0:
