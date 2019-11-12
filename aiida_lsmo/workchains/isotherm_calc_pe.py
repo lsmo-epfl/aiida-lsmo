@@ -6,17 +6,21 @@ from __future__ import absolute_import
 from aiida.plugins import DataFactory, WorkflowFactory
 from aiida.orm import Dict, Str
 from aiida.engine import calcfunction
-from aiida.engine import WorkChain, if_
+from aiida.engine import WorkChain
 
 IsothermWorkChain = WorkflowFactory('lsmo.isotherm')  #pylint: disable=invalid-name
 CifData = DataFactory('cif')  #pylint: disable=invalid-name
 
 
 @calcfunction
-def get_pe(geom_co2, isot_co2, geom_n2, isot_n2, pe_parameters):
+def get_pe(isot_co2, isot_n2, pe_parameters):
     """ Submit calc_pe calculation using AiiDA, for the CO2 parasitic energy."""
     import pandas as pd
     from calc_pe import mainPE
+
+    if not isot_co2['is_porous'] or not isot_n2['is_porous']:
+        return Dict(dict={'is_porous': False})
+
     bar2pa = 1e5  # convert pressure from bar to Pa
     gcm2kgm = 1000  # convert density from g/cm3 to kg/m3
 
@@ -24,7 +28,6 @@ def get_pe(geom_co2, isot_co2, geom_n2, isot_n2, pe_parameters):
     iso_df = {}
     for i in [0, 1]:
         gas = ['CO_2', 'N_2'][i]
-        geom = [geom_co2, geom_n2][i].get_dict()
         isot = [isot_co2, isot_n2][i].get_dict()
         t_iso[gas] = isot['temperature']
         iso_df[gas] = pd.DataFrame(columns=['pressure(Pa)', 'loading(mol/kg)', 'HoA(kJ/mol)'])
@@ -36,11 +39,13 @@ def get_pe(geom_co2, isot_co2, geom_n2, isot_n2, pe_parameters):
         iso_df[gas]['HoA(kJ/mol)'].loc[0] = isot['adsorption_energy_widom_average'] - isot['temperature'] / 120.027
 
     pe_dict = mainPE(
-        rho=geom['Density'] * gcm2kgm,
+        rho=isot['Density'] * gcm2kgm,
         T_iso=t_iso,  # [T_iso_CO2, T_iso_N2]
         iso_df=iso_df,  # [iso_df_CO2, iso_df_N2] df containing pressure (Pa), loading (mol/kg), HoA (kJ/mol)
         **pe_parameters.get_dict()  # all other parameters that are specific of the modelling
     )
+    pe_dict['is_porous'] = True
+
     return Dict(dict=pe_dict)
 
 
@@ -96,14 +101,16 @@ class IsothermCalcPEWorkChain(WorkChain):
                    help='Parameters for PE process modelling')
 
         spec.outline(
-            cls.run_isotherms,  # run IsothermWorkChain in parallel for co2 and n2
-            if_(cls.should_continue)(  # if porous to both co2 and n2
-                cls.run_calcpe,),
+            cls.run_isotherms,
+            cls.run_calcpe,
         )
 
         spec.expose_outputs(IsothermWorkChain, namespace='co2')
         spec.expose_outputs(IsothermWorkChain, namespace='n2')
-        spec.output('calc_pe', valid_type=Dict, required=False, help='Output of CalcPe')
+        spec.output('output_parameters',
+                    valid_type=Dict,
+                    required=True,
+                    help='Output parmaters of a calc_PE calculations')
 
     def run_isotherms(self):
         """Run Isotherm work chain for CO2 and N2."""
@@ -125,29 +132,15 @@ class IsothermCalcPEWorkChain(WorkChain):
             running = self.submit(IsothermWorkChain, **inputs)
             self.to_context(**{'isotherm_{}'.format(mol): running})
 
-    def should_continue(self):
-        """Expose outputs and continue if porous to both."""
+    def run_calcpe(self):
+        """Expose isotherm outputs, prepare calc_pe, run it and return the output."""
 
         self.out_many(self.exposed_outputs(self.ctx.isotherm_co2, IsothermWorkChain, namespace='co2'))
         self.out_many(self.exposed_outputs(self.ctx.isotherm_n2, IsothermWorkChain, namespace='n2'))
 
-        co2_porous = self.ctx.isotherm_co2.outputs['geometric_output'].get_dict()['is_porous']
-        n2_porous = self.ctx.isotherm_n2.outputs['geometric_output'].get_dict()['is_porous']
-
-        self.report("Porosity test for CO2/N2: {}/{}".format(co2_porous, n2_porous))
-        return co2_porous and n2_porous
-
-    def run_calcpe(self):
-        """Prepare isotherms results for calc_pe, run it and return the output."""
-        from calc_pe.utils import get_PE_results_string
-
-        calcpe = get_pe(geom_co2=self.ctx.isotherm_co2.outputs['geometric_output'],
-                        isot_co2=self.ctx.isotherm_co2.outputs['isotherm_output'],
-                        geom_n2=self.ctx.isotherm_n2.outputs['geometric_output'],
-                        isot_n2=self.ctx.isotherm_n2.outputs['isotherm_output'],
+        calcpe = get_pe(isot_co2=self.ctx.isotherm_co2.outputs['output_parameters'],
+                        isot_n2=self.ctx.isotherm_n2.outputs['output_parameters'],
                         pe_parameters=self.inputs['pe_parameters'])
 
-        self.out("calc_pe", calcpe)
-        self.report('calc_pe Dict<{}>'.format(calcpe.uuid))
-        self.report("{}".format(get_PE_results_string(adsorbent_name=self.inputs.structure.label,
-                                                      res=calcpe.get_dict())))
+        self.out("output_parameters", calcpe)
+        self.report('calc_pe Dict<{}>'.format(calcpe.pk))

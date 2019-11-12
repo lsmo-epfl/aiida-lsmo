@@ -21,7 +21,7 @@ def get_parameters_singletemp(i, parameters):
 
 
 @calcfunction
-def get_isotherms_output(**isotherm_dict):
+def get_output_parameters(geom_dict, **isotherm_dict):
     """Gather together all the results, returning lists for the multi temperature values"""
 
     multi_temp_labels = [
@@ -35,20 +35,21 @@ def get_isotherms_output(**isotherm_dict):
         'conversion_factor_molec_uc_to_mol_kg'
     ]
 
-    isotherms_output = {}
-    for label in multi_temp_labels:
-        isotherms_output[label] = []
-
-    for i in range(len(isotherm_dict)):
+    out_dict = geom_dict.get_dict()
+    if out_dict['is_porous']:
         for label in multi_temp_labels:
-            isotherm_out_i = isotherm_dict['isotherm_out_{}'.format(i)]
-            isotherms_output[label].append(isotherm_out_i[label])
+            out_dict[label] = []
 
-    # Same for all, take the last for convenience
-        for label in single_temp_labels:
-            isotherms_output[label] = isotherm_out_i[label]
+        for i in range(len(isotherm_dict)):
+            for label in multi_temp_labels:
+                isotherm_out_i = isotherm_dict['isotherm_out_{}'.format(i)]
+                out_dict[label].append(isotherm_out_i[label])
 
-    return Dict(dict=isotherms_output)
+        # Same for all, take the last for convenience
+            for label in single_temp_labels:
+                out_dict[label] = isotherm_out_i[label]
+
+    return Dict(dict=out_dict)
 
 
 class IsothermMultiTempWorkChain(WorkChain):
@@ -69,13 +70,12 @@ class IsothermMultiTempWorkChain(WorkChain):
             ),
             cls.collect_isotherms)
 
-        spec.expose_outputs(IsothermWorkChain, include=['geometric_output', 'block'])
+        spec.expose_outputs(IsothermWorkChain, include=['block'])
 
-        spec.output(
-            'isotherms_output',
-            valid_type=Dict,
-            required=False,  # only if is_porous
-            help='Results of the widom calculations and isotherms at multiple temperature')
+        spec.output('output_parameters',
+                    valid_type=Dict,
+                    required=True,
+                    help='Results of isotherms run at different temperatures.')
 
     def run_geometric(self):
         """Perform Zeo++ block and VOLPO calculation with IsothermWC."""
@@ -93,24 +93,27 @@ class IsothermMultiTempWorkChain(WorkChain):
 
         running = self.submit(IsothermWorkChain, **inputs)
         self.report("Computing common gemetric properties")
-        return ToContext(geometric=running)
+        return ToContext(geom_only=running)
 
     def should_continue(self):
         """Continue if porous"""
-
-        # Expose geometric_out (and block if present)
-        self.out_many(self.exposed_outputs(self.ctx.geometric, IsothermWorkChain))
-
-        return self.outputs['geometric_output']['is_porous']
+        # Put the geometric_dict and in context for quick use
+        self.ctx.geom = self.ctx.geom_only.outputs.output_parameters
+        # Ouput block file
+        if 'block' in self.ctx.geom_only.outputs:
+            self.out_many(self.exposed_outputs(self.ctx.geom_only, IsothermWorkChain))
+        return self.ctx.geom['is_porous']
 
     def run_isotherms(self):
-        """ Compuite isotherms at different temperatures """
+        """Compute isotherms at different temperatures."""
 
         self.ctx.ntemp = len(self.inputs.parameters['temperature_list'])
 
         # create inputs: exposed are code and metadata
         inputs = self.exposed_inputs(IsothermWorkChain)
-        inputs['geometric'] = self.outputs['geometric_output']
+        inputs['geometric'] = self.ctx.geom
+        if 'block' in self.ctx.geom_only.outputs:
+            inputs['raspa_base']['raspa']["block_pocket"] = {"block_file": self.ctx.geom_only.outputs.block}
 
         # Update the parameters with only one temperature and submit
         for i in range(self.ctx.ntemp):
@@ -131,10 +134,11 @@ class IsothermMultiTempWorkChain(WorkChain):
         """ Collect all the results in one Dict """
 
         output_dict = {}
-        for i in range(self.ctx.ntemp):
-            output_dict['isotherm_out_{}'.format(i)] = self.ctx['isotherm_{}'.format(i)].outputs['isotherm_output']
+        if self.ctx.geom['is_porous']:
+            for i in range(self.ctx.ntemp):
+                output_dict['isotherm_out_{}'.format(i)] = self.ctx['isotherm_{}'.format(
+                    i)].outputs['output_parameters']
 
-        self.out("isotherms_output", get_isotherms_output(**output_dict))
+        self.out("output_parameters", get_output_parameters(self.ctx.geom, **output_dict))
 
-        self.report("All the isotherms computed: geom Dict<{}>, isotherms Dict<{}>".format(
-            self.outputs['geometric_output'].pk, self.outputs['isotherms_output'].pk))
+        self.report("All the isotherms computed: output Dict<{}>".format(self.outputs['output_parameters'].pk))
