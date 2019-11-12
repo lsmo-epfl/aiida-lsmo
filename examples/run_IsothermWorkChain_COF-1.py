@@ -1,9 +1,10 @@
 #!/usr/bin/env python  # pylint: disable=invalid-name
 # -*- coding: utf-8 -*-
-"""Run example isotherm calculation with HKUST1 framework."""
+"""Run example isotherm calculation with COF-1 framework."""
 
 from __future__ import absolute_import
 from __future__ import print_function
+
 import os
 import click
 
@@ -12,7 +13,7 @@ from aiida.plugins import DataFactory, WorkflowFactory
 from aiida.orm import Code, Dict, Str
 
 # Workchain objects
-IsothermWorkChain = WorkflowFactory('lsmo.isotherm_multi_temp')  # pylint: disable=invalid-name
+IsothermWorkChain = WorkflowFactory('lsmo.isotherm')  # pylint: disable=invalid-name
 
 # Data objects
 CifData = DataFactory('cif')  # pylint: disable=invalid-name
@@ -24,7 +25,7 @@ NetworkParameters = DataFactory('zeopp.parameters')  # pylint: disable=invalid-n
 @click.argument('zeopp_code_label')
 def main(raspa_code_label, zeopp_code_label):
     """Prepare inputs and submit the Isotherm workchain.
-    Usage: verdi run run_IsothermMultiTempWorkChain_HKUST-1.py raspa@localhost zeopp@localhost"""
+    Usage: verdi run run_IsothermWorkChain_COF-1.py raspa@localhost network@localhost"""
 
     builder = IsothermWorkChain.get_builder()
 
@@ -45,12 +46,12 @@ def main(raspa_code_label, zeopp_code_label):
     builder.raspa_base.raspa.metadata.options = options
     builder.zeopp.metadata.options = options
 
-    builder.structure = CifData(file=os.path.abspath('data/HKUST-1.cif'), label="HKUST-1")
+    builder.structure = CifData(file=os.path.abspath('data/COF-1.cif'), label="COF-1")
     builder.molecule = Str('co2')
     builder.parameters = Dict(
         dict={
             'forcefield': 'UFF',  # Default: UFF
-            'temperature_list': [400, 500],  # (K) ******* NOTE: list for multi temperature *********
+            'temperature': 400,  # (K) Note: higher temperature will have less adsorbate and it is faster
             'zeopp_volpo_samples': 1000,  # Default: 1e5 *NOTE: default is good for standard real-case!
             'zeopp_block_samples': 10,  # Default: 100
             'raspa_widom_cycles': 100,  # Default: 1e5
@@ -64,6 +65,7 @@ def main(raspa_code_label, zeopp_code_label):
 
 
 if __name__ == '__main__':
+    print('NOTE: this structure is not porous to CO2!')
     main()  # pylint: disable=no-value-for-parameter
 
 # EOF
