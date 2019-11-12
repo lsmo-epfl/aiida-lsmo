@@ -380,7 +380,7 @@ class IsothermWorkChain(WorkChain):
         self.ctx.inp['metadata']['call_link_label'] = "run_raspa_widom"
 
         self.ctx.inp['raspa']['framework'] = {"framework_1": self.inputs.structure}
-        if self.ctx.geom['Number_of_blocking_spheres'] > 0:
+        if self.ctx.geom['Number_of_blocking_spheres'] > 0 and self.ctx.multitemp_mode != 'run_single_temp':
             self.ctx.inp["raspa"]["block_pocket"] = {"block_file": self.ctx.zeopp.outputs.block}
 
         self.ctx.raspa_param = self._get_widom_param()

@@ -97,10 +97,11 @@ class IsothermMultiTempWorkChain(WorkChain):
 
     def should_continue(self):
         """Continue if porous"""
-
-        # Get the geometric_dict to context for quick use
+        # Put the geometric_dict and in context for quick use
         self.ctx.geom = self.ctx.geom_only.outputs.output_parameters
-
+        # Ouput block file
+        if 'block' in self.ctx.geom_only.outputs:
+            self.out_many(self.exposed_outputs(self.ctx.geom_only, IsothermWorkChain))
         return self.ctx.geom['is_porous']
 
     def run_isotherms(self):
@@ -111,6 +112,8 @@ class IsothermMultiTempWorkChain(WorkChain):
         # create inputs: exposed are code and metadata
         inputs = self.exposed_inputs(IsothermWorkChain)
         inputs['geometric'] = self.ctx.geom
+        if 'block' in self.ctx.geom_only.outputs:
+            inputs['raspa_base']['raspa']["block_pocket"] = {"block_file": self.ctx.geom_only.outputs.block}
 
         # Update the parameters with only one temperature and submit
         for i in range(self.ctx.ntemp):
