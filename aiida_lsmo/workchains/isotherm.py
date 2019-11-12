@@ -38,11 +38,13 @@ def get_molecule_dict(molecule_name):
 
 @calcfunction
 def get_atomic_radii(isotparam):
-    """Get {forcefield}.rad as SinglefileData form workchain/isotherm_data"""
-    forcefield = isotparam['ff_framework']
+    """Get {ff_framework}.rad as SinglefileData form workchain/isotherm_data. If not existing use DEFAULT.rad."""
     thisdir = os.path.dirname(os.path.abspath(__file__))
-    fullfilename = forcefield + ".rad"
-    return SinglefileData(file=os.path.join(thisdir, "isotherm_data", fullfilename))
+    filename = isotparam['ff_framework'] + ".rad"
+    filepath = os.path.join(thisdir, "isotherm_data", filename)
+    if not os.path.isfile(filepath):
+        filepath = os.path.join(thisdir, "isotherm_data", "DEFAULT.rad")
+    return SinglefileData(file=filepath)
 
 
 @calcfunction
