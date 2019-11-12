@@ -107,64 +107,68 @@ def get_geometric_output(zeopp_out, molecule):
 
 
 @calcfunction
-def get_isotherm_output(parameters, widom_out, pressures, **gcmc_out_dict):
-    """ Extract Widom and GCMC results to isotherm Dict """
-    widom_out_mol = list(widom_out["framework_1"]["components"].values())[0]
+def get_output_parameters(geom_out, inp_params, widom_out=None, pressures=None, **gcmc_out_dict):
+    """Merge results from all the steps of the work chain."""
 
-    isotherm_output = {
-        'temperature': parameters['temperature'],
-        'temperature_unit': 'K',
-        'is_kh_enough': widom_out_mol['henry_coefficient_average'] > parameters['raspa_minKh']
-    }
+    out_dict = geom_out.get_dict()
 
-    widom_labels = [
-        'henry_coefficient_average',
-        'henry_coefficient_dev',
-        'henry_coefficient_unit',
-        'adsorption_energy_widom_average',
-        'adsorption_energy_widom_dev',
-        'adsorption_energy_widom_unit',
-    ]
+    if out_dict['is_porous']:
+        widom_out_mol = list(widom_out["framework_1"]["components"].values())[0]
 
-    for label in widom_labels:
-        isotherm_output.update({label: widom_out_mol[label]})
-
-    if isotherm_output['is_kh_enough']:
-
-        isotherm = {
-            'pressure': pressures,
-            'pressure_unit': 'bar',
-            'loading_absolute_average': [],
-            'loading_absolute_dev': [],
-            'loading_absolute_unit': 'mol/kg',
-            'enthalpy_of_adsorption_average': [],
-            'enthalpy_of_adsorption_dev': [],
-            'enthalpy_of_adsorption_unit': 'kJ/mol'
-        }
-
-        conv_ener = 1.0 / 120.273  # K to kJ/mol
-        for i in range(len(pressures)):
-            gcmc_out = gcmc_out_dict['RaspaGCMC_{}'.format(i + 1)]["framework_1"]
-            gcmc_out_mol = list(gcmc_out["components"].values())[0]
-            conv_load = gcmc_out_mol["conversion_factor_molec_uc_to_mol_kg"]
-
-            for label in ['loading_absolute_average', 'loading_absolute_dev']:
-                isotherm[label].append(conv_load * gcmc_out_mol[label])
-
-            for label in ['enthalpy_of_adsorption_average', 'enthalpy_of_adsorption_dev']:
-                if gcmc_out['general'][label]:
-                    isotherm[label].append(conv_ener * gcmc_out['general'][label])
-                else:  # when there are no particles and Raspa return Null enthalpy
-                    isotherm[label].append(None)
-
-        isotherm_output.update({
-            "isotherm": isotherm,
-            'conversion_factor_molec_uc_to_cm3stp_cm3': gcmc_out_mol['conversion_factor_molec_uc_to_cm3stp_cm3'],
-            'conversion_factor_molec_uc_to_gr_gr': gcmc_out_mol['conversion_factor_molec_uc_to_gr_gr'],
-            'conversion_factor_molec_uc_to_mol_kg': gcmc_out_mol['conversion_factor_molec_uc_to_mol_kg'],
+        out_dict.update({
+            'temperature': inp_params['temperature'],
+            'temperature_unit': 'K',
+            'is_kh_enough': widom_out_mol['henry_coefficient_average'] > inp_params['raspa_minKh']
         })
 
-    return Dict(dict=isotherm_output)
+        widom_labels = [
+            'henry_coefficient_average',
+            'henry_coefficient_dev',
+            'henry_coefficient_unit',
+            'adsorption_energy_widom_average',
+            'adsorption_energy_widom_dev',
+            'adsorption_energy_widom_unit',
+        ]
+
+        for label in widom_labels:
+            out_dict.update({label: widom_out_mol[label]})
+
+        if out_dict['is_kh_enough']:
+
+            isotherm = {
+                'pressure': pressures,
+                'pressure_unit': 'bar',
+                'loading_absolute_average': [],
+                'loading_absolute_dev': [],
+                'loading_absolute_unit': 'mol/kg',
+                'enthalpy_of_adsorption_average': [],
+                'enthalpy_of_adsorption_dev': [],
+                'enthalpy_of_adsorption_unit': 'kJ/mol'
+            }
+
+            conv_ener = 1.0 / 120.273  # K to kJ/mol
+            for i in range(len(pressures)):
+                gcmc_out = gcmc_out_dict['RaspaGCMC_{}'.format(i + 1)]["framework_1"]
+                gcmc_out_mol = list(gcmc_out["components"].values())[0]
+                conv_load = gcmc_out_mol["conversion_factor_molec_uc_to_mol_kg"]
+
+                for label in ['loading_absolute_average', 'loading_absolute_dev']:
+                    isotherm[label].append(conv_load * gcmc_out_mol[label])
+
+                for label in ['enthalpy_of_adsorption_average', 'enthalpy_of_adsorption_dev']:
+                    if gcmc_out['general'][label]:
+                        isotherm[label].append(conv_ener * gcmc_out['general'][label])
+                    else:  # when there are no particles and Raspa return Null enthalpy
+                        isotherm[label].append(None)
+
+            out_dict.update({
+                "isotherm": isotherm,
+                'conversion_factor_molec_uc_to_cm3stp_cm3': gcmc_out_mol['conversion_factor_molec_uc_to_cm3stp_cm3'],
+                'conversion_factor_molec_uc_to_gr_gr': gcmc_out_mol['conversion_factor_molec_uc_to_gr_gr'],
+                'conversion_factor_molec_uc_to_mol_kg': gcmc_out_mol['conversion_factor_molec_uc_to_mol_kg'],
+            })
+
+    return Dict(dict=out_dict)
 
 
 # Deafault parameters
@@ -206,7 +210,7 @@ class IsothermWorkChain(WorkChain):
 
         spec.expose_inputs(RaspaBaseWorkChain, namespace='raspa_base', exclude=['raspa.structure', 'raspa.parameters'])
 
-        spec.input('structure', valid_type=CifData, help='Adsorbent framework CIF')
+        spec.input('structure', valid_type=CifData, help='Adsorbent framework CIF.')
 
         spec.input("molecule",
                    valid_type=(Str, Dict),
@@ -217,7 +221,10 @@ class IsothermWorkChain(WorkChain):
                    valid_type=Dict,
                    help='Parameters for the Isotherm workchain: will be merged with IsothermParameters_defaults.')
 
-        spec.input("geometric", valid_type=Dict, required=False, help='Already computed Geometric properties')
+        spec.input("geometric",
+                   valid_type=Dict,
+                   required=False,
+                   help='Already computed geometric properties (to be used by IsothermMultiTempWorkChain)')
 
         spec.outline(
             cls.setup,
@@ -229,9 +236,9 @@ class IsothermWorkChain(WorkChain):
                     while_(cls.should_run_another_gcmc)(  # new pressure
                         cls.run_raspa_gcmc,  # run raspa GCMC calculation
                     ),
-                    cls.return_isotherm,
                 ),
             ),
+            cls.return_output_parameters,
         )
 
         spec.expose_outputs(ZeoppCalculation, include=['block'])  #only if porous
@@ -239,14 +246,14 @@ class IsothermWorkChain(WorkChain):
         spec.output(
             'geometric_output',
             valid_type=Dict,
-            required=False,  # only if not skip_zeopp
-            help='Results of the Zeo++ calculation (density, pore volume, etc.) plus some extra results (Qsat)')
+            required=False,  # only if not skip_zeopp (used for IsothermMultiTempWorkChain)
+            help='Results of the geometric calculations only: it instructs the logic and is used for IsothermMultiTemp')
 
         spec.output(
-            'isotherm_output',
+            'output_parameters',
             valid_type=Dict,
-            required=False,  # only if is_porous
-            help='Results of the widom calculation and (if is_kh_enough) isotherm at a single temperature')
+            required=True,
+            help='Results of the single temperature wc: keys can vay depending on is_porous and is_kh_enough booleans.')
 
     def setup(self):
         """Initialize the parameters"""
@@ -471,18 +478,28 @@ class IsothermWorkChain(WorkChain):
         self.ctx.current_p_index += 1
         return ToContext(raspa_gcmc=append_(running))
 
-    def return_isotherm(self):
-        """If is_porous and is_kh_enough create the isotherm_output Dict and report the pks"""
+    def return_output_parameters(self):
+        """Merge all the parameters into output_parameters, depending on is_porous and is_kh_ehough."""
 
         gcmc_out_dict = {}
-        for calc in self.ctx.raspa_gcmc:
-            gcmc_out_dict[calc.label] = calc.outputs.output_parameters
+        if self.ctx.geom['is_porous']:
+            widom_out = self.ctx.raspa_widom.outputs.output_parameters
+            if self.ctx.is_kh_enough:
+                for calc in self.ctx.raspa_gcmc:
+                    gcmc_out_dict[calc.label] = calc.outputs.output_parameters
+            else:
+                self.ctx.pressures = None
+        else:
+            widom_out = None
+            self.ctx.pressures = None
 
         self.out(
-            "isotherm_output",
-            get_isotherm_output(self.ctx.parameters, self.ctx.raspa_widom.outputs.output_parameters, self.ctx.pressures,
-                                **gcmc_out_dict))
+            "output_parameters",
+            get_output_parameters(geom_out=self.ctx.geom,
+                                  inp_params=self.ctx.parameters,
+                                  widom_out=widom_out,
+                                  pressures=self.ctx.pressures,
+                                  **gcmc_out_dict))
 
-        # Report the pk of the results (for geometric results show input if provided from IsothermMultiTemp)
-        self.report("Isotherm @ {}K computed: geom Dict<{}>, isotherm Dict<{}>".format(
-            self.ctx.temperature, self.ctx.geom.pk, self.outputs['isotherm_output'].pk))
+        self.report("Isotherm @ {}K computed: ouput Dict<{}>".format(self.ctx.temperature,
+                                                                     self.outputs['output_parameters'].pk))
