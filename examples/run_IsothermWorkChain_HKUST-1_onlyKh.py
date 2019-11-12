@@ -4,6 +4,7 @@
 
 from __future__ import absolute_import
 from __future__ import print_function
+
 import os
 import click
 
@@ -12,7 +13,7 @@ from aiida.plugins import DataFactory, WorkflowFactory
 from aiida.orm import Code, Dict, Str
 
 # Workchain objects
-IsothermWorkChain = WorkflowFactory('lsmo.isotherm_multi_temp')  # pylint: disable=invalid-name
+IsothermWorkChain = WorkflowFactory('lsmo.isotherm')  # pylint: disable=invalid-name
 
 # Data objects
 CifData = DataFactory('cif')  # pylint: disable=invalid-name
@@ -24,7 +25,7 @@ NetworkParameters = DataFactory('zeopp.parameters')  # pylint: disable=invalid-n
 @click.argument('zeopp_code_label')
 def main(raspa_code_label, zeopp_code_label):
     """Prepare inputs and submit the Isotherm workchain.
-    Usage: verdi run run_IsothermMultiTempWorkChain_HKUST-1.py raspa@localhost zeopp@localhost"""
+    Usage: verdi run run_IsothermWorkChain_HKUST-1_onlyKh.py raspa@localhost network@localhost"""
 
     builder = IsothermWorkChain.get_builder()
 
@@ -46,24 +47,22 @@ def main(raspa_code_label, zeopp_code_label):
     builder.zeopp.metadata.options = options
 
     builder.structure = CifData(file=os.path.abspath('data/HKUST-1.cif'), label="HKUST-1")
-    builder.molecule = Str('co2')
+    builder.molecule = Str('h2o')
     builder.parameters = Dict(
         dict={
             'forcefield': 'UFF',  # Default: UFF
-            'temperature_list': [400, 500],  # (K) ******* NOTE: list for multi temperature *********
+            'temperature': 400,  # (K) Note: higher temperature will have less adsorbate and it is faster
             'zeopp_volpo_samples': 1000,  # Default: 1e5 *NOTE: default is good for standard real-case!
             'zeopp_block_samples': 10,  # Default: 100
             'raspa_widom_cycles': 100,  # Default: 1e5
-            'raspa_gcmc_init_cycles': 10,  # Default: 1e3
-            'raspa_gcmc_prod_cycles': 100,  # Default: 1e4
-            'pressure_min': 0.001,  # Default: 0.001 (bar)
-            'pressure_max': 3,  # Default: 10 (bar)
+            "raspa_minKh": 1000  # NOTE!
         })
 
     run(builder)
 
 
 if __name__ == '__main__':
+    print("NOTE: using high 'raspa_minKh' to stop after Widom calculation")
     main()  # pylint: disable=no-value-for-parameter
 
 # EOF
