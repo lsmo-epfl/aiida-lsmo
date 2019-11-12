@@ -97,15 +97,15 @@ def choose_pressure_points(inp_param, geom, raspa_widom_out):
 
 
 @calcfunction
-def get_geometric_output(zeopp_out, molecule):
-    """Return the geometric_output Dict from Zeopp results, including Qsat and is_porous"""
-    geometric_output = zeopp_out.get_dict()
-    geometric_output.update({
+def get_geometric_dict(zeopp_out, molecule):
+    """Return the geometric Dict from Zeopp results, including Qsat and is_porous"""
+    geometric_dict = zeopp_out.get_dict()
+    geometric_dict.update({
         'Estimated_saturation_loading': zeopp_out['POAV_cm^3/g'] * molecule['molsatdens'],
         'Estimated_saturation_loading_unit': 'mol/kg',
-        'is_porous': geometric_output["POAV_A^3"] > 0.000
+        'is_porous': geometric_dict["POAV_A^3"] > 0.000
     })
-    return Dict(dict=geometric_output)
+    return Dict(dict=geometric_dict)
 
 
 @calcfunction
@@ -114,7 +114,7 @@ def get_output_parameters(geom_out, inp_params, widom_out=None, pressures=None, 
 
     out_dict = geom_out.get_dict()
 
-    if out_dict['is_porous']:
+    if out_dict['is_porous'] and widom_out:
         widom_out_mol = list(widom_out["framework_1"]["components"].values())[0]
 
         out_dict.update({
@@ -226,7 +226,7 @@ class IsothermWorkChain(WorkChain):
         spec.input("geometric",
                    valid_type=Dict,
                    required=False,
-                   help='Already computed geometric properties (to be used by IsothermMultiTempWorkChain)')
+                   help='[Only used by IsothermMultiTempWorkChain] Already computed geometric properties')
 
         spec.outline(
             cls.setup,
@@ -244,12 +244,6 @@ class IsothermWorkChain(WorkChain):
         )
 
         spec.expose_outputs(ZeoppCalculation, include=['block'])  #only if porous
-
-        spec.output(
-            'geometric_output',
-            valid_type=Dict,
-            required=False,  # only if not skip_zeopp (used for IsothermMultiTempWorkChain)
-            help='Results of the geometric calculations only: it instructs the logic and is used for IsothermMultiTemp')
 
         spec.output(
             'output_parameters',
@@ -272,12 +266,19 @@ class IsothermWorkChain(WorkChain):
         # Get integer temperature in context for easy reports
         self.ctx.temperature = int(round(self.ctx.parameters['temperature']))
 
+        # Understand if IsothermMultiTempWorkChain is calling this work chain
+        if "geometric" in self.inputs:
+            self.ctx.multitemp_mode = 'run_single_temp'
+        elif self.ctx.parameters['temperature_list']:
+            self.ctx.multitemp_mode = 'run_geom_only'
+        else:
+            self.ctx.multitemp_mode = None
+
     def run_zeopp(self):
         """Perform Zeo++ block and VOLPO calculations."""
 
-        # Skip zeopp calculation if the geometric properties are already provided (IsothermMultiTemp)
-        self.ctx.skip_zeopp = "geometric" in self.inputs
-        if self.ctx.skip_zeopp:
+        # Skip zeopp calculation if the geometric properties are already provided by IsothermMultiTemp
+        if self.ctx.multitemp_mode == 'run_single_temp':
             return None
 
         # create inputs: exposed are code and metadata
@@ -303,13 +304,11 @@ class IsothermWorkChain(WorkChain):
         also check the number of blocking spheres and estimate the saturation loading.
         Also, stop if called by IsothermMultiTemp for geometric results only."""
 
-        # Use geometric properties if provided in the input (from IsothermMultiTemp)
-        if self.ctx.skip_zeopp:
+        # Get geometric properties and consider if IsothermMultiTempWorkChain is calling this workchain
+        if self.ctx.multitemp_mode == 'run_single_temp':
             self.ctx.geom = self.inputs.geometric
             return True
-
-        self.out("geometric_output", get_geometric_output(self.ctx.zeopp.outputs.output_parameters, self.ctx.molecule))
-        self.ctx.geom = self.outputs['geometric_output']
+        self.ctx.geom = get_geometric_dict(self.ctx.zeopp.outputs.output_parameters, self.ctx.molecule)
 
         if self.ctx.geom['is_porous']:
             self.report("Found accessible pore volume: continue")
@@ -320,7 +319,7 @@ class IsothermWorkChain(WorkChain):
         else:
             self.report("No accessible pore volume: stop")
 
-        return self.ctx.geom['is_porous'] and not self.ctx.parameters['temperature_list']
+        return self.ctx.geom['is_porous'] and not self.ctx.multitemp_mode == 'run_geom_only'
 
     def _get_widom_param(self):
         """Write Raspa input parameters from scratch, for a Widom calculation"""
@@ -484,7 +483,7 @@ class IsothermWorkChain(WorkChain):
         """Merge all the parameters into output_parameters, depending on is_porous and is_kh_ehough."""
 
         gcmc_out_dict = {}
-        if self.ctx.geom['is_porous']:
+        if self.ctx.geom['is_porous'] and not self.ctx.multitemp_mode == 'run_geom_only':
             widom_out = self.ctx.raspa_widom.outputs.output_parameters
             if self.ctx.is_kh_enough:
                 for calc in self.ctx.raspa_gcmc:
@@ -503,5 +502,6 @@ class IsothermWorkChain(WorkChain):
                                   pressures=self.ctx.pressures,
                                   **gcmc_out_dict))
 
-        self.report("Isotherm @ {}K computed: ouput Dict<{}>".format(self.ctx.temperature,
-                                                                     self.outputs['output_parameters'].pk))
+        if not self.ctx.multitemp_mode == 'run_geom_only':
+            self.report("Isotherm @ {}K computed: ouput Dict<{}>".format(self.ctx.temperature,
+                                                                         self.outputs['output_parameters'].pk))
