@@ -68,7 +68,6 @@ def mix_molecule_ff(ff_list, mixing_rule):
     ff_mix = []
     for i, ffi in enumerate(ff_list):
         for ffj in ff_list[i:]:
-            print((ffi, ffj))
             if ffi[1].lower() == ffj[1].lower() == 'lennard-jones':
                 eps_mix = sqrt(ffi[2] * ffj[2])
                 if mixing_rule == 'lorentz-berthelot':
