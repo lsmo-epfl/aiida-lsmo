@@ -367,8 +367,10 @@ class IsothermWorkChain(WorkChain):
         if self.ctx.geom['Number_of_blocking_spheres'] > 0:
             param["Component"][self.ctx.molecule['name']]["BlockPocketsFileName"] = "block_file"
 
-        if self.ctx.molecule['charged']:
+        if self.ctx.molecule['charged']:  # NOTE: `Chargemethod Ewald` is the default in Raspa!
             param["GeneralSettings"].update({"ChargeMethod": "Ewald", "EwaldPrecision": 1e-6})
+        else:
+            param["GeneralSettings"].update({"ChargeMethod": "None"})
         return param
 
     def run_raspa_widom(self):
