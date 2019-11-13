@@ -1,8 +1,8 @@
 co2:
   name: CO2          # Raspa's MoleculeName
   forcefield: TraPPE # Raspa's MoleculeDefinition
-  molsatdens: 21.2   # Density of the liquid phase of the molecule in (mol/l)
-  proberad: 1.525    # radius used for computing VOLPO and Block (Angs)
+  molsatdens: 21.2   # Density of the liquid phase of the molecule in (mol/l). Typically I run a simulation at 300K/200bar
+  proberad: 1.525    # radius used for computing VOLPO and Block (Angs). Typically FF's sigma/2
   singlebead: False  # if true: RotationProbability=0
   charged: True      # if true: ChargeMethod=Ewald
 
@@ -17,15 +17,15 @@ n2:
 ch4:
   name: CH4
   forcefield: TraPPE
-  molsatdens: 37.0  # from simulation at 300K/300bar
-  proberad: 1.5     # 80% sigma/2
+  molsatdens: 27.2
+  proberad: 1.865
   singlebead: True
   charged: False
 
 ch4-mod:
   name: CH4
   forcefield: TraPPE-mod
-  molsatdens: 37.0
-  proberad: 1.5
+  molsatdens: 27.2
+  proberad: 1.865
   singlebead: False
   charged: False
