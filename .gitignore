@@ -102,5 +102,7 @@ venv.bak/
 
 # mypy
 .mypy_cache/
-
 *.swp
+
+# macos
+.DS_Store
