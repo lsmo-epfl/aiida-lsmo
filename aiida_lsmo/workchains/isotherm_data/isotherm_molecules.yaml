@@ -29,3 +29,11 @@ ch4-mod:
   proberad: 1.865
   singlebead: False
   charged: False
+
+h2o:
+  name: H2O
+  forcefield: TIP4P/2005 # best model in benchmarks (Daniele)
+  molsatdens: 55.5 # experimental
+  proberad: 1.577
+  singlebead: False
+  charged: True
