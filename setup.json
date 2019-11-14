@@ -17,7 +17,8 @@
         "aiida-cp2k >= 1.0.0b4",
         "aiida-ddec >= 1.0.0a1",
         "aiida-zeopp",
-        "aiida-raspa >= 1.0.0a1"
+        "aiida-raspa >= 1.0.0a1",
+        "calc-pe >= 1.0.1"
     ],
     "entry_points": {
         "aiida.workflows": [
