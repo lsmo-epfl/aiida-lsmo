@@ -248,10 +248,10 @@ H2:
       Mix force field neglect FH correction, considering that the frame-H2 higher reduced mass, makes FH negligible.
     atom_types:
       H_h2:
-        force_field: [none]
+        force_field: [zero-potential]
         pseudo_atom: [yes, H, H, 0, 1.0, +0.468, 0.0, 1.0, 1.00, 0, 0, relative, 0]
       M_h2:
-        force_field: [FEYNMAN_HIBBS_LENNARD_JONES, 36.7, 2.958, 1.0] # epsilon, sigma, reduced mass H2-H2 (amu
+        force_field: [feynman-hibbs-lennard-jones, 36.7, 2.958, 1.0] # epsilon, sigma, reduced mass H2-H2 (amu
         force_field_mix: [lennard-jones, 36.7, 2.958]
         pseudo_atom: [no, M, M, 0, 0.0, -0.936, 0.0, 1.0, 1.00, 0, 0, relative, 0]
     atomic_positions:
@@ -264,7 +264,7 @@ H2:
       Mix force field neglect FH correction, considering that the frame-H2 higher reduced mass, makes FH negligible.
     atom_types:
       H2_gas:
-        force_field: [FEYNMAN_HIBBS_LENNARD_JONES, 34.2, 2.96, 1.0] # epsilon, sigma, reduced mass H2-H2 (amu)
+        force_field: [feynman-hibbs-lennard-jones, 34.2, 2.96, 1.0] # epsilon, sigma, reduced mass H2-H2 (amu)
         force_field_mix: [lennard-jones, 34.2, 2.96]
         pseudo_atom: [yes, H, H, 0, 2.0, 0.0, 0.0, 1.0, 1.00, 0, 0, relative, 0]
     atomic_positions:
@@ -297,7 +297,7 @@ H2S:
         force_field: [lennard-jones, 50, 2.5]
         pseudo_atom: [yes, H, H, 0, 1.0, 0.21, 0.0, 1.0, 1.00, 0, 0, relative, 0]
       M_h2s:
-        force_field: [none]
+        force_field: [zero-potential]
         pseudo_atom: [yes, H, H, 0, 1.0, 0.21, 0.0, 1.0, 1.00, 0, 0, relative, 0]
     atomic_positions:
       - [S_h2s, 0, 0, 0]
@@ -318,7 +318,7 @@ H2O:
         force_field: [lennard-jones, 78.177, 3.166]
         pseudo_atom: [yes, O, O, 0, 15.999, -0.820000, 0.0, 1.0, 1.00, 0, 0, relative, 0]
       Hw:
-        force_field: [none]
+        force_field: [zero-potential]
         pseudo_atom: [yes, H, H, 0, 1.007, 0.410000, 0.0, 1.0, 1.00, 0, 0, relative, 0]
     atomic_positions:
        -  [Ow, 0, 0, 0]
@@ -332,7 +332,7 @@ H2O:
         force_field: [lennard-jones, 78.177, 3.166]
         pseudo_atom: [yes, O, O, 0, 15.999, -0.847600, 0.0, 1.0, 1.00, 0, 0, relative, 0]
       Hw:
-        force_field: [none]
+        force_field: [zero-potential]
         pseudo_atom: [yes, H, H, 0, 1.007, 0.423800, 0.0, 1.0, 1.00, 0, 0, relative, 0]
     atomic_positions:
        -  [Ow, 0, 0, 0]
@@ -346,7 +346,7 @@ H2O:
         force_field: [lennard-jones, 76.542, 3.151]
         pseudo_atom: [yes, O, O, 0, 15.999, -0.834000, 0.0, 1.0, 1.00, 0, 0, relative, 0]
       Hw:
-        force_field: [none]
+        force_field: [zero-potential]
         pseudo_atom: [yes, H, H, 0, 1.007, 0.417000, 0.0, 1.0, 1.00, 0, 0, relative, 0]
     atomic_positions:
        -  [Ow, 0, 0, 0]
@@ -360,10 +360,10 @@ H2O:
         force_field: [lennard-jones, 77.937, 3.154]
         pseudo_atom: [yes, O, O, 0, 15.999, 0.000000, 0.0, 1.0, 1.00, 0, 0, relative, 0]
       Hw:
-        force_field: [none]
+        force_field: [zero-potential]
         pseudo_atom: [yes, H, H, 0, 1.007, 0.520000, 0.0, 1.0, 1.00, 0, 0, relative, 0]
       Mw:
-        force_field: [none]
+        force_field: [zero-potential]
         pseudo_atom: [no, M, M, 0, 0., -1.040000, 0.0, 1.0, 1.00, 0, 0, relative, 0]
     atomic_positions:
        -  [Ow, 0, 0, 0]
@@ -378,10 +378,10 @@ H2O:
         force_field: [lennard-jones, 81.899, 3.164]
         pseudo_atom: [yes, O, O, 0, 15.999, 0.000000, 0.0, 1.0, 1.00, 0, 0, relative, 0]
       Hw:
-        force_field: [none]
+        force_field: [zero-potential]
         pseudo_atom: [yes, H, H, 0, 1.007, 0.524220, 0.0, 1.0, 1.00, 0, 0, relative, 0]
       Mw:
-        force_field: [none]
+        force_field: [zero-potential]
         pseudo_atom: [no, M, M, 0, 0., -1.048440, 0.0, 1.0, 1.00, 0, 0, relative, 0]
     atomic_positions:
        -  [Ow, 0, 0, 0]
@@ -396,10 +396,10 @@ H2O:
         force_field: [lennard-jones, 106.105, 3.167]
         pseudo_atom: [yes, O, O, 0, 15.999, 0.000000, 0.0, 1.0, 1.00, 0, 0, relative, 0]
       Hw:
-        force_field: [none]
+        force_field: [zero-potential]
         pseudo_atom: [yes, H, H, 0, 1.007, 0.589700, 0.0, 1.0, 1.00, 0, 0, relative, 0]
       Mw:
-        force_field: [none]
+        force_field: [zero-potential]
         pseudo_atom: [no, M, M, 0, 0., -1.179400, 0.0, 1.0, 1.00, 0, 0, relative, 0]
     atomic_positions:
        -  [Ow, 0, 0, 0]
@@ -414,10 +414,10 @@ H2O:
         force_field: [lennard-jones, 93.200, 3.159]
         pseudo_atom: [yes, O, O, 0, 15.999, 0.000000, 0.0, 1.0, 1.00, 0, 0, relative, 0]
       Hw:
-        force_field: [none]
+        force_field: [zero-potential]
         pseudo_atom: [yes, H, H, 0, 1.007, 0.556400, 0.0, 1.0, 1.00, 0, 0, relative, 0]
       Mw:
-        force_field: [none]
+        force_field: [zero-potential]
         pseudo_atom: [no, M, M, 0, 0., -1.112800, 0.0, 1.0, 1.00, 0, 0, relative, 0]
     atomic_positions:
        -  [Ow, 0, 0, 0]
@@ -432,10 +432,10 @@ H2O:
         force_field: [lennard-jones, 93.200, 3.164]
         pseudo_atom: [yes, O, O, 0, 15.999, 0.000000, 0.0, 1.0, 1.00, 0, 0, relative, 0]
       Hw:
-        force_field: [none]
+        force_field: [zero-potential]
         pseudo_atom: [yes, H, H, 0, 1.007, 0.556400, 0.0, 1.0, 1.00, 0, 0, relative, 0]
       Mw:
-        force_field: [none]
+        force_field: [zero-potential]
         pseudo_atom: [no, M, M, 0, 0., -1.112800, 0.0, 1.0, 1.00, 0, 0, relative, 0]
     atomic_positions:
        -  [Ow, 0, 0, 0]
@@ -450,10 +450,10 @@ H2O:
         force_field: [lennard-jones, 92.995, 3.165]
         pseudo_atom: [yes, O, O, 0, 15.999, 0.000000, 0.0, 1.0, 1.00, 0, 0, relative, 0]
       Hw:
-        force_field: [none]
+        force_field: [zero-potential]
         pseudo_atom: [yes, H, H, 0, 1.007, 0.527000, 0.0, 1.0, 1.00, 0, 0, relative, 0]
       Mw:
-        force_field: [none]
+        force_field: [zero-potential]
         pseudo_atom: [no, M, M, 0, 0., -1.054000, 0.0, 1.0, 1.00, 0, 0, relative, 0]
     atomic_positions:
        -  [Ow, 0, 0, 0]
@@ -468,10 +468,10 @@ H2O:
         force_field: [lennard-jones, 107.079, 3.167]
         pseudo_atom: [yes, O, O, 0, 15.999, 0.000000, 0.0, 1.0, 1.00, 0, 0, relative, 0]
       Hw:
-        force_field: [none]
+        force_field: [zero-potential]
         pseudo_atom: [yes, H, H, 0, 1.007, 0.679100, 0.0, 1.0, 1.00, 0, 0, relative, 0]
       Mw:
-        force_field: [none]
+        force_field: [zero-potential]
         pseudo_atom: [no, M, M, 0, 0., -1.358200, 0.0, 1.0, 1.00, 0, 0, relative, 0]
     atomic_positions:
        -  [Ow, 0, 0, 0]
@@ -486,7 +486,7 @@ H2O:
         force_field: [lennard-jones, 82.229, 3.174]
         pseudo_atom: [yes, O, O, 0, 15.999, -0.895200, 0.0, 1.0, 1.00, 0, 0, relative, 0]
       Hw:
-        force_field: [none]
+        force_field: [zero-potential]
         pseudo_atom: [yes, H, H, 0, 1.007, 0.447600, 0.0, 1.0, 1.00, 0, 0, relative, 0]
     atomic_positions:
        -  [Ow, 0, 0, 0]
@@ -500,10 +500,10 @@ H2O:
         force_field: [lennard-jones, 38.119, 3.100]
         pseudo_atom: [yes, O, O, 0, 15.999, 0.000000, 0.0, 1.0, 1.00, 0, 0, relative, 0]
       Hw:
-        force_field: [none]
+        force_field: [zero-potential]
         pseudo_atom: [yes, H, H, 0, 1.007, 0.243570, 0.0, 1.0, 1.00, 0, 0, relative, 0]
       Mw:
-        force_field: [none]
+        force_field: [zero-potential]
         pseudo_atom: [no, M, M, 0, 0., -0.243570, 0.0, 1.0, 1.00, 0, 0, relative, 0]
     atomic_positions:
        -  [Ow, 0, 0, 0]
@@ -519,10 +519,10 @@ H2O:
         force_field: [lennard-jones, 80.511, 3.120]
         pseudo_atom: [yes, O, O, 0, 15.999, 0.000000, 0.0, 1.0, 1.00, 0, 0, relative, 0]
       Hw:
-        force_field: [none]
+        force_field: [zero-potential]
         pseudo_atom: [yes, H, H, 0, 1.007, 0.241000, 0.0, 1.0, 1.00, 0, 0, relative, 0]
       Mw:
-        force_field: [none]
+        force_field: [zero-potential]
         pseudo_atom: [no, M, M, 0, 0., -0.241000, 0.0, 1.0, 1.00, 0, 0, relative, 0]
     atomic_positions:
        -  [Ow, 0, 0, 0]
@@ -538,10 +538,10 @@ H2O:
         force_field: [lennard-jones, 89.579, 3.097]
         pseudo_atom: [yes, O, O, 0, 15.999, 0.000000, 0.0, 1.0, 1.00, 0, 0, relative, 0]
       Hw:
-        force_field: [none]
+        force_field: [zero-potential]
         pseudo_atom: [yes, H, H, 0, 1.007, 0.241000, 0.0, 1.0, 1.00, 0, 0, relative, 0]
       Mw:
-        force_field: [none]
+        force_field: [zero-potential]
         pseudo_atom: [no, M, M, 0, 0., -0.241000, 0.0, 1.0, 1.00, 0, 0, relative, 0]
     atomic_positions:
        -  [Ow, 0, 0, 0]
@@ -557,10 +557,10 @@ H2O:
         force_field: [lennard-jones, 95.016, 3.145]
         pseudo_atom: [yes, O, O, 0, 15.999, -0.641114, 0.0, 1.0, 1.00, 0, 0, relative, 0]
       Hw:
-        force_field: [none]
+        force_field: [zero-potential]
         pseudo_atom: [yes, H, H, 0, 1.007, 0.394137, 0.0, 1.0, 1.00, 0, 0, relative, 0]
       Mw:
-        force_field: [none]
+        force_field: [zero-potential]
         pseudo_atom: [no, M, M, 0, 0., -0.073580, 0.0, 1.0, 1.00, 0, 0, relative, 0]
     atomic_positions:
        -  [Ow, 0, 0, 0]
@@ -647,7 +647,7 @@ N2:
         force_field: [lennard-jones, 36.0, 3.31]
         pseudo_atom: [yes, N, N, 0, 14.00674, -0.482, 0.0, 1.0, 0.7, 0, 0, relative, 0]
       N_com:
-        force_field: [none]
+        force_field: [zero-potential]
         pseudo_atom: [no, N, N, 0, 0.0, 0.964, 0.0, 1.0, 0.7, 0, 0, relative, 0]
     atomic_positions:
       - [N_n2, 0, 0, 0.55]
