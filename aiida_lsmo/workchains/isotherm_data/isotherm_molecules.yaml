@@ -37,3 +37,11 @@ h2o:
   proberad: 1.577
   singlebead: False
   charged: True
+
+h2:
+  name: H2
+  forcefield: MDT+DL # most complex
+  molsatdens: 35.4 # experimental liq
+  proberad: 1.48
+  singlebead: False
+  charged: True
