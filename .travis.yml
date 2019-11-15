@@ -47,7 +47,7 @@ install:
 - pip install coveralls
 
 script:
-- if [ "$TEST_TYPE" == "tests" ] ; then py.test --cov aiida_lsmo --cov-append . ; fi  # runs unit tests
+- if [ "$TEST_TYPE" == "tests" ] ; then pytest; fi  # runs unit tests
 - if [ "$TEST_TYPE" == "docs" ] ; then cd docs; make; fi  # creates documentation
 # runs precommit checks (failures allowed)
 - if [ "$TEST_TYPE" == "pre-commit" ] ; then pre-commit install; pre-commit run --all-files || ( git status --short; git diff ; exit 1 ); fi
