@@ -9,7 +9,7 @@ from aiida.orm import Dict
 from aiida.engine import calcfunction
 from aiida.engine import WorkChain, ToContext, if_
 
-# Workchain objects
+# import sub-workchains
 IsothermWorkChain = WorkflowFactory('lsmo.isotherm')  # pylint: disable=invalid-name
 
 
