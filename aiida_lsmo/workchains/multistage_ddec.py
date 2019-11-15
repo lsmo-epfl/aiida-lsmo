@@ -3,11 +3,11 @@
 
 from __future__ import absolute_import
 
+from aiida_cp2k.workchains import Cp2kMultistageWorkChain
+from aiida_ddec.workchains import Cp2kDdecWorkChain
 from aiida.common import AttributeDict
 from aiida.engine import WorkChain, ToContext
 from aiida.plugins import CalculationFactory, DataFactory
-from aiida_cp2k.workchains import Cp2kMultistageWorkChain
-from aiida_ddec.workchains import Cp2kDdecWorkChain
 
 DdecCalculation = CalculationFactory('ddec')  # pylint: disable=invalid-name
 CifData = DataFactory('cif')  # pylint: disable=invalid-name

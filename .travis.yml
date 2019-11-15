@@ -19,17 +19,17 @@ env:
 matrix:
   include:
   # python36
-  - name: "python-3.7 (django)"
-    python: 3.7
+  - name: "python-3.6 (django)"
+    python: 3.6
     env:
       TEST_TYPE: tests
-  - name: "python-3.7 (docs)"
-    python: 3.7
+  - name: "python-3.6 (docs)"
+    python: 3.6
     env:
       TEST_TYPE: docs
       READTHEDOCS: 'True'
-  - name: "python-3.7 (pre-commit)"
-    python: 3.7
+  - name: "python-3.6 (pre-commit)"
+    python: 3.6
     env:
       TEST_TYPE: pre-commit
 
