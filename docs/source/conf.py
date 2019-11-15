@@ -14,10 +14,20 @@ serve to show the default.
 import os
 import sys
 import time
+from aiida.manage import configuration
+from aiida.manage.manager import get_manager
 import aiida_lsmo
 
 # -- AiiDA-related setup --------------------------------------------------
-# pylint: disable=invalid-name
+
+# pylint: disable=invalid-name,ungrouped-imports
+# let's make sure the entry points are up to date
+try:
+    from aiida.plugins.entry_point import ENTRYPOINT_MANAGER as mgr
+    mgr.scan()
+except AttributeError:
+    # .scan may be no longer availabe if we switch away from reentry
+    pass
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -35,15 +45,11 @@ if not on_rtd:  # only import and set the theme if we're building docs locally
         # No sphinx_rtd_theme installed
         pass
     # Load the database environment by first loading the profile and then loading the backend through the manager
-    from aiida.manage.configuration import get_config, load_profile
-    from aiida.manage.manager import get_manager
-    config = get_config()
-    load_profile(config.default_profile_name)
+    config = configuration.get_config()
+    configuration.load_profile(config.default_profile_name)
     get_manager().get_backend()
 else:
     # Back-end settings for readthedocs online documentation.
-    from aiida.manage import configuration
-    from aiida.manage.manager import get_manager
     configuration.IN_RT_DOC_MODE = True
     configuration.BACKEND = "django"
 
