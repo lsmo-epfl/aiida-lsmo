@@ -23,11 +23,11 @@ matrix:
     python: 3.6
     env:
       TEST_TYPE: tests
-  - name: "python-3.6 (docs)"
-    python: 3.6
-    env:
-      TEST_TYPE: docs
-      READTHEDOCS: 'True'
+#  - name: "python-3.6 (docs)"
+#    python: 3.6
+#    env:
+#      TEST_TYPE: docs
+#      READTHEDOCS: 'True'
   - name: "python-3.6 (pre-commit)"
     python: 3.6
     env:
