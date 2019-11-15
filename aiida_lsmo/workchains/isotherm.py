@@ -22,6 +22,27 @@ FFBuilder = CalculationFactory('lsmo.ff_builder')  # pylint: disable=invalid-nam
 CifData = DataFactory('cif')  # pylint: disable=invalid-name
 ZeoppParameters = DataFactory('zeopp.parameters')  # pylint: disable=invalid-name
 
+# Deafault parameters
+ISOTHERMPARAMETERS_DEFAULT = {  #TODO: create IsothermParameters instead of Dict # pylint: disable=fixme
+        "forcefield": "UFF",  # str, Forcefield of the structure
+        "ff_tailcorr": True,  # bool, Apply tail corrections
+        "ff_shift": False,  # bool, Shift or truncate at cutoff
+        "ff_cutoff": 12.0,  # float, CutOff truncation for the VdW interactions (Angstrom)
+        "temperature": 300,  # float, Temperature of the simulation
+        "temperature_list": None,  # list, to be used by IsothermMultiTempWorkChain
+        "zeopp_volpo_samples": int(1e5),  # int, Number of samples for VOLPO calculation (per UC volume)
+        "zeopp_block_samples": int(100),  # int, Number of samples for BLOCK calculation (per A^3)
+        "raspa_minKh": 1e-10,  # float, If Henry coefiicient < raspa_minKh do not run the isotherm (mol/kg/Pa)
+        "raspa_verbosity": 10,  # int, Print stats every: number of cycles / raspa_verbosity
+        "raspa_widom_cycles": int(1e5),  # int, Number of widom cycles
+        "raspa_gcmc_init_cycles": int(1e3),  # int, Number of GCMC initialization cycles
+        "raspa_gcmc_prod_cycles": int(1e4),  # int, Number of GCMC production cycles
+        "pressure_list": None,  # list, Pressure list for the isotherm (bar): if given it will skip  guess
+        "pressure_precision": 0.1,  # float, Precision in the sampling of the isotherm: 0.1 ok, 0.05 better for high res
+        "pressure_maxstep": 5,  # float, Max distance between pressure points (bar)
+        "pressure_min": 0.001,  # float, Lower pressure to sample (bar)
+        "pressure_max": 10  # float, upper pressure to sample (bar)
+}
 
 # calcfunctions (in order of appearence)
 @calcfunction
@@ -173,32 +194,6 @@ def get_output_parameters(geom_out, inp_params, widom_out=None, pressures=None, 
     return Dict(dict=out_dict)
 
 
-# Deafault parameters
-ISOTHERMPARAMETERS_DEFAULT = Dict(
-    dict={  #TODO: create IsothermParameters instead of Dict # pylint: disable=fixme
-        "ff_framework": "UFF",  # str, Forcefield of the structure (used also as a definition of ff.rad for zeopp)
-        "ff_shifted": False,  # bool, Shift or truncate at cutoff
-        "ff_tail_corrections": True,  # bool, Apply tail corrections
-        "ff_mixing_rule": 'Lorentz-Berthelot',  # str, Mixing rule for the forcefield
-        "ff_separate_interactions": False,  # bool, if true use only ff_framework for framework-molecule interactions
-        "ff_cutoff": 12.0,  # float, CutOff truncation for the VdW interactions (Angstrom)
-        "temperature": 300,  # float, Temperature of the simulation
-        "temperature_list": None,  # list, to be used by IsothermMultiTempWorkChain
-        "zeopp_volpo_samples": int(1e5),  # int, Number of samples for VOLPO calculation (per UC volume)
-        "zeopp_block_samples": int(100),  # int, Number of samples for BLOCK calculation (per A^3)
-        "raspa_minKh": 1e-10,  # float, If Henry coefiicient < raspa_minKh do not run the isotherm (mol/kg/Pa)
-        "raspa_verbosity": 10,  # int, Print stats every: number of cycles / raspa_verbosity
-        "raspa_widom_cycles": int(1e5),  # int, Number of widom cycles
-        "raspa_gcmc_init_cycles": int(1e3),  # int, Number of GCMC initialization cycles
-        "raspa_gcmc_prod_cycles": int(1e4),  # int, Number of GCMC production cycles
-        "pressure_list": None,  # list, Pressure list for the isotherm (bar): if given it will skip  guess
-        "pressure_precision": 0.1,  # float, Precision in the sampling of the isotherm: 0.1 ok, 0.05 better for high res
-        "pressure_maxstep": 5,  # float, Max distance between pressure points (bar)
-        "pressure_min": 0.001,  # float, Lower pressure to sample (bar)
-        "pressure_max": 10  # float, upper pressure to sample (bar)
-    })
-
-
 class IsothermWorkChain(WorkChain):
     """Workchain that computes volpo and blocking spheres: if accessible volpo>0
     it also runs a raspa widom calculation for the Henry coefficient.
@@ -261,7 +256,7 @@ class IsothermWorkChain(WorkChain):
             self.ctx.molecule = self.inputs.molecule
 
         # Get the parameters Dict, merging defaults with user settings
-        self.ctx.parameters = aiida_dict_merge(ISOTHERMPARAMETERS_DEFAULT, self.inputs.parameters)
+        self.ctx.parameters = aiida_dict_merge(Dict(dict=ISOTHERMPARAMETERS_DEFAULT), self.inputs.parameters)
 
         # Get integer temperature in context for easy reports
         self.ctx.temperature = int(round(self.ctx.parameters['temperature']))

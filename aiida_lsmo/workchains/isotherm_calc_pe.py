@@ -49,7 +49,7 @@ def get_pe(isot_co2, isot_n2, pe_parameters):
     return Dict(dict=pe_dict)
 
 
-PE_PARAMETERS_DEFAULT = Dict(dict={ # Parameters used in 10.1021/acscentsci.9b00619
+PE_PARAMETERS_DEFAULT = { # Parameters used in 10.1021/acscentsci.9b00619
     'gasin': 'coal',
     'vf': 0.35,
     'process': 'TPSA',
@@ -57,10 +57,9 @@ PE_PARAMETERS_DEFAULT = Dict(dict={ # Parameters used in 10.1021/acscentsci.9b00
     'yd': 0.99,
     'eleff': 'carnot',
     'opt': 'PE',
-})
+}
 
-ISOTHERM_PARAMETERS_DEFAULT = Dict( # Parameters used in 10.1021/acscentsci.9b00619
-    dict={
+ISOTHERM_PARAMETERS_DEFAULT = { # Parameters used in 10.1021/acscentsci.9b00619
         "ff_framework": "UFF",  # valid_type=Str, help='Forcefield of the structure.'
         "ff_shifted": True,  # shift or truncate at cutoff
         "ff_tail_corrections": False,  # apply tail corrections
@@ -79,7 +78,7 @@ ISOTHERM_PARAMETERS_DEFAULT = Dict( # Parameters used in 10.1021/acscentsci.9b00
         "pressure_maxstep": 5,  # valid_type=Float, help='Max distance between pressure points (bar)'
         "pressure_min": 0.001,  # valid_type=Float, help='Lower pressure to sample (bar)'
         "pressure_max": 30
-    })
+}
 
 
 class IsothermCalcPEWorkChain(WorkChain):
@@ -92,12 +91,12 @@ class IsothermCalcPEWorkChain(WorkChain):
         spec.expose_inputs(IsothermWorkChain, exclude=['molecule', 'parameters'])
         spec.input('parameters',
                    valid_type=Dict,
-                   default=ISOTHERM_PARAMETERS_DEFAULT,
+                   default=Dict(dict=ISOTHERM_PARAMETERS_DEFAULT),
                    help='Parameters for Isotherm work chain')
 
         spec.input('pe_parameters',
                    valid_type=Dict,
-                   default=PE_PARAMETERS_DEFAULT,
+                   default=Dict(dict=PE_PARAMETERS_DEFAULT),
                    help='Parameters for PE process modelling')
 
         spec.outline(
