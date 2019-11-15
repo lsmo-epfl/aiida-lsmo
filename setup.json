@@ -22,7 +22,8 @@
     ],
     "entry_points": {
         "aiida.calculations": [
-          "lsmo.ff_builder = aiida_lsmo.calcfunctions:ff_builder"
+          "lsmo.ff_builder = aiida_lsmo.calcfunctions:ff_builder",
+          "lsmo.calc_ch4_working_cap = aiida_lsmo.calcfunctions:calc_ch4_working_cap"
         ],
         "aiida.workflows": [
             "lsmo.isotherm = aiida_lsmo.workchains:IsothermWorkChain",
