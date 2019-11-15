@@ -3,26 +3,30 @@
 
 from __future__ import absolute_import
 
+from aiida.plugins import CalculationFactory, DataFactory, WorkflowFactory
 from aiida.common import AttributeDict
 from aiida.engine import WorkChain, ToContext
-from aiida.plugins import CalculationFactory, DataFactory
-from aiida_cp2k.workchains import Cp2kMultistageWorkChain
-from aiida_ddec.workchains import Cp2kDdecWorkChain
 
+# import sub-workchains
+Cp2kMultistageWorkChain = WorkflowFactory('cp2k.multistage')  # pylint: disable=invalid-name
+Cp2kDdecWorkChain = WorkflowFactory('ddec.cp2k_ddec')  # pylint: disable=invalid-name
+
+# import calculations
 DdecCalculation = CalculationFactory('ddec')  # pylint: disable=invalid-name
-CifData = DataFactory('cif')  # pylint: disable=invalid-name
 ZeoppCalculation = CalculationFactory("zeopp.network")  # pylint: disable=invalid-name
+
+# import aiida data
+CifData = DataFactory('cif')  # pylint: disable=invalid-name
 NetworkParameters = DataFactory("zeopp.parameters")  # pylint: disable=invalid-name
 
-ZEOPP_PARAMETERS_DEFAULT = NetworkParameters(
-    dict={  #Default parameters for microporous materials
-        'ha': 'DEF',  # Using high accuracy (mandatory!)
-        'res': True,  # Max included, free and incl in free sphere
-        'sa': [1.86, 1.86, 100000],  # Nitrogen probe to compute surface
-        'vol': [0.0, 0.0, 1000000],  # Geometric pore volume
-        'volpo': [1.86, 1.86, 100000],  # Nitrogen probe to compute PO pore volume
-        'psd': [1.2, 1.2, 10000]  # Small probe to compute the pore size distr
-    })
+ZEOPP_PARAMETERS_DEFAULT = {  #Default parameters for microporous materials
+    'ha': 'DEF',  # Using high accuracy (mandatory!)
+    'res': True,  # Max included, free and incl in free sphere
+    'sa': [1.86, 1.86, 100000],  # Nitrogen probe to compute surface
+    'vol': [0.0, 0.0, 1000000],  # Geometric pore volume
+    'volpo': [1.86, 1.86, 100000],  # Nitrogen probe to compute PO pore volume
+    'psd': [1.2, 1.2, 10000]  # Small probe to compute the pore size distr
+}
 
 
 class ZeoppMultistageDdecWorkChain(WorkChain):
@@ -36,7 +40,7 @@ class ZeoppMultistageDdecWorkChain(WorkChain):
         spec.expose_inputs(ZeoppCalculation, namespace='zeopp', exclude=['parameters', 'structure'])
         spec.input('zeopp.parameters',
                    valid_type=NetworkParameters,
-                   default=ZEOPP_PARAMETERS_DEFAULT,
+                   default=NetworkParameters(dict=ZEOPP_PARAMETERS_DEFAULT),
                    required=False,
                    help='parameters for zeo++')
         spec.input('structure', valid_type=CifData, help='input structure')
