@@ -11,14 +11,14 @@ from aiida.engine import calcfunction
 from aiida.engine import WorkChain, ToContext, append_, while_, if_
 from aiida_lsmo.utils import check_resize_unit_cell, aiida_dict_merge
 
-# sub-workchains
+# import sub-workchains
 RaspaBaseWorkChain = WorkflowFactory('raspa.base')  # pylint: disable=invalid-name
 
-# calculation objects
+# import calculations
 ZeoppCalculation = CalculationFactory('zeopp.network')  # pylint: disable=invalid-name
 FFBuilder = CalculationFactory('lsmo.ff_builder')  # pylint: disable=invalid-name
 
-# data objects
+# import aiida data
 CifData = DataFactory('cif')  # pylint: disable=invalid-name
 ZeoppParameters = DataFactory('zeopp.parameters')  # pylint: disable=invalid-name
 

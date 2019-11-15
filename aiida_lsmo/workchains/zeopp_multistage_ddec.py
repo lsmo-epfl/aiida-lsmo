@@ -3,16 +3,20 @@
 
 from __future__ import absolute_import
 
-from aiida_cp2k.workchains import Cp2kMultistageWorkChain
-from aiida_ddec.workchains import Cp2kDdecWorkChain
+from aiida.plugins import CalculationFactory, DataFactory, WorkflowFactory
 from aiida.common import AttributeDict
 from aiida.engine import WorkChain, ToContext
-from aiida.plugins import CalculationFactory, DataFactory
 
+# import sub-workchains
+Cp2kMultistageWorkChain = WorkflowFactory('cp2k.multistage')  # pylint: disable=invalid-name
+Cp2kDdecWorkChain = WorkflowFactory('ddec.cp2k_ddec')  # pylint: disable=invalid-name
+
+# import calculations
 DdecCalculation = CalculationFactory('ddec')  # pylint: disable=invalid-name
-
-CifData = DataFactory('cif')  # pylint: disable=invalid-name
 ZeoppCalculation = CalculationFactory("zeopp.network")  # pylint: disable=invalid-name
+
+# import aiida data
+CifData = DataFactory('cif')  # pylint: disable=invalid-name
 NetworkParameters = DataFactory("zeopp.parameters")  # pylint: disable=invalid-name
 
 ZEOPP_PARAMETERS_DEFAULT = {  #Default parameters for microporous materials

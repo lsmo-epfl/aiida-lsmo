@@ -8,7 +8,10 @@ from aiida.orm import Dict, Str
 from aiida.engine import calcfunction
 from aiida.engine import WorkChain
 
+# import sub-workchains
 IsothermWorkChain = WorkflowFactory('lsmo.isotherm')  #pylint: disable=invalid-name
+
+# import aiida data
 CifData = DataFactory('cif')  #pylint: disable=invalid-name
 
 
