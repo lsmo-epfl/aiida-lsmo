@@ -4,7 +4,6 @@ Getting started
 
 This plugin is a collection of workchains and calcfunctions that combine the use of multiple codes
 (e.g., CP2K, DDEC, Raspa, Zeo++, ...) to achieve advanced automated tasks.
-You can find the list of workchains available and their API in the section :ref:`available_workchains`.
 
 Installation
 ++++++++++++
@@ -31,23 +30,3 @@ Note that the workchain is called as::
 
     from aiida.plugins import WorkflowFactory
     IsothermWorkChain = WorkflowFactory('lsmo.isotherm')
-
-.. _available_workchains:
-
-Available workchains
-++++++++++++++++++++++
-
-.. aiida-workchain:: IsothermWorkChain
-    :module: aiida_lsmo.workchains
-
-.. aiida-workchain:: IsothermMultiTempWorkChain
-    :module: aiida_lsmo.workchains
-
-.. aiida-workchain:: IsothermCalcPEWorkChain
-    :module: aiida_lsmo.workchains
-
-.. aiida-workchain:: MultistageDdecWorkChain
-    :module: aiida_lsmo.workchains
-
-.. aiida-workchain:: ZeoppMultistageDdecWorkChain
-    :module: aiida_lsmo.workchains

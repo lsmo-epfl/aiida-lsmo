@@ -17,7 +17,10 @@ The aiida-lsmo plugin for `AiiDA`_
 
 If you use this plugin for your research, please cite the following work:
 
-.. highlights:: Author Name1, Author Name2, *Paper title*, Jornal Name XXX, YYYY (Year).
+.. highlights:: Daniele Ongari, Aliksandr V. Yakutovich, Leopold Talirz, and Berend Smit,
+  *Building a Consistent and Reproducible Database for Adsorption Evaluation in Covalent–Organic Frameworks*,
+  ACS Cent. Sci. 2019, 5, 10, 1663-1675 (2019);
+  https://doi.org/10.1021/acscentsci.9b00619.
 
 If you use AiiDA for your research, please cite the following work:
 
