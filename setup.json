@@ -1,6 +1,7 @@
 {
     "name": "aiida-lsmo",
-    "author": "Aliaksandr Yakutovich, Daniele Ongari",
+    "version": "1.0.0a1",
+    "author": "Aliaksandr Yakutovich, Daniele Ongari, Leopold Talirz",
     "author_email": "aliaksandr.yakutovich@epfl.ch",
     "description": "AiiDA workflows for the LSMO laboratory at EPFL",
     "url": "https://github.com/yakutovicha/aiida-lsmo-workflows",
@@ -9,15 +10,14 @@
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7"
     ],
-    "version": "1.0.0a1",
     "setup_requires": ["reentry"],
     "reentry_register": true,
     "install_requires": [
         "aiida-core >= 1.0.0",
         "aiida-cp2k >= 1.0.0b4",
         "aiida-ddec >= 1.0.0a1",
-        "aiida-zeopp",
-        "aiida-raspa >= 1.0.0a1",
+        "aiida-zeopp >= 1.0.3",
+        "aiida-raspa >= 1.0.0a2",
         "calc-pe >= 1.0.1"
     ],
     "entry_points": {
