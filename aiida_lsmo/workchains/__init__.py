@@ -5,6 +5,7 @@ from .cp2k_binding_energy import Cp2kBindingEnergyWorkChain
 from .cp2k_multistage import Cp2kMultistageWorkChain
 from .cp2k_multistage_ddec import Cp2kMultistageDdecWorkChain
 from .isotherm import IsothermWorkChain
+from .adsorption import AdsorptionWorkChain
 from .isotherm_multi_temp import IsothermMultiTempWorkChain
 from .isotherm_calc_pe import IsothermCalcPEWorkChain
 from .sim_annealing import SimAnnealingWorkChain

@@ -53,3 +53,19 @@ o2:
   proberad: 1.51
   singlebead: False
   charged: True
+  
+xenon:
+  name: Xe
+  forcefield: BOATO
+  molsatdens: 15.95 #NIST 300K/200bar
+  proberad: 1.985
+  singlebead: True
+  charged: False
+
+krypton:
+  name: Kr
+  forcefield: BOATO
+  molsatdens: 10.93 #NIST 300K/200bar
+  proberad: 1.830
+  singlebead: True
+  charged: False

@@ -38,6 +38,7 @@
             "lsmo.cp2k_multistage = aiida_lsmo.workchains:Cp2kMultistageWorkChain",
             "lsmo.cp2k_multistage_ddec = aiida_lsmo.workchains:Cp2kMultistageDdecWorkChain",
             "lsmo.isotherm = aiida_lsmo.workchains:IsothermWorkChain",
+            "lsmo.adsorption = aiida_lsmo.workchains:AdsorptionWorkChain",
             "lsmo.isotherm_multi_temp = aiida_lsmo.workchains:IsothermMultiTempWorkChain",
             "lsmo.isotherm_calc_pe = aiida_lsmo.workchains:IsothermCalcPEWorkChain",
             "lsmo.zeopp_multistage_ddec = aiida_lsmo.workchains:ZeoppMultistageDdecWorkChain",
