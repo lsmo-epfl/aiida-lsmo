@@ -7,7 +7,8 @@ In the following section all the calc functions and work chains of the `aiida-ls
 Force Field Builder
 +++++++++++++++++++++++
 
-The FFBuilder allows to combine the force field parameters (typically for a Lennard-Jones potential) for a
+The :py:func:`~aiida_lsmo.calcfunctions.ff_builder_module.ff_builder` calculation function allows to combine the force
+field parameters (typically for a Lennard-Jones potential) for a
 framework and the molecule(s), giving as an output the `.def` files required by `Raspa`.
 To see the list of available parameterization for the frameworks and the available molecules, give a look to the file
 `ff_data.yaml`.
@@ -64,7 +65,7 @@ The CalcFunction can be imported with::
 Working Capacity calculators
 +++++++++++++++++++++++++++++
 
-The module `calcfunctions/working_cap.py` contains a collections of CalcFunctions to compute the working capacities
+The module `calcfunctions/working_cap.py` contains a collections of calculation functions to compute the working capacities
 for different compound (e.g., CH4, H2) at industrially reference/relevant conditions.
 The working capacity is the usable amount of a stored adsorbed compound between the loading and discharging
 temperature and pressure.
@@ -73,11 +74,14 @@ that needs to be run at specific conditions: see the header of the calc function
 Their inner working is very simple but they are collected in this repository to be used as a reference in our group.
 If you are investigating some different gas storage application, consider including a similar script here.
 
+An example is :py:func:`~aiida_lsmo.calcfunctions.working_cap.calc_ch4_working_cap` for methane storage.
+
 
 Isotherm work chain
 +++++++++++++++++++++++
 
-The Isotherm work chain allows to compute a single-component isotherm in a framework, from a few settings.
+The :py:func:`~aiida_lsmo.workchains.isotherm.IsothermWorkChain` work function allows to compute a single-component
+isotherm in a framework, from a few settings.
 
 What it does, in order:
 
@@ -267,7 +271,8 @@ and see the examples for many usage application.
 IsothermMultiTemp work chain
 ++++++++++++++++++++++++++++++++++++++++++++++
 
-The IsothermMultiTemp work chain, can run in parallel the Isotherm work chain at different temperatures. Since the
+The :py:func:`~aiida_lsmo.workchains.isotherm_multi_temp.IsothermMultiTempWorkChain` work chain can run in parallel the
+Isotherm work chain at different temperatures. Since the
 geometry initial calculation to get the pore volume and blocking spheres is not dependent on the temperature, this is
 run only once. Inputs and outputs are very similar to the Isotherm work chain.
 
@@ -463,7 +468,8 @@ Outputs details
 IosthermCalcPE work chain
 ++++++++++++++++++++++++++
 
-The IsothermCalPE work chain takes as an input a structure with partial charges, computes the isotherms for CO2 and N2 at
+The :py:func:`~aiida_lsmo.workchains.isotherm_calc_pe.IsothermCalcPEWorkChain` work chain takes as an input a structure
+with partial charges, computes the isotherms for CO2 and N2 at
 ambient temperature and models the process of carbon capture and compression for geological sequestration.
 The final outcome informs about the performance of the adsorbent for this application, including the CO2 parasitic energy,
 i.e., the energy that is required to separate and compress one kilogram of CO2, using that material.
@@ -475,7 +481,8 @@ Default input mixture is coal post-combustion flue gas, but also natural gas pos
 MultistageDdec work chain
 ++++++++++++++++++++++++++
 
-The MultistageDdec work chain combines together the CP2K multistage workchain and the DDEC calculation, with the scope of
+The :py:func:`~aiida_lsmo.workchains.multistage_ddec.MultistageDdecWorkChain` work chain combines together the CP2K
+multistage workchain and the DDEC calculation, with the scope of
 optimizing the geometry of a structure and compute its partial charge using the DDEC protocol.
 
 .. aiida-workchain:: MultistageDdecWorkChain
@@ -484,7 +491,8 @@ optimizing the geometry of a structure and compute its partial charge using the 
 ZeoppMultistageDdec work chain
 ++++++++++++++++++++++++++++++++++++++++++++++
 
-The ZeoppMultistageDdec work chain, is similar to MultistageDdec but it runs a geometry characterization of the structure
+The :py:func:`~aiida_lsmo.workchains.zeopp_multistage_ddec.ZeoppMultistageDdecWorkChain` work chain, is similar to MultistageDdec
+but it runs a geometry characterization of the structure
 using Zeo++ (NetworkCalculation) before and after, with the scope of assessing the structural changes due to the cell/geometry
 optimization.
 
