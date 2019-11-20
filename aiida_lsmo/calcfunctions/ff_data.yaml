@@ -807,7 +807,7 @@ N2O:
 SO2:
   critical_constants:
     tc: 430.75
-    pc: 78.84
+    pc: 7884000
     af: 0.2453
   ESP-MM:
     description:
