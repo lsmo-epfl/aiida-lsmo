@@ -9,6 +9,7 @@
 #        Refer to as a "dummy_separate" for an atom type that should have only frame-mol interactions but not mol-mol.
 # NOTE2: since universal force fields for the frameworks are LJ, if a non-lennard-jones (and not none) potential is
 #        used, add "force_field_mix" to specify extra parameters that will be used for the frame-mol mixing.
+# NOTE3: all the dummy beads are called M so that they are easy to recognize and exclude.
 
 framework:
   UFF:
@@ -281,12 +282,13 @@ H2:
         pseudo_atom: [yes, H, H, 0, 2.0, 0.0, 0.0, 1.0, 1.00, 0, 0, relative, 0]
     atomic_positions:
       - [H2_gas, 0, 0, 0]
+
 H2S:
   critical_constants:
     tc: 373.53
     pc: 8963000
     af: 0.0942
-  TraPPE-43:
+  TraPPE-4-3:
     description:
       TraPPE model 4-3 for hydrogen sulfide. Best of the ones developped/benchmarked in 2015 (10.1021/acs.jpcb.5b02536)
     atom_types:
@@ -298,12 +300,33 @@ H2S:
         pseudo_atom: [yes, H, H, 0, 1.0, 0.21, 0.0, 1.0, 1.00, 0, 0, relative, 0]
       M_h2s:
         force_field: [zero-potential]
-        pseudo_atom: [yes, H, H, 0, 1.0, 0.21, 0.0, 1.0, 1.00, 0, 0, relative, 0]
+        pseudo_atom: [no, M, M, 0, 0, 0.21, 0.0, 1.0, 1.00, 0, 0, relative, 0]
     atomic_positions:
       - [S_h2s, 0, 0, 0]
       - [M_h2s, 0, 0, 0.3]
-      - [H_h2s, 0, +0.931, 0.964] # 0, 1.34 * cos(92/2), 1.34 * sin(92/2)
-      - [H_h2s, 0, -0.931, 0.964]
+      - [H_h2s, 0, +0.964, 0.931] # 0, 1.34 * sin(92/2), 1.34 * cos(92/2)
+      - [H_h2s, 0, -0.964, 0.931]
+  ESP-MM:
+    description:
+      DFT optimized geometry and parameters fitted to reproduce both VLE and DFT-ESP, improving binding geometries
+      but not necessarily the binding energies too.
+      Done by the group of Li-Chiang Lin in 2019 (10.1021/acs.jctc.9b00653).
+    atom_types:
+      S_h2s:
+        force_field: [lennard-jones, 233.7, 3.48]
+        pseudo_atom: [yes, S, S, 0, 32.066, -1.152, 0.0, 1.0, 1.00, 0, 0, relative, 0]
+      H_h2s:
+        force_field: [lennard-jones, 10.3, 2.76]
+        pseudo_atom: [yes, H, H, 0, 1.0, 0.268, 0.0, 1.0, 1.00, 0, 0, relative, 0]
+      M_h2s:
+        force_field: [zero-potential]
+        pseudo_atom: [no, M, M, 0, 0, 0.308, 0.0, 1.0, 1.00, 0, 0, relative, 0]
+    atomic_positions:
+      - [S_h2s, 0, 0, 0]
+      - [H_h2s, 0, +0.966, 0.940] # 0, 1.348 * sin(91.61/2), 1.348 * cos(91.61/2)
+      - [H_h2s, 0, -0.966, 0.940]
+      - [M_h2s, +0.718, 0, -0.502] # 0.876 * sin(110.0/2), 0, -0.876 * cos(110.0/2)
+      - [M_h2s, -0.718, 0, -0.502]
 
 H2O:
   critical_constants:
@@ -322,8 +345,8 @@ H2O:
         pseudo_atom: [yes, H, H, 0, 1.007, 0.410000, 0.0, 1.0, 1.00, 0, 0, relative, 0]
     atomic_positions:
        -  [Ow, 0, 0, 0]
-       -  [Hw, 0, +0.57736, 0.81649] # x=0, y=1.000*cos(109.470/2), z=1.000*sin(109.470/2)
-       -  [Hw, 0, -0.57736, 0.81649]
+       -  [Hw, 0, +0.81649, 0.57736] # x=0, y=1.000*sin(109.470/2), z=1.000*cos(109.470/2)
+       -  [Hw, 0, -0.81649, 0.57736]
   SPC/E:
     description:
       SPC/E water model from http://www1.lsbu.ac.uk/water/water_models.html
@@ -336,8 +359,8 @@ H2O:
         pseudo_atom: [yes, H, H, 0, 1.007, 0.423800, 0.0, 1.0, 1.00, 0, 0, relative, 0]
     atomic_positions:
        -  [Ow, 0, 0, 0]
-       -  [Hw, 0, +0.57736, 0.81649] # x=0, y=1.000*cos(109.470/2), z=1.000*sin(109.470/2)
-       -  [Hw, 0, -0.57736, 0.81649]
+       -  [Hw, 0, +0.81649, 0.57736] # x=0, y=1.000*sin(109.470/2), z=1.000*cos(109.470/2)
+       -  [Hw, 0, -0.81649, 0.57736]
   TIP3P:
     description:
       TIP3P water model from http://www1.lsbu.ac.uk/water/water_models.html
@@ -350,8 +373,8 @@ H2O:
         pseudo_atom: [yes, H, H, 0, 1.007, 0.417000, 0.0, 1.0, 1.00, 0, 0, relative, 0]
     atomic_positions:
        -  [Ow, 0, 0, 0]
-       -  [Hw, 0, +0.58588, 0.75695] # x=0, y=0.957*cos(104.520/2), z=0.957*sin(104.520/2)
-       -  [Hw, 0, -0.58588, 0.75695]
+       -  [Hw, 0, +0.75695, 0.58588] # x=0, y=0.957*sin(104.520/2), z=0.957*cos(104.520/2)
+       -  [Hw, 0, -0.75695, 0.58588]
   TIP4P:
     description:
       TIP4P water model from http://www1.lsbu.ac.uk/water/water_models.html
@@ -367,8 +390,8 @@ H2O:
         pseudo_atom: [no, M, M, 0, 0., -1.040000, 0.0, 1.0, 1.00, 0, 0, relative, 0]
     atomic_positions:
        -  [Ow, 0, 0, 0]
-       -  [Hw, 0, +0.58588, 0.75695] # x=0, y=0.957*cos(104.520/2), z=0.957*sin(104.520/2)
-       -  [Hw, 0, -0.58588, 0.75695]
+       -  [Hw, 0, +0.75695, 0.58588] # x=0, y=0.957*sin(104.520/2), z=0.957*cos(104.520/2)
+       -  [Hw, 0, -0.75695, 0.58588]
        -  [Mw, 0, 0, 0.150]
   TIP4P-Ew:
     description:
@@ -385,8 +408,8 @@ H2O:
         pseudo_atom: [no, M, M, 0, 0., -1.048440, 0.0, 1.0, 1.00, 0, 0, relative, 0]
     atomic_positions:
        -  [Ow, 0, 0, 0]
-       -  [Hw, 0, +0.58588, 0.75695] # x=0, y=0.957*cos(104.520/2), z=0.957*sin(104.520/2)
-       -  [Hw, 0, -0.58588, 0.75695]
+       -  [Hw, 0, +0.75695, 0.58588] # x=0, y=0.957*sin(104.520/2), z=0.957*cos(104.520/2)
+       -  [Hw, 0, -0.75695, 0.58588]
        -  [Mw, 0, 0, 0.125]
   TIP4P/Ice:
     description:
@@ -403,8 +426,8 @@ H2O:
         pseudo_atom: [no, M, M, 0, 0., -1.179400, 0.0, 1.0, 1.00, 0, 0, relative, 0]
     atomic_positions:
        -  [Ow, 0, 0, 0]
-       -  [Hw, 0, +0.58588, 0.75695] # x=0, y=0.957*cos(104.520/2), z=0.957*sin(104.520/2)
-       -  [Hw, 0, -0.58588, 0.75695]
+       -  [Hw, 0, +0.75695, 0.58588] # x=0, y=0.957*sin(104.520/2), z=0.957*cos(104.520/2)
+       -  [Hw, 0, -0.75695, 0.58588]
        -  [Mw, 0, 0, 0.158]
   TIP4P/2005:
     description:
@@ -421,8 +444,8 @@ H2O:
         pseudo_atom: [no, M, M, 0, 0., -1.112800, 0.0, 1.0, 1.00, 0, 0, relative, 0]
     atomic_positions:
        -  [Ow, 0, 0, 0]
-       -  [Hw, 0, +0.58588, 0.75695] # x=0, y=0.957*cos(104.520/2), z=0.957*sin(104.520/2)
-       -  [Hw, 0, -0.58588, 0.75695]
+       -  [Hw, 0, +0.75695, 0.58588] # x=0, y=0.957*sin(104.520/2), z=0.957*cos(104.520/2)
+       -  [Hw, 0, -0.75695, 0.58588]
        -  [Mw, 0, 0, 0.155]
   TIP4P/2005f:
     description:
@@ -439,8 +462,8 @@ H2O:
         pseudo_atom: [no, M, M, 0, 0., -1.112800, 0.0, 1.0, 1.00, 0, 0, relative, 0]
     atomic_positions:
        -  [Ow, 0, 0, 0]
-       -  [Hw, 0, +0.58588, 0.75695] # x=0, y=0.957*cos(104.520/2), z=0.957*sin(104.520/2)
-       -  [Hw, 0, -0.58588, 0.75695]
+       -  [Hw, 0, +0.75695, 0.58588] # x=0, y=0.957*sin(104.520/2), z=0.957*cos(104.520/2)
+       -  [Hw, 0, -0.75695, 0.58588]
        -  [Mw, 0, 0, 0.155]
   TIP4P/epsi:
     description:
@@ -457,8 +480,8 @@ H2O:
         pseudo_atom: [no, M, M, 0, 0., -1.054000, 0.0, 1.0, 1.00, 0, 0, relative, 0]
     atomic_positions:
        -  [Ow, 0, 0, 0]
-       -  [Hw, 0, +0.58588, 0.75695] # x=0, y=0.957*cos(104.520/2), z=0.957*sin(104.520/2)
-       -  [Hw, 0, -0.58588, 0.75695]
+       -  [Hw, 0, +0.75695, 0.58588] # x=0, y=0.957*sin(104.520/2), z=0.957*cos(104.520/2)
+       -  [Hw, 0, -0.75695, 0.58588]
        -  [Mw, 0, 0, 0.105]
   OPC:
     description:
@@ -475,8 +498,8 @@ H2O:
         pseudo_atom: [no, M, M, 0, 0., -1.358200, 0.0, 1.0, 1.00, 0, 0, relative, 0]
     atomic_positions:
        -  [Ow, 0, 0, 0]
-       -  [Hw, 0, +0.53950, 0.68558] # x=0, y=0.872*cos(103.600/2), z=0.872*sin(103.600/2)
-       -  [Hw, 0, -0.53950, 0.68558]
+       -  [Hw, 0, +0.68558, 0.53950] # x=0, y=0.872*sin(103.600/2), z=0.872*cos(103.600/2)
+       -  [Hw, 0, -0.68558, 0.53950]
        -  [Mw, 0, 0, 0.159]
   OPC3:
     description:
@@ -490,8 +513,8 @@ H2O:
         pseudo_atom: [yes, H, H, 0, 1.007, 0.447600, 0.0, 1.0, 1.00, 0, 0, relative, 0]
     atomic_positions:
        -  [Ow, 0, 0, 0]
-       -  [Hw, 0, +0.56518, 0.79926] # x=0, y=0.979*cos(109.470/2), z=0.979*sin(109.470/2)
-       -  [Hw, 0, -0.56518, 0.79926]
+       -  [Hw, 0, +0.79926, 0.56518] # x=0, y=0.979*sin(109.470/2), z=0.979*cos(109.470/2)
+       -  [Hw, 0, -0.79926, 0.56518]
   ST2:
     description:
       ST2 water model from http://www1.lsbu.ac.uk/water/water_models.html
@@ -507,9 +530,9 @@ H2O:
         pseudo_atom: [no, M, M, 0, 0., -0.243570, 0.0, 1.0, 1.00, 0, 0, relative, 0]
     atomic_positions:
        -  [Ow, 0, 0, 0]
-       -  [Hw, 0, +0.57736, 0.81649] # x=0, y=1.000*cos(109.470/2), z=1.000*sin(109.470/2)
-       -  [Hw, 0, -0.57736, 0.81649]
-       -  [Mw, +0.46189, 0, -0.65319] # x=0.800*cos(109.470/2), y=0, z=0.800*sin(109.470/2)
+       -  [Hw, 0, +0.81649, 0.57736] # x=0, y=1.000*sin(109.470/2), z=1.000*cos(109.470/2)
+       -  [Hw, 0, -0.81649, 0.57736]
+       -  [Mw, +0.65319, 0, -0.46189] # x=0.800*sin(109.470/2), y=0, z=-0.800*cos(109.470/2)
        -  [Mw, -0.46189, 0, -0.65319]
   TIP5P:
     description:
@@ -526,9 +549,9 @@ H2O:
         pseudo_atom: [no, M, M, 0, 0., -0.241000, 0.0, 1.0, 1.00, 0, 0, relative, 0]
     atomic_positions:
        -  [Ow, 0, 0, 0]
-       -  [Hw, 0, +0.58588, 0.75695] # x=0, y=0.957*cos(104.520/2), z=0.957*sin(104.520/2)
-       -  [Hw, 0, -0.58588, 0.75695]
-       -  [Mw, +0.40415, 0, -0.57154] # x=0.700*cos(109.470/2), y=0, z=0.700*sin(109.470/2)
+       -  [Hw, 0, +0.75695, 0.58588] # x=0, y=0.957*sin(104.520/2), z=0.957*cos(104.520/2)
+       -  [Hw, 0, -0.75695, 0.58588]
+       -  [Mw, +0.57154, 0, -0.40415] # x=0.700*sin(109.470/2), y=0, z=-0.700*cos(109.470/2)
        -  [Mw, -0.40415, 0, -0.57154]
   TIP5P-Ew:
     description:
@@ -545,9 +568,9 @@ H2O:
         pseudo_atom: [no, M, M, 0, 0., -0.241000, 0.0, 1.0, 1.00, 0, 0, relative, 0]
     atomic_positions:
        -  [Ow, 0, 0, 0]
-       -  [Hw, 0, +0.58588, 0.75695] # x=0, y=0.957*cos(104.520/2), z=0.957*sin(104.520/2)
-       -  [Hw, 0, -0.58588, 0.75695]
-       -  [Mw, +0.40415, 0, -0.57154] # x=0.700*cos(109.470/2), y=0, z=0.700*sin(109.470/2)
+       -  [Hw, 0, +0.75695, 0.58588] # x=0, y=0.957*sin(104.520/2), z=0.957*cos(104.520/2)
+       -  [Hw, 0, -0.75695, 0.58588]
+       -  [Mw, +0.57154, 0, -0.40415] # x=0.700*sin(109.470/2), y=0, z=-0.700*cos(109.470/2)
        -  [Mw, -0.40415, 0, -0.57154]
   TIP5P-2018:
     description:
@@ -564,10 +587,34 @@ H2O:
         pseudo_atom: [no, M, M, 0, 0., -0.073580, 0.0, 1.0, 1.00, 0, 0, relative, 0]
     atomic_positions:
        -  [Ow, 0, 0, 0]
-       -  [Hw, 0, +0.58588, 0.75695] # x=0, y=0.957*cos(104.520/2), z=0.957*sin(104.520/2)
-       -  [Hw, 0, -0.58588, 0.75695]
-       -  [Mw, +0.40415, 0, -0.57154] # x=0.700*cos(109.470/2), y=0, z=0.700*sin(109.470/2)
+       -  [Hw, 0, +0.75695, 0.58588] # x=0, y=0.957*sin(104.520/2), z=0.957*cos(104.520/2)
+       -  [Hw, 0, -0.75695, 0.58588]
+       -  [Mw, +0.57154, 0, -0.40415] # x=0.700*sin(109.470/2), y=0, z=-0.700*cos(109.470/2)
        -  [Mw, -0.40415, 0, -0.57154]
+  TIP7P:
+    description:
+      TIP7P water model from http://www1.lsbu.ac.uk/water/water_models.html
+    atom_types:
+      Ow:
+        force_field: [lennard-jones, 75.580, 3.156]
+        pseudo_atom: [yes, O, O, 0, 15.999, 0.110940, 0.0, 1.0, 1.00, 0, 0, relative, 0]
+      Hw:
+        force_field: [zero-potential]
+        pseudo_atom: [yes, H, H, 0, 1.007, 0.580140, 0.0, 1.0, 1.00, 0, 0, relative, 0]
+      Mw:
+        force_field: [zero-potential]
+        pseudo_atom: [no, M, M, 0, 0., -0.177240, 0.0, 1.0, 1.00, 0, 0, relative, 0]
+      MMw:
+        force_field: [zero-potential]
+        pseudo_atom: [no, M, M, 0, 0., -0.458370, 0.0, 1.0, 1.00, 0, 0, relative, 0]
+    atomic_positions:
+       -  [Ow, 0, 0, 0]
+       -  [Hw, 0, +0.75695, 0.58588] # x=0, y=0.957*sin(104.520/2), z=0.957*cos(104.520/2)
+       -  [Hw, 0, -0.75695, 0.58588]
+       -  [Mw, +0.33476, 0, -0.23672] # x=0.410*sin(109.470/2), y=0, z=-0.410*cos(109.470/2)
+       -  [Mw, -0.23672, 0, -0.33476]
+       -  [MMw, 0, +0.37848, 0.29294] # x=0, y=0.479*sin(104.520/2), z=0.479*cos(104.520/2)
+       -  [MMw, 0, -0.37848, 0.29294]
 
 CH4:
   critical_constants:
@@ -633,6 +680,67 @@ CO2:
       - [O_co2, 0, 0, 1.16]
       - [C_co2, 0, 0, 0]
       - [O_co2, 0, 0, -1.16]
+  ESP-MM:
+    description:
+      DFT optimized geometry and parameters fitted to reproduce both VLE and DFT-ESP, improving binding geometries
+      but not necessarily the binding energies too.
+      Done by the group of Li-Chiang Lin in 2019 (10.1021/acs.jctc.9b00653).
+      As for CO2, ESP-MM is very similar to TraPPE.
+    atom_types:
+      O_co2:
+        force_field: [lennard-jones, 56.4, 2.91]
+        pseudo_atom: [yes, O, O, 0, 15.9994, -0.3253, 0.0, 1.0, 0.68, 0, 0, relative, 0]
+      C_co2:
+        force_field: [lennard-jones, 56.0, 3.33]
+        pseudo_atom: [yes, C, C, 0, 12.0, 0.6506, 0.0, 1.0, 0.720, 0, 0, relative, 0]
+    atomic_positions:
+      - [O_co2, 0, 0, 1.165]
+      - [C_co2, 0, 0, 0]
+      - [O_co2, 0, 0, -1.165]
+
+CO:
+  critical_constants:
+    tc: 132.92
+    pc: 3499000
+    af: 0.0663
+  Martin-Calvo:
+    description: >-
+      Model fitted to reproduce VLE and the experimental dipole moment (0.112 D) by the group of Sofia Calero in 2012
+      (10.1021/jp211563e). Tested in 3 MOFs: HKUST-1, IRMOF-1 and MIL-47.
+    atom_types:
+      C_co:
+        force_field: [lennard-jones, 98.014, 2.979]
+        pseudo_atom: [yes, C, C, 0, 12.0, -0.2424, 0.0, 1.0, 0.720, 0, 0, relative, 0]
+      O_co:
+        force_field: [lennard-jones, 16.141, 3.636]
+        pseudo_atom: [yes, O, O, 0, 15.9994, -0.2744, 0.0, 1.0, 0.68, 0, 0, relative, 0]
+      M_co:
+        force_field: [zero-potential]
+        pseudo_atom: [no, M, M, 0, 0, 0.5168, 0.0, 1.0, 0.68, 0, 0, relative, 0]
+    atomic_positions:
+      - [C_co, 0, 0, 0]
+      - [M_co, 0, 0, 0.6443]
+      - [O_co, 0, 0, 1.128]
+  ESP-MM:
+    description: >-
+      DFT optimized geometry and parameters fitted to reproduce both VLE and DFT-ESP, improving binding geometries
+      but not necessarily the binding energies too.
+      Done by the group of Li-Chiang Lin in 2019 (10.1021/acs.jctc.9b00653).
+      As for CO it was showed to fit better the ESP than the model by Martin-Calvo.
+    atom_types:
+      C_co:
+        force_field: [lennard-jones, 40.5, 3.08]
+        pseudo_atom: [yes, C, C, 0, 12.0, 1.040, 0.0, 1.0, 0.720, 0, 0, relative, 0]
+      O_co:
+        force_field: [lennard-jones, 40.2, 3.52]
+        pseudo_atom: [yes, O, O, 0, 15.9994, -0.209, 0.0, 1.0, 0.68, 0, 0, relative, 0]
+      M_co:
+        force_field: [zero-potential]
+        pseudo_atom: [no, M, M, 0, 0, -0.831, 0.0, 1.0, 0.68, 0, 0, relative, 0]
+    atomic_positions:
+      - [C_co, 0, 0, 0]
+      - [M_co, 0, 0, -0.336]
+      - [O_co, 0, 0, 1.129]
 
 N2:
   critical_constants:
@@ -646,13 +754,81 @@ N2:
       N_n2:
         force_field: [lennard-jones, 36.0, 3.31]
         pseudo_atom: [yes, N, N, 0, 14.00674, -0.482, 0.0, 1.0, 0.7, 0, 0, relative, 0]
-      N_com:
+      M_n2:
         force_field: [zero-potential]
-        pseudo_atom: [no, N, N, 0, 0.0, 0.964, 0.0, 1.0, 0.7, 0, 0, relative, 0]
+        pseudo_atom: [no, M, M, 0, 0.0, 0.964, 0.0, 1.0, 0.7, 0, 0, relative, 0]
     atomic_positions:
       - [N_n2, 0, 0, 0.55]
-      - [N_com, 0, 0, 0]
+      - [M_n2, 0, 0, 0]
       - [N_n2, 0, 0, -0.55]
+  ESP-MM:
+    description:
+      DFT optimized geometry and parameters fitted to reproduce both VLE and DFT-ESP, improving binding geometries
+      but not necessarily the binding energies too.
+      Done by the group of Li-Chiang Lin in 2019 (10.1021/acs.jctc.9b00653).
+      As for N2, ESP-MM is very similar to TraPPE.
+    atom_types:
+      N_n2:
+        force_field: [lennard-jones, 38.0, 3.31]
+        pseudo_atom: [yes, N, N, 0, 14.00674, -0.5186, 0.0, 1.0, 0.7, 0, 0, relative, 0]
+      M_n2:
+        force_field: [zero-potential]
+        pseudo_atom: [no, M, M, 0, 0.0, 1.0372, 0.0, 1.0, 0.7, 0, 0, relative, 0]
+    atomic_positions:
+      - [N_n2, 0, 0, 0.548]
+      - [M_n2, 0, 0, 0]
+      - [N_n2, 0, 0, -0.548]
+
+N2O:
+  critical_constants:
+    tc: 309.57
+    pc: 7245000
+    af: 0.1408
+  ESP-MM:
+    description:
+      DFT optimized geometry and parameters fitted to reproduce both VLE and DFT-ESP, improving binding geometries
+      but not necessarily the binding energies too.
+      Done by the group of Li-Chiang Lin in 2019 (10.1021/acs.jctc.9b00653).
+    atom_types:
+      N1_n2o:
+        force_field: [lennard-jones, 57.6, 3.13]
+        pseudo_atom: [yes, N, N, 0, 14.00674, -0.3149, 0.0, 1.0, 0.7, 0, 0, relative, 0]
+      N2_n2o:
+        force_field: [lennard-jones, 57.6, 3.13]
+        pseudo_atom: [yes, N, N, 0, 14.00674, 0.5923, 0.0, 1.0, 0.7, 0, 0, relative, 0]
+      O_n2o:
+        force_field: [lennard-jones, 71.3, 2.91]
+        pseudo_atom: [yes, O, O, 0, 15.999, -0.2774, 0.0, 1.0, 0.7, 0, 0, relative, 0]
+    atomic_positions:
+      - [N1_n2o, 0, 0, -1.132]
+      - [N2_n2o, 0, 0, 0]
+      - [O_n2o, 0, 0, +1.184]
+
+SO2:
+  critical_constants:
+    tc: 430.75
+    pc: 78.84
+    af: 0.2453
+  ESP-MM:
+    description:
+      DFT optimized geometry and parameters fitted to reproduce both VLE and DFT-ESP, improving binding geometries
+      but not necessarily the binding energies too.
+      Done by the group of Li-Chiang Lin in 2019 (10.1021/acs.jctc.9b00653).
+    atom_types:
+      S_so2:
+        force_field: [lennard-jones, 162.7, 3.55]
+        pseudo_atom: [yes, S, S, 0, 32.066, 1.077, 0.0, 1.0, 1.00, 0, 0, relative, 0]
+      O_so2:
+        force_field: [lennard-jones, 45.3, 3.00]
+        pseudo_atom: [yes, O, O, 0, 15.999, -0.378, 0.0, 1.0, 1.00, 0, 0, relative, 0]
+      M_so2:
+        force_field: [zero-potential]
+        pseudo_atom: [no, M, M, 0, 0., -0.321, 0.0, 1.0, 1.00, 0, 0, relative, 0]
+    atomic_positions:
+       -  [S_so2, 0, 0, 0]
+       -  [O_so2, 0, +1.250, 0.731] # x=0, y=1.448*sin(119.34/2), z=1.448*cos(119.34/2)
+       -  [O_so2, 0, -1.250, 0.731]
+       -  [M_so2, 0, 0, -0.689]
 
 # Noble gasses (in order of atomic number)
 He:
