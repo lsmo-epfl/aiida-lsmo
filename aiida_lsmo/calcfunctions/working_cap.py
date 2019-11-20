@@ -58,3 +58,53 @@ def calc_ch4_working_cap(isot_dict):  # Move this to aiida-lsmo/calcfunctions/ca
             "wc_65bar_fraction_unit": "-",
         })
     return Dict(dict=out_dict)
+
+
+@calcfunction
+def calc_h2_working_cap(isot_dict):  # Move this to aiida-lsmo/calcfunctions/calc_working_cap
+    """Compute the H2 working capacity from the output_parameters Dict of MultiTempIsothermWorkChain.
+    This must have run calculations at 1, 5 and 100 bar at 77, 198, 298 K.
+    Case-A: near-ambient-T adsorption, 100bar/198K to 5bar/298K (cf. Kapelewski2018, 10.1021/acs.chemmater.8b03276)
+    Case-B: low T adsorption, 100-5bar at 77K (cf. Ahmed2019, 10.1038/s41467-019-09365-w)
+    Case-C: low T adsorption at low discharge, 100-1bar at 77K (cf. Thornton2017, 10.1021/acs.chemmater.6b04933)
+    """
+    from math import sqrt
+
+    out_dict = {}
+    out_dict['is_porous'] = isot_dict['is_porous']
+
+    if out_dict['is_porous']:
+        press2index = {}
+        temp2index = {}
+        for press in 1, 5, 100:
+            press2index[press] = isot_dict["isotherm"][0]["pressure"].index(press)
+        for temp in 77, 198, 298:
+            temp2index[temp] = isot_dict["temperature"].index(temp)
+
+        case2pt = {"a": [[100, 198], [5, 298]], "b": [[100, 77], [5, 77]], "c": [[100, 77], [1, 77]]}
+
+        unitconv = {
+            "wt%": isot_dict["conversion_factor_molec_uc_to_gr_gr"] / \
+                   isot_dict["conversion_factor_molec_uc_to_mol_kg"] * 100, # mol/kg to %wt
+            "g/L": isot_dict["conversion_factor_molec_uc_to_gr_gr"] / \
+                    isot_dict["conversion_factor_molec_uc_to_mol_kg"] * isot_dict["Density"] * 1000 # mol/kg to g/L
+        }
+
+        out_dict = {}
+        for case, presstemp in case2pt.items():
+            for unit in unitconv:
+                load_average = isot_dict["isotherm"][temp2index[presstemp[0][1]]]["loading_absolute_average"][
+                    press2index[presstemp[0][0]]]
+                disc_average = isot_dict["isotherm"][temp2index[presstemp[1][1]]]["loading_absolute_average"][
+                    press2index[presstemp[1][0]]]
+                load_dev = isot_dict["isotherm"][temp2index[presstemp[0][1]]]["loading_absolute_dev"][press2index[
+                    presstemp[0][0]]]
+                disc_dev = isot_dict["isotherm"][temp2index[presstemp[1][1]]]["loading_absolute_dev"][press2index[
+                    presstemp[1][0]]]
+                out_dict.update({
+                    "case-{}_{}_unit".format(case, unit): unit,
+                    "case-{}_{}_average".format(case, unit): load_average - disc_average,
+                    "case-{}_{}_dev".format(case, unit): sqrt(load_dev**2 + disc_dev**2)
+                })
+
+    return Dict(dict=out_dict)
