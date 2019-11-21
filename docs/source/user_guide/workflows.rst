@@ -88,6 +88,7 @@ What it does, in order:
 #. Run a geometry calculation (Zeo++) to assess the accessible probe-occubiable pore volume and the needed blocking spheres.
 #. Stop if the structure is non-porous, i.e., not permeable to the molecule.
 #. Get the parameters of the force field using the FFBuilder.
+#. Get the number of unit cell replicas needed to have correct periodic boundary conditions at the given cutoff.
 #. Compute the adsorption at zero loading (e.g., the Henry coefficient, kH) from a Widom insertion calculation using Raspa.
 #. Stop if the kH is not more that a certain user-defined threshold: this can be used for screening purpose, or to
    intentionally compute only the kH using this work chain.
