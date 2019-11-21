@@ -51,7 +51,7 @@ def main(raspa_code_label, zeopp_code_label):
     # NOTE2: calc_pe can fail due to this raw sampling of the isotherm. It happens in the ca. 20% of the cases.
     builder.parameters = Dict(
         dict={
-            'forcefield': 'UFF',
+            'ff_framework': 'UFF',
             'temperature': 400,
             'zeopp_volpo_samples': 1000,
             'zeopp_block_samples': 10,
