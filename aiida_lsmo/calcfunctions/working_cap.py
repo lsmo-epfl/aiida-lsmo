@@ -92,7 +92,7 @@ def calc_h2_working_cap(isot_dict):  # Move this to aiida-lsmo/calcfunctions/cal
 
         out_dict = {}
         for case, presstemp in case2pt.items():
-            for unit in unitconv:
+            for unit, conv in unitconv.items():
                 load_average = isot_dict["isotherm"][temp2index[presstemp[0][1]]]["loading_absolute_average"][
                     press2index[presstemp[0][0]]]
                 disc_average = isot_dict["isotherm"][temp2index[presstemp[1][1]]]["loading_absolute_average"][
@@ -103,8 +103,8 @@ def calc_h2_working_cap(isot_dict):  # Move this to aiida-lsmo/calcfunctions/cal
                     presstemp[1][0]]]
                 out_dict.update({
                     "case-{}_{}_unit".format(case, unit): unit,
-                    "case-{}_{}_average".format(case, unit): load_average - disc_average,
-                    "case-{}_{}_dev".format(case, unit): sqrt(load_dev**2 + disc_dev**2)
+                    "case-{}_{}_average".format(case, unit): (load_average - disc_average) * conv,
+                    "case-{}_{}_dev".format(case, unit): sqrt(load_dev**2 + disc_dev**2) * conv
                 })
 
     return Dict(dict=out_dict)
