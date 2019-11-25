@@ -5,9 +5,8 @@ Tecnicalities
 Unit cell expansion
 +++++++++++++++++++++++
 
-You learned that the lengths of your simulation box should bigger than twice the cutoff value.\\
-Therefore, for an orthogonal cell you should multiply you cell until its length
-meets this criterion in every direction.
+With periodic boundary conditions the lengths of the simulation box should bigger than twice the cutoff value.
+Therefore, for an orthogonal cells should multiply you cell until its length meets this criterion in every direction.
 
 But what if the cell is not orthogonal?
 
@@ -18,9 +17,9 @@ pwa and pwb and then evaluate if the cell needs to be expanded,
 and the multiplication coefficients.
 
 
-.. figure:: ../images/perp_width.png
+.. figure:: images/perp_width.png
     :width: 800px
-    :align: left
+    :align: center
     :alt: alternate text
     :figclass: align-center
 
@@ -48,9 +47,9 @@ and you will (usually) get an uptake that is less then the correct one. Why?
 Isotherm's automated pressure point selection
 +++++++++++++++++++++++++++++++++++++++++++++++
 
-.. figure:: ../images/isotherm_sampling.png
+.. figure:: images/isotherm_sampling.png
     :width: 800px
-    :align: left
+    :align: center
 
 .. note:: This method works only for sampling *Type I* isotherms: it fails to correctly sample inflection curves
           in case of strong cooperative adsorption, e.g., for water.

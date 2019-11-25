@@ -122,6 +122,6 @@ You can also inspect the inputs/outputs in a single glance with ``verdi node sho
 Another good idea is to print the graph of your workflow with ``verdi node graph generate``,
 to inspect all its internal steps:
 
-.. figure:: ../images/multistage_wc_al.png
+.. figure:: images/multistage_wc_al.png
     :width: 800px
-    :align: left
+    :align: center

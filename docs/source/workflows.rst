@@ -27,8 +27,7 @@ What it currently can not do:
 #. Generate `.def` files for a molecule, given just the geometry: it has to be included in the ff_data.yaml file.
 
 
-Inputs details
---------------
+**Inputs details**
 
 * Parameters Dict::
 
@@ -45,8 +44,7 @@ Inputs details
     })
 
 
-Outputs details
----------------
+**Outputs details**
 
 * Dictionary containing the `.def` files as SinglefileData. This output dictionary is ready to be used as a `files` input
   of the `RaspaCalculation`: you can find and example of usage of this CalcFunction in the `IsothermWorkChain`, or a
@@ -102,8 +100,8 @@ What it can not do:
 .. aiida-workchain:: IsothermWorkChain
     :module: aiida_lsmo.workchains
 
-Inputs details
---------------
+**Inputs details**
+
 
 * ``structure`` (``CifData``) is the framework with partial charges (provided as ``_atom_site_charge`` column in the CIF file)
 
@@ -150,8 +148,7 @@ selection of the work chain is skipped.
 
 * ``geometric`` is not meant to be used by the user, but by the IsothermMultiTemp work chains.
 
-Outputs details
----------------
+**Outputs details**
 
 * ``output_parameters`` (``Dict``) whose length depends whether ``is_porous`` is ``True`` (if not, only geometric outputs are
   reported in the dictionary), and whether ``is_kh_enough`` (if ``False``, it prints only the output of the Widom calculation,
@@ -273,16 +270,14 @@ What it can not do:
 .. aiida-workchain:: IsothermMultiTempWorkChain
     :module: aiida_lsmo.workchains
 
-Inputs details
---------------
+**Inputs details**
 
 * ``parameters`` (``Dict``), compared to the input of the Isotherm work chain, contains the key ``temperature_list``
   and neglects the key ``temperature``::
 
     "temperature_list": [278, 298.15, 318.0],
 
-Outputs details
----------------
+**Outputs details**
 
 * ``output_parameters`` (``Dict``) contains the ``temperature`` and ``isotherm`` as lists. In this example 3 pressure
   points are computed at 77K, 198K and 298K::
@@ -492,8 +487,7 @@ What it can not do:
 #. Run CP2K calculations with k-points.
 #. Run CP2K advanced calculations, e.g., other than ``ENERGY``, ``GEO_OPT``, ``CELL_OPT`` and ``MD``.
 
-Inputs details
----------------
+**Inputs details**
 
 * ``structure`` (``StructureData``, NOTE this is not a ``CifData``) is the system to investigate. It can be also a molecule
   in a box and not necessarily a 2D/3D framework.
@@ -556,8 +550,7 @@ Other keys may be add in future to introduce new functionalities to the Multista
 * ``cp2k_base.cp2k.parameters`` (``Dict``) can be used to specify some cp2k parameters that will be always overwritten
   just before submitting every calculation.
 
-Outputs details
----------------
+**Outputs details**
 
 * ``output_structure`` (``StructureData``) is the final structure at the end of the last stage. It is not outputted in
   case of a single point calculation, since it does not update the geometry of the system.
@@ -701,8 +694,7 @@ Outputs details
   the ones that make the SCF converge, so the user can inspect them and use them for other direct CP2K calculations in AiiDA.
 
 
-Usage
------------
+**Usage**
 
 See examples provided with the `plugin <https://github.com/aiidateam/aiida-cp2k/tree/master/examples/workchains>`_.
 The report provides very useful insight on what happened during the run. Here it is the example of Aluminum::
