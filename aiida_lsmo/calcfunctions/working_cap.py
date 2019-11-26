@@ -6,6 +6,15 @@ from aiida.engine import calcfunction
 from aiida.orm import Dict
 
 
+def get_molec_uc_to_mg_g(isot_dict):
+    """Fix the discrepancy coming from old Raspa calculations, having a typo in the conversion label."""
+    if "conversion_factor_molec_uc_to_gr_gr" in isot_dict.get_dict():
+        molec_uc_to_mg_g = isot_dict["conversion_factor_molec_uc_to_gr_gr"]
+    elif "conversion_factor_molec_uc_to_mg_g" in isot_dict.get_dict():
+        molec_uc_to_mg_g = isot_dict["conversion_factor_molec_uc_to_mg_g"]
+    return molec_uc_to_mg_g
+
+
 @calcfunction
 def calc_ch4_working_cap(isot_dict):  # Move this to aiida-lsmo/calcfunctions/calc_working_cap
     """Compute the CH4 working capacity from the output_parameters Dict of IsothermWorkChain.
@@ -22,10 +31,9 @@ def calc_ch4_working_cap(isot_dict):  # Move this to aiida-lsmo/calcfunctions/ca
         ip5 = isot_dict["isotherm"]["pressure"].index(5.8)
         ip65 = isot_dict["isotherm"]["pressure"].index(65.0)
 
-        # in iso_dict uptakes are in mol/kg and enthalpies in kJ/mol
+        # conversion factors form mol/kg to cm3STP/cm3 and wt%
         conv1 = isot_dict["conversion_factor_molec_uc_to_cm3stp_cm3"] / isot_dict["conversion_factor_molec_uc_to_mol_kg"]  # pylint: disable=line-too-long
-        # BE CAREFULL: "molec_uc_to_gr_gr" is in "reality molec_uc_to_mg_gr"
-        conv2 = isot_dict["conversion_factor_molec_uc_to_gr_gr"] / isot_dict["conversion_factor_molec_uc_to_mol_kg"] / 10  # pylint: disable=line-too-long
+        conv2 = get_molec_uc_to_mg_g(isot_dict) / isot_dict["conversion_factor_molec_uc_to_mol_kg"] / 10
 
         wc_65bar_average = isot_dict["isotherm"]["loading_absolute_average"][ip65] - isot_dict["isotherm"][
             "loading_absolute_average"][ip5]
@@ -88,9 +96,8 @@ def calc_h2_working_cap(isot_dict):  # Move this to aiida-lsmo/calcfunctions/cal
         case2pt = {"a": [[100, 198], [5, 298]], "b": [[100, 77], [5, 77]], "c": [[100, 77], [1, 77]]}
 
         unitconv = {
-            # BE CAREFULL: "molec_uc_to_gr_gr" is in "reality molec_uc_to_mg_gr"
             "wt%":
-                isot_dict["conversion_factor_molec_uc_to_gr_gr"] / isot_dict["conversion_factor_molec_uc_to_mol_kg"] /
+                get_molec_uc_to_mg_g(isot_dict) / isot_dict["conversion_factor_molec_uc_to_mol_kg"] /
                 10,  # mol/kg to wt%
             "g/L":
                 isot_dict["conversion_factor_molec_uc_to_gr_gr"] / isot_dict["conversion_factor_molec_uc_to_mol_kg"] *
