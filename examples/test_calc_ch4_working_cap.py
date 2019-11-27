@@ -12,7 +12,7 @@ from aiida.engine import run_get_node
 calc_ch4_working_cap = CalculationFactory("lsmo.calc_ch4_working_cap")  # pylint: disable=invalid-name
 
 # output_paramters from IsothermWorkChain
-output_parameters = Dict( # pylint: disable=invalid-name
+OUTPUT_PARAMETERS = Dict(
     dict={
         "Density": 0.440527,
         "Density_unit": "g/cm^3",
@@ -41,7 +41,7 @@ output_parameters = Dict( # pylint: disable=invalid-name
         "adsorption_energy_widom_dev": 0.02083606,
         "adsorption_energy_widom_unit": "kJ/mol",
         "conversion_factor_molec_uc_to_cm3stp_cm3": 2.9347915768,
-        "conversion_factor_molec_uc_to_gr_gr": 4.7676018308,
+        "conversion_factor_molec_uc_to_mg_g": 4.7676018308,
         "conversion_factor_molec_uc_to_mol_kg": 0.2972320343,
         "henry_coefficient_average": 7.71003e-06,
         "henry_coefficient_dev": 1.65115e-08,
@@ -62,7 +62,7 @@ output_parameters = Dict( # pylint: disable=invalid-name
         "temperature_unit": "K"
     })
 
-results, node = run_get_node(calc_ch4_working_cap, output_parameters)  # pylint: disable=invalid-name
+results, node = run_get_node(calc_ch4_working_cap, OUTPUT_PARAMETERS)  # pylint: disable=invalid-name
 print("Terminated calcfunction CH4 working capacity, pk:", node.pk)
 print("Printing output Dict, pk:", results.pk)
 pprint.pprint(results.get_dict())

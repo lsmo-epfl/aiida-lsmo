@@ -50,7 +50,7 @@ def main(raspa_code_label, zeopp_code_label):
     builder.molecule = Str('co2')
     builder.parameters = Dict(
         dict={
-            'forcefield': 'UFF',  # Default: UFF
+            'ff_framework': 'UFF',  # Default: UFF
             'temperature': 400,  # (K) Note: higher temperature will have less adsorbate and it is faster
             'zeopp_volpo_samples': 1000,  # Default: 1e5 *NOTE: default is good for standard real-case!
             'zeopp_block_samples': 10,  # Default: 100
