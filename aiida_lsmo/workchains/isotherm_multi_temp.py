@@ -31,7 +31,7 @@ def get_output_parameters(geom_dict, **isotherm_dict):
 
     single_temp_labels = [
         'temperature_unit', 'henry_coefficient_unit', 'adsorption_energy_widom_unit',
-        'conversion_factor_molec_uc_to_cm3stp_cm3', 'conversion_factor_molec_uc_to_gr_gr',
+        'conversion_factor_molec_uc_to_cm3stp_cm3', 'conversion_factor_molec_uc_to_mg_g',
         'conversion_factor_molec_uc_to_mol_kg'
     ]
 
@@ -46,8 +46,8 @@ def get_output_parameters(geom_dict, **isotherm_dict):
                 out_dict[label].append(isotherm_out_i[label])
 
         # Same for all, take the last for convenience
-            for label in single_temp_labels:
-                out_dict[label] = isotherm_out_i[label]
+        for label in single_temp_labels:
+            out_dict[label] = isotherm_out_i[label]
 
     return Dict(dict=out_dict)
 
