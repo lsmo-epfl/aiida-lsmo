@@ -49,7 +49,7 @@ def main(raspa_code_label, zeopp_code_label):
     builder.molecule = Str('co2')
     builder.parameters = Dict(
         dict={
-            'forcefield': 'UFF',  # Default: UFF
+            'ff_framework': 'UFF',  # Default: UFF
             'temperature_list': [400, 500],  # (K) ******* NOTE: list for multi temperature *********
             'zeopp_volpo_samples': 1000,  # Default: 1e5 *NOTE: default is good for standard real-case!
             'zeopp_block_samples': 10,  # Default: 100

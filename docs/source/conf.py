@@ -16,18 +16,10 @@ import sys
 import time
 from aiida.manage import configuration
 from aiida.manage.manager import get_manager
-import aiida_lsmo
-
-# -- AiiDA-related setup --------------------------------------------------
 
 # pylint: disable=invalid-name,ungrouped-imports
-# let's make sure the entry points are up to date
-try:
-    from aiida.plugins.entry_point import ENTRYPOINT_MANAGER as mgr
-    mgr.scan()
-except AttributeError:
-    # .scan may be no longer availabe if we switch away from reentry
-    pass
+
+# -- AiiDA-related setup --------------------------------------------------
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -57,6 +49,16 @@ else:
     configuration.load_profile()  # load dummy config for RTD
     # load DB backend (no schema check since no DB)
     get_manager()._load_backend(schema_check=False)  # pylint: disable=protected-access
+
+# let's make sure the entry points are up to date
+try:
+    from aiida.plugins.entry_point import ENTRYPOINT_MANAGER as mgr
+    mgr.scan()
+except AttributeError:
+    # .scan may be no longer availabe if we switch away from reentry
+    pass
+
+import aiida_lsmo  # pylint: disable=wrong-import-position
 
 # -- General configuration ------------------------------------------------
 
@@ -195,7 +197,7 @@ pygments_style = 'sphinx'
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-#html_static_path = ['_static']
+html_static_path = ['_static']
 
 # Add any extra paths that contain custom files (such as robots.txt or
 # .htaccess) here, relative to this directory. These files are copied

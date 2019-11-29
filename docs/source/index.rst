@@ -5,14 +5,17 @@
 The aiida-lsmo plugin for `AiiDA`_
 =====================================================
 
-``aiida-lsmo`` is available at http://github.com/aiidateam/aiida-lsmo
+``aiida-lsmo`` is available at http://github.com/yakutovicha/aiida-lsmo
 
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
-   user_guide/index
-   developer_guide/index
+   get_started
+   workflows
+   technicalities
+
+
    API documentation <apidoc/aiida_lsmo>
 
 If you use this plugin for your research, please cite the following work:

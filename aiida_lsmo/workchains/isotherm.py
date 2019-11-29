@@ -24,24 +24,26 @@ ZeoppParameters = DataFactory('zeopp.parameters')  # pylint: disable=invalid-nam
 
 # Deafault parameters
 ISOTHERMPARAMETERS_DEFAULT = {  #TODO: create IsothermParameters instead of Dict # pylint: disable=fixme
-    "forcefield": "UFF",  # str, Forcefield of the structure
-    "ff_tailcorr": True,  # bool, Apply tail corrections
-    "ff_shift": False,  # bool, Shift or truncate at cutoff
-    "ff_cutoff": 12.0,  # float, CutOff truncation for the VdW interactions (Angstrom)
-    "temperature": 300,  # float, Temperature of the simulation
-    "temperature_list": None,  # list, to be used by IsothermMultiTempWorkChain
-    "zeopp_volpo_samples": int(1e5),  # int, Number of samples for VOLPO calculation (per UC volume)
-    "zeopp_block_samples": int(100),  # int, Number of samples for BLOCK calculation (per A^3)
-    "raspa_minKh": 1e-10,  # float, If Henry coefiicient < raspa_minKh do not run the isotherm (mol/kg/Pa)
-    "raspa_verbosity": 10,  # int, Print stats every: number of cycles / raspa_verbosity
-    "raspa_widom_cycles": int(1e5),  # int, Number of widom cycles
-    "raspa_gcmc_init_cycles": int(1e3),  # int, Number of GCMC initialization cycles
-    "raspa_gcmc_prod_cycles": int(1e4),  # int, Number of GCMC production cycles
-    "pressure_list": None,  # list, Pressure list for the isotherm (bar): if given it will skip  guess
-    "pressure_precision": 0.1,  # float, Precision in the sampling of the isotherm: 0.1 ok, 0.05 better for high res
-    "pressure_maxstep": 5,  # float, Max distance between pressure points (bar)
-    "pressure_min": 0.001,  # float, Lower pressure to sample (bar)
-    "pressure_max": 10  # float, upper pressure to sample (bar)
+    "ff_framework": "UFF",  # (str) Forcefield of the structure.
+    "ff_separate_interactions": False,  # (bool) Use "separate_interactions" in the FF builder.
+    "ff_mixing_rule": "Lorentz-Berthelot",  # (string) Choose 'Lorentz-Berthelot' or 'Jorgensen'.
+    "ff_tail_corrections": True,  # (bool) Apply tail corrections.
+    "ff_shifted": False,  # (bool) Shift or truncate the potential at cutoff.
+    "ff_cutoff": 12.0,  # (float) CutOff truncation for the VdW interactions (Angstrom).
+    "temperature": 300,  # (float) Temperature of the simulation.
+    "temperature_list": None,  # (list) To be used by IsothermMultiTempWorkChain.
+    "zeopp_volpo_samples": int(1e5),  # (int) Number of samples for VOLPO calculation (per UC volume).
+    "zeopp_block_samples": int(100),  # (int) Number of samples for BLOCK calculation (per A^3).
+    "raspa_minKh": 1e-10,  # (float) If Henry coefficient < raspa_minKh do not run the isotherm (mol/kg/Pa).
+    "raspa_verbosity": 10,  # (int) Print stats every: number of cycles / raspa_verbosity.
+    "raspa_widom_cycles": int(1e5),  # (int) Number of Widom cycles.
+    "raspa_gcmc_init_cycles": int(1e3),  # (int) Number of GCMC initialization cycles.
+    "raspa_gcmc_prod_cycles": int(1e4),  # (int) Number of GCMC production cycles.
+    "pressure_list": None,  # (list) Pressure list for the isotherm (bar): if given it will skip to guess it.
+    "pressure_precision": 0.1,  # (float) Precision in the sampling of the isotherm: 0.1 ok, 0.05 for high resolution.
+    "pressure_maxstep": 5,  # (float) Max distance between pressure points (bar).
+    "pressure_min": 0.001,  # (float) Lower pressure to sample (bar).
+    "pressure_max": 10  # (float) Upper pressure to sample (bar).
 }
 
 
@@ -188,7 +190,7 @@ def get_output_parameters(geom_out, inp_params, widom_out=None, pressures=None, 
             out_dict.update({
                 "isotherm": isotherm,
                 'conversion_factor_molec_uc_to_cm3stp_cm3': gcmc_out_mol['conversion_factor_molec_uc_to_cm3stp_cm3'],
-                'conversion_factor_molec_uc_to_gr_gr': gcmc_out_mol['conversion_factor_molec_uc_to_gr_gr'],
+                'conversion_factor_molec_uc_to_mg_g': gcmc_out_mol['conversion_factor_molec_uc_to_mg_g'],
                 'conversion_factor_molec_uc_to_mol_kg': gcmc_out_mol['conversion_factor_molec_uc_to_mol_kg'],
             })
 

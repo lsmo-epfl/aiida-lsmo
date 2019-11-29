@@ -27,8 +27,7 @@ What it currently can not do:
 #. Generate `.def` files for a molecule, given just the geometry: it has to be included in the ff_data.yaml file.
 
 
-Inputs details
---------------
+**Inputs details**
 
 * Parameters Dict::
 
@@ -45,21 +44,11 @@ Inputs details
     })
 
 
-Outputs details
----------------
+**Outputs details**
 
 * Dictionary containing the `.def` files as SinglefileData. This output dictionary is ready to be used as a `files` input
   of the `RaspaCalculation`: you can find and example of usage of this CalcFunction in the `IsothermWorkChain`, or a
   minimal test usage in the examples.
-
-Usage
-------
-
-The CalcFunction can be imported with::
-
-  from aiida.plugins import CalculationFactory
-
-  FFBuilder = CalculationFactory('lsmo.ff_builder')
 
 
 Working Capacity calculators
@@ -88,12 +77,13 @@ What it does, in order:
 #. Run a geometry calculation (Zeo++) to assess the accessible probe-occubiable pore volume and the needed blocking spheres.
 #. Stop if the structure is non-porous, i.e., not permeable to the molecule.
 #. Get the parameters of the force field using the FFBuilder.
+#. Get the number of unit cell replicas needed to have correct periodic boundary conditions at the given cutoff.
 #. Compute the adsorption at zero loading (e.g., the Henry coefficient, kH) from a Widom insertion calculation using Raspa.
 #. Stop if the kH is not more that a certain user-defined threshold: this can be used for screening purpose, or to
    intentionally compute only the kH using this work chain.
 #. Given a min/max range, propose a list of pressures that sample the isotherm uniformly. However, the user can also
    specify a defined list of pressure and skip this automatic selection.
-#. Compute the isotherm using Grand Canonical Mon* te Carlo (GCMC) sampling in series, and restarting each system from
+#. Compute the isotherm using Grand Canonical Monte Carlo (GCMC) sampling in series, and restarting each system from
    the previous one for a short and efficient equilibration.
 
 What it can not do:
@@ -110,8 +100,8 @@ What it can not do:
 .. aiida-workchain:: IsothermWorkChain
     :module: aiida_lsmo.workchains
 
-Inputs details
---------------
+**Inputs details**
+
 
 * ``structure`` (``CifData``) is the framework with partial charges (provided as ``_atom_site_charge`` column in the CIF file)
 
@@ -128,26 +118,29 @@ Inputs details
         singlebead: False  # if true: RotationProbability=0
         charged: True      # if true: ChargeMethod=Ewald
 
-* ``parameters`` (``Dict``) goes to modify these input parameters::
+* ``parameters`` (``Dict``) goes to modify these default parameters::
 
     parameters = {
-        "forcefield": "UFF",  # str, Forcefield of the structure
-        "ff_tailcorr": True,  # bool, Apply tail corrections
-        "ff_shift": False,  # bool, Shift or truncate at cutoff
-        "ff_cutoff": 12.0,  # float, CutOff truncation for the VdW interactions (Angstrom)
-        "temperature": 300,  # float, Temperature of the simulation
-        "zeopp_volpo_samples": int(1e5),  # int, Number of samples for VOLPO calculation (per UC volume)
-        "zeopp_block_samples": int(100),  # int, Number of samples for BLOCK calculation (per A^3)
-        "raspa_minKh": 1e-10,  # float, If Henry coefiicient < raspa_minKh do not run the isotherm (mol/kg/Pa)
-        "raspa_verbosity": 10,  # int, Print stats every: number of cycles / raspa_verbosity
-        "raspa_widom_cycles": int(1e5),  # int, Number of widom cycles
-        "raspa_gcmc_init_cycles": int(1e3),  # int, Number of GCMC initialization cycles
-        "raspa_gcmc_prod_cycles": int(1e4),  # int, Number of GCMC production cycles
-        "pressure_list": None,  # list, Pressure list for the isotherm (bar): if given it will skip  guess
-        "pressure_precision": 0.1,  # float, Precision in the sampling of the isotherm: 0.1 ok, 0.05 better for high res
-        "pressure_maxstep": 5,  # float, Max distance between pressure points (bar)
-        "pressure_min": 0.001,  # float, Lower pressure to sample (bar)
-        "pressure_max": 10  # float, upper pressure to sample (bar)
+      "ff_framework": "UFF",  # (str) Forcefield of the structure.
+      "ff_separate_interactions": False,  # (bool) Use "separate_interactions" in the FF builder.
+      "ff_mixing_rule": "Lorentz-Berthelot",  # (string) Choose 'Lorentz-Berthelot' or 'Jorgensen'.
+      "ff_tail_corrections": True,  # (bool) Apply tail corrections.
+      "ff_shifted": False,  # (bool) Shift or truncate the potential at cutoff.
+      "ff_cutoff": 12.0,  # (float) CutOff truncation for the VdW interactions (Angstrom).
+      "temperature": 300,  # (float) Temperature of the simulation.
+      "temperature_list": None,  # (list) To be used by IsothermMultiTempWorkChain.
+      "zeopp_volpo_samples": int(1e5),  # (int) Number of samples for VOLPO calculation (per UC volume).
+      "zeopp_block_samples": int(100),  # (int) Number of samples for BLOCK calculation (per A^3).
+      "raspa_minKh": 1e-10,  # (float) If Henry coefficient < raspa_minKh do not run the isotherm (mol/kg/Pa).
+      "raspa_verbosity": 10,  # (int) Print stats every: number of cycles / raspa_verbosity.
+      "raspa_widom_cycles": int(1e5),  # (int) Number of Widom cycles.
+      "raspa_gcmc_init_cycles": int(1e3),  # (int) Number of GCMC initialization cycles.
+      "raspa_gcmc_prod_cycles": int(1e4),  # (int) Number of GCMC production cycles.
+      "pressure_list": None,  # (list) Pressure list for the isotherm (bar): if given it will skip to guess it.
+      "pressure_precision": 0.1,  # (float) Precision in the sampling of the isotherm: 0.1 ok, 0.05 for high resolution.
+      "pressure_maxstep": 5,  # (float) Max distance between pressure points (bar).
+      "pressure_min": 0.001,  # (float) Lower pressure to sample (bar).
+      "pressure_max": 10  # (float) Upper pressure to sample (bar).
     }
 
 Note that if the ``pressure_list`` value is provided, the other pressure inputs are neglected and the automatic pressure
@@ -155,8 +148,7 @@ selection of the work chain is skipped.
 
 * ``geometric`` is not meant to be used by the user, but by the IsothermMultiTemp work chains.
 
-Outputs details
----------------
+**Outputs details**
 
 * ``output_parameters`` (``Dict``) whose length depends whether ``is_porous`` is ``True`` (if not, only geometric outputs are
   reported in the dictionary), and whether ``is_kh_enough`` (if ``False``, it prints only the output of the Widom calculation,
@@ -257,17 +249,6 @@ Outputs details
 * ``block`` (``SinglefileData``) file is outputted if blocking spheres are found and used for the isotherm. Therefore,
   this is ready to be used for a new, consistent, Raspa calculation.
 
-Usage
------
-
-Import as::
-
-  from aiida.plugins import WorkflowFactory
-
-  IsothermWorkChain = WorkflowFactory('lsmo.isotherm')
-
-and see the examples for many usage application.
-
 IsothermMultiTemp work chain
 ++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -289,16 +270,14 @@ What it can not do:
 .. aiida-workchain:: IsothermMultiTempWorkChain
     :module: aiida_lsmo.workchains
 
-Inputs details
---------------
+**Inputs details**
 
 * ``parameters`` (``Dict``), compared to the input of the Isotherm work chain, contains the key ``temperature_list``
   and neglects the key ``temperature``::
 
     "temperature_list": [278, 298.15, 318.0],
 
-Outputs details
----------------
+**Outputs details**
 
 * ``output_parameters`` (``Dict``) contains the ``temperature`` and ``isotherm`` as lists. In this example 3 pressure
   points are computed at 77K, 198K and 298K::
@@ -478,11 +457,277 @@ Default input mixture is coal post-combustion flue gas, but also natural gas pos
 .. aiida-workchain:: IsothermCalcPEWorkChain
     :module: aiida_lsmo.workchains
 
+Multistage work chain
+++++++++++++++++++++++
+
+*NOTE: this work chain is part of the `<aiida-cp2k https://github.com/aiidateam/aiida-cp2k>`_ plugin*
+
+The ``MulstistageWorkChain`` work chain in meant to automate DFT optimizations in CP2K and guess some good parameters
+for the simulation, but it is written in such a versatile fashion that it can be used for many other functions.
+
+What it can do:
+
+#. Given a protocol YAML with different settings, the work chains iterates until it converges the SCF calculation.
+   The concept is to use general options for ``settings_0`` and more and more robust for the next ones.
+#. The protocol YAML contains also a number of stages, i.e., different ``MOTION`` settings, that are executed one after
+   the other, restarting from the previous calculation. During the first stage, ``stage_0``, different settings are
+   tested until the SCF converges at the last step of ``stage_0``. If this dos not happening the work chain stops.
+   Otherwise it continues running ``stage_1``, and all the other stages that are included in the protocol.
+#. These stages can be used for running a robust cell optimization, i.e., combining first some MD steps to escape
+   metastable geometries and later the final optimization, or ab-initio MD, first equilibrating the system with a shorter
+   time constant for the thermostat, and then collecting statistics in the second stage.
+#. Some default protocols are provided in ``workchains/multistage_protocols`` and they can be imported with simple tags
+   such as ``test``, ``default``, ``robust_conv``. Otherwise, the user can take inspiration from these to write his
+   own protocol and pass it to the work chain.
+#. Compute the band gap.
+#. You can restart from a previous calculation, e.g., from an already computed wavefunction.
+
+What it can not do:
+
+#. Run CP2K calculations with k-points.
+#. Run CP2K advanced calculations, e.g., other than ``ENERGY``, ``GEO_OPT``, ``CELL_OPT`` and ``MD``.
+
+**Inputs details**
+
+* ``structure`` (``StructureData``, NOTE this is not a ``CifData``) is the system to investigate. It can be also a molecule
+  in a box and not necessarily a 2D/3D framework.
+
+* ``protocol_tag`` (``Str``) calls a default protocol. Currently available:
+
++----------------+-----------------------------------------------------------------------------------------------------+
+| ``default``    | Main choice, uses PBE-D3(BJ) with 600Ry/DZVP basis set and GTH pseudopotential.                     |
+|                | First settings are with OT, and if not working it switches to diagonalization and smearing.         |
+|                | As for the stages it runs a cell optimization, a short NPT MD and again cell optimization.          |
++----------------+-----------------------------------------------------------------------------------------------------+
+| ``test``       | Quick protocol for testing purpose.                                                                 |
++----------------+-----------------------------------------------------------------------------------------------------+
+|``robust_conv`` | Similar to ``default`` but using more robust and more expensive settings for the SCF convergence.   |
++----------------+-----------------------------------------------------------------------------------------------------+
+|``singlepoint`` | Same settings as ``default`` but running only one stage for a single point calculation.             |
+|                | Used to exploit the automation of this work chain for a simple energy calculation.                  |
++----------------+-----------------------------------------------------------------------------------------------------+
+
+* ``protocol_yaml`` (``SinglefileData``) is used to specify a custom protocol through a YAML file. See the
+  `default YAML file <https://github.com/aiidateam/aiida-cp2k/tree/master/aiida_cp2k/workchains/multistage_protocols/standard.yaml>`_
+  as an example. Note that the dictionary need to contain the following keys:
+
++---------------------------+------------------------------------------------------------------------------------------+
+| ``protocol_description``  | An user friendly description of the protocol.                                            |
++---------------------------+------------------------------------------------------------------------------------------+
+| ``initial_magnetization`` | Dictionary of ``KIND/MAGNETIZATION`` for each element.                                   |
++---------------------------+------------------------------------------------------------------------------------------+
+| ``basis_set``             | Dictionary of ``KIND/BASIS_SET`` for each element.                                       |
++---------------------------+------------------------------------------------------------------------------------------+
+| ``pseudopotential``       | Dictionary of ``KIND/POTENTIAL`` for each element.                                       |
++---------------------------+------------------------------------------------------------------------------------------+
+| ``bandgap_thr_ev``        | Any ```stage_0`` using OT and evaluating a band gap below this threshold                 |
+|                           | will be considered as a failure.                                                         |
++---------------------------+------------------------------------------------------------------------------------------+
+| * ``settings_0``          | Settings updated in ``stage_0`` until the SCF converges.                                 |
+| * ``settings_1``          |                                                                                          |
+| * ...                     |                                                                                          |
++---------------------------+------------------------------------------------------------------------------------------+
+| * ``stage_0``             | CP2K settings that are updated at every stage.                                           |
+| * ``stage_1``             |                                                                                          |
+| * ...                     |                                                                                          |
++---------------------------+------------------------------------------------------------------------------------------+
+
+Other keys may be add in future to introduce new functionalities to the Multistage work chain.
+
+* ``starting_settings_idx`` (``Int``) is used to start from a custom index of the settings. If for example you know that
+  the material is conductive and needs for smearing, you can use ``Int(1)`` to update directly the settings to ``settings_1``
+  that applies electron smearing: this is the case of ``default`` protocol.
+
+* ``min_cell_size`` (``Float``) is used to extend the unit cell, so that the minimum perpendicular width of the cell is
+  bigger than a certain specified value. This needed when a cell length is too narrow and the plane wave auxiliary basis
+  set is not accurate enough at the Gamma point only. Also this may be needed for hybrid range-separated potentials that
+  require a sufficient non-overlapping cutoff.
+
+.. note:: Need to explain it further in Technicalities.
+
+* ``parent_calc_folder`` (``RemoteData``) is used to restart from a previously computed wave function.
+
+* ``cp2k_base.cp2k.parameters`` (``Dict``) can be used to specify some cp2k parameters that will be always overwritten
+  just before submitting every calculation.
+
+**Outputs details**
+
+* ``output_structure`` (``StructureData``) is the final structure at the end of the last stage. It is not outputted in
+  case of a single point calculation, since it does not update the geometry of the system.
+
+* ``output_parameters`` (``Dict``), here it is an example for Aluminum, where the ``settings_0`` calculation is discarded
+  because of a negative band gap, and therefore switched to ``settings_1`` which make the SCF converge and they are
+  used for 2 stages::
+
+    {
+        "cell_resized": "1x1x1",
+        "dft_type": "RKS",
+        "final_bandgap_spin1_au": 6.1299999999931e-06,
+        "final_bandgap_spin2_au": 6.1299999999931e-06,
+        "last_tag": "stage_1_settings_1_valid",
+        "natoms": 4,
+        "nsettings_discarded": 1,
+        "nstages_valid": 2,
+        "stage_info": {
+            "bandgap_spin1_au": [
+                0.0,
+                6.1299999999931e-06
+            ],
+            "bandgap_spin2_au": [
+                0.0,
+                6.1299999999931e-06
+            ],
+            "final_edens_rspace": [
+                -3e-09,
+                -3e-09
+            ],
+            "nsteps": [
+                1,
+                2
+            ],
+            "opt_converged": [
+                true,
+                false
+            ]
+        },
+        "step_info": {
+            "cell_a_angs": [
+                4.05,
+                4.05,
+                4.05,
+                4.05
+            ],
+            "cell_alp_deg": [
+                90.0,
+                90.0,
+                90.0,
+                90.0
+            ],
+            "cell_b_angs": [
+                4.05,
+                4.05,
+                4.05,
+                4.05
+            ],
+            "cell_bet_deg": [
+                90.0,
+                90.0,
+                90.0,
+                90.0
+            ],
+            "cell_c_angs": [
+                4.05,
+                4.05,
+                4.05,
+                4.05
+            ],
+            "cell_gam_deg": [
+                90.0,
+                90.0,
+                90.0,
+                90.0
+            ],
+            "cell_vol_angs3": [
+                66.409,
+                66.409,
+                66.409,
+                66.409
+            ],
+            "dispersion_energy_au": [
+                -0.04894693184602,
+                -0.04894693184602,
+                -0.04894696543385,
+                -0.04894705992872
+            ],
+            "energy_au": [
+                -8.0811276714482,
+                -8.0811276714483,
+                -8.0811249649336,
+                -8.0811173120933
+            ],
+            "max_grad_au": [
+                null,
+                0.0,
+                null,
+                null
+            ],
+            "max_step_au": [
+                null,
+                0.0,
+                null,
+                null
+            ],
+            "pressure_bar": [
+                null,
+                null,
+                58260.2982324,
+                58201.2710544
+            ],
+            "rms_grad_au": [
+                null,
+                0.0,
+                null,
+                null
+            ],
+            "rms_step_au": [
+                null,
+                0.0,
+                null,
+                null
+            ],
+            "scf_converged": [
+                true,
+                true,
+                true,
+                true
+            ],
+            "step": [
+                0,
+                1,
+                1,
+                2
+            ]
+        }
+    }
+
+* ``last_input_parameters`` (``Dict``) reports the inputs that were used for the last CP2K calculation. They are possibly
+  the ones that make the SCF converge, so the user can inspect them and use them for other direct CP2K calculations in AiiDA.
+
+
+**Usage**
+
+See examples provided with the `plugin <https://github.com/aiidateam/aiida-cp2k/tree/master/examples/workchains>`_.
+The report provides very useful insight on what happened during the run. Here it is the example of Aluminum::
+
+  2019-11-22 16:54:52 [90962 | REPORT]: [266248|Cp2kMultistageWorkChain|setup_multistage]: Unit cell was NOT resized
+  2019-11-22 16:54:52 [90963 | REPORT]: [266248|Cp2kMultistageWorkChain|run_stage]: submitted Cp2kBaseWorkChain for stage_0/settings_0
+  2019-11-22 16:54:52 [90964 | REPORT]:   [266252|Cp2kBaseWorkChain|run_calculation]: launching Cp2kCalculation<266253> iteration #1
+  2019-11-22 16:55:13 [90965 | REPORT]:   [266252|Cp2kBaseWorkChain|inspect_calculation]: Cp2kCalculation<266253> completed successfully
+  2019-11-22 16:55:13 [90966 | REPORT]:   [266252|Cp2kBaseWorkChain|results]: work chain completed after 1 iterations
+  2019-11-22 16:55:14 [90967 | REPORT]:   [266252|Cp2kBaseWorkChain|on_terminated]: remote folders will not be cleaned
+  2019-11-22 16:55:14 [90968 | REPORT]: [266248|Cp2kMultistageWorkChain|inspect_and_update_settings_stage0]: Bandgaps spin1/spin2: -0.058 and -0.058 ev
+  2019-11-22 16:55:14 [90969 | REPORT]: [266248|Cp2kMultistageWorkChain|inspect_and_update_settings_stage0]: BAD SETTINGS: band gap is < 0.100 eV
+  2019-11-22 16:55:14 [90970 | REPORT]: [266248|Cp2kMultistageWorkChain|run_stage]: submitted Cp2kBaseWorkChain for stage_0/settings_1
+  2019-11-22 16:55:15 [90971 | REPORT]:   [266259|Cp2kBaseWorkChain|run_calculation]: launching Cp2kCalculation<266260> iteration #1
+  2019-11-22 16:55:34 [90972 | REPORT]:   [266259|Cp2kBaseWorkChain|inspect_calculation]: Cp2kCalculation<266260> completed successfully
+  2019-11-22 16:55:34 [90973 | REPORT]:   [266259|Cp2kBaseWorkChain|results]: work chain completed after 1 iterations
+  2019-11-22 16:55:34 [90974 | REPORT]:   [266259|Cp2kBaseWorkChain|on_terminated]: remote folders will not be cleaned
+  2019-11-22 16:55:35 [90975 | REPORT]: [266248|Cp2kMultistageWorkChain|inspect_and_update_settings_stage0]: Bandgaps spin1/spin2: 0.000 and 0.000 ev
+  2019-11-22 16:55:35 [90976 | REPORT]: [266248|Cp2kMultistageWorkChain|inspect_and_update_stage]: Structure updated for next stage
+  2019-11-22 16:55:35 [90977 | REPORT]: [266248|Cp2kMultistageWorkChain|run_stage]: submitted Cp2kBaseWorkChain for stage_1/settings_1
+  2019-11-22 16:55:35 [90978 | REPORT]:   [266266|Cp2kBaseWorkChain|run_calculation]: launching Cp2kCalculation<266267> iteration #1
+  2019-11-22 16:55:53 [90979 | REPORT]:   [266266|Cp2kBaseWorkChain|inspect_calculation]: Cp2kCalculation<266267> completed successfully
+  2019-11-22 16:55:53 [90980 | REPORT]:   [266266|Cp2kBaseWorkChain|results]: work chain completed after 1 iterations
+  2019-11-22 16:55:54 [90981 | REPORT]:   [266266|Cp2kBaseWorkChain|on_terminated]: remote folders will not be cleaned
+  2019-11-22 16:55:54 [90982 | REPORT]: [266248|Cp2kMultistageWorkChain|inspect_and_update_stage]: Structure updated for next stage
+  2019-11-22 16:55:54 [90983 | REPORT]: [266248|Cp2kMultistageWorkChain|inspect_and_update_stage]: All stages computed, finishing...
+  2019-11-22 16:55:55 [90984 | REPORT]: [266248|Cp2kMultistageWorkChain|results]: Outputs: Dict<266273> and StructureData<266271>
+
 MultistageDdec work chain
 ++++++++++++++++++++++++++
 
 The :py:func:`~aiida_lsmo.workchains.multistage_ddec.MultistageDdecWorkChain` work chain combines together the CP2K
-multistage workchain and the DDEC calculation, with the scope of
+Multistage workchain and the DDEC calculation, with the scope of
 optimizing the geometry of a structure and compute its partial charge using the DDEC protocol.
 
 .. aiida-workchain:: MultistageDdecWorkChain
