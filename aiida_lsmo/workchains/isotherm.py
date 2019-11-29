@@ -187,11 +187,6 @@ def get_output_parameters(geom_out, inp_params, widom_out=None, pressures=None, 
                     else:  # when there are no particles and Raspa return Null enthalpy
                         isotherm[label].append(None)
 
-            # fix for mg issue https://github.com/yakutovicha/aiida-raspa/issues/36
-            # this can be removed at some point, when we are sure that fixed aiida-raspa is used
-            if 'conversion_factor_molec_uc_to_gr_gr' in gcmc_out_mol:
-                gcmc_out_mol['conversion_factor_molec_uc_to_mg_g'] = gcmc_out_mol['conversion_factor_molec_uc_to_gr_gr']
-
             out_dict.update({
                 "isotherm": isotherm,
                 'conversion_factor_molec_uc_to_cm3stp_cm3': gcmc_out_mol['conversion_factor_molec_uc_to_cm3stp_cm3'],
