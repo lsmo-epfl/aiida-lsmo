@@ -17,7 +17,7 @@
         "aiida-cp2k >= 1.0.0b4",
         "aiida-ddec >= 1.0.0a1",
         "aiida-zeopp >= 1.0.3",
-        "aiida-raspa >= 1.0.0a2",
+        "aiida-raspa >= 1.0.0a3",
         "calc-pe >= 1.0.1"
     ],
     "entry_points": {
