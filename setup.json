@@ -31,7 +31,8 @@
             "lsmo.isotherm_multi_temp = aiida_lsmo.workchains:IsothermMultiTempWorkChain",
             "lsmo.isotherm_calc_pe = aiida_lsmo.workchains:IsothermCalcPEWorkChain",
             "lsmo.zeoppmultistageddec = aiida_lsmo.workchains:ZeoppMultistageDdecWorkChain",
-            "lsmo.multistageddec = aiida_lsmo.workchains:MultistageDdecWorkChain"
+            "lsmo.multistageddec = aiida_lsmo.workchains:MultistageDdecWorkChain",
+            "lsmo.simannealing = aiida_lsmo.workchains:SimAnnealingWorkChain"
         ]
     },
     "data_files": [

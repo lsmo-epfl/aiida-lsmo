@@ -2,7 +2,7 @@
 """Other utilities"""
 
 from __future__ import absolute_import
-from aiida.orm import Dict
+from aiida.orm import Dict, CifData
 from aiida.engine import calcfunction
 
 
@@ -35,3 +35,19 @@ def aiida_dict_merge(to_dict, from_dict):
     dict_merge(to_dict, from_dict)
 
     return Dict(dict=to_dict)
+
+
+@calcfunction
+def aiida_cif_merge(aiida_cif_a, aiida_cif_b):
+    """Merge the coordinates of two CifData into a sigle one. Note: the two unit cells must be the same."""
+    import ase
+    ase_a = aiida_cif_a.get_ase()
+    ase_b = aiida_cif_b.get_ase()
+    if not (ase_a.cell == ase_b.cell).all():
+        raise ValueError('Attempting to merge two CifData with different unit cells.')
+    ase_ab = ase.Atoms(  #Maybe there is a more direct way...
+        symbols=list(ase_a.symbols) + list(ase_b.symbols),
+        cell=ase_a.cell,
+        positions=list(ase_a.positions) + list(ase_b.positions),
+        pbc=True)
+    return CifData(ase=ase_ab)
