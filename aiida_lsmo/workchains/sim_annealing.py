@@ -29,6 +29,7 @@ PARAMETERS_DEFAULT = {
     "ff_cutoff": 12.0,  # (float) CutOff truncation for the VdW interactions (Angstrom).
     "temperature_list": [300, 250, 200, 250, 100, 50],  # (list) List of decreasing temperatures for the annealing.
     "mc_steps": int(1e3),  # (int) Number of MC cycles.
+    "number_of_molecules": 1  # (int) Number of molecules loaded in the framework.
 }
 
 
@@ -68,7 +69,7 @@ def load_yaml():
 
 
 @calcfunction
-def get_molecule_from_restart_file(structure_cif, molecule_folderdata, molecule_dict):
+def get_molecule_from_restart_file(structure_cif, molecule_folderdata, input_dict, molecule_dict):
     """Get a CifData file having the cell of the structure and the geometry of the loaded molecule."""
     import ase
 
@@ -77,6 +78,7 @@ def get_molecule_from_restart_file(structure_cif, molecule_folderdata, molecule_
     ff_data_molecule = ff_data[molecule_dict['name']][molecule_dict['forcefield']]
     symbols = [x[0].split("_")[0] for x in ff_data_molecule['atomic_positions']]
     symbols = [x for x in symbols if x != 'M']
+    symbols *= input_dict["number_of_molecules"]
 
     # Get the coordinates of the molecule in the extended uni cell
     restart_fname = molecule_folderdata._repository.list_object_names(os.path.join('Restart', 'System_0'))[0]  # pylint: disable=protected-access
@@ -103,17 +105,19 @@ def get_molecule_from_restart_file(structure_cif, molecule_folderdata, molecule_
 def get_output_parameters(input_dict, min_out_dict, **nvt_out_dict):
     """Merge energy info from the calculations."""
 
-    out_dict = {
-        'description': [],
-        'energy_host/adsorbate_final_tot': [],
-        'energy_host/adsorbate_final_vdw': [],
-        'energy_host/adsorbate_final_coulomb': [],
-        'energy_unit': 'kJ/mol'
-    }
+    out_dict = {'number_of_molecules': input_dict['number_of_molecules'], 'description': [], 'energy_unit': 'kJ/mol'}
 
     key_list = [
-        'energy_host/adsorbate_final_tot', 'energy_host/adsorbate_final_vdw', 'energy_host/adsorbate_final_coulomb'
+        'energy_host/adsorbate_final_tot',
+        'energy_host/adsorbate_final_vdw',
+        'energy_host/adsorbate_final_coulomb',
+        'energy_adsorbate/adsorbate_final_tot',
+        'energy_adsorbate/adsorbate_final_vdw',
+        'energy_adsorbate/adsorbate_final_coulomb',
     ]
+
+    for key in key_list:
+        out_dict[key] = []
 
     for i, temp in enumerate(input_dict['temperature_list']):
         out_dict['description'].append('NVT simulation at {} K'.format(temp))
@@ -187,7 +191,7 @@ class SimAnnealingWorkChain(WorkChain):
                     "MoleculeDefinition": "Local",
                     "TranslationProbability": 1.0,
                     "ReinsertionProbability": 1.0,
-                    "CreateNumberOfMolecules": 1,
+                    "CreateNumberOfMolecules": self.inputs.parameters['number_of_molecules'],
                 },
             },
         }
@@ -286,7 +290,7 @@ class SimAnnealingWorkChain(WorkChain):
         self.out(
             "loaded_molecule",
             get_molecule_from_restart_file(self.inputs.structure, self.ctx.raspa_min.outputs.retrieved,
-                                           self.ctx.molecule))
+                                           self.inputs.parameters, self.ctx.molecule))
         self.out("loaded_structure", aiida_cif_merge(self.inputs.structure, self.outputs['loaded_molecule']))
 
         nvt_out_dict = {}
@@ -299,6 +303,7 @@ class SimAnnealingWorkChain(WorkChain):
                                   min_out_dict=self.ctx.raspa_min.outputs.output_parameters,
                                   **nvt_out_dict))
 
-        self.report("Competed: molecule CifData<{}>, loaded structure CifData<{}>, output parameters Dict<{}>".format(
-            self.outputs['loaded_molecule'].pk, self.outputs['loaded_structure'].pk,
-            self.outputs['output_parameters'].pk))
+        self.report(
+            "Work chain competed! Molecule CifData<{}>, loaded structure CifData<{}>, output parameters Dict<{}>".
+            format(self.outputs['loaded_molecule'].pk, self.outputs['loaded_structure'].pk,
+                   self.outputs['output_parameters'].pk))
