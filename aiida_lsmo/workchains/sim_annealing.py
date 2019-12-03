@@ -99,6 +99,35 @@ def get_molecule_from_restart_file(structure_cif, molecule_folderdata, molecule_
     return CifData(ase=molecule_ase)
 
 
+@calcfunction
+def get_output_parameters(input_dict, min_out_dict, **nvt_out_dict):
+    """Merge energy info from the calculations."""
+
+    out_dict = {
+        'description': [],
+        'energy_host/adsorbate_final_tot': [],
+        'energy_host/adsorbate_final_vdw': [],
+        'energy_host/adsorbate_final_coulomb': [],
+        'energy_unit': 'kJ/mol'
+    }
+
+    key_list = [
+        'energy_host/adsorbate_final_tot', 'energy_host/adsorbate_final_vdw', 'energy_host/adsorbate_final_coulomb'
+    ]
+
+    for i, temp in enumerate(input_dict['temperature_list']):
+        out_dict['description'].append('NVT simulation at {} K'.format(temp))
+        nvt_out_dict_i = nvt_out_dict['RaspaNVT_{}'.format(i + 1)]
+        for key in key_list:
+            out_dict[key].append(nvt_out_dict_i["framework_1"]['general'][key])
+
+    out_dict['description'].append('Final energy minimization')
+    for key in key_list:
+        out_dict[key].append(min_out_dict["framework_1"]['general'][key])
+
+    return Dict(dict=out_dict)
+
+
 class SimAnnealingWorkChain(WorkChain):
     """A work chain to compute the minimum energy geometry of a molecule inside a framework, using simulated annealing,
     i.e., decreasing the temperature of a Monte Carlo simulation and finally running and energy minimization step.
@@ -253,10 +282,23 @@ class SimAnnealingWorkChain(WorkChain):
 
     def return_results(self):
         """Return molecule position and energy info."""
+
         self.out(
             "loaded_molecule",
             get_molecule_from_restart_file(self.inputs.structure, self.ctx.raspa_min.outputs.retrieved,
                                            self.ctx.molecule))
         self.out("loaded_structure", aiida_cif_merge(self.inputs.structure, self.outputs['loaded_molecule']))
-        self.report("Competed. Molecule CifData<{}>, loaded structure CifData<{}>".format(
-            self.outputs['loaded_molecule'].pk, self.outputs['loaded_structure'].pk))
+
+        nvt_out_dict = {}
+        for calc in self.ctx.raspa_nvt:
+            nvt_out_dict[calc.label] = calc.outputs.output_parameters
+
+        self.out(
+            "output_parameters",
+            get_output_parameters(input_dict=self.inputs.parameters,
+                                  min_out_dict=self.ctx.raspa_min.outputs.output_parameters,
+                                  **nvt_out_dict))
+
+        self.report("Competed: molecule CifData<{}>, loaded structure CifData<{}>, output parameters Dict<{}>".format(
+            self.outputs['loaded_molecule'].pk, self.outputs['loaded_structure'].pk,
+            self.outputs['output_parameters'].pk))

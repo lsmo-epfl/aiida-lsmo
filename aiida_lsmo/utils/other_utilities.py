@@ -50,4 +50,7 @@ def aiida_cif_merge(aiida_cif_a, aiida_cif_b):
         cell=ase_a.cell,
         positions=list(ase_a.positions) + list(ase_b.positions),
         pbc=True)
-    return CifData(ase=ase_ab)
+    cif_ab = CifData(ase=ase_ab, filename='fragments_a_b.cif')  #TODO: check why the filename is not assigned. # pylint: disable=fixme
+    cif_ab.label = 'Loaded structure'
+    cif_ab.description = 'Fragment A: {} atoms, fragment B: {} atoms.'.format(len(ase_a), len(ase_b))
+    return cif_ab
