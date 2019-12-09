@@ -17,14 +17,12 @@ SimAnnealingWorkChain = WorkflowFactory('lsmo.simannealing')  # pylint: disable=
 
 # Data objects
 CifData = DataFactory('cif')  # pylint: disable=invalid-name
-NetworkParameters = DataFactory('zeopp.parameters')  # pylint: disable=invalid-name
 
 
 @click.command('cli')
 @click.argument('raspa_code_label')
 def main(raspa_code_label):
-    """Prepare inputs and submit this work chain example.
-    Usage: verdi run example.py raspa@localhost"""
+    """Prepare inputs and submit the work chain."""
 
     builder = SimAnnealingWorkChain.get_builder()
     builder.metadata.label = "test"

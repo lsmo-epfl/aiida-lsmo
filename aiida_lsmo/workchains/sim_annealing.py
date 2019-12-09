@@ -73,12 +73,18 @@ def get_molecule_from_restart_file(structure_cif, molecule_folderdata, input_dic
     """Get a CifData file having the cell of the structure and the geometry of the loaded molecule."""
     import ase
 
+    # Get number of guest molecules
+    if "number_of_molecules" in input_dict.get_dict():
+        number_of_molecules = input_dict["number_of_molecules"]
+    else:
+        number_of_molecules = 1
+
     # Get the non-M (non-dummy) atom types of the molecule (ASE accepts only atomic elements as "symbols")
     ff_data = load_yaml()
     ff_data_molecule = ff_data[molecule_dict['name']][molecule_dict['forcefield']]
     symbols = [x[0].split("_")[0] for x in ff_data_molecule['atomic_positions']]
     symbols = [x for x in symbols if x != 'M']
-    symbols *= input_dict["number_of_molecules"]
+    symbols *= number_of_molecules
 
     # Get the coordinates of the molecule in the extended uni cell
     restart_fname = molecule_folderdata._repository.list_object_names(os.path.join('Restart', 'System_0'))[0]  # pylint: disable=protected-access
@@ -105,7 +111,17 @@ def get_molecule_from_restart_file(structure_cif, molecule_folderdata, input_dic
 def get_output_parameters(input_dict, min_out_dict, **nvt_out_dict):
     """Merge energy info from the calculations."""
 
-    out_dict = {'number_of_molecules': input_dict['number_of_molecules'], 'description': [], 'energy_unit': 'kJ/mol'}
+    if "number_of_molecules" in input_dict.get_dict():
+        number_of_molecules = input_dict["number_of_molecules"]
+    else:
+        number_of_molecules = 1
+
+    if "temperature_list" in input_dict.get_dict():
+        temperature_list = input_dict["temperature_list"]
+    else:
+        temperature_list = [300, 250, 200, 250, 100, 50]
+
+    out_dict = {'number_of_molecules': number_of_molecules, 'description': [], 'energy_unit': 'kJ/mol'}
 
     key_list = [
         'energy_host/adsorbate_final_tot',
@@ -119,7 +135,7 @@ def get_output_parameters(input_dict, min_out_dict, **nvt_out_dict):
     for key in key_list:
         out_dict[key] = []
 
-    for i, temp in enumerate(input_dict['temperature_list']):
+    for i, temp in enumerate(temperature_list):
         out_dict['description'].append('NVT simulation at {} K'.format(temp))
         nvt_out_dict_i = nvt_out_dict['RaspaNVT_{}'.format(i + 1)]
         for key in key_list:
@@ -191,7 +207,7 @@ class SimAnnealingWorkChain(WorkChain):
                     "MoleculeDefinition": "Local",
                     "TranslationProbability": 1.0,
                     "ReinsertionProbability": 1.0,
-                    "CreateNumberOfMolecules": self.inputs.parameters['number_of_molecules'],
+                    "CreateNumberOfMolecules": self.ctx.parameters['number_of_molecules'],
                 },
             },
         }

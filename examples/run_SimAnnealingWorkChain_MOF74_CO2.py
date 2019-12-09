@@ -1,6 +1,6 @@
 #!/usr/bin/env python  # pylint: disable=invalid-name
 # -*- coding: utf-8 -*-
-"""Run example sim annealing of CO2 in HKUST-1 framework."""
+"""Run example sim annealing of CO2 in Zn-MOF-74 framework."""
 
 from __future__ import absolute_import
 from __future__ import print_function
@@ -17,14 +17,12 @@ SimAnnealingWorkChain = WorkflowFactory('lsmo.simannealing')  # pylint: disable=
 
 # Data objects
 CifData = DataFactory('cif')  # pylint: disable=invalid-name
-NetworkParameters = DataFactory('zeopp.parameters')  # pylint: disable=invalid-name
 
 
 @click.command('cli')
 @click.argument('raspa_code_label')
 def main(raspa_code_label):
-    """Prepare inputs and submit the Isotherm workchain.
-    Usage: verdi run run_isotherm_hkust1.py raspa@localhost network@localhost"""
+    """Prepare inputs and submit the work chain."""
 
     builder = SimAnnealingWorkChain.get_builder()
     builder.metadata.label = "test"
@@ -36,14 +34,12 @@ def main(raspa_code_label):
         },
         "max_wallclock_seconds": 1 * 60 * 60,
     }
-    builder.structure = CifData(file=os.path.abspath('data/HKUST-1.cif'), label="HKUST-1")
+    builder.structure = CifData(file=os.path.abspath('data/Zn-MOF-74.cif'), label="Zn-MOF-74")
     builder.molecule = Str('co2')
-    builder.parameters = Dict(
-        dict={
-            "ff_framework": "UFF",  # (str) Forcefield of the structure.
-            "temperature_list": [300, 200, 100],  # (list) List of decreasing temperatures for the annealing.
-            "mc_steps": int(10),  # (int) Number of MC cycles.
-        })
+    builder.parameters = Dict(dict={
+        "ff_framework": "UFF",  # (str) Forcefield of the structure.
+        "mc_steps": int(10),  # (int) Number of MC cycles.
+    })
 
     run(builder)
 
