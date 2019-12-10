@@ -13,7 +13,7 @@ from aiida.plugins import DataFactory, WorkflowFactory
 from aiida.orm import Code, Dict, Str
 
 # Workchain objects
-SimAnnealingWorkChain = WorkflowFactory('lsmo.simannealing')  # pylint: disable=invalid-name
+SimAnnealingWorkChain = WorkflowFactory('lsmo.sim_annealing')  # pylint: disable=invalid-name
 
 # Data objects
 CifData = DataFactory('cif')  # pylint: disable=invalid-name

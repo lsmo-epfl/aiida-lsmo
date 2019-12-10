@@ -63,14 +63,8 @@ class Cp2kBindingEnergyWorkChain(WorkChain):
         spec.expose_inputs(Cp2kBaseWorkChain,
                            namespace='cp2k_base',
                            exclude=['cp2k.structure', 'cp2k.parameters', 'cp2k.metadata.options.parser_name'])
-        spec.input('structure',
-                   valid_type=StructureData,
-                   required=True,
-                   help='Input structure that contains the molecule.')
-        spec.input('molecule',
-                   valid_type=StructureData,
-                   required=True,
-                   help='Input molecule in the unit cell of the structure.')
+        spec.input('structure', valid_type=StructureData, help='Input structure that contains the molecule.')
+        spec.input('molecule', valid_type=StructureData, help='Input molecule in the unit cell of the structure.')
         spec.input('protocol_tag',
                    valid_type=Str,
                    default=Str('standard'),

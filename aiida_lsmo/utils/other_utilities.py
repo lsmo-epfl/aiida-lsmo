@@ -134,3 +134,15 @@ def get_bsse_section(natoms_a, natoms_b, mult_a=1, mult_b=1, charge_a=0, charge_
         }
     }
     return bsse_section
+
+
+@calcfunction
+def get_structure_from_cif(cifdata):
+    """Convert StructureData to CifData maintaining the provenance."""
+    return cifdata.get_structure()
+
+
+@calcfunction
+def get_cif_from_structure(structuredata):
+    """Convert CifData to StructureData maintaining the provenance."""
+    return structuredata.get_cif()

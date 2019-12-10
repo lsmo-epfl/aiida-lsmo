@@ -4,7 +4,7 @@
     "author": "Aliaksandr Yakutovich, Daniele Ongari, Leopold Talirz",
     "author_email": "aliaksandr.yakutovich@epfl.ch",
     "description": "AiiDA workflows for the LSMO laboratory at EPFL",
-    "url": "https://github.com/yakutovicha/aiida-lsmo-workflows",
+    "url": "https://github.com/lsmo-epfl/aiida-lsmo",
     "license": "MIT License",
     "classifiers": [
         "Programming Language :: Python :: 3.6",
@@ -27,13 +27,14 @@
           "lsmo.calc_h2_working_cap = aiida_lsmo.calcfunctions:calc_h2_working_cap"
         ],
         "aiida.workflows": [
-            "lsmo.cp2k_binding_energy = aiida_lsmo.workchains:Cp2kBindingEnergyWorkChain",
             "lsmo.isotherm = aiida_lsmo.workchains:IsothermWorkChain",
             "lsmo.isotherm_multi_temp = aiida_lsmo.workchains:IsothermMultiTempWorkChain",
             "lsmo.isotherm_calc_pe = aiida_lsmo.workchains:IsothermCalcPEWorkChain",
             "lsmo.zeoppmultistageddec = aiida_lsmo.workchains:ZeoppMultistageDdecWorkChain",
             "lsmo.multistageddec = aiida_lsmo.workchains:MultistageDdecWorkChain",
-            "lsmo.simannealing = aiida_lsmo.workchains:SimAnnealingWorkChain"
+            "lsmo.sim_annealing = aiida_lsmo.workchains.sim_annealing:SimAnnealingWorkChain",
+            "lsmo.cp2k_binding_energy = aiida_lsmo.workchains.cp2k_binding_energy:Cp2kBindingEnergyWorkChain",
+            "lsmo.binding_site = aiida_lsmo.workchains:BindingSiteWorkChain"
         ]
     },
     "data_files": [
