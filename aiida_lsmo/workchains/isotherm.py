@@ -10,6 +10,7 @@ from aiida.orm import Dict, Str, List, SinglefileData
 from aiida.engine import calcfunction
 from aiida.engine import WorkChain, ToContext, append_, while_, if_
 from aiida_lsmo.utils import check_resize_unit_cell, aiida_dict_merge
+from aiida_lsmo.utils import dict_merge
 
 # import sub-workchains
 RaspaBaseWorkChain = WorkflowFactory('raspa.base')  # pylint: disable=invalid-name
@@ -283,15 +284,16 @@ class IsothermWorkChain(WorkChain):
         inputs = self.exposed_inputs(ZeoppCalculation, 'zeopp')
 
         # Set inputs for zeopp
-        inputs.update({
-            'metadata': {
-                'label': "ZeoppVolpoBlock",
-                'call_link_label': 'run_zeopp_block_and_volpo',
-            },
-            'structure': self.inputs.structure,
-            'atomic_radii': get_atomic_radii(self.ctx.parameters),
-            'parameters': get_zeopp_parameters(self.ctx.molecule, self.ctx.parameters)
-        })
+        dict_merge(
+            inputs, {
+                'metadata': {
+                    'label': "ZeoppVolpoBlock",
+                    'call_link_label': 'run_zeopp_block_and_volpo',
+                },
+                'structure': self.inputs.structure,
+                'atomic_radii': get_atomic_radii(self.ctx.parameters),
+                'parameters': get_zeopp_parameters(self.ctx.molecule, self.ctx.parameters)
+            })
 
         running = self.submit(ZeoppCalculation, **inputs)
         self.report("Running zeo++ block and volpo Calculation<{}>".format(running.id))

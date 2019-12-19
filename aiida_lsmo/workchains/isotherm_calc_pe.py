@@ -7,6 +7,7 @@ from aiida.plugins import DataFactory, WorkflowFactory
 from aiida.orm import Dict, Str
 from aiida.engine import calcfunction
 from aiida.engine import WorkChain
+from aiida_lsmo.utils import dict_merge
 
 # import sub-workchains
 IsothermWorkChain = WorkflowFactory('lsmo.isotherm')  #pylint: disable=invalid-name
@@ -123,13 +124,14 @@ class IsothermCalcPEWorkChain(WorkChain):
 
         for mol in ['co2', 'n2']:
 
-            inputs.update({
-                'metadata': {
-                    'call_link_label': 'run_isotherm_for_{}'.format(mol),
-                },
-                'molecule': Str(mol),
-                'parameters': self.inputs.parameters
-            })
+            dict_merge(
+                inputs, {
+                    'metadata': {
+                        'call_link_label': 'run_isotherm_for_{}'.format(mol),
+                    },
+                    'molecule': Str(mol),
+                    'parameters': self.inputs.parameters
+                })
 
             running = self.submit(IsothermWorkChain, **inputs)
             self.to_context(**{'isotherm_{}'.format(mol): running})
