@@ -26,6 +26,7 @@ def main(raspa_code_label, cp2k_code_label):
     """Prepare inputs and submit the work chain."""
 
     print("Testing BindingSite work chain (FF + DFT) for CO2 in Zn-MOF-74 ...")
+    print("[NOTE: this test will run on 4 cpus and take ca. 10 minutes]")
 
     builder = BindingSiteWorkChain.get_builder()
     builder.metadata.label = "test"

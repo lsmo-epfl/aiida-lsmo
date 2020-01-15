@@ -6,22 +6,25 @@ from __future__ import print_function
 from __future__ import absolute_import
 
 import os
-import sys
 import click
 import ase.io
 
 from aiida.engine import run
 from aiida.orm import Code, Dict, StructureData, Str
-from aiida.common import NotExistent
 from aiida.plugins import WorkflowFactory
 
 BindingEnergyWorkChain = WorkflowFactory('lsmo.cp2k_binding_energy')
 
 
-def example_binding_energy(cp2k_code):
+@click.command('cli')
+@click.argument('cp2k_code_label')
+def main(cp2k_code_label):
     """Example usage: verdi run thistest.py cp2k@localhost"""
 
+    cp2k_code = Code.get_from_string(cp2k_code_label)
+
     print("Testing CP2K BindingEnergy work chain for CO2 in Zn-MOF-74 ...")
+    print("[NOTE: this test will run on 4 cpus and take ca. 10 minutes]")
 
     thisdir = os.path.dirname(os.path.abspath(__file__))
 
@@ -57,17 +60,7 @@ def example_binding_energy(cp2k_code):
     run(builder)
 
 
-@click.command('cli')
-@click.argument('codelabel')
-def cli(codelabel):
-    """Click interface"""
-    try:
-        code = Code.get_from_string(codelabel)
-    except NotExistent:
-        print("The code '{}' does not exist".format(codelabel))
-        sys.exit(1)
-    example_binding_energy(code)
-
-
 if __name__ == '__main__':
-    cli()  # pylint: disable=no-value-for-parameter
+    main()  # pylint: disable=no-value-for-parameter
+
+# EOF
