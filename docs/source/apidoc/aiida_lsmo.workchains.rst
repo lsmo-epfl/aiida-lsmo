@@ -4,6 +4,26 @@ aiida\_lsmo.workchains package
 Submodules
 ----------
 
+aiida\_lsmo.workchains.binding\_site module
+-------------------------------------------
+
+.. automodule:: aiida_lsmo.workchains.binding_site
+   :members:
+   :special-members:
+   :private-members:
+   :undoc-members:
+   :show-inheritance:
+
+aiida\_lsmo.workchains.cp2k\_binding\_energy module
+---------------------------------------------------
+
+.. automodule:: aiida_lsmo.workchains.cp2k_binding_energy
+   :members:
+   :special-members:
+   :private-members:
+   :undoc-members:
+   :show-inheritance:
+
 aiida\_lsmo.workchains.isotherm module
 --------------------------------------
 
@@ -38,6 +58,16 @@ aiida\_lsmo.workchains.multistage\_ddec module
 ----------------------------------------------
 
 .. automodule:: aiida_lsmo.workchains.multistage_ddec
+   :members:
+   :special-members:
+   :private-members:
+   :undoc-members:
+   :show-inheritance:
+
+aiida\_lsmo.workchains.sim\_annealing module
+--------------------------------------------
+
+.. automodule:: aiida_lsmo.workchains.sim_annealing
    :members:
    :special-members:
    :private-members:

@@ -118,7 +118,7 @@ What it can not do:
         singlebead: False  # if true: RotationProbability=0
         charged: True      # if true: ChargeMethod=Ewald
 
-* ``parameters`` (``Dict``) goes to modify these default parameters::
+* ``parameters`` (``Dict``) modifies the default parameters::
 
     parameters = {
       "ff_framework": "UFF",  # (str) Forcefield of the structure.
@@ -200,44 +200,29 @@ selection of the work chain is skipped.
           "isotherm": {
               "enthalpy_of_adsorption_average": [
                   -12.309803364014,
-                  -12.058276670574,
-                  -10.952120841752,
-                  -10.367181994296,
-                  -9.8224431917388,
+                  ...
                   -9.6064899852835
               ],
               "enthalpy_of_adsorption_dev": [
                   0.34443269062882,
-                  0.25307818878718,
-                  0.53612978806548,
-                  0.73138412611309,
-                  0.50295849442518,
+                  ...
                   0.2598580313121
               ],
               "enthalpy_of_adsorption_unit": "kJ/mol",
               "loading_absolute_average": [
                   0.65880897694654,
-                  3.2677144296729,
-                  8.5184817556528,
-                  12.108148744317,
-                  14.891264154125,
+                  ...
                   17.302504097082
               ],
               "loading_absolute_dev": [
                   0.041847687204507,
-                  0.064694332028498,
-                  0.18617312433529,
-                  0.15188945177344,
-                  0.14186942260037,
+                  ...
                   0.14638828764266
               ],
               "loading_absolute_unit": "mol/kg",
               "pressure": [
                   1.0,
-                  5.8,
-                  20,
-                  35,
-                  50,
+                  ...
                   65
               ],
               "pressure_unit": "bar"
@@ -742,4 +727,172 @@ using Zeo++ (NetworkCalculation) before and after, with the scope of assessing t
 optimization.
 
 .. aiida-workchain:: ZeoppMultistageDdecWorkChain
+    :module: aiida_lsmo.workchains
+
+SimAnnealing work chain
+++++++++++++++++++++++++++++++++++++++++++++++
+
+The :py:func:`~aiida_lsmo.workchains.sim_annealing.SimAnnealingWorkChain` work chain
+allows to find the minimum configuration a number of gas molecules, in the pore volume of a framework.
+It runs several NVT simulations in RASPA at decreasing temperature to make the system move to its global minimum (simulated annealing),
+and it finally performs a minimization for the final fine tuning of the optimum position.
+
+.. aiida-workchain:: SimAnnealingWorkChain
+    :module: aiida_lsmo.workchains
+
+**Inputs details**
+
+* ``parameters`` (``Dict``) modifies the default parameters::
+
+    PARAMETERS_DEFAULT = {
+        "ff_framework": "UFF",  # (str) Forcefield of the structure.
+        "ff_separate_interactions": False,  # (bool) Use "separate_interactions" in the FF builder.
+        "ff_mixing_rule": "Lorentz-Berthelot",  # (string) Choose 'Lorentz-Berthelot' or 'Jorgensen'.
+        "ff_tail_corrections": True,  # (bool) Apply tail corrections.
+        "ff_shifted": False,  # (bool) Shift or truncate the potential at cutoff.
+        "ff_cutoff": 12.0,  # (float) CutOff truncation for the VdW interactions (Angstrom).
+        "temperature_list": [300, 250, 200, 250, 100, 50],  # (list) List of decreasing temperatures for the annealing.
+        "mc_steps": int(1e3),  # (int) Number of MC cycles.
+        "number_of_molecules": 1  # (int) Number of molecules loaded in the framework.
+    }
+
+
+**Outputs details**
+
+* ``output_parameters`` (``Dict``), example::
+
+    {
+        "description": [
+            "NVT simulation at 300 K",
+            "NVT simulation at 250 K",
+            "NVT simulation at 200 K",
+            "NVT simulation at 250 K",
+            "NVT simulation at 100 K",
+            "NVT simulation at 50 K",
+            "Final energy minimization"
+        ],
+        "energy_adsorbate/adsorbate_final_coulomb": [
+            -0.00095657162276787,
+            ...
+            3.5423777787399e-06
+        ],
+        "energy_adsorbate/adsorbate_final_tot": [
+            -0.00095657162276787,
+            ...
+            3.5423777787399e-06
+        ],
+        "energy_adsorbate/adsorbate_final_vdw": [
+            0.0,
+            ...
+            0.0
+        ],
+        "energy_host/adsorbate_final_coulomb": [
+            -12.696035310164,
+            ...
+            -15.592788991158
+        ],
+        "energy_host/adsorbate_final_tot": [
+            -30.545798720022,
+            ...
+            -36.132005060753
+        ],
+        "energy_host/adsorbate_final_vdw": [
+            -17.849763409859,
+            ...
+            -20.539216069678
+        ],
+        "energy_unit": "kJ/mol",
+        "number_of_molecules": 1
+    }
+
+Cp2kBindingEnergy work chain
+++++++++++++++++++++++++++++++++++++++++++++++
+
+The :py:func:`~aiida_lsmo.workchains.cp2k_binding_energy.Cp2kBindingEnergyWorkChain` work chain
+takes as an input a CIF structure and the initial position of a molecule in its pore,
+optimizes the molecule's geometry keeping the framework rigid and computes the BSSE corrected interactions energy.
+The work chain is similar to CP2K's MulstistageWorkChain in reading the settings from YAML protocol,
+and resubmitting the calculation with updated settings in case of failure,
+but the only step is an hard-coded ``GEO_OPT`` simulation with 200 max steps.
+
+NOTE:
+
+#. It is better to start with the settings of a previous working MulstistageWorkChain, if already available.
+   Otherwise, it may run for 200 steps before realizing that the settings are not good an switch them.
+#. No restart is allowed, since the system is changing the number of atoms for the BSSE calculation: therefore, the
+   wave function is recomputed 5 times from scratch. This needs to be fixed in the future.
+#. If ``structure`` and ``molecule`` ``StructureData`` do not have the same size for the unit cell,
+   the work chain will complain and stop.
+
+.. aiida-workchain:: Cp2kBindingEnergyWorkChain
+    :module: aiida_lsmo.workchains
+
+**Inputs details**
+
+Look at the inputs details of the Multistage work chain for more information about the choice of the protocol
+(i.e., DFT settings).
+
+**Outputs details**
+
+* ``output_parameters`` (``Dict``), example::
+
+    {
+        "binding_energy_bsse": -1.7922110202537,
+        "binding_energy_corr": -23.072114381515,
+        "binding_energy_dispersion": -18.318476834858,
+        "binding_energy_raw": -24.864325401768,
+        "binding_energy_unit": "kJ/mol",
+        "motion_opt_converged": false,
+        "motion_step_info": {
+            "dispersion_energy_au": [
+                -0.1611999344803,
+                ...
+                -0.16105256797101
+            ],
+            "energy_au": [
+                -829.9150365907,
+                ...
+                -829.91870835924
+            ],
+            "max_grad_au": [
+                null,
+                0.0082746554,
+                ...
+                0.0030823925
+            ],
+            "max_step_au": [
+                null,
+                0.0604411557,
+                ...
+                0.0215865148
+            ],
+            "rms_grad_au": [
+                null,
+                0.000915767,
+                ...
+                0.0003886735
+            ],
+            "rms_step_au": [
+                null,
+                0.0071240711,
+                ...
+                0.0026174255
+            ],
+            "scf_converged": [
+                true,
+                ...
+                true
+            ]
+        }
+    }
+
+BindingSiteWorkChain work chain
+++++++++++++++++++++++++++++++++++++++++++++++
+
+The :py:func:`~aiida_lsmo.workchains.binding_site.BindingSiteWorkChain` work chain
+simply combines :py:func:`~aiida_lsmo.workchains.sim_annealing.SimAnnealingWorkChain`
+and :py:func:`~aiida_lsmo.workchains.cp2k_binding_energy.Cp2kBindingEnergyWorkChain`.
+The outputs from the two workchain are collected under the ``ff`` and ``dft`` namespaces, respectively.
+
+.. aiida-workchain:: BindingSiteWorkChain
     :module: aiida_lsmo.workchains

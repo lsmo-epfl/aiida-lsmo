@@ -2,7 +2,7 @@
 """Other utilities"""
 
 from __future__ import absolute_import
-from aiida.orm import Dict
+from aiida.orm import Dict, CifData, StructureData
 from aiida.engine import calcfunction
 
 
@@ -35,3 +35,114 @@ def aiida_dict_merge(to_dict, from_dict):
     dict_merge(to_dict, from_dict)
 
     return Dict(dict=to_dict)
+
+
+@calcfunction
+def aiida_cif_merge(aiida_cif_a, aiida_cif_b):
+    """Merge the coordinates of two CifData into a sigle one. Note: the two unit cells must be the same."""
+    import ase
+    ase_a = aiida_cif_a.get_ase()
+    ase_b = aiida_cif_b.get_ase()
+    if not (ase_a.cell == ase_b.cell).all():
+        raise ValueError('Attempting to merge two CifData with different unit cells.')
+    ase_ab = ase.Atoms(  #Maybe there is a more direct way...
+        symbols=list(ase_a.symbols) + list(ase_b.symbols),
+        cell=ase_a.cell,
+        positions=list(ase_a.positions) + list(ase_b.positions),
+        pbc=True)
+    cif_ab = CifData(ase=ase_ab, filename='fragments_a_b.cif')  #TODO: check why the filename is not assigned. # pylint: disable=fixme
+    cif_ab.label = 'Loaded structure'
+    cif_ab.description = 'Fragment A: {} atoms, fragment B: {} atoms.'.format(len(ase_a), len(ase_b))
+    return cif_ab
+
+
+@calcfunction
+def aiida_structure_merge(aiida_structure_a, aiida_structure_b):
+    """Merge the coordinates of two StructureData into a sigle one. Note: the two unit cells must be the same."""
+    import ase
+    ase_a = aiida_structure_a.get_ase()
+    ase_b = aiida_structure_b.get_ase()
+    if not (ase_a.cell == ase_b.cell).all():
+        raise ValueError('Attempting to merge two StructureData with different unit cells.')
+    ase_ab = ase.Atoms(  #Maybe there is a more direct way...
+        symbols=list(ase_a.symbols) + list(ase_b.symbols),
+        cell=ase_a.cell,
+        positions=list(ase_a.positions) + list(ase_b.positions),
+        pbc=True)
+    return StructureData(ase=ase_ab)
+
+
+def get_kinds_with_ghost_section(structure, protocol_settings):
+    """Write the &KIND sections given the structure and the settings_dict, and add also GHOST atoms"""
+    kinds = []
+    all_atoms = set(structure.get_ase().get_chemical_symbols())
+    for atom in all_atoms:
+        kinds.append({
+            '_': atom,
+            'BASIS_SET': protocol_settings['basis_set'][atom],
+            'POTENTIAL': protocol_settings['pseudopotential'][atom],
+            'MAGNETIZATION': protocol_settings['initial_magnetization'][atom],
+        })
+        kinds.append({'_': atom + "_ghost", 'BASIS_SET': protocol_settings['basis_set'][atom], 'GHOST': True})
+    return {'FORCE_EVAL': {'SUBSYS': {'KIND': kinds}}}
+
+
+def get_bsse_section(natoms_a, natoms_b, mult_a=1, mult_b=1, charge_a=0, charge_b=0):
+    """Get the &FORCE_EVAL/&BSSE section."""
+    bsse_section = {
+        'FORCE_EVAL': {
+            'BSSE' : {
+                'FRAGMENT': [{
+                'LIST': '1..{}'.format(natoms_a)
+                },
+                {
+                'LIST': '{}..{}'.format(natoms_a + 1, natoms_a + natoms_b)
+                }],
+                'CONFIGURATION': [
+                    { # A fragment with basis set A
+                        'MULTIPLICITY': mult_a,
+                        'CHARGE': charge_a,
+                        'GLB_CONF': '1 0',
+                        'SUB_CONF': '1 0',
+                        },
+                    { # B fragment with basis set B
+                        'MULTIPLICITY': mult_b,
+                        'CHARGE': charge_b,
+                        'GLB_CONF': '0 1',
+                        'SUB_CONF': '0 1',
+                        },
+                    { # A fragment with basis set A+B
+                        'MULTIPLICITY': mult_a,
+                        'CHARGE': charge_a,
+                        'GLB_CONF': '1 1',
+                        'SUB_CONF': '1 0',
+                        },
+                    { # B fragment with basis set A+B
+                        'MULTIPLICITY': mult_b,
+                        'CHARGE': charge_b,
+                        'GLB_CONF': '1 1',
+                        'SUB_CONF': '0 1',
+                        },
+                    { # A+B fragments with basis set A+B
+                        'MULTIPLICITY': mult_a + mult_b - 1,
+                        'CHARGE': charge_a + charge_b,
+                        'GLB_CONF': '1 1',
+                        'SUB_CONF': '1 1',
+                        }
+                ]
+            }
+        }
+    }
+    return bsse_section
+
+
+@calcfunction
+def get_structure_from_cif(cifdata):
+    """Convert StructureData to CifData maintaining the provenance."""
+    return cifdata.get_structure()
+
+
+@calcfunction
+def get_cif_from_structure(structuredata):
+    """Convert CifData to StructureData maintaining the provenance."""
+    return structuredata.get_cif()
