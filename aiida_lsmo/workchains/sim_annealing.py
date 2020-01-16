@@ -124,12 +124,12 @@ def get_output_parameters(input_dict, min_out_dict, **nvt_out_dict):
     out_dict = {'number_of_molecules': number_of_molecules, 'description': [], 'energy_unit': 'kJ/mol'}
 
     key_list = [
-        'energy_host/adsorbate_final_tot',
-        'energy_host/adsorbate_final_vdw',
-        'energy_host/adsorbate_final_coulomb',
-        'energy_adsorbate/adsorbate_final_tot',
-        'energy_adsorbate/adsorbate_final_vdw',
-        'energy_adsorbate/adsorbate_final_coulomb',
+        'energy_host/ads_tot_final',
+        'energy_host/ads_vdw_final',
+        'energy_host/ads_coulomb_final',
+        'energy_ads/ads_tot_final',
+        'energy_ads/ads_vdw_final',
+        'energy_ads/ads_coulomb_final',
     ]
 
     for key in key_list:
