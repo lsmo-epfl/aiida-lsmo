@@ -50,6 +50,12 @@ What it currently can not do:
   of the `RaspaCalculation`: you can find and example of usage of this CalcFunction in the `IsothermWorkChain`, or a
   minimal test usage in the examples.
 
+Selectivity calculators
++++++++++++++++++++++++
+
+The :py:func:`~aiida_lsmo.calcfunctions.selectivity.calc_selectivity` calculation function
+computes the selectivity of two gas in a material, as the ratio between their Henry coefficients.
+In the future this module will host also different metrics to assess selectivity, for specific applications.
 
 Working Capacity calculators
 +++++++++++++++++++++++++++++

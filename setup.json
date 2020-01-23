@@ -24,7 +24,8 @@
         "aiida.calculations": [
           "lsmo.ff_builder = aiida_lsmo.calcfunctions:ff_builder",
           "lsmo.calc_ch4_working_cap = aiida_lsmo.calcfunctions:calc_ch4_working_cap",
-          "lsmo.calc_h2_working_cap = aiida_lsmo.calcfunctions:calc_h2_working_cap"
+          "lsmo.calc_h2_working_cap = aiida_lsmo.calcfunctions:calc_h2_working_cap",
+          "lsmo.calc_selectivity = aiida_lsmo.calcfunctions:calc_selectivity"
         ],
         "aiida.workflows": [
             "lsmo.isotherm = aiida_lsmo.workchains:IsothermWorkChain",
