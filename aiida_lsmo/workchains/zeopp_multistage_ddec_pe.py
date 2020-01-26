@@ -55,22 +55,17 @@ class ZeoppMultistageDdecPeWorkChain(WorkChain):
         return ToContext(wc2=running)
 
     def return_results(self):
-        """Return results and include them to the group.
-        To be added also the work chain nodes:
-        - dftopt_wc
-        - ddec_wc
-        - isot_co2_wc
-        - isot_n2_wc
-        - pe_calc
-        """
+        """Return results and include them to the group."""
         self.out_many(self.exposed_outputs(self.ctx.wc1, ZeoppMultistageDdecWorkChain))
         self.out_many(self.exposed_outputs(self.ctx.wc2, IsothermCalcPEWorkChain))
-        # This part is now very specific to CURATED-COFs (to make more flexible later)
+        # Create and fill groups: this part is now very specific to CURATED-COFs (to be made more flexible later)
         orig_cif = self.exposed_inputs(ZeoppMultistageDdecWorkChain)['structure']
         group_label = "curated-cof_{}_v3".format(orig_cif.label)
         group = Group(
             label=group_label,
             description="Group collecting the results of CURATED-COFs: v3 is the update of Feb 2020, adding more COFs")
+        group.store() # REMEMBER: this will crash if a node with the same label exists!
+        # Add results (Dict): found as {workchain}.outputs.{namespace}__{edge_label}.
         include_node("orig_cif", orig_cif, group)
         include_node("orig_zeopp_out", self.ctx.wc1.zeopp_before_opt__output_parameters, group)
         include_node("dftopt_out", self.ctx.wc1.outputs.output_parameters, group)
@@ -80,3 +75,8 @@ class ZeoppMultistageDdecPeWorkChain(WorkChain):
         include_node("isot_co2_out", self.ctx.wc2.outputs.co2__output_parameters, group)
         include_node("isot_n2_out", self.ctx.wc2.outputs.co2__output_parameters, group)
         include_node("pe_out", self.ctx.wc2.outputs.calc_pe, group)
+        # Add WorkChainNode: found as {workchain}.called[i]: .called gives a list of processes, from last to first.
+        include_node("dftopt_wc", self.ctx.wc1.called[-2], group)
+        include_node("ddec_wc", self.ctx.wc1.called[-3], group)
+        include_node("isot_co2_wc", self.ctx.wc2.called[-1], group)
+        include_node("isot_n2_wc", self.ctx.wc2.called[-2], group)
