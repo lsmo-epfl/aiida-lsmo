@@ -49,7 +49,7 @@ class ZeoppMultistageDdecPeWorkChain(WorkChain):
     def run_wc2(self):
         """Run work chain 2."""
         wc2_inp = AttributeDict(self.exposed_inputs(IsothermCalcPEWorkChain))
-        wc2_inp['structure'] = self.ctx.wc1.outputs.output_structure
+        wc2_inp['structure'] = self.ctx.wc1.outputs.structure_ddec
         wc2_inp['metadata']['call_link_label'] = 'call_wc2'
         running = self.submit(IsothermCalcPEWorkChain, **wc2_inp)
         return ToContext(wc2=running)
@@ -74,8 +74,8 @@ class ZeoppMultistageDdecPeWorkChain(WorkChain):
         include_node("orig_cif", orig_cif, group)
         include_node("orig_zeopp_out", self.ctx.wc1.zeopp_before_opt__output_parameters, group)
         include_node("dftopt_out", self.ctx.wc1.outputs.output_parameters, group)
-        self.ctx.wc1.outputs.output_structure.label = "{}_DDEC".format(orig_cif.label)
-        include_node("opt_cif_ddec", self.ctx.wc1.outputs.output_structure, group)
+        self.ctx.wc1.outputs.structure_ddec.label = "{}_DDEC".format(orig_cif.label)
+        include_node("opt_cif_ddec", self.ctx.wc1.outputs.structure_ddec, group)
         include_node("opt_zeopp_out", self.ctx.wc1.zeopp_after_opt__output_parameters, group)
         include_node("isot_co2_out", self.ctx.wc2.outputs.co2__output_parameters, group)
         include_node("isot_n2_out", self.ctx.wc2.outputs.co2__output_parameters, group)
