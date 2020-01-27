@@ -35,8 +35,8 @@ class ZeoppMultistageDdecPeWorkChain(WorkChain):
         # specify the chain of calculations to be performed
         spec.outline(cls.run_wc1, cls.run_wc2, cls.return_results)
 
-        spec.expose_outputs(ZeoppMultistageDdecWorkChain)
-        spec.expose_outputs(IsothermCalcPEWorkChain)
+        # do not check for output
+        spec.outputs.dynamic = True
 
     def run_wc1(self):
         """Run work chain 1."""
@@ -55,9 +55,7 @@ class ZeoppMultistageDdecPeWorkChain(WorkChain):
         return ToContext(wc2=running)
 
     def return_results(self):
-        """Return results and include them to the group."""
-        self.out_many(self.exposed_outputs(self.ctx.wc1, ZeoppMultistageDdecWorkChain))
-        self.out_many(self.exposed_outputs(self.ctx.wc2, IsothermCalcPEWorkChain))
+        """Include results in group."""
         # Create and fill groups: this part is now very specific to CURATED-COFs (to be made more flexible later)
         orig_cif = self.exposed_inputs(ZeoppMultistageDdecWorkChain)['structure']
         group_label = "curated-cof_{}_v3".format(orig_cif.label)
