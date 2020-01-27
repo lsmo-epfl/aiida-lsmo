@@ -64,17 +64,17 @@ class ZeoppMultistageDdecPeWorkChain(WorkChain):
         group = Group(
             label=group_label,
             description="Group collecting the results of CURATED-COFs: v3 is the update of Feb 2020, adding more COFs")
-        group.store() # REMEMBER: this will crash if a node with the same label exists!
+        group.store()  # REMEMBER: this will crash if a node with the same label exists!
         # Add results (Dict): found as {workchain}.outputs.{namespace}__{edge_label}.
         include_node("orig_cif", orig_cif, group)
-        include_node("orig_zeopp_out", self.ctx.wc1.zeopp_before_opt__output_parameters, group)
+        include_node("orig_zeopp_out", self.ctx.wc1.outputs.zeopp_before_opt__output_parameters, group)
         include_node("dftopt_out", self.ctx.wc1.outputs.output_parameters, group)
         self.ctx.wc1.outputs.structure_ddec.label = "{}_DDEC".format(orig_cif.label)
         include_node("opt_cif_ddec", self.ctx.wc1.outputs.structure_ddec, group)
-        include_node("opt_zeopp_out", self.ctx.wc1.zeopp_after_opt__output_parameters, group)
+        include_node("opt_zeopp_out", self.ctx.wc1.outputs.zeopp_after_opt__output_parameters, group)
         include_node("isot_co2_out", self.ctx.wc2.outputs.co2__output_parameters, group)
         include_node("isot_n2_out", self.ctx.wc2.outputs.co2__output_parameters, group)
-        include_node("pe_out", self.ctx.wc2.outputs.calc_pe, group)
+        include_node("pe_out", self.ctx.wc2.outputs.output_parameters, group)
         # Add WorkChainNode: found as {workchain}.called[i]: .called gives a list of processes, from last to first.
         include_node("dftopt_wc", self.ctx.wc1.called[-2], group)
         include_node("ddec_wc", self.ctx.wc1.called[-3], group)
