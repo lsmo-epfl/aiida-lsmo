@@ -7,3 +7,4 @@ from .isotherm_calc_pe import IsothermCalcPEWorkChain
 from .multistage_ddec import MultistageDdecWorkChain
 from .sim_annealing import SimAnnealingWorkChain
 from .zeopp_multistage_ddec import ZeoppMultistageDdecWorkChain
+from .zeopp_multistage_ddec_pe import ZeoppMultistageDdecPeWorkChain
