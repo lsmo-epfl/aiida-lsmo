@@ -45,3 +45,11 @@ h2:
   proberad: 1.48
   singlebead: False
   charged: True
+
+o2:
+  name: O2
+  forcefield: TraPPE # most complex
+  molsatdens: 71.3 # experimental liq
+  proberad: 1.51
+  singlebead: False
+  charged: True

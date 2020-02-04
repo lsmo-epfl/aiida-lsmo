@@ -2,6 +2,7 @@
 """Calcfunctions to compute working capacities for different gasses."""
 
 from __future__ import absolute_import
+from math import sqrt
 from aiida.engine import calcfunction
 from aiida.orm import Dict
 
@@ -22,7 +23,6 @@ def calc_ch4_working_cap(isot_dict):
 
     The results can be compared with Simon2015 (10.1039/C4EE03515A).
     """
-    from math import sqrt
 
     out_dict = {}
     out_dict['is_porous'] = isot_dict['is_porous']
@@ -75,7 +75,6 @@ def calc_h2_working_cap(isotmt_dict):
     Case-C: low T adsorption at low discharge, 100-1bar at 77K (cf. Thornton2017, 10.1021/acs.chemmater.6b04933)
     ....... hypMOF-5059389, best simulated: 40.0 g/L
     """
-    from math import sqrt
 
     out_dict = {}
     out_dict['is_porous'] = isotmt_dict['is_porous']
@@ -115,4 +114,53 @@ def calc_h2_working_cap(isotmt_dict):
                     "case-{}_{}_dev".format(case, unit): sqrt(load_dev**2 + disc_dev**2) * conv
                 })
 
+    return Dict(dict=out_dict)
+
+
+@calcfunction
+def calc_o2_working_cap(isot_dict):
+    """Compute the O2 working capacity from the output_parameters Dict of IsothermWorkChain.
+    This must have run calculations at 5 and 140.0 bar (at 298K), to be consistent with the screening of Moghadam2018
+    (10.1038/s41467-018-03892-8), for which the MOF ANUGIA (UMCM-152) was found to have a volumetric working capacity
+    of 249 vSTP/v (simulations are nearly identical to experiments).
+    Consider that, at the same conditions, an empty thank can only store 136 vSTP/v, and a comparable working capacity
+    can only br obtained compressing till 300bar.
+    """
+
+    out_dict = {}
+    out_dict['is_porous'] = isot_dict['is_porous']
+    if out_dict['is_porous']:
+
+        ip5 = isot_dict["isotherm"]["pressure"].index(5.0)
+        ip140 = isot_dict["isotherm"]["pressure"].index(140.0)
+
+        # conversion factors form mol/kg to cm3STP/cm3 and wt%
+        conv1 = isot_dict["conversion_factor_molec_uc_to_cm3stp_cm3"] / isot_dict["conversion_factor_molec_uc_to_mol_kg"]  # pylint: disable=line-too-long
+        conv2 = get_molec_uc_to_mg_g(isot_dict) / isot_dict["conversion_factor_molec_uc_to_mol_kg"] / 10
+
+        wc_140bar_average = isot_dict["isotherm"]["loading_absolute_average"][ip140] - isot_dict["isotherm"][
+            "loading_absolute_average"][ip5]
+        wc_140bar_dev = sqrt(isot_dict["isotherm"]["loading_absolute_dev"][ip5]**2 +
+                             isot_dict["isotherm"]["loading_absolute_dev"][ip140]**2)
+        wc_140bar_fract = wc_140bar_average / isot_dict["isotherm"]["loading_absolute_average"][ip140]
+
+        out_dict.update({
+            "enthalpy_of_adsorption_5bar_average": isot_dict["isotherm"]["enthalpy_of_adsorption_average"][ip5],
+            "enthalpy_of_adsorption_5bar_dev": isot_dict["isotherm"]["enthalpy_of_adsorption_dev"][ip5],
+            "enthalpy_of_adsorption_5bar_unit": isot_dict["isotherm"]["enthalpy_of_adsorption_unit"],
+            "enthalpy_of_adsorption_140bar_average": isot_dict["isotherm"]["enthalpy_of_adsorption_average"][ip140],
+            "enthalpy_of_adsorption_140bar_dev": isot_dict["isotherm"]["enthalpy_of_adsorption_dev"][ip140],
+            "enthalpy_of_adsorption_140bar_unit": isot_dict["isotherm"]["enthalpy_of_adsorption_unit"],
+            "wc_140bar_cm3stp/cm3_average": wc_140bar_average * conv1,
+            "wc_140bar_cm3stp/cm3_dev": wc_140bar_dev * conv1,
+            "wc_140bar_cm3stp/cm3_unit": 'cm3 STP/cm3',
+            "wc_140bar_wt%_average": wc_140bar_average * conv2,
+            "wc_140bar_wt%_dev": wc_140bar_dev * conv2,
+            "wc_140bar_wt%_unit": 'g/g/100',
+            "wc_140bar_mol/kg_average": wc_140bar_average,
+            "wc_140bar_mol/kg_dev": wc_140bar_dev,
+            "wc_140bar_mol/kg_unit": 'mol/kg',
+            "wc_140bar_fraction": wc_140bar_fract,
+            "wc_140bar_fraction_unit": "-",
+        })
     return Dict(dict=out_dict)
