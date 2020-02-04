@@ -71,7 +71,7 @@ class ZeoppMultistageDdecPeWorkChain(WorkChain):
         include_node("opt_cif_ddec", self.ctx.wc1.outputs.structure_ddec, group)
         include_node("opt_zeopp_out", self.ctx.wc1.outputs.zeopp_after_opt__output_parameters, group)
         include_node("isot_co2_out", self.ctx.wc2.outputs.co2__output_parameters, group)
-        include_node("isot_n2_out", self.ctx.wc2.outputs.co2__output_parameters, group)
+        include_node("isot_n2_out", self.ctx.wc2.outputs.n2__output_parameters, group)
         include_node("pe_out", self.ctx.wc2.outputs.output_parameters, group)
         # Add WorkChainNode: found as {workchain}.called[i]: .called gives a list of processes, from last to first.
         include_node("dftopt_wc", self.ctx.wc1.called[-2], group)
