@@ -6,7 +6,7 @@ from __future__ import absolute_import
 from aiida.plugins import CalculationFactory, DataFactory, WorkflowFactory
 from aiida.common import AttributeDict
 from aiida.engine import WorkChain, ToContext
-
+from aiida_lsmo.utils import get_structure_from_cif
 # import sub-workchains
 Cp2kMultistageWorkChain = WorkflowFactory('cp2k.multistage')  # pylint: disable=invalid-name
 Cp2kDdecWorkChain = WorkflowFactory('ddec.cp2k_ddec')  # pylint: disable=invalid-name
@@ -86,7 +86,7 @@ class ZeoppMultistageDdecWorkChain(WorkChain):
     def run_cp2kmultistage(self):
         """Run CP2K-Multistage"""
         cp2k_ms_inputs = AttributeDict(self.exposed_inputs(Cp2kMultistageWorkChain))
-        cp2k_ms_inputs['structure'] = self.inputs.structure.get_structure()
+        cp2k_ms_inputs['structure'] = get_structure_from_cif(self.inputs.structure)
         cp2k_ms_inputs['metadata']['call_link_label'] = 'call_cp2kmultistage'
 
         running = self.submit(Cp2kMultistageWorkChain, **cp2k_ms_inputs)
