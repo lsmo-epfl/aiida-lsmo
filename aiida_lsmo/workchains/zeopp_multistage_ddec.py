@@ -9,7 +9,7 @@ from aiida.engine import WorkChain, ToContext
 from aiida_lsmo.utils import get_structure_from_cif
 
 # import sub-workchains
-MultistageDdecWorkChain = WorkflowFactory('cp2k.multistageddec')  # pylint: disable=invalid-name
+MultistageDdecWorkChain = WorkflowFactory('lsmo.multistageddec')  # pylint: disable=invalid-name
 
 # import calculations
 DdecCalculation = CalculationFactory('ddec')  # pylint: disable=invalid-name
@@ -53,7 +53,7 @@ class ZeoppMultistageDdecWorkChain(WorkChain):
         spec.expose_outputs(MultistageDdecWorkChain)
 
     def run_zeopp_before(self):
-        """ un Zeo++ for the starting structure"""
+        """Run Zeo++ for the original structure"""
         #Merging all inputs
         zeopp_inp = AttributeDict(self.exposed_inputs(ZeoppCalculation, 'zeopp'))
         zeopp_inp['parameters'] = self.inputs.zeopp.parameters
@@ -65,27 +65,26 @@ class ZeoppMultistageDdecWorkChain(WorkChain):
         self.report("Running Zeo++ calculation <{}>".format(running_zeopp.pk))
         return ToContext(zeopp_before=running_zeopp)
 
+    def run_multistageddec(self):
+        """Run MultistageDdec work chain"""
+        msddec_inputs = AttributeDict(self.exposed_inputs(MultistageDdecWorkChain))
+        msddec_inputs['structure'] = get_structure_from_cif(self.inputs.structure)
+        msddec_inputs['metadata']['call_link_label'] = 'call_multistageddec'
+
+        running = self.submit(MultistageDdecWorkChain, **msddec_inputs)
+        return ToContext(msddec_wc=running)
+
     def run_zeopp_after(self):
-        """Run Zeo++ for the starting structure"""
-        #Merging all inputs
+        """Run Zeo++ for the oprimized structure"""
         zeopp_inp = AttributeDict(self.exposed_inputs(ZeoppCalculation, 'zeopp'))
         zeopp_inp['parameters'] = self.inputs.zeopp.parameters
-        zeopp_inp['structure'] = self.ctx.cp2k_ddec_wc.outputs.structure_ddec
+        zeopp_inp['structure'] = self.ctx.msddec_wc.outputs.structure_ddec
         zeopp_inp['metadata']['label'] = "zeopp_after_opt"
         zeopp_inp['metadata']['call_link_label'] = "call_zeopp_after_opt"
 
         running_zeopp = self.submit(ZeoppCalculation, **zeopp_inp)
         self.report("Running Zeo++ calculation <{}>".format(running_zeopp.pk))
         return ToContext(zeopp_after=running_zeopp)
-
-    def run_multistageddec(self):
-        """Run CP2K-Multistage"""
-        cp2k_ms_inputs = AttributeDict(self.exposed_inputs(MultistageDdecWorkChain))
-        cp2k_ms_inputs['structure'] = get_structure_from_cif(self.inputs.structure)
-        cp2k_ms_inputs['metadata']['call_link_label'] = 'call_multistageddec'
-
-        running = self.submit(MultistageDdecWorkChain, **cp2k_ms_inputs)
-        return ToContext(msddec_wc=running)
 
     def return_results(self):
         """Return exposed outputs"""

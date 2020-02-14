@@ -65,9 +65,9 @@ class MultistageDdecWorkChain(WorkChain):
         cp2k_params = aiida_dict_merge(self.ctx.ms_wc.outputs.last_input_parameters, cp2k_params_modify)
         cp2k_ddec_inputs['cp2k_base']['cp2k']['parameters'] = cp2k_params
 
-        if 'output_structure' not in self.ctx.ms_wc.outputs:
+        if 'output_structure' in self.ctx.ms_wc.outputs:
             cp2k_ddec_inputs['cp2k_base']['cp2k']['structure'] = self.ctx.ms_wc.outputs.output_structure
-        else:  # no output structure from a CP2K ENERGY calculation
+        else:  # no output structure from a CP2K ENERGY calculation, use the input one.
             inp_structure = self.exposed_inputs(Cp2kMultistageWorkChain)['structure']
             cp2k_ddec_inputs['cp2k_base']['cp2k']['structure'] = inp_structure
         cp2k_ddec_inputs['cp2k_base']['cp2k']['parent_calc_folder'] = self.ctx.ms_wc.outputs.remote_folder
