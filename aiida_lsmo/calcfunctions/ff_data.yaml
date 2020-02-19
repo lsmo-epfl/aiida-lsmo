@@ -228,6 +228,24 @@ framework:
       Zn_: [lennard-jones, 27.67992, 4.04468]
       Zr_: [lennard-jones, 34.7257, 2.7832]
 
+  Zeo-test:
+    description: >-
+      A zeolite FF for testing purpose.
+      Use Raspa to identify O and Oa: pseudo_atom/radii and connectivity are important
+    atom_types:
+      O:
+        force_field: [lennard-jones, 50.0, 3.0]
+        pseudo_atom: [yes, O, O, 0, 15.9994, -1.025, 0.0, 1.0, 0.5, 2, 0, absolute, 0]
+      Oa:
+        force_field: [lennard-jones, 50.0, 3.0]
+        pseudo_atom: [yes, O, O, 0, 15.9994, -1.2, 0.0, 1.0, 0.5, 2, 0, absolute, 0]
+      Si:
+        force_field: [lennard-jones, 32.0, 2.9]
+        pseudo_atom: [yes, Si, Si, 0, 28.08, +2.05, 0.0, 1.0, 1.18, 4, 0, absolute, 0]
+      Al:
+        force_field: [lennard-jones, 24.0, 3.1]
+        pseudo_atom: [yes, Al, Al, 0, 26.98, +1.75, 0.0, 1.0, 1.18, 4, 0, absolute, 0]
+
 # Molecules parameters: ff_paremeters[molecule][force_field]
 # pseudo_atom list: print, as, chem, oxidation, mass, charge, polarization, B-factor, radii, connectivity, anisotropic, anisotropic-type, tinker-type
 # Except when stated in the description, critical constants (Tc(K), Pc(Pa), acentric factor) come from
@@ -960,3 +978,19 @@ Xe:
         pseudo_atom: [yes, Xe, Xe, 0, 131.29, 0.0, 0.0, 1.0, 1.0, 0, 0, relative, 0]
     atomic_positions:
       - [Xe_gas 0, 0, 0]
+
+# Cations for zeolite
+Na:
+  critical_constants:
+    tc: 999.99
+    pc: 9999999
+    af: 0.0
+  Zeo-test:
+    description:
+      A Na+ testing purpose force field for zeolites.
+    atom_types:
+      Na_cat:
+        force_field: [lennard-jones, 5.0, 2.5]
+        pseudo_atom: [yes, Na, Na, 0, 22.98, +1.0, 0.0, 1.0, 1.0, 0, 0, relative, 0]
+    atomic_positions:
+      - [Na_cat 0, 0, 0]
