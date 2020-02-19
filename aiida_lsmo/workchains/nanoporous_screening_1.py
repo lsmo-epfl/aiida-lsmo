@@ -16,14 +16,13 @@ IsothermCalcPEWorkChain = WorkflowFactory('lsmo.isotherm_calc_pe')  # pylint: di
 def include_node(tag, node, group):
     """Given an aiida-node and a (string) tag, add the node in the curated-cof_XXX_vX group,
     and set the tag as the extra of the node for the query.
-    *** TODO: convert later to the more general "curated_tag"
     """
     node.set_extra('curated-cof_tag', tag)
     group.add_nodes(node)
 
 
 class NanoporousScreening1WorkChain(WorkChain):
-    """A workchain that combines: ZeoppMultistageDdecWorkChain (wc1) + IsothermCalcPEWorkChain (wc2).
+    """A workchain that combines: ZeoppMultistageDdecWorkChain wc1 and IsothermCalcPEWorkChain wc2.
     In future I will use this to include more applications to run in parallel.
     """
 
