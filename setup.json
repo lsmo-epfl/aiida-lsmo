@@ -24,7 +24,9 @@
         "aiida.calculations": [
           "lsmo.ff_builder = aiida_lsmo.calcfunctions:ff_builder",
           "lsmo.calc_ch4_working_cap = aiida_lsmo.calcfunctions:calc_ch4_working_cap",
-          "lsmo.calc_h2_working_cap = aiida_lsmo.calcfunctions:calc_h2_working_cap"
+          "lsmo.calc_h2_working_cap = aiida_lsmo.calcfunctions:calc_h2_working_cap",
+          "lsmo.calc_o2_working_cap = aiida_lsmo.calcfunctions:calc_o2_working_cap",
+          "lsmo.calc_selectivity = aiida_lsmo.calcfunctions:calc_selectivity"
         ],
         "aiida.workflows": [
             "lsmo.isotherm = aiida_lsmo.workchains:IsothermWorkChain",
@@ -34,7 +36,8 @@
             "lsmo.multistageddec = aiida_lsmo.workchains:MultistageDdecWorkChain",
             "lsmo.sim_annealing = aiida_lsmo.workchains.sim_annealing:SimAnnealingWorkChain",
             "lsmo.cp2k_binding_energy = aiida_lsmo.workchains.cp2k_binding_energy:Cp2kBindingEnergyWorkChain",
-            "lsmo.binding_site = aiida_lsmo.workchains:BindingSiteWorkChain"
+            "lsmo.binding_site = aiida_lsmo.workchains:BindingSiteWorkChain",
+            "lsmo.nanoporous_screening_1 = aiida_lsmo.workchains:NanoporousScreening1WorkChain"
         ]
     },
     "data_files": [

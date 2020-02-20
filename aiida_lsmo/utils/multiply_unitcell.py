@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 """Unit cell multiplication"""
-from __future__ import absolute_import
-import six
 
 
 def check_resize_unit_cell(cif, threshold):  #pylint: disable=too-many-locals
@@ -13,7 +11,7 @@ def check_resize_unit_cell(cif, threshold):  #pylint: disable=too-many-locals
     deg2rad = pi / 180.
 
     # Parsing cif
-    struct = next(six.itervalues(cif.values.dictionary))
+    struct = list(cif.values.dictionary.values())[0]
 
     a_len = float(struct['_cell_length_a'])
     b_len = float(struct['_cell_length_b'])

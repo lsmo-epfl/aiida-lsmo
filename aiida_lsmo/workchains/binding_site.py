@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 """MultistageDdecWorkChain workchain"""
 
-from __future__ import absolute_import
-
 from aiida.plugins import DataFactory, WorkflowFactory
 from aiida.engine import WorkChain, ToContext
 from aiida_lsmo.utils import get_structure_from_cif
@@ -22,7 +20,7 @@ class BindingSiteWorkChain(WorkChain):
     @classmethod
     def define(cls, spec):
         """Define workflow specification."""
-        super(BindingSiteWorkChain, cls).define(spec)
+        super().define(spec)
 
         spec.expose_inputs(SimAnnealingWorkChain)
         spec.expose_inputs(Cp2kBindingEnergyWorkChain, exclude=['structure', 'molecule'])

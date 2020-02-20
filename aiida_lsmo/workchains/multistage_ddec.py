@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
 """MultistageDdecWorkChain workchain"""
 
-from __future__ import absolute_import
-
 from aiida.plugins import CalculationFactory, DataFactory, WorkflowFactory
 from aiida.common import AttributeDict
 from aiida.engine import WorkChain, ToContext
+from aiida_lsmo.utils import aiida_dict_merge
 
 # import sub-workchains
 Cp2kMultistageWorkChain = WorkflowFactory('cp2k.multistage')  # pylint: disable=invalid-name
@@ -15,6 +14,7 @@ Cp2kDdecWorkChain = WorkflowFactory('ddec.cp2k_ddec')  # pylint: disable=invalid
 DdecCalculation = CalculationFactory('ddec')  # pylint: disable=invalid-name
 
 # import aiida data
+Dict = DataFactory('dict')  # pylint: disable=invalid-name
 CifData = DataFactory('cif')  # pylint: disable=invalid-name
 
 
@@ -24,7 +24,7 @@ class MultistageDdecWorkChain(WorkChain):
     @classmethod
     def define(cls, spec):
         """Define workflow specification."""
-        super(MultistageDdecWorkChain, cls).define(spec)
+        super().define(spec)
 
         spec.expose_inputs(Cp2kMultistageWorkChain)
         spec.expose_inputs(Cp2kDdecWorkChain, exclude=['cp2k_base'])
@@ -49,8 +49,25 @@ class MultistageDdecWorkChain(WorkChain):
         """
         cp2k_ddec_inputs = AttributeDict(self.exposed_inputs(Cp2kDdecWorkChain))
         cp2k_ddec_inputs['cp2k_base'] = self.exposed_inputs(Cp2kMultistageWorkChain)['cp2k_base']
-        cp2k_ddec_inputs['cp2k_base']['cp2k']['parameters'] = self.ctx.ms_wc.outputs.last_input_parameters
-        cp2k_ddec_inputs['cp2k_base']['cp2k']['structure'] = self.ctx.ms_wc.outputs.output_structure
+        cp2k_params_modify = Dict(
+            dict={
+                'FORCE_EVAL': {
+                    'DFT': {
+                        'WFN_RESTART_FILE_NAME': './parent_calc/aiida-RESTART.wfn',
+                        'SCF': {
+                            'SCF_GUESS': 'RESTART'
+                        }
+                    }
+                }
+            })
+        cp2k_params = aiida_dict_merge(self.ctx.ms_wc.outputs.last_input_parameters, cp2k_params_modify)
+        cp2k_ddec_inputs['cp2k_base']['cp2k']['parameters'] = cp2k_params
+
+        if 'output_structure' in self.ctx.ms_wc.outputs:
+            cp2k_ddec_inputs['cp2k_base']['cp2k']['structure'] = self.ctx.ms_wc.outputs.output_structure
+        else:  # no output structure from a CP2K ENERGY calculation, use the input one.
+            inp_structure = self.exposed_inputs(Cp2kMultistageWorkChain)['structure']
+            cp2k_ddec_inputs['cp2k_base']['cp2k']['structure'] = inp_structure
         cp2k_ddec_inputs['cp2k_base']['cp2k']['parent_calc_folder'] = self.ctx.ms_wc.outputs.remote_folder
         cp2k_ddec_inputs['metadata']['call_link_label'] = 'call_cp2kddec'
 

@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
 """IsothermMultiTemp workchain."""
-from __future__ import absolute_import
-
-from six.moves import range
 
 from aiida.plugins import WorkflowFactory
 from aiida.orm import Dict
@@ -60,7 +57,7 @@ class IsothermMultiTempWorkChain(WorkChain):
 
     @classmethod
     def define(cls, spec):
-        super(IsothermMultiTempWorkChain, cls).define(spec)
+        super().define(spec)
 
         spec.expose_inputs(IsothermWorkChain)
 

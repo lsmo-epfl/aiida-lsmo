@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 """Binding energy workchain"""
 
-from __future__ import absolute_import
-
 import os
 from copy import deepcopy
 import ruamel.yaml as yaml  # does not convert OFF to False
@@ -58,7 +56,7 @@ class Cp2kBindingEnergyWorkChain(WorkChain):
 
     @classmethod
     def define(cls, spec):
-        super(Cp2kBindingEnergyWorkChain, cls).define(spec)
+        super().define(spec)
 
         spec.expose_inputs(Cp2kBaseWorkChain,
                            namespace='cp2k_base',
@@ -67,7 +65,7 @@ class Cp2kBindingEnergyWorkChain(WorkChain):
         spec.input('molecule', valid_type=StructureData, help='Input molecule in the unit cell of the structure.')
         spec.input('protocol_tag',
                    valid_type=Str,
-                   default=Str('standard'),
+                   default=lambda: Str('standard'),
                    required=False,
                    help='The tag of the protocol to be read from {tag}.yaml unless protocol_yaml input is specified')
         spec.input('protocol_yaml',
@@ -76,12 +74,12 @@ class Cp2kBindingEnergyWorkChain(WorkChain):
                    help='Specify a custom yaml file with the multistage settings (and ignore protocol_tag)')
         spec.input('protocol_modify',
                    valid_type=Dict,
-                   default=Dict(dict={}),
+                   default=lambda: Dict(dict={}),
                    required=False,
                    help='Specify custom settings that overvrite the yaml settings')
         spec.input('starting_settings_idx',
                    valid_type=Int,
-                   default=Int(0),
+                   default=lambda: Int(0),
                    required=False,
                    help='If idx>0 is chosen, jumps directly to overwrite settings_0 with settings_{idx}')
         spec.input(

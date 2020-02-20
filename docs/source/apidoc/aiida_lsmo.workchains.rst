@@ -64,6 +64,16 @@ aiida\_lsmo.workchains.multistage\_ddec module
    :undoc-members:
    :show-inheritance:
 
+aiida\_lsmo.workchains.nanoporous\_screening\_1 module
+------------------------------------------------------
+
+.. automodule:: aiida_lsmo.workchains.nanoporous_screening_1
+   :members:
+   :special-members:
+   :private-members:
+   :undoc-members:
+   :show-inheritance:
+
 aiida\_lsmo.workchains.sim\_annealing module
 --------------------------------------------
 

@@ -2,9 +2,6 @@
 # -*- coding: utf-8 -*-
 """ Test/example for the DdecCp2kChargesWorkChain"""
 
-from __future__ import print_function
-from __future__ import absolute_import
-
 import click
 import ase.build
 

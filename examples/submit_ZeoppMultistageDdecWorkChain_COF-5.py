@@ -2,9 +2,6 @@
 # -*- coding: utf-8 -*-
 """Submit ZeoppMultistageDdecWorkChain for COF-5"""
 
-from __future__ import print_function
-from __future__ import absolute_import
-
 import os
 
 from aiida.engine import submit

@@ -2,9 +2,6 @@
 # -*- coding: utf-8 -*-
 """Submit ZeoppMultistageDdecWorkChain for H2O"""
 
-from __future__ import print_function
-from __future__ import absolute_import
-
 import os
 import click
 

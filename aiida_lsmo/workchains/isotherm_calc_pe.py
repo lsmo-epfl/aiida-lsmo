@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 """IsothermCalcPE work chain."""
 
-from __future__ import absolute_import
-
 from aiida.plugins import DataFactory, WorkflowFactory
 from aiida.orm import Dict, Str
 from aiida.engine import calcfunction
@@ -90,17 +88,17 @@ class IsothermCalcPEWorkChain(WorkChain):
 
     @classmethod
     def define(cls, spec):
-        super(IsothermCalcPEWorkChain, cls).define(spec)
+        super().define(spec)
 
         spec.expose_inputs(IsothermWorkChain, exclude=['molecule', 'parameters'])
         spec.input('parameters',
                    valid_type=Dict,
-                   default=Dict(dict=ISOTHERM_PARAMETERS_DEFAULT),
+                   default=lambda: Dict(dict=ISOTHERM_PARAMETERS_DEFAULT),
                    help='Parameters for Isotherm work chain')
 
         spec.input('pe_parameters',
                    valid_type=Dict,
-                   default=Dict(dict=PE_PARAMETERS_DEFAULT),
+                   default=lambda: Dict(dict=PE_PARAMETERS_DEFAULT),
                    help='Parameters for PE process modelling')
 
         spec.outline(

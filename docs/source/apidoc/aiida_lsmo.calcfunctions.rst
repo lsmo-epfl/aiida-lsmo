@@ -14,6 +14,16 @@ aiida\_lsmo.calcfunctions.ff\_builder\_module module
    :undoc-members:
    :show-inheritance:
 
+aiida\_lsmo.calcfunctions.selectivity module
+--------------------------------------------
+
+.. automodule:: aiida_lsmo.calcfunctions.selectivity
+   :members:
+   :special-members:
+   :private-members:
+   :undoc-members:
+   :show-inheritance:
+
 aiida\_lsmo.calcfunctions.working\_cap module
 ---------------------------------------------
 
