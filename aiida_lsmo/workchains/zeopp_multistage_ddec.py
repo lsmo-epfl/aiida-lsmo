@@ -40,7 +40,7 @@ class ZeoppMultistageDdecWorkChain(WorkChain):
         spec.input('structure', valid_type=CifData, help='input structure')
         spec.input('zeopp.parameters',
                    valid_type=NetworkParameters,
-                   default=NetworkParameters(dict=ZEOPP_PARAMETERS_DEFAULT),
+                   default=lambda: NetworkParameters(dict=ZEOPP_PARAMETERS_DEFAULT),
                    required=False,
                    help='parameters for zeo++')
         spec.expose_inputs(ZeoppCalculation, namespace='zeopp', exclude=['parameters', 'structure'])
