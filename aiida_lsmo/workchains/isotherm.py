@@ -203,7 +203,7 @@ class IsothermWorkChain(WorkChain):
 
     @classmethod
     def define(cls, spec):
-        super(IsothermWorkChain, cls).define(spec)
+        super().define(spec)
 
         spec.expose_inputs(ZeoppCalculation, namespace='zeopp', include=['code', 'metadata'])
 

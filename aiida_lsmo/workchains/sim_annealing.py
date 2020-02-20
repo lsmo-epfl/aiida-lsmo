@@ -154,7 +154,7 @@ class SimAnnealingWorkChain(WorkChain):
 
     @classmethod
     def define(cls, spec):
-        super(SimAnnealingWorkChain, cls).define(spec)
+        super().define(spec)
 
         spec.expose_inputs(RaspaBaseWorkChain, namespace='raspa_base', exclude=['raspa.structure', 'raspa.parameters'])
 

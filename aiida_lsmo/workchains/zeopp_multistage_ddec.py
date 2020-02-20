@@ -33,7 +33,7 @@ class ZeoppMultistageDdecWorkChain(WorkChain):
     @classmethod
     def define(cls, spec):
         """Define workflow specification."""
-        super(ZeoppMultistageDdecWorkChain, cls).define(spec)
+        super().define(spec)
 
         spec.input('structure', valid_type=CifData, help='input structure')
         spec.input('zeopp.parameters',

@@ -88,7 +88,7 @@ class IsothermCalcPEWorkChain(WorkChain):
 
     @classmethod
     def define(cls, spec):
-        super(IsothermCalcPEWorkChain, cls).define(spec)
+        super().define(spec)
 
         spec.expose_inputs(IsothermWorkChain, exclude=['molecule', 'parameters'])
         spec.input('parameters',

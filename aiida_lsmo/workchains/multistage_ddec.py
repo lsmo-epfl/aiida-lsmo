@@ -24,7 +24,7 @@ class MultistageDdecWorkChain(WorkChain):
     @classmethod
     def define(cls, spec):
         """Define workflow specification."""
-        super(MultistageDdecWorkChain, cls).define(spec)
+        super().define(spec)
 
         spec.expose_inputs(Cp2kMultistageWorkChain)
         spec.expose_inputs(Cp2kDdecWorkChain, exclude=['cp2k_base'])

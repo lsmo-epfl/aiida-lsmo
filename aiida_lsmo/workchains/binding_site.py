@@ -20,7 +20,7 @@ class BindingSiteWorkChain(WorkChain):
     @classmethod
     def define(cls, spec):
         """Define workflow specification."""
-        super(BindingSiteWorkChain, cls).define(spec)
+        super().define(spec)
 
         spec.expose_inputs(SimAnnealingWorkChain)
         spec.expose_inputs(Cp2kBindingEnergyWorkChain, exclude=['structure', 'molecule'])

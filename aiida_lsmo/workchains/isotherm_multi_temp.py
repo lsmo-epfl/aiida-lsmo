@@ -57,7 +57,7 @@ class IsothermMultiTempWorkChain(WorkChain):
 
     @classmethod
     def define(cls, spec):
-        super(IsothermMultiTempWorkChain, cls).define(spec)
+        super().define(spec)
 
         spec.expose_inputs(IsothermWorkChain)
 

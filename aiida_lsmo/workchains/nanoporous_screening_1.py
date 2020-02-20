@@ -27,7 +27,7 @@ class NanoporousScreening1WorkChain(WorkChain):
     @classmethod
     def define(cls, spec):
         """Define workflow specification."""
-        super(NanoporousScreening1WorkChain, cls).define(spec)
+        super().define(spec)
 
         spec.expose_inputs(ZeoppMultistageDdecWorkChain)
         spec.expose_inputs(IsothermCalcPEWorkChain, exclude=['structure'])

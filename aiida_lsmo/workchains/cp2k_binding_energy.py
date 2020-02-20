@@ -56,7 +56,7 @@ class Cp2kBindingEnergyWorkChain(WorkChain):
 
     @classmethod
     def define(cls, spec):
-        super(Cp2kBindingEnergyWorkChain, cls).define(spec)
+        super().define(spec)
 
         spec.expose_inputs(Cp2kBaseWorkChain,
                            namespace='cp2k_base',
