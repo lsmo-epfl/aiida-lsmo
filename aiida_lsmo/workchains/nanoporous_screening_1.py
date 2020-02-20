@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 """ZeoppMultistageDdecPeWorkChain workchain"""
 
-from __future__ import absolute_import
-
 from aiida.orm import Group
 from aiida.plugins import WorkflowFactory
 from aiida.common import AttributeDict

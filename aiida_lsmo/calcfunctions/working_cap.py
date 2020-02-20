@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """Calcfunctions to compute working capacities for different gasses."""
 
-from __future__ import absolute_import
 from math import sqrt
 from aiida.engine import calcfunction
 from aiida.orm import Dict

@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 """Binding energy workchain"""
 
-from __future__ import absolute_import
-
 import os
 from copy import deepcopy
 import ruamel.yaml as yaml  # does not convert OFF to False

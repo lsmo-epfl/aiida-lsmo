@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 """Isotherm workchain"""
-from __future__ import absolute_import
 
 import os
-from six.moves import range
 
 from aiida.plugins import CalculationFactory, DataFactory, WorkflowFactory
 from aiida.orm import Dict, Str, List, SinglefileData

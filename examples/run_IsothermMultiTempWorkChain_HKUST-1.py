@@ -2,8 +2,6 @@
 # -*- coding: utf-8 -*-
 """Run example isotherm calculation with HKUST1 framework."""
 
-from __future__ import absolute_import
-from __future__ import print_function
 import os
 import click
 

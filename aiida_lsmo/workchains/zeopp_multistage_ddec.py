@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 """ZeoppMultistageDdecWorkChain work chain"""
 
-from __future__ import absolute_import
-
 from aiida.plugins import CalculationFactory, DataFactory, WorkflowFactory
 from aiida.common import AttributeDict
 from aiida.engine import WorkChain, ToContext

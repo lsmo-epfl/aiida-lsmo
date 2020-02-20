@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """Test for ff_builder"""
-from __future__ import absolute_import
-from __future__ import print_function
 from aiida.orm import Dict
 from aiida.plugins import CalculationFactory
 from aiida.engine import run_get_node

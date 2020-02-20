@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 """IsothermCalcPE work chain."""
 
-from __future__ import absolute_import
-
 from aiida.plugins import DataFactory, WorkflowFactory
 from aiida.orm import Dict, Str
 from aiida.engine import calcfunction

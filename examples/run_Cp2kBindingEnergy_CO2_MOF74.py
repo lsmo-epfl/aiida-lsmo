@@ -2,9 +2,6 @@
 # pylint: disable=invalid-name
 """ Test/example for the BindingEnergyWorkChain"""
 
-from __future__ import print_function
-from __future__ import absolute_import
-
 import os
 import click
 import ase.io

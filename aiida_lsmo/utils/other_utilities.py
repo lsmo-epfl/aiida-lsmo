@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """Other utilities"""
 
-from __future__ import absolute_import
 from aiida.orm import Dict, CifData, StructureData
 from aiida.engine import calcfunction
 

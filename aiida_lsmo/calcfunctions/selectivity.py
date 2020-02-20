@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """Calcfunctions to compute gas-selectivity related applications."""
 
-from __future__ import absolute_import
 from aiida.engine import calcfunction
 from aiida.orm import Dict
 
