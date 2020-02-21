@@ -66,7 +66,7 @@ extensions = [
 ]
 
 intersphinx_mapping = {
-    'python': ('https://docs.python.org/2.7', None),
+    'python': ('https://docs.python.org/3', None),
     'aiida': ('http://aiida-core.readthedocs.io/en/latest/', None),
 }
 
