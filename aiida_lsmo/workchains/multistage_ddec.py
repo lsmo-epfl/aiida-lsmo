@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """MultistageDdecWorkChain workchain"""
 
 from aiida.plugins import CalculationFactory, DataFactory, WorkflowFactory

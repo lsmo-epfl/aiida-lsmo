@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """ff_builder calcfunction."""
 import tempfile
 import shutil

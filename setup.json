@@ -28,6 +28,10 @@
           "lsmo.calc_o2_working_cap = aiida_lsmo.calcfunctions:calc_o2_working_cap",
           "lsmo.calc_selectivity = aiida_lsmo.calcfunctions:calc_selectivity"
         ],
+        "aiida.parsers": [
+            "cp2k_bsse_parser = aiida_lsmo.parsers:Cp2kBsseParser",
+            "cp2k_advanced_parser = aiida_lsmo.parsers:Cp2kAdvancedParser"
+        ],    
         "aiida.workflows": [
             "lsmo.isotherm = aiida_lsmo.workchains:IsothermWorkChain",
             "lsmo.isotherm_multi_temp = aiida_lsmo.workchains:IsothermMultiTempWorkChain",

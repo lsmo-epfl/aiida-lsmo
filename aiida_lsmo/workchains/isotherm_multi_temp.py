@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """IsothermMultiTemp workchain."""
 
 from aiida.plugins import WorkflowFactory

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """ZeoppMultistageDdecWorkChain work chain"""
 
 from aiida.plugins import CalculationFactory, DataFactory, WorkflowFactory

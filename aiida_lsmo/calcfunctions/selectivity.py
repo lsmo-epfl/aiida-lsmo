@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Calcfunctions to compute gas-selectivity related applications."""
 
 from aiida.engine import calcfunction
