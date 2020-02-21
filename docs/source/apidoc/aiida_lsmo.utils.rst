@@ -4,6 +4,16 @@ aiida\_lsmo.utils package
 Submodules
 ----------
 
+aiida\_lsmo.utils.cp2k\_utils module
+------------------------------------
+
+.. automodule:: aiida_lsmo.utils.cp2k_utils
+   :members:
+   :special-members:
+   :private-members:
+   :undoc-members:
+   :show-inheritance:
+
 aiida\_lsmo.utils.multiply\_unitcell module
 -------------------------------------------
 

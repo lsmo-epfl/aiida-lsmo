@@ -17,10 +17,10 @@ def run_multistage_al(cp2k_code):
     """Example usage: verdi run thistest.py cp2k@localhost"""
 
     print("Testing CP2K multistage workchain on Al (RKS, needs smearing)...")
-    print("EXPECTED: the OT (settings_0) will converge to a negative bandgap, then we switch to SMEARING (settings_1)")
+    print("EXPECTED: the OT (settings_0) will converge to a negative bandgap, then use SMEARING (settings_1)")
 
     thisdir = os.path.dirname(os.path.abspath(__file__))
-    structure = StructureData(ase=ase.io.read(os.path.join(thisdir, '../data/Al.cif')))
+    structure = StructureData(ase=ase.io.read(os.path.join(thisdir, 'data/Al.cif')))
 
     # testing user change of parameters and protocol
     parameters = Dict(dict={'FORCE_EVAL': {'DFT': {'MGRID': {'CUTOFF': 250,}}}})

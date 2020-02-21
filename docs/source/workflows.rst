@@ -75,7 +75,7 @@ An example is :py:func:`~aiida_lsmo.calcfunctions.working_cap.calc_ch4_working_c
 Isotherm work chain
 +++++++++++++++++++++++
 
-The :py:func:`~aiida_lsmo.workchains.isotherm.IsothermWorkChain` work function allows to compute a single-component
+The :py:func:`~aiida_lsmo.workchains.IsothermWorkChain` work function allows to compute a single-component
 isotherm in a framework, from a few settings.
 
 What it does, in order:
@@ -243,7 +243,7 @@ selection of the work chain is skipped.
 IsothermMultiTemp work chain
 ++++++++++++++++++++++++++++++++++++++++++++++
 
-The :py:func:`~aiida_lsmo.workchains.isotherm_multi_temp.IsothermMultiTempWorkChain` work chain can run in parallel the
+The :py:func:`~aiida_lsmo.workchains.IsothermMultiTempWorkChain` work chain can run in parallel the
 Isotherm work chain at different temperatures. Since the
 geometry initial calculation to get the pore volume and blocking spheres is not dependent on the temperature, this is
 run only once. Inputs and outputs are very similar to the Isotherm work chain.
@@ -438,7 +438,7 @@ What it can not do:
 IosthermCalcPE work chain
 ++++++++++++++++++++++++++
 
-The :py:func:`~aiida_lsmo.workchains.isotherm_calc_pe.IsothermCalcPEWorkChain` work chain takes as an input a structure
+The :py:func:`~aiida_lsmo.workchains.IsothermCalcPEWorkChain` work chain takes as an input a structure
 with partial charges, computes the isotherms for CO2 and N2 at
 ambient temperature and models the process of carbon capture and compression for geological sequestration.
 The final outcome informs about the performance of the adsorbent for this application, including the CO2 parasitic energy,
@@ -451,9 +451,8 @@ Default input mixture is coal post-combustion flue gas, but also natural gas pos
 Multistage work chain
 ++++++++++++++++++++++
 
-*NOTE: this work chain is part of the `<aiida-cp2k https://github.com/aiidateam/aiida-cp2k>`_ plugin*
-
-The ``MulstistageWorkChain`` work chain in meant to automate DFT optimizations in CP2K and guess some good parameters
+The :py:func:`~aiida_lsmo.workchains.Cp2kMultistageWorkChain` work chain in meant to automate 
+DFT optimizations in CP2K and guess some good parameters
 for the simulation, but it is written in such a versatile fashion that it can be used for many other functions.
 
 What it can do:
@@ -477,6 +476,9 @@ What it can not do:
 
 #. Run CP2K calculations with k-points.
 #. Run CP2K advanced calculations, e.g., other than ``ENERGY``, ``GEO_OPT``, ``CELL_OPT`` and ``MD``.
+
+.. aiida-workchain:: Cp2kMultistageWorkChain
+    :module: aiida_lsmo.workchains
 
 **Inputs details**
 
@@ -714,20 +716,20 @@ The report provides very useful insight on what happened during the run. Here it
   2019-11-22 16:55:54 [90983 | REPORT]: [266248|Cp2kMultistageWorkChain|inspect_and_update_stage]: All stages computed, finishing...
   2019-11-22 16:55:55 [90984 | REPORT]: [266248|Cp2kMultistageWorkChain|results]: Outputs: Dict<266273> and StructureData<266271>
 
-MultistageDdec work chain
-++++++++++++++++++++++++++
+Cp2kMultistageDdec work chain
+++++++++++++++++++++++++++++++
 
-The :py:func:`~aiida_lsmo.workchains.multistage_ddec.MultistageDdecWorkChain` work chain combines together the CP2K
+The :py:func:`~aiida_lsmo.workchains.Cp2kMultistageDdecWorkChain` work chain combines together the CP2K
 Multistage workchain and the DDEC calculation, with the scope of
 optimizing the geometry of a structure and compute its partial charge using the DDEC protocol.
 
-.. aiida-workchain:: MultistageDdecWorkChain
+.. aiida-workchain:: Cp2kMultistageDdecWorkChain
     :module: aiida_lsmo.workchains
 
 ZeoppMultistageDdec work chain
 ++++++++++++++++++++++++++++++++++++++++++++++
 
-The :py:func:`~aiida_lsmo.workchains.zeopp_multistage_ddec.ZeoppMultistageDdecWorkChain` work chain, is similar to MultistageDdec
+The :py:func:`~aiida_lsmo.workchains.ZeoppMultistageDdecWorkChain` work chain, is similar to Cp2kMultistageDdec
 but it runs a geometry characterization of the structure
 using Zeo++ (NetworkCalculation) before and after, with the scope of assessing the structural changes due to the cell/geometry
 optimization.
@@ -738,7 +740,7 @@ optimization.
 SimAnnealing work chain
 ++++++++++++++++++++++++++++++++++++++++++++++
 
-The :py:func:`~aiida_lsmo.workchains.sim_annealing.SimAnnealingWorkChain` work chain
+The :py:func:`~aiida_lsmo.workchains.SimAnnealingWorkChain` work chain
 allows to find the minimum configuration a number of gas molecules, in the pore volume of a framework.
 It runs several NVT simulations in RASPA at decreasing temperature to make the system move to its global minimum (simulated annealing),
 and it finally performs a minimization for the final fine tuning of the optimum position.
@@ -814,7 +816,7 @@ and it finally performs a minimization for the final fine tuning of the optimum 
 Cp2kBindingEnergy work chain
 ++++++++++++++++++++++++++++++++++++++++++++++
 
-The :py:func:`~aiida_lsmo.workchains.cp2k_binding_energy.Cp2kBindingEnergyWorkChain` work chain
+The :py:func:`~aiida_lsmo.workchains.Cp2kBindingEnergyWorkChain` work chain
 takes as an input a CIF structure and the initial position of a molecule in its pore,
 optimizes the molecule's geometry keeping the framework rigid and computes the BSSE corrected interactions energy.
 The work chain is similar to CP2K's MulstistageWorkChain in reading the settings from YAML protocol,
@@ -895,9 +897,9 @@ Look at the inputs details of the Multistage work chain for more information abo
 BindingSiteWorkChain work chain
 ++++++++++++++++++++++++++++++++++++++++++++++
 
-The :py:func:`~aiida_lsmo.workchains.binding_site.BindingSiteWorkChain` work chain
-simply combines :py:func:`~aiida_lsmo.workchains.sim_annealing.SimAnnealingWorkChain`
-and :py:func:`~aiida_lsmo.workchains.cp2k_binding_energy.Cp2kBindingEnergyWorkChain`.
+The :py:func:`~aiida_lsmo.workchains.BindingSiteWorkChain` work chain
+simply combines :py:func:`~aiida_lsmo.workchains.SimAnnealingWorkChain`
+and :py:func:`~aiida_lsmo.workchains.Cp2kBindingEnergyWorkChain`.
 The outputs from the two workchain are collected under the ``ff`` and ``dft`` namespaces, respectively.
 
 .. aiida-workchain:: BindingSiteWorkChain

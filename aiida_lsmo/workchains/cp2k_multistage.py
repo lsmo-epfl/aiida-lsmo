@@ -22,11 +22,12 @@ def extract_results(resize, **kwargs):
     into a single Dict output.
     - resize (Dict) contains the unit cell resizing values
     - kwargs contains all the output_parameters for the stages and the extra initial change of settings, e.g.:
-      'out_0': cp2k's output_parameters with Dict.label = 'settings_0_stage_0_discard'
-      'out_1': cp2k's output_parameters with Dict.label = 'settings_1_stage_0_valid'
-      'out_2': cp2k's output_parameters with Dict.label = 'settings_1_stage_0_valid'
-      'out_3': cp2k's output_parameters with Dict.label = 'settings_1_stage_0_valid'
-      This will be read as: output_dict = {'nstages_valid': 3, 'nsettings_discarded': 1}."""
+    'out_0': cp2k's output_parameters with Dict.label = 'settings_0_stage_0_discard'
+    'out_1': cp2k's output_parameters with Dict.label = 'settings_1_stage_0_valid'
+    'out_2': cp2k's output_parameters with Dict.label = 'settings_1_stage_0_valid'
+    'out_3': cp2k's output_parameters with Dict.label = 'settings_1_stage_0_valid'
+    This will be read as: output_dict = {'nstages_valid': 3, 'nsettings_discarded': 1}.
+    """
 
     output_dict = {}
 
@@ -86,10 +87,10 @@ def extract_results(resize, **kwargs):
 
 class Cp2kMultistageWorkChain(WorkChain):
     """Submits Cp2kBase workchains for ENERGY, GEO_OPT, CELL_OPT and MD jobs iteratively
-
     The protocol_yaml file contains a series of settings_x and stage_x:
     the workchains starts running the settings_0/stage_0 calculation, and, in case of a failure, changes the settings
-    untill the SCF of stage_0 converges. Then it uses the same settings to run the next stages (i.e., stage_1, etc.)."""
+    untill the SCF of stage_0 converges. Then it uses the same settings to run the next stages (i.e., stage_1, etc.).
+    """
 
     @classmethod
     def define(cls, spec):

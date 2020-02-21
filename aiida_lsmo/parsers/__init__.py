@@ -3,7 +3,6 @@
 import io
 import os
 
-from aiida.parsers import Parser
 from aiida.common import OutputParsingError, NotExistent
 from aiida.engine import ExitCode
 from aiida.orm import Dict
