@@ -6,7 +6,7 @@ from aiida.engine import WorkChain, ToContext
 from aiida_lsmo.utils import get_structure_from_cif
 
 # import sub-workchains
-MultistageDdecWorkChain = WorkflowFactory('lsmo.multistageddec')  # pylint: disable=invalid-name
+Cp2kMultistageDdecWorkChain = WorkflowFactory('lsmo.cp2k_multistage_ddec')  # pylint: disable=invalid-name
 
 # import calculations
 DdecCalculation = CalculationFactory('ddec')  # pylint: disable=invalid-name
@@ -41,13 +41,13 @@ class ZeoppMultistageDdecWorkChain(WorkChain):
                    required=False,
                    help='parameters for zeo++')
         spec.expose_inputs(ZeoppCalculation, namespace='zeopp', exclude=['parameters', 'structure'])
-        spec.expose_inputs(MultistageDdecWorkChain, exclude=['structure'])
+        spec.expose_inputs(Cp2kMultistageDdecWorkChain, exclude=['structure'])
 
         spec.outline(cls.run_zeopp_before, cls.run_multistageddec, cls.run_zeopp_after, cls.return_results)
 
         spec.expose_outputs(ZeoppCalculation, namespace='zeopp_before_opt', include=['output_parameters'])
         spec.expose_outputs(ZeoppCalculation, namespace='zeopp_after_opt', include=['output_parameters'])
-        spec.expose_outputs(MultistageDdecWorkChain)
+        spec.expose_outputs(Cp2kMultistageDdecWorkChain)
 
     def run_zeopp_before(self):
         """Run Zeo++ for the original structure"""
@@ -64,11 +64,11 @@ class ZeoppMultistageDdecWorkChain(WorkChain):
 
     def run_multistageddec(self):
         """Run MultistageDdec work chain"""
-        msddec_inputs = AttributeDict(self.exposed_inputs(MultistageDdecWorkChain))
+        msddec_inputs = AttributeDict(self.exposed_inputs(Cp2kMultistageDdecWorkChain))
         msddec_inputs['structure'] = get_structure_from_cif(self.inputs.structure)
         msddec_inputs['metadata']['call_link_label'] = 'call_multistageddec'
 
-        running = self.submit(MultistageDdecWorkChain, **msddec_inputs)
+        running = self.submit(Cp2kMultistageDdecWorkChain, **msddec_inputs)
         return ToContext(msddec_wc=running)
 
     def run_zeopp_after(self):
@@ -86,6 +86,6 @@ class ZeoppMultistageDdecWorkChain(WorkChain):
     def return_results(self):
         """Return exposed outputs"""
         self.out_many(self.exposed_outputs(self.ctx.zeopp_before, ZeoppCalculation, namespace='zeopp_before_opt'))
-        self.out_many(self.exposed_outputs(self.ctx.msddec_wc, MultistageDdecWorkChain))
+        self.out_many(self.exposed_outputs(self.ctx.msddec_wc, Cp2kMultistageDdecWorkChain))
         self.out_many(self.exposed_outputs(self.ctx.zeopp_after, ZeoppCalculation, namespace='zeopp_after_opt'))
         self.report("WorkChain terminated correctly.")

@@ -93,7 +93,7 @@ class Cp2kMultistageWorkChain(WorkChain):
 
     @classmethod
     def define(cls, spec):
-        super(Cp2kMultistageWorkChain, cls).define(spec)
+        super().define(spec)
 
         # Inputs
         spec.expose_inputs(Cp2kBaseWorkChain,
@@ -194,7 +194,7 @@ class Cp2kMultistageWorkChain(WorkChain):
             self.ctx.protocol = yaml.safe_load(self.inputs.protocol_yaml.open())
         else:
             thisdir = os.path.dirname(os.path.abspath(__file__))
-            yamlfullpath = os.path.join(thisdir, 'multistage_protocols', self.inputs.protocol_tag.value + '.yaml')
+            yamlfullpath = os.path.join(thisdir, 'cp2k_multistage_protocols', self.inputs.protocol_tag.value + '.yaml')
             with open(yamlfullpath, 'r') as stream:
                 self.ctx.protocol = yaml.safe_load(stream)
         dict_merge(self.ctx.protocol, self.inputs.protocol_modify.get_dict())

@@ -1,4 +1,4 @@
-"""MultistageDdecWorkChain workchain"""
+"""BindingSite workchain."""
 
 from aiida.plugins import DataFactory, WorkflowFactory
 from aiida.engine import WorkChain, ToContext

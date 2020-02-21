@@ -10,7 +10,7 @@ from aiida.plugins import DataFactory, WorkflowFactory
 from aiida.orm import Code, Dict, Str
 
 # Workchain object
-MultistageDdecWorkChain = WorkflowFactory('lsmo.multistageddec')  # pylint: disable=invalid-name
+MultistageDdecWorkChain = WorkflowFactory('lsmo.multistage_ddec')  # pylint: disable=invalid-name
 
 # Data objects
 StructureData = DataFactory('structure')  # pylint: disable=invalid-name
