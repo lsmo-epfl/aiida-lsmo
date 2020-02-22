@@ -18,7 +18,8 @@
         "aiida-ddec >= 1.0.0a1",
         "aiida-zeopp >= 1.0.3",
         "aiida-raspa >= 1.0.0a3",
-        "calc-pe >= 1.0.1"
+        "calc-pe >= 1.0.1",
+        "ruamel.yaml>=0.16.5"
     ],
     "entry_points": {
         "aiida.calculations": [
