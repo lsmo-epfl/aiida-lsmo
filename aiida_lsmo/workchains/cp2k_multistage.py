@@ -136,7 +136,7 @@ class Cp2kMultistageWorkChain(WorkChain):
             help='Specify custom CP2K settings to overwrite the input dictionary just before submitting the CalcJob')
         spec.input('cp2k_base.cp2k.metadata.options.parser_name',
                    valid_type=str,
-                   default='cp2k_advanced_parser',
+                   default='lsmo.cp2k_advanced_parser',
                    non_db=True,
                    help='Parser of the calculation: the default is cp2k_advanced_parser to get the necessary info')
 

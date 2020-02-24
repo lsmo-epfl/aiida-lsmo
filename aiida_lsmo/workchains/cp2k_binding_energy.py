@@ -189,7 +189,7 @@ class Cp2kBindingEnergyWorkChain(WorkChain):
         self.ctx.base_inp['cp2k']['parameters'] = Dict(dict=self.ctx.cp2k_param)
         self.ctx.base_inp['metadata'].update({'label': 'geo_opt_molecule', 'call_link_label': 'run_geo_opt_molecule'})
         self.ctx.base_inp['cp2k']['metadata'].update({'label': 'GEO_OPT'})
-        self.ctx.base_inp['cp2k']['metadata']['options']['parser_name'] = 'cp2k_advanced_parser'
+        self.ctx.base_inp['cp2k']['metadata']['options']['parser_name'] = 'lsmo.cp2k_advanced_parser'
         running_base = self.submit(Cp2kBaseWorkChain, **self.ctx.base_inp)
         self.report("Optimize molecule position in the structure.")
         return ToContext(stages=append_(running_base))
@@ -255,7 +255,7 @@ class Cp2kBindingEnergyWorkChain(WorkChain):
         self.ctx.base_inp['cp2k']['structure'] = self.ctx.stages[-1].outputs.output_structure
         self.ctx.base_inp['metadata'].update({'label': 'bsse', 'call_link_label': 'run_bsse'})
         self.ctx.base_inp['cp2k']['metadata'].update({'label': 'BSSE'})
-        self.ctx.base_inp['cp2k']['metadata']['options']['parser_name'] = 'cp2k_bsse_parser'
+        self.ctx.base_inp['cp2k']['metadata']['options']['parser_name'] = 'lsmo.cp2k_bsse_parser'
         running_base = self.submit(Cp2kBaseWorkChain, **self.ctx.base_inp)
         self.report("Run BSSE calculation to compute corrected binding energy.")
 
