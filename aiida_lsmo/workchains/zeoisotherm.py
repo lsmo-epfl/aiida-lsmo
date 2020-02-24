@@ -1,9 +1,6 @@
-# -*- coding: utf-8 -*-
 """ZeoIsotherm work chain"""
-from __future__ import absolute_import
 
 import os
-from six.moves import range
 
 from aiida.plugins import CalculationFactory, DataFactory, WorkflowFactory
 from aiida.orm import Dict, Float, Str, List, SinglefileData
@@ -31,6 +28,9 @@ ISOTHERMPARAMETERS_DEFAULT = {  #TODO: create IsothermParameters instead of Dict
     "ff_tail_corrections": True,  # (bool) Apply tail corrections.
     "ff_shifted": False,  # (bool) Shift or truncate the potential at cutoff.
     "ff_cutoff": 12.0,  # (float) CutOff truncation for the VdW interactions (Angstrom).
+    "cations_equilibration_temp_list": [
+        1000, 800, 600, 500, 400
+    ],  # (list) List of temperatures for the equilibrations of cations: last will be "temperature".
     "temperature": 300,  # (float) Temperature of the simulation.
     "temperature_list": None,  # (list) To be used by IsothermMultiTempWorkChain.
     "zeopp_volpo_samples": int(1e5),  # (int) Number of samples for VOLPO calculation (per UC volume).
@@ -229,7 +229,7 @@ class ZeoIsothermWorkChain(WorkChain):
         spec.outline(
             cls.setup,
             cls.run_zeopp,  # computes volpo and blocks
-            cls.run_equilibrate_cation,
+            while_(cls.should_equilibrate_cations)(cls.run_equilibrate_cations,),
             if_(cls.should_run_widom)(  # run Widom only if porous
                 cls.run_raspa_widom,  # run raspa widom calculation
                 if_(cls.should_run_gcmc)(  # Kh is high enough
@@ -265,10 +265,14 @@ class ZeoIsothermWorkChain(WorkChain):
         # Get integer temperature in context for easy reports
         self.ctx.temperature = int(round(self.ctx.parameters['temperature']))
 
-        # Get the number of cations needed
-        natoms = self.inputs.structure.get_ase().get_number_of_atoms()
+        # Get the number of cations needed and other data for the cation equilibration
+        natoms = self.inputs.structure.get_ase().get_global_number_of_atoms()
         ntatoms = natoms / 3
         self.ctx.ncations = int(ntatoms / (self.inputs.sial_ratio + 1))
+        self.ctx.current_equilibration_id = 0
+        self.ctx.cations_equilibration_temp_list = self.ctx.parameters["cations_equilibration_temp_list"] + [
+            self.ctx.parameters['temperature']
+        ]
 
         # Understand if IsothermMultiTempWorkChain is calling this work chain
         if "geometric" in self.inputs:
@@ -308,7 +312,7 @@ class ZeoIsothermWorkChain(WorkChain):
         self.report("Running zeo++ block and volpo Calculation<{}>".format(running.id))
         return ToContext(zeopp=running)
 
-    def _get_nvt_cation(self):
+    def _get_nvt_cations(self):
         """Write Raspa input parameters from scratch, for a NVT calculation"""
 
         param = {
@@ -328,7 +332,8 @@ class ZeoIsothermWorkChain(WorkChain):
             "System": {
                 "framework_1": {
                     "type": "Framework",
-                    "ExternalTemperature": self.ctx.parameters['temperature'],
+                    "UnitCells": "1 1 1",  #NOTE: it is expanded before!
+                    "ExternalTemperature": self.ctx.cations_equilibration_temp_list[0],
                 }
             },
             "Component": {
@@ -341,35 +346,53 @@ class ZeoIsothermWorkChain(WorkChain):
                 },
             },
         }
-
-        # Check particular conditions and settings
-        # DISABLED: I want to have already from the beginning a larger unit cell (so, no problems with ncations)
-        # mult = check_resize_unit_cell(self.inputs.structure, 2 * self.ctx.parameters['ff_cutoff'])
-        # param["System"]["framework_1"]["UnitCells"] = "{} {} {}".format(mult[0], mult[1], mult[2])
         return param
 
-    def run_equilibrate_cation(self):
-        """Run a calculation in Raspa to equilibrate postion of cations."""
+    def should_equilibrate_cations(self):
+        """Decide whether to run the cations equilibration."""
+        if self.ctx.ncations == 0:
+            return False
+        return self.ctx.current_equilibration_id < len(self.ctx.cations_equilibration_temp_list)
 
-        # Initialize the input for raspa_base, which later will need only minor updates for GCMC
-        self.ctx.inp = self.exposed_inputs(RaspaBaseWorkChain, 'raspa_base')
-        self.ctx.inp['metadata']['label'] = "RaspaWidom"
-        self.ctx.inp['metadata']['call_link_label'] = "run_raspa_cation"
+    def run_equilibrate_cations(self):
+        """Run NVT for the equilibration of the cations as a list of calculations."""
 
-        # Create input parameters and pass the framework
-        self.ctx.raspa_param = self._get_nvt_cation()
-        self.ctx.inp['raspa']['parameters'] = Dict(dict=self.ctx.raspa_param)
-        self.ctx.inp['raspa']['framework'] = {"framework_1": self.inputs.structure}
+        if self.ctx.current_equilibration_id == 0:
 
-        # Generate the force field with the ff_builder
-        ff_params = get_ff_parameters(self.ctx.molecule, self.inputs.cation, self.ctx.parameters)
-        files_dict = FFBuilder(ff_params)
-        self.ctx.inp['raspa']['file'] = files_dict
+            # Initialize the input for raspa_base, which later will need only minor updates for GCMC
+            self.ctx.inp = self.exposed_inputs(RaspaBaseWorkChain, 'raspa_base')
 
+            # Create input parameters and pass the framework
+            self.ctx.raspa_param = self._get_nvt_cations()
+            self.ctx.inp['raspa']['parameters'] = Dict(dict=self.ctx.raspa_param)
+            self.ctx.inp['raspa']['framework'] = {"framework_1": self.inputs.structure}
+
+            # Generate the force field with the ff_builder
+            ff_params = get_ff_parameters(self.ctx.molecule, self.inputs.cation, self.ctx.parameters)
+            files_dict = FFBuilder(ff_params)
+            self.ctx.inp['raspa']['file'] = files_dict
+
+        elif self.ctx.current_equilibration_id > 0:
+
+            # Update Parameters
+            self.ctx.raspa_param["System"]["framework_1"][
+                'ExternalTemperature'] = self.ctx.cations_equilibration_temp_list[self.ctx.current_equilibration_id]
+            self.ctx.raspa_param["Component"][self.inputs.cation.value]["CreateNumberOfMolecules"] = 0
+            self.ctx.inp['raspa']['parameters'] = Dict(dict=self.ctx.raspa_param)
+
+            # Update restart (if present, i.e., if current_p_index>0)
+            self.ctx.inp['raspa']['retrieved_parent_folder'] = self.ctx.raspa_nvt_cations[
+                self.ctx.current_equilibration_id - 1].outputs.retrieved
+
+        # Update metadata and submit
+        self.ctx.inp['metadata']['label'] = "RaspaNVTCations{}".format(self.ctx.current_equilibration_id)
+        self.ctx.inp['metadata']['call_link_label'] = "run_raspa_cations_{}".format(self.ctx.current_equilibration_id)
         running = self.submit(RaspaBaseWorkChain, **self.ctx.inp)
-        self.report("Running Raspa NVT @ {}K for equilibrating cations".format(self.ctx.temperature))
-
-        return ToContext(raspa_cation=running)
+        self.report("Running Raspa NVT @ {}K for equilibrating cations ({}/{})".format(
+            int(self.ctx.cations_equilibration_temp_list[self.ctx.current_equilibration_id]),
+            self.ctx.current_equilibration_id + 1, len(self.ctx.cations_equilibration_temp_list)))
+        self.ctx.current_equilibration_id += 1
+        return ToContext(raspa_nvt_cations=append_(running))
 
     def should_run_widom(self):
         """Submit widom calculation only if there is some accessible volume,
@@ -431,7 +454,7 @@ class ZeoIsothermWorkChain(WorkChain):
         self.ctx.inp['raspa']['parameters'] = Dict(dict=self.ctx.raspa_param)
         if self.ctx.geom['Number_of_blocking_spheres'] > 0 and self.ctx.multitemp_mode != 'run_single_temp':
             self.ctx.inp["raspa"]["block_pocket"] = {"block_file": self.ctx.zeopp.outputs.block}
-        self.ctx.inp['raspa']['retrieved_parent_folder'] = self.ctx.raspa_cation.outputs.retrieved
+        self.ctx.inp['raspa']['retrieved_parent_folder'] = self.ctx.raspa_nvt_cations[-1].outputs.retrieved
 
         running = self.submit(RaspaBaseWorkChain, **self.ctx.inp)
         self.report("Running Raspa Widom @ {}K for the Henry coefficient".format(self.ctx.temperature))
