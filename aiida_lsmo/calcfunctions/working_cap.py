@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Calcfunctions to compute working capacities for different gasses."""
 
 from math import sqrt

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """ZeoppMultistageDdecPeWorkChain workchain"""
 
 from aiida.orm import Group
@@ -7,7 +6,7 @@ from aiida.common import AttributeDict
 from aiida.engine import WorkChain, ToContext
 
 # import sub-workchains
-ZeoppMultistageDdecWorkChain = WorkflowFactory('lsmo.zeoppmultistageddec')  # pylint: disable=invalid-name
+ZeoppMultistageDdecWorkChain = WorkflowFactory('lsmo.zeopp_multistage_ddec')  # pylint: disable=invalid-name
 IsothermCalcPEWorkChain = WorkflowFactory('lsmo.isotherm_calc_pe')  # pylint: disable=invalid-name
 
 

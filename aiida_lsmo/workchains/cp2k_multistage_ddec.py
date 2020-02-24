@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-"""MultistageDdecWorkChain workchain"""
+"""Cp2kMultistageDdecWorkChain workchain"""
 
 from aiida.plugins import CalculationFactory, DataFactory, WorkflowFactory
 from aiida.common import AttributeDict
@@ -7,7 +6,7 @@ from aiida.engine import WorkChain, ToContext
 from aiida_lsmo.utils import aiida_dict_merge
 
 # import sub-workchains
-Cp2kMultistageWorkChain = WorkflowFactory('cp2k.multistage')  # pylint: disable=invalid-name
+Cp2kMultistageWorkChain = WorkflowFactory('lsmo.cp2k_multistage')  # pylint: disable=invalid-name
 Cp2kDdecWorkChain = WorkflowFactory('ddec.cp2k_ddec')  # pylint: disable=invalid-name
 
 # import calculations
@@ -18,7 +17,7 @@ Dict = DataFactory('dict')  # pylint: disable=invalid-name
 CifData = DataFactory('cif')  # pylint: disable=invalid-name
 
 
-class MultistageDdecWorkChain(WorkChain):
+class Cp2kMultistageDdecWorkChain(WorkChain):
     """A workchain that combines: Cp2kMultistageWorkChain + Cp2kDdecWorkChain"""
 
     @classmethod

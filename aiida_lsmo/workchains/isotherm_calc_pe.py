@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """IsothermCalcPE work chain."""
 
 from aiida.plugins import DataFactory, WorkflowFactory

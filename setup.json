@@ -14,11 +14,12 @@
     "reentry_register": true,
     "install_requires": [
         "aiida-core >= 1.0.0",
-        "aiida-cp2k >= 1.0.0b4",
+        "aiida-cp2k >= 1.0.0b6",
         "aiida-ddec >= 1.0.0a1",
         "aiida-zeopp >= 1.0.3",
-        "aiida-raspa >= 1.0.0a3",
-        "calc-pe >= 1.0.1"
+        "aiida-raspa >= 1.1.0",
+        "calc-pe >= 1.0.1",
+        "ruamel.yaml>=0.16.5"
     ],
     "entry_points": {
         "aiida.calculations": [
@@ -28,15 +29,20 @@
           "lsmo.calc_o2_working_cap = aiida_lsmo.calcfunctions:calc_o2_working_cap",
           "lsmo.calc_selectivity = aiida_lsmo.calcfunctions:calc_selectivity"
         ],
+        "aiida.parsers": [
+            "lsmo.cp2k_bsse_parser = aiida_lsmo.parsers:Cp2kBsseParser",
+            "lsmo.cp2k_advanced_parser = aiida_lsmo.parsers:Cp2kAdvancedParser"
+        ],    
         "aiida.workflows": [
+            "lsmo.binding_site = aiida_lsmo.workchains:BindingSiteWorkChain",
+            "lsmo.cp2k_binding_energy = aiida_lsmo.workchains.cp2k_binding_energy:Cp2kBindingEnergyWorkChain",
+            "lsmo.cp2k_multistage = aiida_lsmo.workchains:Cp2kMultistageWorkChain",
+            "lsmo.cp2k_multistage_ddec = aiida_lsmo.workchains:Cp2kMultistageDdecWorkChain",
             "lsmo.isotherm = aiida_lsmo.workchains:IsothermWorkChain",
             "lsmo.isotherm_multi_temp = aiida_lsmo.workchains:IsothermMultiTempWorkChain",
             "lsmo.isotherm_calc_pe = aiida_lsmo.workchains:IsothermCalcPEWorkChain",
-            "lsmo.zeoppmultistageddec = aiida_lsmo.workchains:ZeoppMultistageDdecWorkChain",
-            "lsmo.multistageddec = aiida_lsmo.workchains:MultistageDdecWorkChain",
+            "lsmo.zeopp_multistage_ddec = aiida_lsmo.workchains:ZeoppMultistageDdecWorkChain",
             "lsmo.sim_annealing = aiida_lsmo.workchains.sim_annealing:SimAnnealingWorkChain",
-            "lsmo.cp2k_binding_energy = aiida_lsmo.workchains.cp2k_binding_energy:Cp2kBindingEnergyWorkChain",
-            "lsmo.binding_site = aiida_lsmo.workchains:BindingSiteWorkChain",
             "lsmo.nanoporous_screening_1 = aiida_lsmo.workchains:NanoporousScreening1WorkChain"
         ]
     },

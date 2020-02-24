@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Isotherm workchain"""
 
 import os

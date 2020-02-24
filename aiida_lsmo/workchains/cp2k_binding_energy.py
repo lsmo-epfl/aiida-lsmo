@@ -1,10 +1,8 @@
-# -*- coding: utf-8 -*-
 """Binding energy workchain"""
 
 import os
 from copy import deepcopy
 import ruamel.yaml as yaml  # does not convert OFF to False
-import pkg_resources
 
 from aiida.common import AttributeDict
 from aiida.engine import append_, while_, WorkChain, ToContext
@@ -12,8 +10,9 @@ from aiida.engine import calcfunction
 from aiida.orm import Dict, Int, SinglefileData, Str, StructureData
 from aiida.plugins import WorkflowFactory
 
-from aiida_cp2k.utils import HARTREE2EV, merge_dict, get_input_multiplicity, ot_has_small_bandgap
-from aiida_lsmo.utils import get_kinds_with_ghost_section, get_bsse_section, aiida_structure_merge
+from aiida_lsmo.utils import HARTREE2EV, dict_merge, aiida_structure_merge
+from aiida_lsmo.utils.cp2k_utils import get_input_multiplicity, ot_has_small_bandgap
+from aiida_lsmo.utils.cp2k_utils import get_kinds_with_ghost_section, get_bsse_section
 
 Cp2kBaseWorkChain = WorkflowFactory('cp2k.base')  # pylint: disable=invalid-name
 
@@ -120,11 +119,11 @@ class Cp2kBindingEnergyWorkChain(WorkChain):
         if 'protocol_yaml' in self.inputs:
             self.ctx.protocol = yaml.safe_load(self.inputs.protocol_yaml.open())
         else:
-            protocols_dir = pkg_resources.resource_filename('aiida_cp2k', 'workchains/multistage_protocols')
-            yamlfullpath = os.path.join(protocols_dir, self.inputs.protocol_tag.value + '.yaml')
+            thisdir = os.path.dirname(os.path.abspath(__file__))
+            yamlfullpath = os.path.join(thisdir, 'cp2k_multistage_protocols', self.inputs.protocol_tag.value + '.yaml')
             with open(yamlfullpath, 'r') as stream:
                 self.ctx.protocol = yaml.safe_load(stream)
-        merge_dict(self.ctx.protocol, self.inputs.protocol_modify.get_dict())
+        dict_merge(self.ctx.protocol, self.inputs.protocol_modify.get_dict())
 
         # Initialize
         self.ctx.settings_ok = False
@@ -142,12 +141,12 @@ class Cp2kBindingEnergyWorkChain(WorkChain):
             self.ctx.settings_idx += 1
             self.ctx.settings_tag = 'settings_{}'.format(self.ctx.settings_idx)
             if self.ctx.settings_tag in self.ctx.protocol:
-                merge_dict(self.ctx.cp2k_param, self.ctx.protocol[self.ctx.settings_tag])
+                dict_merge(self.ctx.cp2k_param, self.ctx.protocol[self.ctx.settings_tag])
             else:
                 return self.exit_codes.ERROR_MISSING_INITIAL_SETTINGS  # pylint: disable=no-member
-        merge_dict(self.ctx.cp2k_param, get_kinds_with_ghost_section(self.ctx.system, self.ctx.protocol))
-        merge_dict(self.ctx.cp2k_param, get_input_multiplicity(self.ctx.system, self.ctx.protocol))
-        merge_dict(
+        dict_merge(self.ctx.cp2k_param, get_kinds_with_ghost_section(self.ctx.system, self.ctx.protocol))
+        dict_merge(self.ctx.cp2k_param, get_input_multiplicity(self.ctx.system, self.ctx.protocol))
+        dict_merge(
             self.ctx.cp2k_param,
             {
                 'GLOBAL': {
@@ -184,12 +183,12 @@ class Cp2kBindingEnergyWorkChain(WorkChain):
 
         # Overwrite the generated input with the custom cp2k/parameters, update metadata and submit
         if 'parameters' in self.exposed_inputs(Cp2kBaseWorkChain, 'cp2k_base')['cp2k']:
-            merge_dict(self.ctx.cp2k_param,
+            dict_merge(self.ctx.cp2k_param,
                        self.exposed_inputs(Cp2kBaseWorkChain, 'cp2k_base')['cp2k']['parameters'].get_dict())
         self.ctx.base_inp['cp2k']['parameters'] = Dict(dict=self.ctx.cp2k_param)
         self.ctx.base_inp['metadata'].update({'label': 'geo_opt_molecule', 'call_link_label': 'run_geo_opt_molecule'})
         self.ctx.base_inp['cp2k']['metadata'].update({'label': 'GEO_OPT'})
-        self.ctx.base_inp['cp2k']['metadata']['options']['parser_name'] = 'cp2k_advanced_parser'
+        self.ctx.base_inp['cp2k']['metadata']['options']['parser_name'] = 'lsmo.cp2k_advanced_parser'
         running_base = self.submit(Cp2kBaseWorkChain, **self.ctx.base_inp)
         self.report("Optimize molecule position in the structure.")
         return ToContext(stages=append_(running_base))
@@ -228,7 +227,7 @@ class Cp2kBindingEnergyWorkChain(WorkChain):
             next_settings_tag = 'settings_{}'.format(self.ctx.settings_idx)
             if next_settings_tag in self.ctx.protocol:
                 self.ctx.settings_tag = next_settings_tag
-                merge_dict(self.ctx.cp2k_param, self.ctx.protocol[self.ctx.settings_tag])
+                dict_merge(self.ctx.cp2k_param, self.ctx.protocol[self.ctx.settings_tag])
             else:
                 return self.exit_codes.ERROR_NO_MORE_SETTINGS  # pylint: disable=no-member
 
@@ -238,7 +237,7 @@ class Cp2kBindingEnergyWorkChain(WorkChain):
         """
 
         self.ctx.cp2k_param['GLOBAL']['RUN_TYPE'] = 'BSSE'
-        merge_dict(
+        dict_merge(
             self.ctx.cp2k_param,
             get_bsse_section(natoms_a=self.ctx.natoms_structure,
                              natoms_b=self.ctx.natoms_molecule,
@@ -249,13 +248,13 @@ class Cp2kBindingEnergyWorkChain(WorkChain):
 
         # Overwrite the generated input with the custom cp2k/parameters, update structure and metadata, and submit
         if 'parameters' in self.exposed_inputs(Cp2kBaseWorkChain, 'cp2k_base')['cp2k']:
-            merge_dict(self.ctx.cp2k_param,
+            dict_merge(self.ctx.cp2k_param,
                        self.exposed_inputs(Cp2kBaseWorkChain, 'cp2k_base')['cp2k']['parameters'].get_dict())
         self.ctx.base_inp['cp2k']['parameters'] = Dict(dict=self.ctx.cp2k_param)
         self.ctx.base_inp['cp2k']['structure'] = self.ctx.stages[-1].outputs.output_structure
         self.ctx.base_inp['metadata'].update({'label': 'bsse', 'call_link_label': 'run_bsse'})
         self.ctx.base_inp['cp2k']['metadata'].update({'label': 'BSSE'})
-        self.ctx.base_inp['cp2k']['metadata']['options']['parser_name'] = 'cp2k_bsse_parser'
+        self.ctx.base_inp['cp2k']['metadata']['options']['parser_name'] = 'lsmo.cp2k_bsse_parser'
         running_base = self.submit(Cp2kBaseWorkChain, **self.ctx.base_inp)
         self.report("Run BSSE calculation to compute corrected binding energy.")
 

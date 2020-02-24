@@ -24,6 +24,26 @@ aiida\_lsmo.workchains.cp2k\_binding\_energy module
    :undoc-members:
    :show-inheritance:
 
+aiida\_lsmo.workchains.cp2k\_multistage module
+----------------------------------------------
+
+.. automodule:: aiida_lsmo.workchains.cp2k_multistage
+   :members:
+   :special-members:
+   :private-members:
+   :undoc-members:
+   :show-inheritance:
+
+aiida\_lsmo.workchains.cp2k\_multistage\_ddec module
+----------------------------------------------------
+
+.. automodule:: aiida_lsmo.workchains.cp2k_multistage_ddec
+   :members:
+   :special-members:
+   :private-members:
+   :undoc-members:
+   :show-inheritance:
+
 aiida\_lsmo.workchains.isotherm module
 --------------------------------------
 
@@ -48,16 +68,6 @@ aiida\_lsmo.workchains.isotherm\_multi\_temp module
 ---------------------------------------------------
 
 .. automodule:: aiida_lsmo.workchains.isotherm_multi_temp
-   :members:
-   :special-members:
-   :private-members:
-   :undoc-members:
-   :show-inheritance:
-
-aiida\_lsmo.workchains.multistage\_ddec module
-----------------------------------------------
-
-.. automodule:: aiida_lsmo.workchains.multistage_ddec
    :members:
    :special-members:
    :private-members:

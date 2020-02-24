@@ -451,9 +451,8 @@ Default input mixture is coal post-combustion flue gas, but also natural gas pos
 Multistage work chain
 ++++++++++++++++++++++
 
-*NOTE: this work chain is part of the `<aiida-cp2k https://github.com/aiidateam/aiida-cp2k>`_ plugin*
-
-The ``MulstistageWorkChain`` work chain in meant to automate DFT optimizations in CP2K and guess some good parameters
+The :py:func:`~aiida_lsmo.workchains.cp2k_multistage.Cp2kMultistageWorkChain` work chain in meant to automate 
+DFT optimizations in CP2K and guess some good parameters
 for the simulation, but it is written in such a versatile fashion that it can be used for many other functions.
 
 What it can do:
@@ -477,6 +476,9 @@ What it can not do:
 
 #. Run CP2K calculations with k-points.
 #. Run CP2K advanced calculations, e.g., other than ``ENERGY``, ``GEO_OPT``, ``CELL_OPT`` and ``MD``.
+
+.. aiida-workchain:: Cp2kMultistageWorkChain
+    :module: aiida_lsmo.workchains
 
 **Inputs details**
 
@@ -714,20 +716,20 @@ The report provides very useful insight on what happened during the run. Here it
   2019-11-22 16:55:54 [90983 | REPORT]: [266248|Cp2kMultistageWorkChain|inspect_and_update_stage]: All stages computed, finishing...
   2019-11-22 16:55:55 [90984 | REPORT]: [266248|Cp2kMultistageWorkChain|results]: Outputs: Dict<266273> and StructureData<266271>
 
-MultistageDdec work chain
-++++++++++++++++++++++++++
+Cp2kMultistageDdec work chain
+++++++++++++++++++++++++++++++
 
-The :py:func:`~aiida_lsmo.workchains.multistage_ddec.MultistageDdecWorkChain` work chain combines together the CP2K
+The :py:func:`~aiida_lsmo.workchains.cp2k_multistage_ddec.Cp2kMultistageDdecWorkChain` work chain combines together the CP2K
 Multistage workchain and the DDEC calculation, with the scope of
 optimizing the geometry of a structure and compute its partial charge using the DDEC protocol.
 
-.. aiida-workchain:: MultistageDdecWorkChain
+.. aiida-workchain:: Cp2kMultistageDdecWorkChain
     :module: aiida_lsmo.workchains
 
 ZeoppMultistageDdec work chain
 ++++++++++++++++++++++++++++++++++++++++++++++
 
-The :py:func:`~aiida_lsmo.workchains.zeopp_multistage_ddec.ZeoppMultistageDdecWorkChain` work chain, is similar to MultistageDdec
+The :py:func:`~aiida_lsmo.workchains.zeopp_multistage_ddec.ZeoppMultistageDdecWorkChain` work chain, is similar to Cp2kMultistageDdec
 but it runs a geometry characterization of the structure
 using Zeo++ (NetworkCalculation) before and after, with the scope of assessing the structural changes due to the cell/geometry
 optimization.
