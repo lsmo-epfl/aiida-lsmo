@@ -3,7 +3,6 @@
 import os
 from copy import deepcopy
 import ruamel.yaml as yaml  # does not convert OFF to False
-import pkg_resources
 
 from aiida.common import AttributeDict
 from aiida.engine import append_, while_, WorkChain, ToContext
@@ -120,8 +119,8 @@ class Cp2kBindingEnergyWorkChain(WorkChain):
         if 'protocol_yaml' in self.inputs:
             self.ctx.protocol = yaml.safe_load(self.inputs.protocol_yaml.open())
         else:
-            protocols_dir = pkg_resources.resource_filename('aiida_cp2k', 'workchains/multistage_protocols')
-            yamlfullpath = os.path.join(protocols_dir, self.inputs.protocol_tag.value + '.yaml')
+            thisdir = os.path.dirname(os.path.abspath(__file__))
+            yamlfullpath = os.path.join(thisdir, 'cp2k_multistage_protocols', self.inputs.protocol_tag.value + '.yaml')
             with open(yamlfullpath, 'r') as stream:
                 self.ctx.protocol = yaml.safe_load(stream)
         dict_merge(self.ctx.protocol, self.inputs.protocol_modify.get_dict())
