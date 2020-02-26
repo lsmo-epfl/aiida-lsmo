@@ -2,9 +2,6 @@
 # -*- coding: utf-8 -*-
 """Run example PE calculation calculation with HKUST1 framework."""
 
-from __future__ import absolute_import
-from __future__ import print_function
-
 import os
 import click
 
@@ -57,7 +54,7 @@ def main(raspa_code_label, zeopp_code_label):
             'zeopp_block_samples': 10,
             'raspa_widom_cycles': 100,
             'raspa_gcmc_init_cycles': 100,
-            'raspa_gcmc_prod_cycles': 1000,
+            'raspa_gcmc_prod_cycles': 2000,
             'pressure_min': 0.001,
             'pressure_max': 10,
         })

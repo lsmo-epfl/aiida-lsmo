@@ -1,13 +1,10 @@
-# -*- coding: utf-8 -*-
 """IsothermMultiTemp workchain."""
-from __future__ import absolute_import
-
-from six.moves import range
 
 from aiida.plugins import WorkflowFactory
 from aiida.orm import Dict
 from aiida.engine import calcfunction
 from aiida.engine import WorkChain, ToContext, if_
+from aiida_lsmo.utils import dict_merge
 
 # import sub-workchains
 IsothermWorkChain = WorkflowFactory('lsmo.isotherm')  # pylint: disable=invalid-name
@@ -59,7 +56,7 @@ class IsothermMultiTempWorkChain(WorkChain):
 
     @classmethod
     def define(cls, spec):
-        super(IsothermMultiTempWorkChain, cls).define(spec)
+        super().define(spec)
 
         spec.expose_inputs(IsothermWorkChain)
 
@@ -84,7 +81,7 @@ class IsothermMultiTempWorkChain(WorkChain):
         inputs = self.exposed_inputs(IsothermWorkChain)
 
         # Set inputs for zeopp
-        inputs.update({
+        dict_merge(inputs, {
             'metadata': {
                 'label': "IsothermGeometric",
                 'call_link_label': 'run_geometric',
@@ -119,13 +116,14 @@ class IsothermMultiTempWorkChain(WorkChain):
         for i in range(self.ctx.ntemp):
             self.ctx.parameters_singletemp = get_parameters_singletemp(i, self.inputs.parameters)
 
-            inputs.update({
-                'metadata': {
-                    'label': "Isotherm_{}".format(i),
-                    'call_link_label': 'run_isotherm_{}'.format(i),
-                },
-                'parameters': self.ctx.parameters_singletemp
-            })
+            dict_merge(
+                inputs, {
+                    'metadata': {
+                        'label': "Isotherm_{}".format(i),
+                        'call_link_label': 'run_isotherm_{}'.format(i),
+                    },
+                    'parameters': self.ctx.parameters_singletemp
+                })
 
             running = self.submit(IsothermWorkChain, **inputs)
             self.to_context(**{'isotherm_{}'.format(i): running})

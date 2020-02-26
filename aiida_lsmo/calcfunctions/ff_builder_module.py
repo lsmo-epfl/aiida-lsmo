@@ -1,12 +1,8 @@
-# -*- coding: utf-8 -*-
 """ff_builder calcfunction."""
-from __future__ import absolute_import
-from __future__ import print_function
 import tempfile
 import shutil
 import os
 import ruamel.yaml as yaml
-from six.moves import range
 
 from aiida.orm import SinglefileData
 from aiida.engine import calcfunction

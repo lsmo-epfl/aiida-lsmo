@@ -2,9 +2,6 @@
 # -*- coding: utf-8 -*-
 """Submit ZeoppMultistageDdecWorkChain for COF-5"""
 
-from __future__ import print_function
-from __future__ import absolute_import
-
 import os
 
 from aiida.engine import submit
@@ -12,7 +9,7 @@ from aiida.plugins import DataFactory, WorkflowFactory
 from aiida.orm import Code, Dict, Str
 
 # Workchain objects
-ZeoppMultistageDdecWorkChain = WorkflowFactory('lsmo.zeoppmultistageddec')  # pylint: disable=invalid-name
+ZeoppMultistageDdecWorkChain = WorkflowFactory('lsmo.zeopp_multistage_ddec')  # pylint: disable=invalid-name
 
 #Data objects
 CifData = DataFactory('cif')  # pylint: disable=invalid-name

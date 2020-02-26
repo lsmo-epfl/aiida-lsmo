@@ -1,15 +1,13 @@
-# -*- coding: utf-8 -*-
 """Isotherm workchain"""
-from __future__ import absolute_import
 
 import os
-from six.moves import range
 
 from aiida.plugins import CalculationFactory, DataFactory, WorkflowFactory
 from aiida.orm import Dict, Str, List, SinglefileData
 from aiida.engine import calcfunction
 from aiida.engine import WorkChain, ToContext, append_, while_, if_
 from aiida_lsmo.utils import check_resize_unit_cell, aiida_dict_merge
+from aiida_lsmo.utils import dict_merge
 
 # import sub-workchains
 RaspaBaseWorkChain = WorkflowFactory('raspa.base')  # pylint: disable=invalid-name
@@ -204,7 +202,7 @@ class IsothermWorkChain(WorkChain):
 
     @classmethod
     def define(cls, spec):
-        super(IsothermWorkChain, cls).define(spec)
+        super().define(spec)
 
         spec.expose_inputs(ZeoppCalculation, namespace='zeopp', include=['code', 'metadata'])
 
@@ -283,18 +281,20 @@ class IsothermWorkChain(WorkChain):
         inputs = self.exposed_inputs(ZeoppCalculation, 'zeopp')
 
         # Set inputs for zeopp
-        inputs.update({
-            'metadata': {
-                'label': "ZeoppVolpoBlock",
-                'call_link_label': 'run_zeopp_block_and_volpo',
-            },
-            'structure': self.inputs.structure,
-            'atomic_radii': get_atomic_radii(self.ctx.parameters),
-            'parameters': get_zeopp_parameters(self.ctx.molecule, self.ctx.parameters)
-        })
+        dict_merge(
+            inputs, {
+                'metadata': {
+                    'label': "ZeoppVolpoBlock",
+                    'call_link_label': 'run_zeopp_block_and_volpo',
+                },
+                'structure': self.inputs.structure,
+                'atomic_radii': get_atomic_radii(self.ctx.parameters),
+                'parameters': get_zeopp_parameters(self.ctx.molecule, self.ctx.parameters)
+            })
 
         running = self.submit(ZeoppCalculation, **inputs)
-        self.report("Running zeo++ block and volpo Calculation<{}>".format(running.id))
+        self.report("Running zeo++ block and volpo for {} Calculation<{}>".format(self.ctx.molecule['name'],
+                                                                                  running.id))
         return ToContext(zeopp=running)
 
     def should_run_widom(self):
@@ -309,13 +309,13 @@ class IsothermWorkChain(WorkChain):
         self.ctx.geom = get_geometric_dict(self.ctx.zeopp.outputs.output_parameters, self.ctx.molecule)
 
         if self.ctx.geom['is_porous']:
-            self.report("Found accessible pore volume: continue")
+            self.report("Found accessible pore volume for {}: continue".format(self.ctx.molecule['name']))
             self.report("Found {} blocking spheres".format(self.ctx.geom['Number_of_blocking_spheres']))
             # Return block file only if blocking spheres are present
             if self.ctx.geom['Number_of_blocking_spheres'] > 0:
                 self.out_many(self.exposed_outputs(self.ctx.zeopp, ZeoppCalculation))
         else:
-            self.report("No accessible pore volume: stop")
+            self.report("No accessible pore volume to {}: stop".format(self.ctx.molecule['name']))
 
         return self.ctx.geom['is_porous'] and not self.ctx.multitemp_mode == 'run_geom_only'
 
@@ -393,7 +393,8 @@ class IsothermWorkChain(WorkChain):
         self.ctx.inp['raspa']['file'] = files_dict
 
         running = self.submit(RaspaBaseWorkChain, **self.ctx.inp)
-        self.report("Running Raspa Widom @ {}K for the Henry coefficient".format(self.ctx.temperature))
+        self.report("Running Raspa Widom {} @ {}K for the Henry coefficient".format(self.ctx.molecule['name'],
+                                                                                    self.ctx.temperature))
 
         return ToContext(raspa_widom=running)
 
@@ -404,10 +405,10 @@ class IsothermWorkChain(WorkChain):
                                      values())[0]['henry_coefficient_average'] > self.ctx.parameters['raspa_minKh']
 
         if self.ctx.is_kh_enough:
-            self.report("kH larger than the threshold: continue")
+            self.report("kH larger than the threshold for {}: continue".format(self.ctx.molecule['name']))
             return True
 
-        self.report("kHh lower than the threshold: stop")
+        self.report("kHh lower than the threshold for {}: stop".format(self.ctx.molecule['name']))
         return False
 
     def _update_param_for_gcmc(self):
@@ -438,11 +439,12 @@ class IsothermWorkChain(WorkChain):
         self.ctx.pressures = choose_pressure_points(self.ctx.parameters, self.ctx.geom,
                                                     self.ctx.raspa_widom.outputs.output_parameters)
 
-        self.report("Computed Kh(mol/kg/Pa)={:.2e} POAV(cm3/g)={:.3f} Qsat(mol/kg)={:.2f}".format(
+        self.report("{}: Kh(mol/kg/Pa)={:.2e} POAV(cm3/g)={:.3f} Qsat(mol/kg)={:.2f}".format(
+            self.ctx.molecule['name'],
             list(self.ctx.raspa_widom.outputs['output_parameters']["framework_1"]["components"].values())[0]
             ['henry_coefficient_average'], self.ctx.geom['POAV_cm^3/g'], self.ctx.geom['Estimated_saturation_loading']))
-        self.report("Now evaluating the isotherm @ {}K for {} pressure points".format(
-            self.ctx.temperature, len(self.ctx.pressures)))
+        self.report("Now evaluating the isotherm {} @ {}K for {} pressure points".format(
+            self.ctx.molecule['name'], self.ctx.temperature, len(self.ctx.pressures)))
 
         self.ctx.raspa_param = self._update_param_for_gcmc()
 
@@ -473,9 +475,9 @@ class IsothermWorkChain(WorkChain):
 
         # Create the calculation process, launch it and update pressure index
         running = self.submit(RaspaBaseWorkChain, **self.ctx.inp)
-        self.report("Running Raspa GCMC @ {}K/{:.3f}bar (pressure {} of {})".format(
-            self.ctx.temperature, self.ctx.pressures[self.ctx.current_p_index], self.ctx.current_p_index + 1,
-            len(self.ctx.pressures)))
+        self.report("Running Raspa GCMC {} @ {}K/{:.3f}bar (pressure {} of {})".format(
+            self.ctx.molecule['name'], self.ctx.temperature, self.ctx.pressures[self.ctx.current_p_index],
+            self.ctx.current_p_index + 1, len(self.ctx.pressures)))
         self.ctx.current_p_index += 1
         return ToContext(raspa_gcmc=append_(running))
 
@@ -503,5 +505,6 @@ class IsothermWorkChain(WorkChain):
                                   **gcmc_out_dict))
 
         if not self.ctx.multitemp_mode == 'run_geom_only':
-            self.report("Isotherm @ {}K computed: ouput Dict<{}>".format(self.ctx.temperature,
-                                                                         self.outputs['output_parameters'].pk))
+            self.report("Isotherm {} @ {}K computed: ouput Dict<{}>".format(self.ctx.molecule['name'],
+                                                                            self.ctx.temperature,
+                                                                            self.outputs['output_parameters'].pk))

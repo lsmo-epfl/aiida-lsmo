@@ -1,8 +1,6 @@
-# -*- coding: utf-8 -*-
 """Other utilities"""
 
-from __future__ import absolute_import
-from aiida.orm import Dict
+from aiida.orm import Dict, CifData, StructureData
 from aiida.engine import calcfunction
 
 
@@ -35,3 +33,50 @@ def aiida_dict_merge(to_dict, from_dict):
     dict_merge(to_dict, from_dict)
 
     return Dict(dict=to_dict)
+
+
+@calcfunction
+def aiida_cif_merge(aiida_cif_a, aiida_cif_b):
+    """Merge the coordinates of two CifData into a sigle one. Note: the two unit cells must be the same."""
+    import ase
+    ase_a = aiida_cif_a.get_ase()
+    ase_b = aiida_cif_b.get_ase()
+    if not (ase_a.cell == ase_b.cell).all():
+        raise ValueError('Attempting to merge two CifData with different unit cells.')
+    ase_ab = ase.Atoms(  #Maybe there is a more direct way...
+        symbols=list(ase_a.symbols) + list(ase_b.symbols),
+        cell=ase_a.cell,
+        positions=list(ase_a.positions) + list(ase_b.positions),
+        pbc=True)
+    cif_ab = CifData(ase=ase_ab, filename='fragments_a_b.cif')  #TODO: check why the filename is not assigned. # pylint: disable=fixme
+    cif_ab.label = 'Loaded structure'
+    cif_ab.description = 'Fragment A: {} atoms, fragment B: {} atoms.'.format(len(ase_a), len(ase_b))
+    return cif_ab
+
+
+@calcfunction
+def aiida_structure_merge(aiida_structure_a, aiida_structure_b):
+    """Merge the coordinates of two StructureData into a sigle one. Note: the two unit cells must be the same."""
+    import ase
+    ase_a = aiida_structure_a.get_ase()
+    ase_b = aiida_structure_b.get_ase()
+    if not (ase_a.cell == ase_b.cell).all():
+        raise ValueError('Attempting to merge two StructureData with different unit cells.')
+    ase_ab = ase.Atoms(  #Maybe there is a more direct way...
+        symbols=list(ase_a.symbols) + list(ase_b.symbols),
+        cell=ase_a.cell,
+        positions=list(ase_a.positions) + list(ase_b.positions),
+        pbc=True)
+    return StructureData(ase=ase_ab)
+
+
+@calcfunction
+def get_structure_from_cif(cifdata):
+    """Convert StructureData to CifData maintaining the provenance."""
+    return cifdata.get_structure()
+
+
+@calcfunction
+def get_cif_from_structure(structuredata):
+    """Convert CifData to StructureData maintaining the provenance."""
+    return structuredata.get_cif()

@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 """Setting up aiida-lsmo for AiiDA"""
-from __future__ import absolute_import
 
 import json
 from setuptools import setup, find_packages
