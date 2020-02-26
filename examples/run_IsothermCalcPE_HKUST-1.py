@@ -54,7 +54,7 @@ def main(raspa_code_label, zeopp_code_label):
             'zeopp_block_samples': 10,
             'raspa_widom_cycles': 100,
             'raspa_gcmc_init_cycles': 100,
-            'raspa_gcmc_prod_cycles': 1000,
+            'raspa_gcmc_prod_cycles': 2000,
             'pressure_min': 0.001,
             'pressure_max': 10,
         })
