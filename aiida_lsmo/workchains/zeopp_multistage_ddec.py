@@ -35,12 +35,10 @@ class ZeoppMultistageDdecWorkChain(WorkChain):
         super().define(spec)
 
         spec.input('structure', valid_type=CifData, help='input structure')
-        spec.input('zeopp.parameters',
-                   valid_type=NetworkParameters,
-                   default=lambda: NetworkParameters(dict=ZEOPP_PARAMETERS_DEFAULT),
-                   required=False,
-                   help='parameters for zeo++')
-        spec.expose_inputs(ZeoppCalculation, namespace='zeopp', exclude=['parameters', 'structure'])
+        spec.expose_inputs(ZeoppCalculation, namespace='zeopp', exclude=['structure'])
+        spec.inputs['zeopp']['parameters'].default = lambda: NetworkParameters(dict=ZEOPP_PARAMETERS_DEFAULT)
+        spec.inputs['zeopp']['parameters'].required = False
+
         spec.expose_inputs(Cp2kMultistageDdecWorkChain, exclude=['structure'])
 
         spec.outline(cls.run_zeopp_before, cls.run_multistageddec, cls.run_zeopp_after, cls.return_results)
