@@ -66,11 +66,11 @@ class Cp2kBindingEnergyWorkChain(WorkChain):
                    valid_type=Str,
                    default=lambda: Str('standard'),
                    required=False,
-                   help='The tag of the protocol to be read from {tag}.yaml unless protocol_yaml input is specified')
+                   help='The tag of the protocol tag.yaml. NOTE: only the settings are read, stage is set to GEO_OPT.')
         spec.input('protocol_yaml',
                    valid_type=SinglefileData,
                    required=False,
-                   help='Specify a custom yaml file with the multistage settings (and ignore protocol_tag)')
+                   help='Specify a custom yaml file. NOTE: only the settings are read, stage is set to GEO_OPT.')
         spec.input('protocol_modify',
                    valid_type=Dict,
                    default=lambda: Dict(dict={}),

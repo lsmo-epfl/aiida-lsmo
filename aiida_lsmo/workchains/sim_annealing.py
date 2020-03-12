@@ -1,7 +1,8 @@
 """Isotherm workchain"""
 
 import os
-
+import ruamel.yaml as yaml
+import ase
 from aiida.plugins import CalculationFactory, DataFactory, WorkflowFactory
 from aiida.orm import Dict, Str
 from aiida.engine import calcfunction
@@ -35,7 +36,6 @@ PARAMETERS_DEFAULT = {
 @calcfunction
 def get_molecule_dict(molecule_name):
     """Get a Dict from the isotherm_molecules.yaml"""
-    import ruamel.yaml as yaml
     thisdir = os.path.dirname(os.path.abspath(__file__))
     yamlfile = os.path.join(thisdir, "isotherm_data", "isotherm_molecules.yaml")
     with open(yamlfile, 'r') as stream:
@@ -58,7 +58,6 @@ def get_ff_parameters(molecule_dict, isotparam):
 
 def load_yaml():
     """ Load the ff_data.yaml as a dict."""
-    import ruamel.yaml as yaml
     thisdir = os.path.dirname(os.path.abspath(__file__))
     yamlfullpath = os.path.join(thisdir, '..', 'calcfunctions', 'ff_data.yaml')
     with open(yamlfullpath, 'r') as stream:
@@ -68,8 +67,10 @@ def load_yaml():
 
 @calcfunction
 def get_molecule_from_restart_file(structure_cif, molecule_folderdata, input_dict, molecule_dict):
-    """Get a CifData file having the cell of the structure and the geometry of the loaded molecule."""
-    import ase
+    """Get a CifData file having the cell of the initial (unexpanded) structure and the geometry of the loaded molecule.
+    TODO: this is source of error if there are more than one molecule, and the cell has been expandes,
+    as you can not wrap them in the small cell.
+    """
 
     # Get number of guest molecules
     if "number_of_molecules" in input_dict.get_dict():
