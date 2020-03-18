@@ -1,0 +1,12 @@
+_cell_length_a: 6.719200
+_cell_length_b: 15.240200
+_cell_length_c: 15.240200
+_cell_length_alpha: 62.121200
+_cell_length_beta: 81.549000
+_cell_length_gamma: 98.451000
+_symmetry_space_group_name_Hall: P 1 found space group: 1
+_symmetry_space_group_name_H-M: P 1 found space group: 1
+space group found from symmetry elements: 1 (nr elements: 1)
+End reading cif-file
+Writing Crash-file!: 0
+Writing Crash-file!: 100
