@@ -4,11 +4,9 @@ initialise a test database and profile
 """
 import os
 import pytest
+from tests import DATA_DIR
 
 pytest_plugins = ['aiida.manage.tests.pytest_fixtures', 'aiida_testing.mock_code']  # pylint: disable=invalid-name
-
-THIS_DIR = os.path.dirname(os.path.abspath(__file__))
-DATA_DIR = os.path.join(THIS_DIR, 'tests', 'data')
 
 
 @pytest.fixture(scope='function', autouse=True)
