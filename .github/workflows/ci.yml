@@ -39,7 +39,7 @@ jobs:
         AIIDA_TEST_BACKEND: ${{ matrix.backend }}
         # show timings of tests
         PYTEST_ADDOPTS: "--durations=0"
-      run: py.test tests --cov aiida_lsmo --cov-append
+      run: py.test --cov=aiida_lsmo --cov-append tests
 
     - name: Upload coverage report
       if: github.repository == 'aiidateam/aiida-core'
