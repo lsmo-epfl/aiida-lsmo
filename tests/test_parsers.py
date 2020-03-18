@@ -6,17 +6,14 @@
 # For further information on the license, see the LICENSE.txt file.           #
 ###############################################################################
 """Test Cp2k output parsers."""
-from __future__ import absolute_import
 import os
-
 from aiida_lsmo.parsers.parser_functions import parse_cp2k_output_bsse
-
-CWD = os.path.dirname(os.path.realpath(__file__))
+from . import DATA_DIR
 
 
 def test_bsse_parser():
     """Testing BSSE parser."""
-    with open(os.path.join(CWD, 'outputs', 'BSSE_output_v5.1_.out')) as fobj:
+    with open(os.path.join(DATA_DIR, 'BSSE_output_v5.1_.out')) as fobj:
         res = parse_cp2k_output_bsse(fobj)
         assert res["exceeded_walltime"] is False
         assert res["energy_description_list"] == [
