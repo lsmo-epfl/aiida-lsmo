@@ -16,9 +16,7 @@ def clear_database_auto(clear_database):  # pylint: disable=unused-argument
 
 @pytest.fixture(scope='function')
 def cp2k_code(mock_code_factory):
-    """
-    Create mocked "cp2k" code
-    """
+    """Create mocked "cp2k" code."""
     return mock_code_factory(
         label='cp2k-7.1',
         data_dir_abspath=DATA_DIR,
@@ -29,9 +27,7 @@ def cp2k_code(mock_code_factory):
 
 @pytest.fixture(scope='function')
 def raspa_code(mock_code_factory):
-    """
-    Create mocked "raspa" code
-    """
+    """Create mocked "raspa" code."""
     return mock_code_factory(
         label='raspa-e968334',
         data_dir_abspath=DATA_DIR,
@@ -42,9 +38,7 @@ def raspa_code(mock_code_factory):
 
 @pytest.fixture(scope='function')
 def zeopp_code(mock_code_factory):
-    """
-    Create mocked "zeo++" code
-    """
+    """Create mocked "zeo++" code."""
     return mock_code_factory(
         label='zeopp-0.3',
         data_dir_abspath=DATA_DIR,
@@ -55,8 +49,7 @@ def zeopp_code(mock_code_factory):
 
 @pytest.fixture(scope='function')
 def mg_mof74_cifdata():
-    """CifData for Mg MOF74 CIF.
-    """
+    """CifData for Mg MOF74 CIF."""
     from aiida.orm import CifData  # pylint: disable=import-outside-toplevel
     with open(os.path.join(DATA_DIR, 'Mg_MOF_74.cif'), 'rb') as handle:
         cif = CifData(file=handle)

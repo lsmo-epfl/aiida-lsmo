@@ -20,8 +20,7 @@ NetworkParameters = DataFactory('zeopp.parameters')  # pylint: disable=invalid-n
 
 
 def test_isotherm_mg_mof74(raspa_code, zeopp_code, mg_mof74_cifdata):
-    """Test Isotherm workchain on MOF 74.
-    """
+    """Test Isotherm workchain on MOF 74."""
 
     builder = IsothermWorkChain.get_builder()
     builder.raspa_base.raspa.code = raspa_code
