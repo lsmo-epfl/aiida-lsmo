@@ -5,8 +5,6 @@
 The aiida-lsmo plugin for `AiiDA`_
 =====================================================
 
-``aiida-lsmo`` is available at http://github.com/yakutovicha/aiida-lsmo
-
 
 .. toctree::
    :maxdepth: 1

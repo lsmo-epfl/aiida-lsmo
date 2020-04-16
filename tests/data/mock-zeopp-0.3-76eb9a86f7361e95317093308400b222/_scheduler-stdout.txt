@@ -1,0 +1,73 @@
+Loading radii. 
+High accuracy requested (DEF (default) settings). 
+Selected accuracy setting: DEF
+Opening File: Mg_MOF_74.cif
+Radii analysis: the smallest atom r = 1.286 while the largest atoms r = 1.715.
+Starting Voronoi decomposition
+Box dimensions:
+  va=(6.719200 0 0)
+  vb=(-2.239754 15.074721 0)
+  vc=(2.239754 7.537363 13.055089)
+
+Total particles = 1494
+
+Internal grid size = (4 8 7)
+
+Using voro++ with radii for particles.
+Performing Voronoi decomposition.
+Volume check:
+  Total domain volume  = 1322.350790
+  Total Voronoi volume = 1322.350790
+Voronoi decomposition finished. Rerouting Voronoi network information.
+Finished rerouting information.
+Finished Voronoi decomposition
+Command 0  -r
+Command 1  -ha
+Command 2  -block
+Box dimensions:
+  va=(6.719200 0 0)
+  vb=(-2.239754 15.074721 0)
+  vc=(2.239754 7.537363 13.055089)
+
+Total particles = 1494
+
+Internal grid size = (4 8 7)
+
+Using voro++ with radii for particles.
+Performing Voronoi decomposition.
+Volume check:
+  Total domain volume  = 1322.350790
+  Total Voronoi volume = 1322.350790
+Voronoi decomposition finished. Rerouting Voronoi network information.
+Finished rerouting information.
+Voronoi network with 7702 nodes. 645 of them are accessible. 
+
+Finding channels and pockets in Dijkstra network of 7702 node(s). 645 are expected to compose pores.
+Analyzed and assigned 7702 nodes.
+Identified 1 channels and 0 pockets.
+645 nodes assigned to pores. 
+Command 3  -volpo
+Box dimensions:
+  va=(6.719200 0 0)
+  vb=(-2.239754 15.074721 0)
+  vc=(2.239754 7.537363 13.055089)
+
+Total particles = 1494
+
+Internal grid size = (4 8 7)
+
+Using voro++ with radii for particles.
+Performing Voronoi decomposition.
+Volume check:
+  Total domain volume  = 1322.350790
+  Total Voronoi volume = 1322.350790
+Voronoi decomposition finished. Rerouting Voronoi network information.
+Finished rerouting information.
+Voronoi network with 7702 nodes. 645 of them are accessible. 
+
+Finding channels and pockets in Dijkstra network of 7702 node(s). 645 are expected to compose pores.
+Analyzed and assigned 7702 nodes.
+Identified 1 channels and 0 pockets.
+645 nodes assigned to pores. 
+ProbeOccupiableLoopStart: atoms: 54 count: 332 count_inaxs: 0 count_inside: 668 count_narrow: 0
+ProbeOccupiableLoopEnd: atoms: 54 count: 582 count_inaxs: 0 count_inside: 349 count_narrow: 69

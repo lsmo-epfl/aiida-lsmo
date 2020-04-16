@@ -1,0 +1,4 @@
+include setup.json
+include aiida_lsmo/calcfunctions/*.yaml
+include aiida_lsmo/workchains/isotherm_data/*
+include aiida_lsmo/workchains/cp2k_multistage_protocols/*.yaml
