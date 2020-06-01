@@ -35,7 +35,28 @@ initial_magnetization:
   Ni: 2  # oxidation state +2 high spin
   Cu: 1  # oxidation state +2 high spin
   Zn: 0  # oxidation state +2
+  Ga: 0  # oxidation state +3
+  Ge: 0
+  As: 0
+  Se: 0
+  Br: 0
+  Sr: 0
+  Rb: 0
+  Y:  0
   Zr: 0  # oxidation state +4
+  Nb: 0  # oxidation state +5 (the most stable one)
+  Mo: 2  # oxidation state +4
+  Tc: 3  # oxidation state +4
+  Ru: 4  # oxidation state +4
+  Rh: 4  # oxidation state +3
+  Pd: 2  # oxidation state +2
+  Ag: 0  # oxidation state +1
+  Cd: 0  # oxidation state +2
+  In: 0  # oxidation state +3
+  Sn: 0  # oxidation state +4
+  Sb: 0
+  Te: 0
+  I:  0
 
 basis_set:
   H:  DZVP-MOLOPT-SR-GTH-q1
