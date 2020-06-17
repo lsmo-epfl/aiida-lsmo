@@ -7,9 +7,8 @@ from aiida.common import OutputParsingError, NotExistent
 from aiida.engine import ExitCode
 from aiida.orm import Dict, BandsData
 from aiida.plugins import ParserFactory
+from aiida_cp2k.parsers import Cp2kBaseParser
 from .parser_functions import parse_cp2k_output_bsse, parse_cp2k_output_advanced
-
-Cp2kBaseParser = ParserFactory('cp2k_base_parser')  # pylint: disable=invalid-name
 
 
 class Cp2kBsseParser(Cp2kBaseParser):  # pylint: disable=too-few-public-methods
