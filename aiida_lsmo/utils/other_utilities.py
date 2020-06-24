@@ -41,7 +41,7 @@ def ase_cells_are_similar(ase_a, ase_b, thr=2):
     This avoids to give error if two Cells are different at a nth decimal number, tipically because of some truncation.
     """
     comp_similar = []
-    for cell_a, cell_b in zip(ase_a.cell, ase_b.cell):
+    for cell_a, cell_b in zip(ase_a.cell.flat, ase_b.cell.flat):
         comp_similar.append(round(cell_a, thr) == round(cell_b, thr))
     return all(comp_similar)
 
@@ -52,7 +52,7 @@ def aiida_cif_merge(aiida_cif_a, aiida_cif_b):
 
     ase_a = aiida_cif_a.get_ase()
     ase_b = aiida_cif_b.get_ase()
-    if not ase_cells_are_similar(ase_a, ase_b.cell):
+    if not ase_cells_are_similar(ase_a, ase_b):
         raise ValueError('Attempting to merge two CifData (<{}> and <{}>) with different unit cells.'.format(
             aiida_cif_a.pk, aiida_cif_b.pk))
     ase_ab = ase.Atoms(  #Maybe there is a more direct way...
@@ -71,7 +71,7 @@ def aiida_structure_merge(aiida_structure_a, aiida_structure_b):
     """Merge the coordinates of two StructureData into a sigle one. Note: the two unit cells must be the same."""
     ase_a = aiida_structure_a.get_ase()
     ase_b = aiida_structure_b.get_ase()
-    if not ase_cells_are_similar(ase_a, ase_b.cell):
+    if not ase_cells_are_similar(ase_a, ase_b):
         raise ValueError('Attempting to merge two StructureData with different unit cells.')
     ase_ab = ase.Atoms(  #Maybe there is a more direct way...
         symbols=list(ase_a.symbols) + list(ase_b.symbols),
