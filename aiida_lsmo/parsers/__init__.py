@@ -3,96 +3,31 @@
 import io
 import os
 
-from aiida.parsers import Parser
 from aiida.common import OutputParsingError, NotExistent
 from aiida.engine import ExitCode
-from aiida.orm import Dict
+from aiida.orm import Dict, BandsData
+from aiida.plugins import ParserFactory
+from aiida_cp2k.parsers import Cp2kBaseParser
+from .parser_functions import parse_cp2k_output_bsse, parse_cp2k_output_advanced
 
 
-class Cp2kBaseParser(Parser):
-    """Basic AiiDA parser for the output of CP2K.
-    NOTE: copy of the parser in aiida_cp2k.parser, because the docs were failing when importing it from aiida_cp2k:
-    docstring of aiida_lsmo.parsers.Cp2kAdvancedParser:1:py:class
-    reference target not found: aiida_cp2k.parsers.Cp2kBaseParser
-    """
-
-    def parse(self, **kwargs):
-        """Receives in input a dictionary of retrieved nodes. Does all the logic here."""
-
-        try:
-            out_folder = self.retrieved
-        except NotExistent:
-            return self.exit_codes.ERROR_NO_RETRIEVED_FOLDER
-
-        self._parse_stdout(out_folder)
-
-        try:
-            structure = self._parse_trajectory(out_folder)
-            self.out('output_structure', structure)
-        except Exception:  # pylint: disable=broad-except
-            pass
-
-        return ExitCode(0)
-
-    def _parse_stdout(self, out_folder):
-        """Basic CP2K output file parser"""
-
-        from aiida_cp2k.utils import parse_cp2k_output
-
-        # pylint: disable=protected-access
-
-        fname = self.node.process_class._DEFAULT_OUTPUT_FILE
-        if fname not in out_folder._repository.list_object_names():
-            raise OutputParsingError("Cp2k output file not retrieved")
-
-        abs_fn = os.path.join(out_folder._repository._get_base_folder().abspath, fname)
-
-        with io.open(abs_fn, mode="r", encoding="utf-8") as fobj:
-            result_dict = parse_cp2k_output(fobj)
-
-        if 'nwarnings' not in result_dict:
-            raise OutputParsingError("CP2K did not finish properly.")
-
-        self.out("output_parameters", Dict(dict=result_dict))
-
-    def _parse_trajectory(self, out_folder):
-        """CP2K trajectory parser"""
-
-        from ase import Atoms
-        from aiida.orm import StructureData
-        from aiida_cp2k.utils import parse_cp2k_trajectory
-
-        # pylint: disable=protected-access
-        fname = self.node.process_class._DEFAULT_RESTART_FILE_NAME
-
-        if fname not in out_folder._repository.list_object_names():
-            raise Exception("parsing trajectory requested, but no trajectory file available")
-
-        # read restart file
-        abs_fn = os.path.join(out_folder._repository._get_base_folder().abspath, fname)
-        with io.open(abs_fn, mode="r", encoding="utf-8") as fobj:
-            atoms = Atoms(**parse_cp2k_trajectory(fobj))
-
-        return StructureData(ase=atoms)
-
-
-class Cp2kBsseParser(Cp2kBaseParser):
+class Cp2kBsseParser(Cp2kBaseParser):  # pylint: disable=too-few-public-methods
     """Advanced AiiDA parser class for a BSSE calculation in CP2K."""
 
-    def _parse_stdout(self, out_folder):
+    def _parse_stdout(self):
         """BSSE CP2K output file parser"""
 
-        from .parser_functions import parse_cp2k_output_bsse
+        fname = self.node.get_attribute('output_filename')
 
-        # pylint: disable=protected-access
+        if fname not in self.retrieved.list_object_names():
+            return self.exit_codes.ERROR_OUTPUT_STDOUT_MISSING
 
-        fname = self.node.process_class._DEFAULT_OUTPUT_FILE
-        if fname not in out_folder._repository.list_object_names():
-            raise OutputParsingError("Cp2k output file not retrieved")
+        try:
+            output_string = self.retrieved.get_object_content(fname)
+        except IOError:
+            return self.exit_codes.ERROR_OUTPUT_STDOUT_READ
 
-        abs_fn = os.path.join(out_folder._repository._get_base_folder().abspath, fname)
-        with io.open(abs_fn, mode="r", encoding="utf-8") as fobj:
-            result_dict = parse_cp2k_output_bsse(fobj)
+        result_dict = parse_cp2k_output_bsse(output_string)
 
         # nwarnings is the last thing to be printed in the CP2K output file:
         # if it is not there, CP2K didn't finish properly
@@ -100,26 +35,26 @@ class Cp2kBsseParser(Cp2kBaseParser):
             raise OutputParsingError("CP2K did not finish properly.")
 
         self.out("output_parameters", Dict(dict=result_dict))
+        return None
 
 
-class Cp2kAdvancedParser(Cp2kBaseParser):
+class Cp2kAdvancedParser(Cp2kBaseParser):  # pylint: disable=too-few-public-methods
     """Advanced AiiDA parser class for the output of CP2K."""
 
-    def _parse_stdout(self, out_folder):
+    def _parse_stdout(self):
         """Advanced CP2K output file parser"""
 
-        from aiida.orm import BandsData
-        from .parser_functions import parse_cp2k_output_advanced
+        fname = self.node.get_attribute('output_filename')
 
-        # pylint: disable=protected-access
+        if fname not in self.retrieved.list_object_names():
+            return self.exit_codes.ERROR_OUTPUT_STDOUT_MISSING
 
-        fname = self.node.process_class._DEFAULT_OUTPUT_FILE
-        if fname not in out_folder._repository.list_object_names():
-            raise OutputParsingError("Cp2k output file not retrieved")
+        try:
+            output_string = self.retrieved.get_object_content(fname)
+        except IOError:
+            return self.exit_codes.ERROR_OUTPUT_STDOUT_READ
 
-        abs_fn = os.path.join(out_folder._repository._get_base_folder().abspath, fname)
-        with io.open(abs_fn, mode="r", encoding="utf-8") as fobj:
-            result_dict = parse_cp2k_output_advanced(fobj)
+        result_dict = parse_cp2k_output_advanced(output_string)
 
         # nwarnings is the last thing to be printed in th eCP2K output file:
         # if it is not there, CP2K didn't finish properly
@@ -157,3 +92,4 @@ class Cp2kAdvancedParser(Cp2kBaseParser):
             del result_dict["kpoint_data"]
 
         self.out("output_parameters", Dict(dict=result_dict))
+        return None

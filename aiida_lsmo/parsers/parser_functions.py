@@ -5,11 +5,11 @@ import re
 from aiida_cp2k.utils.parser import _parse_bands
 
 
-def parse_cp2k_output_bsse(fobj):
+def parse_cp2k_output_bsse(fstring):
     """Parse CP2K BSSE output into a dictionary (tested with PRINT_LEVEL MEDIUM)."""
     from aiida_lsmo.utils import HARTREE2KJMOL
 
-    lines = fobj.readlines()
+    lines = fstring.splitlines()
 
     result_dict = {
         "exceeded_walltime": False,
@@ -52,9 +52,9 @@ def parse_cp2k_output_bsse(fobj):
     return result_dict
 
 
-def parse_cp2k_output_advanced(fobj):  # pylint: disable=too-many-locals, too-many-statements, too-many-branches
+def parse_cp2k_output_advanced(fstring):  # pylint: disable=too-many-locals, too-many-statements, too-many-branches
     """Parse CP2K output into a dictionary (ADVANCED: more info parsed @ PRINT_LEVEL MEDIUM)"""
-    lines = fobj.readlines()
+    lines = fstring.splitlines()
 
     result_dict = {"exceeded_walltime": False}
     result_dict['warnings'] = []
