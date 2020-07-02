@@ -895,6 +895,53 @@ SO2:
        -  [O_so2, 0, -1.250, 0.731]
        -  [M_so2, 0, 0, -0.689]
 
+MeOH:
+  critical_constants:
+    tc: 512.64
+    pc: 8097000
+    af: 0.564
+  TraPPE:
+    description:
+      Parametrized in 10.1021/jp003882x.
+      Used with DREIDING by Vlugt et al. (10.1021/acsami.8b09343) to screen MOFs for adsorption-driven chillers
+    atom_types:
+      CH3_alc:
+        force_field: [lennard-jones, 98, 3.75]
+        pseudo_atom: [yes, C, C, 0, 15.000, 0.265, 0.0, 1.0, 1.0, 0, 0, relative, 0]
+      O_alc:
+        force_field: [lennard-jones, 93, 3.02]
+        pseudo_atom: [yes, O, O, 0, 15.999, -0.7, 0.0, 1.0, 1.0, 0, 0, relative, 0]        
+      H_alc:
+        force_field: [zero-potential]
+        pseudo_atom: [yes, H, H, 0, 1.008, 0.435, 0.0, 1.0, 1.0, 0, 0, relative, 0]       
+    atomic_positions:
+      flexible
+
+EtOH:
+  critical_constants:
+    tc: 513.92
+    pc: 61.48
+    af: 0.645
+  TraPPE:
+    description:
+      Parametrized in 10.1021/jp003882x.
+      Used with DREIDING by Vlugt et al. (10.1021/acsami.8b09343) to screen MOFs for adsorption-driven chillers
+    atom_types:
+      CH3_alc2:
+        force_field: [lennard-jones, 98, 3.75]
+        pseudo_atom: [yes, C, C, 0, 15.000, 0.000, 0.0, 1.0, 1.0, 0, 0, relative, 0]
+      CH2_alc:
+        force_field: [lennard-jones, 46, 3.95]
+        pseudo_atom: [yes, C, C, 0, 15.000, 0.265, 0.0, 1.0, 1.0, 0, 0, relative, 0]
+      O_alc:
+        force_field: [lennard-jones, 93, 3.02]
+        pseudo_atom: [yes, O, O, 0, 15.999, -0.7, 0.0, 1.0, 1.0, 0, 0, relative, 0]        
+      H_alc:
+        force_field: [zero-potential]
+        pseudo_atom: [yes, H, H, 0, 1.008, 0.435, 0.0, 1.0, 1.0, 0, 0, relative, 0]     
+    atomic_positions:
+      flexible      
+
 # Noble gasses (in order of atomic number)
 He:
   critical_constants:
