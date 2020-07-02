@@ -370,6 +370,10 @@ class IsothermWorkChain(WorkChain):
             param["GeneralSettings"].update({"ChargeMethod": "Ewald", "EwaldPrecision": 1e-6})
         else:
             param["GeneralSettings"].update({"ChargeMethod": "None"})
+
+        if 'rosenbluth' in self.ctx.molecule.keys():  # flexible molecule which need a correction for the chem pot
+            param["Component"][self.ctx.molecule['name']]['IdealGasRosenbluthWeight'] = self.ctx.molecule['rosenbluth']
+
         return param
 
     def run_raspa_widom(self):
@@ -431,6 +435,10 @@ class IsothermWorkChain(WorkChain):
         # Check particular conditions
         if not self.ctx.molecule['singlebead']:
             param["Component"][self.ctx.molecule['name']].update({"RotationProbability": 1.0})
+
+        if 'rosenbluth' in self.ctx.molecule.keys():  # Flexible molecule needs ConfigurationalBias move
+            param["Component"][self.ctx.molecule['name']].update({"CBMCProbability": 1.0})
+
         return param
 
     def init_raspa_gcmc(self):

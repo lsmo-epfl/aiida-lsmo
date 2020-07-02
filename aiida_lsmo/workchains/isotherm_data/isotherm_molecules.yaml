@@ -128,6 +128,7 @@ meoh:
   proberad: 1.875 # sigma CH3/2
   singlebead: False
   charged: True
+  rosenbluth: 1.00984 # @300K, for testing purpose
 
 etoh:
   name: EtOH
@@ -136,3 +137,4 @@ etoh:
   proberad: 1.975 # sigma CH2/2
   singlebead: False
   charged: True
+  rosenbluth: 0.363384 # @300K, for testing purpose
