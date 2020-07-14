@@ -138,3 +138,4 @@ etoh:
   singlebead: False
   charged: True
   rosenbluth: 0.363384 # @300K, for testing purpose
+  pressure_zero: 0.217 #@300K exp (bar)
