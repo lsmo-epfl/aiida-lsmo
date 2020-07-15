@@ -33,7 +33,6 @@ ISOTHERMPARAMETERS_DEFAULT = {  #TODO: create IsothermParameters instead of Dict
     "temperature": 300,  # (float) Temperature of the simulation.
     "zeopp_volpo_samples": int(1e5),  # (int) Number of samples for VOLPO calculation (per UC volume).
     "zeopp_block_samples": int(100),  # (int) Number of samples for BLOCK calculation (per A^3).
-    "raspa_minKh": 1e-10,  # (float) If Henry coefficient < raspa_minKh do not run the isotherm (mol/kg/Pa).
     "raspa_verbosity": 10,  # (int) Print stats every: number of cycles / raspa_verbosity.
     "raspa_widom_cycles": int(1e5),  # (int) Number of Widom cycles.
     "raspa_gcmc_init_cycles": int(1e3),  # (int) Number of GCMC initialization cycles.
@@ -102,8 +101,8 @@ def get_pressure_points(molecule_dict, isotparam):
     if isotparam['pressure_list']:
         pressure_points = [x * molecule_dict["pressure_zero"] for x in isotparam["pressure_list"]]
     else:  # pressure_list==None
-        exp_min = np.log10(isotparam["pressure_min"])
-        exp_max = np.log10(isotparam["pressure_max"])
+        exp_min = np.log10(isotparam["pressure_min"] * molecule_dict["pressure_zero"])
+        exp_max = np.log10(isotparam["pressure_max"] * molecule_dict["pressure_zero"])
         exp_list = np.linspace(exp_min, exp_max, isotparam["pressure_num"])
         pressure_points = [10**x for x in exp_list]
     return List(list=pressure_points)
