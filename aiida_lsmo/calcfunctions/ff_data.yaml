@@ -12,6 +12,10 @@
 # NOTE3: all the dummy beads are called M so that they are easy to recognize and exclude.
 
 framework:
+  NONE:
+    description:
+      No extra atom types. Aimed for molecular simulations without frameworks
+    atom_types: {}
   UFF:
     description:
       UFF dispersion parameters as reported in Rappe1992 (10.1021/ja00051a040)
