@@ -23,5 +23,9 @@ flexible
 # Torsion n1-n2-n3-n4 type
 0 1 2 3 TRAPPE_DIHEDRAL      0.0   209.82  -29.17   187.93
 # Number of config moves
-0
-
+2
+# Number of fixed beads, list of beads
+2 0 1
+2 2 3
+3 0 1 2
+3 1 2 3
