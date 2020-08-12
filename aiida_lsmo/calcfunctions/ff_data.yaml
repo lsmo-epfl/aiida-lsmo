@@ -916,7 +916,7 @@ MeOH:
         force_field: [lennard-jones, 93, 3.02]
         pseudo_atom: [yes, O, O, 0, 15.999, -0.7, 0.0, 1.0, 1.0, 0, 0, relative, 0]        
       H_alc:
-        force_field: [zero-potential]
+        force_field: [none]
         pseudo_atom: [yes, H, H, 0, 1.008, 0.435, 0.0, 1.0, 1.0, 0, 0, relative, 0]       
     atomic_positions:
       flexible
@@ -941,7 +941,7 @@ EtOH:
         force_field: [lennard-jones, 93, 3.02]
         pseudo_atom: [yes, O, O, 0, 15.999, -0.7, 0.0, 1.0, 1.0, 0, 0, relative, 0]        
       H_alc:
-        force_field: [zero-potential]
+        force_field: [none]
         pseudo_atom: [yes, H, H, 0, 1.008, 0.435, 0.0, 1.0, 1.0, 0, 0, relative, 0]     
     atomic_positions:
       flexible      
