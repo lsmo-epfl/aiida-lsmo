@@ -1,6 +1,6 @@
 {
     "name": "aiida-lsmo",
-    "version": "1.0.0b2",
+    "version": "1.0.0",
     "author": "Aliaksandr Yakutovich, Daniele Ongari, Leopold Talirz",
     "author_email": "aliaksandr.yakutovich@epfl.ch",
     "description": "AiiDA workflows for the LSMO laboratory at EPFL",
@@ -13,7 +13,7 @@
     "include_package_data": true,
     "install_requires": [
         "aiida-core >= 1.0.0",
-        "aiida-cp2k >= 1.0.0b6",
+        "aiida-cp2k >= 1.1.0",
         "aiida-ddec >= 1.0.0a1",
         "aiida-zeopp >= 1.0.3",
         "aiida-raspa >= 1.1.0",
