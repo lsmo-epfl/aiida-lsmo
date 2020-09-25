@@ -9,12 +9,11 @@ import os
 import click
 
 from aiida.engine import run
-from aiida.plugins import DataFactory  #WorkflowFactory
+from aiida.plugins import DataFactory, WorkflowFactory
 from aiida.orm import Code, Dict
-from aiida_lsmo.workchains import AdsorptionWorkChain
 
 # Workchain objects
-#IsothermMultiCompWorkChain = WorkflowFactory('lsmo.isotherm_multi_comp')  # pylint: disable=invalid-name
+AdsorptionWorkChain = WorkflowFactory('lsmo.adsorption')  # pylint: disable=invalid-name
 
 # Data objects
 CifData = DataFactory('cif')  # pylint: disable=invalid-name
@@ -47,33 +46,30 @@ def main(raspa_code_label, zeopp_code_label):
     builder.raspa_base.raspa.metadata.options = options
     builder.zeopp.metadata.options = options
     builder.structure = CifData(file=os.path.abspath('data/HKUST-1.cif'), label="HKUST-1")
-    builder.mixture = Dict(dict={
-        'comp1': {
-            'name': 'xenon',
-            'molfraction': 0.2
-        },
-        'comp2': {
-            'name': 'krypton',
-            'molfraction': 0.8
-        }
-    })
+    builder.conditions = Dict(
+        dict={
+            'adsorption': {
+                'temperature': 298,  #K
+                'pressure': 1,  #bar
+                'molfraction': {
+                    'xenon': 0.2,
+                    'krypton': 0.8
+                }
+            },
+            'desorption': {
+                'temperature': 308,
+                'pressure': 0.1,
+                'molfraction': 'adsorption',  #use composition in the material at adsorption
+            },
+        })
 
     builder.parameters = Dict(
         dict={
-            'forcefield': 'UFF',  # Default: UFF
-            'temperature': 298,  # (K) Note: higher temperature will have less adsorbate and it is faster
-            'zeopp_volpo_samples': 10,  # Default: 1e5 *NOTE: default is good for standard real-case!
-            'zeopp_sa_samples': 10,  # Default: 1e5 *NOTE: default is good for standard real-case!
+            'zeopp_volpo_samples': 100,  # Default: 1e5 *NOTE: default is good for standard real-case!
             'zeopp_block_samples': 10,  # Default: 100
             'raspa_widom_cycles': 100,  # Default: 1e5
             'raspa_gcmc_init_cycles': 100,  # Default: 1e3
             'raspa_gcmc_prod_cycles': 100,  # Default: 1e4
-            'pressure_list': [
-                1.0, 2.0
-            ],  # Comment this line and uncomment the following three to have linear range of pressure points.
-            # "pressure_precision": 0.5,
-            # "pressure_min": 0.1,
-            # "pressure_max": 2.0
         })
 
     run(builder)

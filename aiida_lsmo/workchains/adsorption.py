@@ -3,9 +3,9 @@ import os
 
 # AiiDA modules
 from aiida.plugins import CalculationFactory, DataFactory, WorkflowFactory
-from aiida.orm import Dict, List, SinglefileData
+from aiida.orm import Dict, SinglefileData
 from aiida.engine import calcfunction
-from aiida.engine import ToContext, WorkChain, append_, if_, while_
+from aiida.engine import ToContext, WorkChain, append_, if_
 # import aiida_lsmo.calcfunctions.ff_builder_module as FFBuilder
 from aiida_lsmo.utils import aiida_dict_merge, check_resize_unit_cell
 
@@ -27,7 +27,6 @@ ISOTHERMPARAMETERS_DEFAULT = Dict(
         "ff_mixing_rule": 'Lorentz-Berthelot',  # str, Mixing rule for the forcefield
         "ff_separate_interactions": False,  # bool, if true use only ff_framework for framework-molecule interactions
         "ff_cutoff": 12.0,  # float, CutOff truncation for the VdW interactions (Angstrom)
-        "temperature": 300,  # float, Temperature of the simulation
         "zeopp_volpo_samples": int(1e5),  # int, Number of samples for VOLPO calculation (per UC volume)
         "zeopp_sa_samples": int(1e5),  # int, Number of samples for VOLPO calculation (per UC volume)
         "zeopp_block_samples": int(100),  # int, Number of samples for BLOCK calculation (per A^3)
@@ -37,14 +36,13 @@ ISOTHERMPARAMETERS_DEFAULT = Dict(
         "raspa_gcmc_prod_cycles": int(1e4),  # int, Number of GCMC production cycles
         "lcd_max": 15.0,  # Maximum allowed LCD.
         "pld_scale": 1.0,  # Scaling factor for minimum allowed PLD.
-        "pressure_list": None,  # list, Pressure list for the isotherm (bar): if given it will skip  guess
         "ideal_selectivity_threshold": 1.0,  #mandatory if protocol is relative.
         "run_gcmc_protocol": 'always',  # always, loose, and tight!
     })
 
 
 @calcfunction
-def get_components_dict(mixture, isotparams):
+def get_components_dict(conditions, parameters):
     """Construct components dict"""
     import ruamel.yaml as yaml
     components_dict = {}
@@ -52,16 +50,14 @@ def get_components_dict(mixture, isotparams):
     yamlfile = os.path.join(thisdir, "isotherm_data", "isotherm_molecules.yaml")
     with open(yamlfile, 'r') as stream:
         yaml_dict = yaml.safe_load(stream)
-    for key, value in mixture.get_dict().items():
-        components_dict[key] = yaml_dict[value['name']]
-        components_dict[key]['molfraction'] = value['molfraction']
+    for key, value in conditions.get_dict()['adsorption']['molfraction'].items():
+        components_dict[key] = yaml_dict[key]
+        components_dict[key]['molfraction'] = value
         probe_rad = components_dict[key]['proberad']
         components_dict[key]['zeopp'] = {
             'ha': 'DEF',
-            'res': True,
-            'sa': [probe_rad, probe_rad, isotparams['zeopp_sa_samples']],
-            'volpo': [probe_rad, probe_rad, isotparams['zeopp_volpo_samples']],
-            'block': [probe_rad, isotparams['zeopp_block_samples']],
+            'volpo': [probe_rad, probe_rad, parameters['zeopp_volpo_samples']],
+            'block': [probe_rad, parameters['zeopp_block_samples']],
         }
     return Dict(dict=components_dict)
 
@@ -70,7 +66,7 @@ def get_components_dict(mixture, isotparams):
 def get_ff_parameters(components, isotparams):
     """Get the parameters for ff_builder."""
     ff_params = {
-        'ff_framework': isotparams['forcefield'],
+        'ff_framework': isotparams['ff_framework'],
         'ff_molecules': {},
         'shifted': isotparams['ff_shifted'],
         'tail_corrections': isotparams['ff_tail_corrections'],
@@ -94,128 +90,92 @@ def get_atomic_radii(isotparam):
     return SinglefileData(file=filepath)
 
 
-# TODO: Make it multi-component compatible for experimenting the protocol for choosing pressure. #pylint: disable=fixme
 @calcfunction
 def get_geometric_output(zeopp_out):
-    """Return the geometric_output Dict from Zeopp results, including Qsat and is_porous"""
+    """Return the geometric_output Dict from Zeopp results, including is_porous"""
     geometric_output = zeopp_out.get_dict()
     geometric_output.update({'is_porous': geometric_output["POAV_A^3"] > 0.000})
     return Dict(dict=geometric_output)
 
 
-@calcfunction
-def choose_pressure_points(isotparam):
-    """If 'presure_list' is not provide, model the isotherm as single-site langmuir and return the most important
-    pressure points to evaluate for an isotherm, in a List.
-    """
-    if isotparam["pressure_list"]:
-        pressure_points = isotparam["pressure_list"]
-    else:
-        # Simply create a linear range of pressure points.
-        # TODO: Make it possible to guess but needs benchmarking. #pylint: disable=fixme
-        pressure_points = [isotparam['pressure_min']]
-        delta_p = isotparam['pressure_precision']
-        while True:
-            pold = pressure_points[-1]
-            pnew = pold + delta_p
-            if pnew <= isotparam['pressure_max']:
-                pressure_points.append(pnew)
-            else:
-                pressure_points.append(isotparam['pressure_max'])
-                break
-    return List(list=pressure_points)
-
-
 #pylint: disable = too-many-branches
 @calcfunction
-def get_output_parameters(inp_params, pressures=None, components=None, **all_out_dict):
+def get_output_parameters(inp_conditions, components=None, **all_out_dict):
     """ Extract Widom and GCMC results to isotherm Dict """
     out_dict = {}
-    out_dict['geometric_output'] = {}
+
+    # Add geometric results from Zeo++
+    out_dict['geometric'] = {}
 
     for key in all_out_dict:
         if key.startswith('zeopp'):
             comp = key.split('_')[1]
-            out_dict['geometric_output'][comp] = all_out_dict[key].get_dict()
+            for key1, val in all_out_dict[key].get_dict().items():
+                if key1 not in out_dict['geometric']:
+                    out_dict['geometric'][key1] = {}
+                out_dict['geometric'][key1][comp] = val
 
-    if components is not None:  #At least we have the widom!
+    # Add Widom results
+    out_dict['widom'] = {
+        'temperature': inp_conditions['adsorption']['temperature'],
+        'temperature_unit': 'K',
+        'henry_coefficient_unit': 'mol/kg/Pa',
+        'adsorption_energy_widom_unit': 'kJ/mol',
+    }
 
-        out_dict.update({
-            'temperature': inp_params['temperature'],
-            'temperature_unit': 'K',
-            'henry_coefficient_unit': 'mol/kg/Pa',
-            'adsorption_energy_widom_unit': 'kJ/mol',
-        })
+    widom_labels = [
+        'henry_coefficient_average',
+        'henry_coefficient_dev',
+        'adsorption_energy_widom_average',
+        'adsorption_energy_widom_dev',
+    ]
 
-        widom_labels = [
-            'henry_coefficient_average',
-            'henry_coefficient_dev',
-            'adsorption_energy_widom_average',
-            'adsorption_energy_widom_dev',
-        ]
-
+    for value in components.get_dict().values():
+        comp = value['name']
+        widom_label = "widom_{}".format(comp)
+        output_widom = all_out_dict[widom_label].get_dict()
         for label in widom_labels:
-            out_dict[label] = {}
+            if label not in out_dict['widom']:
+                out_dict['widom'][label] = {}
+            out_dict['widom'][label][comp] = output_widom['framework_1']['components'][comp][label]
 
-        for value in components.get_dict().values():
-            comp = value['name']
-            widom_label = "widom_{}".format(comp)
-            output_widom = all_out_dict[widom_label].get_dict()
-            for label in widom_labels:
-                out_dict[label][comp] = output_widom['framework_1']['components'][comp][label]
+    # Add GCMC results from adsorption and desorption if computed
+    #out_dict['gcmc_computed'] = False
+    #if len(all_out_dict) > 2*len(components.get_dict()): #we also have the GCMC!
+    out_dict['gcmc_computed'] = True
 
-    if pressures is not None:  #we also have the GCMC!
-        isotherm = {}
-        multi_comp_isotherm_labels = [
-            'loading_absolute_average',
-            'loading_absolute_dev',
-            'enthalpy_of_adsorption_average',
-            'enthalpy_of_adsorption_dev',
-        ]
-        general_labels = [
-            'mol_fraction', "conversion_factor_molec_uc_to_cm3stp_cm3", "conversion_factor_molec_uc_to_mg_g",
-            "conversion_factor_molec_uc_to_mol_kg"
-        ]
-        out_dict.update({
-            'pressure': pressures,
+    conv_ener = 1.0 / 120.273  # K to kJ/mol
+    for adsdes in ['adsorption', 'desorption']:
+        adsdes_dict = {
+            'pressure_partial': {},
             'pressure_unit': 'bar',
             'loading_absolute_unit': 'mol/kg',
-            'enthalpy_of_adsorption_unit': 'kJ/mol'
-        })
-        for label in multi_comp_isotherm_labels:
-            isotherm[label] = {}
-        for label in general_labels:
-            out_dict[label] = {}
-
-        conv_ener = 1.0 / 120.273  # K to kJ/mol
-        for i in range(len(pressures)):
-            gcmc_out = all_out_dict['RaspaGCMC_{}'.format(i + 1)]["framework_1"]
-            for value in components.get_dict().values():
-                comp = value['name']
-                conv_load = gcmc_out['components'][comp]["conversion_factor_molec_uc_to_mol_kg"]
-                for label in ['loading_absolute_average', 'loading_absolute_dev']:
-                    if i == 0:
-                        isotherm[label][comp] = []
-                    isotherm[label][comp].append(conv_load * gcmc_out['components'][comp][label])
-
-                for label in ['enthalpy_of_adsorption_average', 'enthalpy_of_adsorption_dev']:
-                    if i == 0:
-                        isotherm[label][comp] = []
-                    isotherm[label][comp].append(conv_ener * gcmc_out['components'][comp][label])
-
-                for label in general_labels:
-                    out_dict[label][comp] = gcmc_out['components'][comp][label]
-
-        out_dict.update({
-            "isotherm": isotherm,
-        })
+            'enthalpy_of_adsorption_unit': 'kJ/mol',
+            'temperature_unit': 'K',
+            'temperature': inp_conditions[adsdes]['temperature'],
+        }
+        gcmc_out = all_out_dict['RaspaGCMC_{}'.format(adsdes)]["framework_1"]
+        for value in components.get_dict().values():
+            comp = value['name']
+            conv_load = gcmc_out['components'][comp]["conversion_factor_molec_uc_to_mol_kg"]
+            adsdes_dict['pressure_partial'][comp] = gcmc_out['components'][comp]['partial_pressure'] / 1e5
+            for label in ['loading_absolute_average', 'loading_absolute_dev']:
+                if label not in adsdes_dict:
+                    adsdes_dict[label] = {}
+                adsdes_dict[label][comp] = conv_load * gcmc_out['components'][comp][label]
+            for label in ['enthalpy_of_adsorption_average', 'enthalpy_of_adsorption_dev']:
+                if label not in adsdes_dict:
+                    adsdes_dict[label] = {}
+                adsdes_dict[label][comp] = conv_ener * gcmc_out['components'][comp][label]
+        adsdes_dict['pressure'] = sum(list(adsdes_dict['pressure_partial'].values()))
+        out_dict[adsdes] = adsdes_dict
 
     return Dict(dict=out_dict)
 
 
 class AdsorptionWorkChain(WorkChain):
-    """General purpose work chain to compute Adsorption in crystalline materials, for a mixture of componentes
-    and at specific temperature/pressure conditions.
+    """Compute Adsorption/Desorption in crystalline materials,
+    for a mixture of componentes and at specific temperature/pressure conditions.
     """
 
     @classmethod
@@ -225,7 +185,7 @@ class AdsorptionWorkChain(WorkChain):
         spec.expose_inputs(ZeoppCalculation, namespace='zeopp', include=['code', 'metadata'])
         spec.expose_inputs(RaspaBaseWorkChain, namespace='raspa_base', exclude=['raspa.structure', 'raspa.parameters'])
         spec.input('structure', valid_type=CifData, help='Adsorbent framework CIF.')
-        spec.input("mixture",
+        spec.input("conditions",
                    valid_type=Dict,
                    help='A dictionary of components with their corresponding mol fractions in the mixture.')
         spec.input("parameters",
@@ -235,13 +195,11 @@ class AdsorptionWorkChain(WorkChain):
             cls.setup,
             cls.run_zeopp,
             cls.inspect_zeopp_calc,
-            if_(cls.should_run_widom)(
-                cls.run_raspa_widom,
-                cls.inspect_widom_calc,
-                if_(cls.should_run_gcmc)(
-                    cls.init_raspa_gcmc,
-                    while_(cls.should_run_another_gcmc)(cls.run_raspa_gcmc),
-                ),
+            cls.run_raspa_widom,
+            cls.inspect_widom_calc,
+            if_(cls.should_run_gcmc)(
+                cls.run_raspa_gcmc,  #adsorption
+                cls.run_raspa_gcmc,  #desorpion
             ),
             cls.return_output_parameters,
         )
@@ -260,18 +218,16 @@ class AdsorptionWorkChain(WorkChain):
     def setup(self):
         """Initialize parameters"""
         self.ctx.parameters = aiida_dict_merge(ISOTHERMPARAMETERS_DEFAULT, self.inputs.parameters)
-        self.ctx.components = get_components_dict(self.inputs.mixture, self.ctx.parameters)
+        self.ctx.components = get_components_dict(self.inputs.conditions, self.ctx.parameters)
         self.ctx.ff_params = get_ff_parameters(self.ctx.components, self.ctx.parameters)
-        self.ctx.temperature = int(round(self.ctx.parameters['temperature']))
 
     def run_zeopp(self):
         """It performs the full zeopp calculation for all components."""
         zeopp_inputs = self.exposed_inputs(ZeoppCalculation, 'zeopp')
         zeopp_inputs.update({
             'metadata': {
-                'label': "ZeoppResSaVolpoBlock",
+                'label': "ZeoppVolpoBlock",
                 'call_link_label': 'run_zeopp',
-                'description': 'Called by IsothermMultiCompWorkChain',
             },
             'structure': self.inputs.structure,
             'atomic_radii': get_atomic_radii(self.ctx.parameters)
@@ -281,39 +237,29 @@ class AdsorptionWorkChain(WorkChain):
             zeopp_inputs.update({'parameters': ZeoppParameters(dict=self.ctx.components[key]['zeopp'])})
             running = self.submit(ZeoppCalculation, **zeopp_inputs)
             zeopp_label = "zeopp_{}".format(comp)
-            self.report("Running zeo++ res, sa, volpo, and block calculation<{}>".format(running.id))
+            self.report("Running zeo++ volpo and block calculation<{}>".format(running.id))
             self.to_context(**{zeopp_label: running})
 
     def inspect_zeopp_calc(self):
-        """Asserts whether all widom calculations are finished ok."""
+        """Asserts whether all widom calculations are finished ok.
+        If so, manage zeopp results.
+        NOTE: in this workchain I'm NOT skipping any calculation if the POAV for a component is null.
+        """
         for value in self.ctx.components.get_dict().values():
             assert self.ctx["zeopp_{}".format(value['name'])].is_finished_ok
 
-    def should_run_widom(self):
-        """Decided whether to run Henry coefficient calculation or not!"""
-        self.ctx.should_run_widom = []
         self.ctx.geom = {}
-        lcd_lim = self.ctx.parameters["lcd_max"]
         for value in self.ctx.components.get_dict().values():
             comp = value['name']
             zeopp_label = "zeopp_{}".format(comp)
-            pld_lim = value["proberad"] * self.ctx.parameters["pld_scale"]
             self.ctx.geom[comp] = get_geometric_output(self.ctx[zeopp_label].outputs.output_parameters)
-            pld_component = self.ctx.geom[comp]["Largest_free_sphere"]
-            lcd_component = self.ctx.geom[comp]["Largest_included_sphere"]
-            poav_component = self.ctx.geom[comp]["POAV_A^3"]
-            if (lcd_component <= lcd_lim) and (pld_component >= pld_lim) and (poav_component > 0.0):
-                self.report("Found {} blocking spheres".format(self.ctx.geom[comp]['Number_of_blocking_spheres']))
+            if self.ctx.geom[comp]["POAV_A^3"] > 0.0:
+                self.report("{} can permeate, {} blocking spheres".format(
+                    comp, self.ctx.geom[comp]['Number_of_blocking_spheres']))
                 if self.ctx.geom[comp]['Number_of_blocking_spheres'] > 0:
                     self.out("block_files.{}_block_file".format(comp), self.ctx[zeopp_label].outputs.block)
-                self.ctx.should_run_widom.append(True)
             else:
-                self.ctx.should_run_widom.append(False)
-        if all(self.ctx.should_run_widom):
-            self.report("ALL pre-selection conditions are satisfied: Calculate Henry coefficients")
-        else:
-            self.report("All/Some of pre-selection criteria are NOT met: terminate!")
-        return all(self.ctx.should_run_widom)
+                self.report("{} can NOT permeate".format(comp))
 
     def _get_widom_param(self):
         """Write Raspa input parameters from scratch, for a Widom calculation"""
@@ -342,7 +288,7 @@ class AdsorptionWorkChain(WorkChain):
                 "framework_1": {
                     "type": "Framework",
                     # "HeliumVoidFraction": self.ctx.geom["POAV_Volume_fraction"],
-                    "ExternalTemperature": self.ctx.parameters['temperature'],
+                    "ExternalTemperature": self.inputs.conditions['adsorption']['temperature'],
                 }
             },
             "Component": {},
@@ -352,7 +298,7 @@ class AdsorptionWorkChain(WorkChain):
         return param
 
     def run_raspa_widom(self):
-        """Run parallel Widom calculation in RASPA."""
+        """Run parallel Widom calculation in RASPA, at "adsorption" temperature."""
         self.ctx.raspa_inputs = self.exposed_inputs(RaspaBaseWorkChain, 'raspa_base')
         self.ctx.raspa_inputs['metadata']['label'] = "RaspaWidom"
         self.ctx.raspa_inputs['metadata']['description'] = "Called by IsothermMultiCompWorkChain"
@@ -361,6 +307,8 @@ class AdsorptionWorkChain(WorkChain):
 
         for value in self.ctx.components.get_dict().values():
             comp = value['name']
+            if not self.ctx.geom[comp]['is_porous']:  #skip widom if not permeable to that component
+                continue
             zeopp_label = "zeopp_{}".format(comp)
             self.ctx.raspa_inputs['metadata']['call_link_label'] = "run_raspa_widom_" + comp
             self.ctx.raspa_param = self._get_widom_param()
@@ -383,19 +331,22 @@ class AdsorptionWorkChain(WorkChain):
             running = self.submit(RaspaBaseWorkChain, **self.ctx.raspa_inputs)
             widom_label = "widom_{}".format(comp)
             self.report("Running Raspa Widom @ {}K for the Henry coefficient of <{}>".format(
-                self.ctx.temperature, comp))
+                self.inputs.conditions['adsorption']['temperature'], comp))
             self.to_context(**{widom_label: running})
 
     def inspect_widom_calc(self):
         """Asserts whether all widom calculations are finished ok."""
         for value in self.ctx.components.get_dict().values():
-            assert self.ctx["widom_{}".format(value['name'])].is_finished_ok
+            comp = value['name']
+            if self.ctx.geom[comp]['is_porous']:
+                assert self.ctx["widom_{}".format(value['name'])].is_finished_ok
 
     def should_run_gcmc(self):
         """Based on user-defined protocol, decides to run the GCMC calculation or not
         always: it skips the check!
         loose: it only checkes comp1 against comp2.
         tight: it checkes comp1 against all other componenets.
+        TODO: decide the action to take in case of one component can not permeate.
         """
         self.ctx.should_run_gcmc = []
         if self.ctx.parameters['run_gcmc_protocol'] == 'always':
@@ -435,85 +386,77 @@ class AdsorptionWorkChain(WorkChain):
                 else:
                     self.ctx.should_run_gcmc.append(False)
 
+        self.ctx.gcmc_next = 'adsorption'
         return all(self.ctx.should_run_gcmc)
 
     def _update_param_input_for_gcmc(self):
         """Update Raspa input parameter, from Widom to GCMC"""
-        param = self.ctx.raspa_param
-        inp = self.ctx.raspa_inputs
-        param["GeneralSettings"].update({
-            "NumberOfInitializationCycles": self.ctx.parameters['raspa_gcmc_init_cycles'],
-            "NumberOfCycles": self.ctx.parameters['raspa_gcmc_prod_cycles'],
-            "PrintPropertiesEvery": int(1e6),
-            "PrintEvery": self.ctx.parameters['raspa_gcmc_prod_cycles'] / self.ctx.parameters['raspa_verbosity']
-        })
-        param["Component"] = {}
-        param["Component"] = {item: {} for index, item in enumerate(list(self.ctx.components.get_dict()))}
-        inp["raspa"]["block_pocket"] = {}
-        for key, value in self.ctx.components.get_dict().items():
-            comp = value['name']
-            zeopp_label = "zeopp_{}".format(comp)
-            param["Component"][comp] = param["Component"].pop(key)
-            param["Component"][comp].update({
-                "MolFraction": value['molfraction'],
-                "TranslationProbability": 1.0,
-                "ReinsertionProbability": 1.0,
-                "SwapProbability": 2.0,
-                "IdentityChangeProbability": 2.0,
-                "NumberOfIdentityChanges": len(list(self.ctx.components.get_dict())),
-                "IdentityChangesList": [i for i in range(len(list(self.ctx.components.get_dict())))]
+        if self.ctx.gcmc_next == 'adsorption':
+            self.ctx.raspa_param["GeneralSettings"].update({
+                "NumberOfInitializationCycles": self.ctx.parameters['raspa_gcmc_init_cycles'],
+                "NumberOfCycles": self.ctx.parameters['raspa_gcmc_prod_cycles'],
+                "PrintPropertiesEvery": int(1e6),
+                "PrintEvery": self.ctx.parameters['raspa_gcmc_prod_cycles'] / self.ctx.parameters['raspa_verbosity']
             })
-            if not value['singlebead']:
-                param["Component"][comp].update({"RotationProbability": 1.0})
-            if value['charged']:
-                param["GeneralSettings"].update({
-                    "UseChargesFromCIFFile": "yes",
-                    "ChargeMethod": "Ewald",
-                    "EwaldPrecision": 1e-6
+            self.ctx.raspa_param["Component"] = {}
+            self.ctx.raspa_param["Component"] = {
+                item: {} for index, item in enumerate(list(self.ctx.components.get_dict()))
+            }
+            self.ctx.raspa_inputs["raspa"]["block_pocket"] = {}
+
+            for key, value in self.ctx.components.get_dict().items():
+                comp = value['name']
+                zeopp_label = "zeopp_{}".format(comp)
+                self.ctx.raspa_param["Component"][comp] = self.ctx.raspa_param["Component"].pop(key)
+                self.ctx.raspa_param["Component"][comp].update({
+                    "MolFraction": value['molfraction'],
+                    "TranslationProbability": 1.0,
+                    "ReinsertionProbability": 1.0,
+                    "SwapProbability": 2.0,
+                    "IdentityChangeProbability": 2.0,
+                    "NumberOfIdentityChanges": len(list(self.ctx.components.get_dict())),
+                    "IdentityChangesList": [i for i in range(len(list(self.ctx.components.get_dict())))]
                 })
-            if self.ctx.geom[comp]['Number_of_blocking_spheres'] > 0:
-                param["Component"][comp]["BlockPocketsFileName"] = {}
-                param["Component"][comp]["BlockPocketsFileName"]["framework_1"] = comp + "_block_file"
-                inp["raspa"]["block_pocket"][comp + "_block_file"] = self.ctx[zeopp_label].outputs.block
+                if not value['singlebead']:
+                    self.ctx.raspa_param["Component"][comp]["RotationProbability"] = 1.0
+                if self.ctx.geom[comp]['Number_of_blocking_spheres'] > 0:
+                    self.ctx.raspa_param["Component"][comp]["BlockPocketsFileName"] = {}
+                    self.ctx.raspa_param["Component"][comp]["BlockPocketsFileName"][
+                        "framework_1"] = comp + "_block_file"
+                    self.ctx.raspa_inputs["raspa"]["block_pocket"][comp +
+                                                                   "_block_file"] = self.ctx[zeopp_label].outputs.block
 
-        return param, inp
+        if self.ctx.gcmc_next == 'desorption':  # Just update temperature, retrievedfolder and molfraction
+            # Get partial pressure inside the material @ adsorption
+            self.ctx.raspa_param["System"]["framework_1"]["ExternalTemperature"] = self.inputs.conditions['desorption'][
+                'temperature']
+            self.ctx.raspa_inputs["raspa"]['retrieved_parent_folder'] = self.ctx.raspa_gcmc[0].outputs.retrieved
+            ads_results = self.ctx.raspa_gcmc[0].outputs.output_parameters["framework_1"]['components']
+            ads_molecuc_tot = sum([x["loading_absolute_average"] for x in ads_results.values()])
+            for key, val in ads_results.items():
+                self.ctx.raspa_param["Component"][key][
+                    "MolFraction"] = val["loading_absolute_average"] / ads_molecuc_tot
 
-    def init_raspa_gcmc(self):
-        """Initialize RASPA gcmc"""
-        self.ctx.current_p_index = 0
-        self.ctx.pressures = choose_pressure_points(self.ctx.parameters)
-        self.report("Now evaluating the isotherm @ {}K for {} pressure points".format(
-            self.ctx.temperature, len(self.ctx.pressures)))
-        self.ctx.raspa_param, self.ctx.raspa_inputs = self._update_param_input_for_gcmc()
-
-    def should_run_another_gcmc(self):
-        """We run another raspa calculation only if the current iteration is
-        smaller than the total number of pressures we want to compute.
-        """
-        return self.ctx.current_p_index < len(self.ctx.pressures)
+        pressure_pa = self.inputs.conditions[self.ctx.gcmc_next]['pressure'] * 1e5
+        self.ctx.raspa_param["System"]["framework_1"]["ExternalPressure"] = pressure_pa
 
     def run_raspa_gcmc(self):
         """
         It submits Raspa calculation to RaspaBaseWorkchain.
         """
-        self.ctx.raspa_inputs['metadata']['label'] = "RaspaGCMC_{}".format(self.ctx.current_p_index + 1)
-        self.ctx.raspa_inputs['metadata']['description'] = 'Called by IsothermMultiCompWorkChain'
-        self.ctx.raspa_inputs['metadata']['call_link_label'] = "run_raspa_gcmc_{}".format(self.ctx.current_p_index + 1)
+        self._update_param_input_for_gcmc()
+        self.ctx.raspa_inputs['metadata']['label'] = "RaspaGCMC_{}".format(self.ctx.gcmc_next)
+        self.ctx.raspa_inputs['metadata']['call_link_label'] = "run_raspa_gcmc_{}".format(self.ctx.gcmc_next)
 
-        self.ctx.raspa_param["System"]["framework_1"]["ExternalPressure"] = self.ctx.pressures[
-            self.ctx.current_p_index] * 1e5
-
-        if self.ctx.current_p_index > 0:
-            self.ctx.raspa_inputs["raspa"]['retrieved_parent_folder'] = self.ctx.raspa_gcmc[self.ctx.current_p_index -
-                                                                                            1].outputs.retrieved
+        #if desorption
+        #self.ctx.raspa_inputs["raspa"]['retrieved_parent_folder'] = self.ctx.raspa_gcmc[0].outputs.retrieved
 
         self.ctx.raspa_inputs['raspa']['parameters'] = Dict(dict=self.ctx.raspa_param)
 
         running = self.submit(RaspaBaseWorkChain, **self.ctx.raspa_inputs)
-        self.report("Running Raspa GCMC @ {}K/{:.3f}bar (pressure {} of {})".format(
-            self.ctx.temperature, self.ctx.pressures[self.ctx.current_p_index], self.ctx.current_p_index + 1,
-            len(self.ctx.pressures)))
-        self.ctx.current_p_index += 1
+        self.report("Running Raspa GCMC @ {} condition".format(self.ctx.gcmc_next))
+
+        self.ctx.gcmc_next = 'desorption'
         return ToContext(raspa_gcmc=append_(running))
 
     def return_output_parameters(self):
@@ -521,29 +464,19 @@ class AdsorptionWorkChain(WorkChain):
 
         all_out_dict = {}
 
-        if all(self.ctx.should_run_widom):
-            for value in self.ctx.components.get_dict().values():
-                widom_label = "widom_{}".format(value['name'])
-                zeopp_label = "zeopp_{}".format(value['name'])
-                all_out_dict[widom_label] = self.ctx[widom_label].outputs.output_parameters
-                all_out_dict[zeopp_label] = self.ctx.geom[value['name']]
-            if all(self.ctx.should_run_gcmc):
-                for calc in self.ctx.raspa_gcmc:
-                    all_out_dict[calc.label] = calc.outputs.output_parameters
-            else:
-                self.ctx.pressures = None
+        for value in self.ctx.components.get_dict().values():
+            widom_label = "widom_{}".format(value['name'])
+            zeopp_label = "zeopp_{}".format(value['name'])
+            all_out_dict[widom_label] = self.ctx[widom_label].outputs.output_parameters
+            all_out_dict[zeopp_label] = self.ctx.geom[value['name']]
+        if all(self.ctx.should_run_gcmc):
+            for calc in self.ctx.raspa_gcmc:
+                all_out_dict[calc.label] = calc.outputs.output_parameters
         else:
             self.ctx.pressures = None
-            self.ctx.components = None
         self.out(
             "output_parameters",
-            get_output_parameters(inp_params=self.ctx.parameters,
-                                  pressures=self.ctx.pressures,
-                                  components=self.ctx.components,
+            get_output_parameters(inp_conditions=self.inputs.conditions, components=self.ctx.components,
                                   **all_out_dict))
 
-        self.report("Isotherm @ {}K computed: ouput Dict<{}>".format(self.ctx.temperature,
-                                                                     self.outputs['output_parameters'].pk))
-
-
-# EOF
+        self.report("Workchain completed: output parameters Dict<{}>".format(self.outputs['output_parameters'].pk))
