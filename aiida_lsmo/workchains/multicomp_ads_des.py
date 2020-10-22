@@ -1,4 +1,4 @@
-"""AdsorptionWorkChain."""
+"""A work chain."""
 import os
 
 # AiiDA modules
@@ -173,14 +173,14 @@ def get_output_parameters(inp_conditions, components=None, **all_out_dict):
     return Dict(dict=out_dict)
 
 
-class AdsorptionWorkChain(WorkChain):
+class MulticompAdsDesWorkChain(WorkChain):
     """Compute Adsorption/Desorption in crystalline materials,
     for a mixture of componentes and at specific temperature/pressure conditions.
     """
 
     @classmethod
     def define(cls, spec):
-        super(AdsorptionWorkChain, cls).define(spec)
+        super(MulticompAdsDesWorkChain, cls).define(spec)
 
         spec.expose_inputs(ZeoppCalculation, namespace='zeopp', include=['code', 'metadata'])
         spec.expose_inputs(RaspaBaseWorkChain, namespace='raspa_base', exclude=['raspa.structure', 'raspa.parameters'])
