@@ -218,6 +218,9 @@ class MulticompGridWorkChain(WorkChain):
         self.ctx.parameters = aiida_dict_merge(ISOTHERMPARAMETERS_DEFAULT, self.inputs.parameters)
         self.ctx.components = get_components_dict(self.inputs.conditions, self.ctx.parameters)
         self.ctx.ff_params = get_ff_parameters(self.ctx.components, self.ctx.parameters)
+        self.ctx.raspa_inputs = self.exposed_inputs(RaspaBaseWorkChain, 'raspa_base')
+        self.ctx.raspa_inputs['raspa']['framework'] = {"framework_1": self.inputs.structure}
+        self.ctx.raspa_inputs['raspa']['file'] = FFBuilder(self.ctx.ff_params)
 
     def run_zeopp(self):
         """It performs the full zeopp calculation for all components."""
@@ -298,9 +301,6 @@ class MulticompGridWorkChain(WorkChain):
 
     def run_raspa_widom(self):
         """Run parallel Widom calculation in RASPA, at all temperature specified in the conditions setting."""
-        self.ctx.raspa_inputs = self.exposed_inputs(RaspaBaseWorkChain, 'raspa_base')
-        self.ctx.raspa_inputs['raspa']['framework'] = {"framework_1": self.inputs.structure}
-        self.ctx.raspa_inputs['raspa']['file'] = FFBuilder(self.ctx.ff_params)
 
         for comp_dict in self.ctx.components.get_dict().values():
             comp = comp_dict['name']
