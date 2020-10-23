@@ -661,6 +661,40 @@ CH4:
     atomic_positions:
         - [CH4_sp3, 0, 0, 0]
 
+C2H4:
+  critical_constants:
+    tc: 282.34
+    pc: 5041000
+    af: 0.086
+  TraPPE:
+    description:
+      TraPPE united atom (UA) parameterization for ethene, aka ethylene (10.1021/jp001044x).
+      Note that this FF is not charged, and it is not capturing the mild negative charge of the C=C bond.
+    atom_types:
+      CH2_ethene:
+        force_field: [lennard-jones, 85.0, 3.675]
+        pseudo_atom: [yes, C, C, 0, 14.02, 0.0, 0.0, 1.0, 1.00, 0, 0, relative, 0]
+    atomic_positions:
+      - [CH2_ethene, 0, 0, +0.665]
+      - [CH2_ethene, 0, 0, -0.665]
+
+C2H6:
+  critical_constants:
+    tc: 305.32
+    pc: 4872000
+    af: 0.100
+  TraPPE:
+    description:
+      TraPPE united atom (UA) parameterization for ethane (10.1021/jp001044x).
+      Note that also EH version is reported.
+    atom_types:
+      CH2_ethane:
+        force_field: [lennard-jones, 98.0, 3.75]
+        pseudo_atom: [yes, C, C, 0, 13.03, 0.0, 0.0, 1.0, 1.00, 0, 0, relative, 0]
+    atomic_positions:
+      - [CH2_ethane, 0, 0, +0.77]
+      - [CH2_ethane, 0, 0, -0.77]
+
 CO2:
   critical_constants:
     tc: 304.19

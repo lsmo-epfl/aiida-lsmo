@@ -100,7 +100,6 @@ def get_atomic_radii(isotparam):
 @calcfunction
 def get_output_parameters(inp_conditions, components, **all_out_dicts):
     """ Extract Widom and GCMC results to isotherm Dict """
-    print(all_out_dicts.keys())
     out_dict = {'components': [], 'geometric': {}, 'widom': {}, 'gcmc': {}}
 
     # Add geometric results from Zeo++
@@ -248,9 +247,11 @@ class MulticompGridWorkChain(WorkChain):
             if self.ctx[zeopp_label].outputs.output_parameters['Number_of_blocking_spheres'] > 0:
                 self.out("block_files.{}_block_file".format(comp), self.ctx[zeopp_label].outputs.block)
 
-    def _get_widom_param(self):
+    def _get_widom_inputs(self, comp_dict, temp):
         """Write Raspa input parameters from scratch, for a Widom calculation"""
-        param = {
+        comp = comp_dict['name']
+        mult = check_resize_unit_cell(self.inputs.structure, 2 * self.ctx.parameters['ff_cutoff'])
+        self.ctx.raspa_param = {
             "GeneralSettings": {
                 "SimulationType":
                     "MonteCarlo",
@@ -263,25 +264,37 @@ class MulticompGridWorkChain(WorkChain):
                 "PrintEvery":
                     int(1e10),
                 "RemoveAtomNumberCodeFromLabel":
-                    True,  # BE CAREFULL: needed in AiiDA-1.0.0 because of github.com/aiidateam/aiida-core/issues/3304
+                    True,  # github.com/aiidateam/aiida-core/issues/3304
                 "Forcefield":
                     "Local",
                 "UseChargesFromCIFFile":
                     "yes",
                 "CutOff":
                     self.ctx.parameters['ff_cutoff'],
+                "ChargeMethod":
+                    "Ewald" if comp_dict['charged'] else "None"
             },
             "System": {
                 "framework_1": {
                     "type": "Framework",
                     # "HeliumVoidFraction": self.ctx.geom["POAV_Volume_fraction"], #not computed
+                    "UnitCells": f"{mult[0]} {mult[1]} {mult[2]}"
                 }
             },
-            "Component": {},
+            "Component": {
+                comp: {
+                    "MoleculeDefinition": "Local",
+                    'ExternalTemperature': temp,
+                    'WidomProbability': 1.0
+                }
+            },
         }
-        mult = check_resize_unit_cell(self.inputs.structure, 2 * self.ctx.parameters['ff_cutoff'])
-        param["System"]["framework_1"]["UnitCells"] = "{} {} {}".format(mult[0], mult[1], mult[2])
-        return param
+
+        self.ctx.raspa_inputs["raspa"]["block_pocket"] = {}  # there was a bug for which it was needed {} in all cases!
+        zeopp_label = "Zeopp_{}".format(comp)
+        if self.ctx[zeopp_label].outputs.output_parameters['Number_of_blocking_spheres'] > 0:
+            self.ctx.raspa_inputs["raspa"]["block_pocket"][comp + "_block_file"] = self.ctx[zeopp_label].outputs.block
+            self.ctx.raspa_param["Component"][comp]["BlockPocketsFileName"] = comp + "_block_file"
 
     def run_raspa_widom(self):
         """Run parallel Widom calculation in RASPA, at all temperature specified in the conditions setting."""
@@ -289,30 +302,13 @@ class MulticompGridWorkChain(WorkChain):
         self.ctx.raspa_inputs['raspa']['framework'] = {"framework_1": self.inputs.structure}
         self.ctx.raspa_inputs['raspa']['file'] = FFBuilder(self.ctx.ff_params)
 
-        for value in self.ctx.components.get_dict().values():
-            comp = value['name']
+        for comp_dict in self.ctx.components.get_dict().values():
+            comp = comp_dict['name']
             for i, temp in enumerate(self.inputs.conditions['t_widom']):
-                zeopp_label = "Zeopp_{}".format(comp)
                 widom_label = "RaspaWidom_{}_{}".format(comp, i)
                 self.ctx.raspa_inputs['metadata']['label'] = widom_label
                 self.ctx.raspa_inputs['metadata']['call_link_label'] = "run_{}".format(widom_label)
-                self.ctx.raspa_param = self._get_widom_param()
-                self.ctx.raspa_param["System"]["framework_1"]['ExternalTemperature'] = temp
-                self.ctx.raspa_param["Component"][comp] = {}
-                self.ctx.raspa_param["Component"][comp]["MoleculeDefinition"] = "Local"
-                self.ctx.raspa_param["Component"][comp]["WidomProbability"] = 1.0
-                self.ctx.raspa_inputs["raspa"]["block_pocket"] = {}
-                if self.ctx[zeopp_label].outputs.output_parameters['Number_of_blocking_spheres'] > 0:
-                    self.ctx.raspa_inputs["raspa"]["block_pocket"] = {
-                        comp + "_block_file": self.ctx[zeopp_label].outputs.block
-                    }
-                    self.ctx.raspa_param["Component"][comp]["BlockPocketsFileName"] = comp + "_block_file"
-                if value['charged']:
-                    self.ctx.raspa_param["GeneralSettings"].update({
-                        "UseChargesFromCIFFile": "yes",
-                        "ChargeMethod": "Ewald",
-                        "EwaldPrecision": 1e-6
-                    })
+                self._get_widom_inputs(comp_dict, temp)
                 self.ctx.raspa_inputs['raspa']['parameters'] = Dict(dict=self.ctx.raspa_param)
                 running = self.submit(RaspaBaseWorkChain, **self.ctx.raspa_inputs)
                 self.report("Running Raspa Widom @ {}K for the Henry coefficient of <{}>".format(temp, comp))
@@ -332,15 +328,20 @@ class MulticompGridWorkChain(WorkChain):
 
     def _update_param_input_for_gcmc(self, temp, press):
         """Update Raspa input parameter, from Widom to GCMC"""
+
         self.ctx.raspa_param["GeneralSettings"].update({
             "NumberOfInitializationCycles": self.ctx.parameters['raspa_gcmc_init_cycles'],
             "NumberOfCycles": self.ctx.parameters['raspa_gcmc_prod_cycles'],
             "PrintPropertiesEvery": int(1e6),
-            "PrintEvery": self.ctx.parameters['raspa_gcmc_prod_cycles'] / self.ctx.parameters['raspa_verbosity']
+            "PrintEvery": self.ctx.parameters['raspa_gcmc_prod_cycles'] / self.ctx.parameters['raspa_verbosity'],
+            "ChargeMethod": "None",  #will be updated later if any molecule charged
+        })
+        self.ctx.raspa_param["System"]["framework_1"].update({
+            "ExternalTemperature": temp,
+            "ExternalPressure": press * 1e5,  # Pa
         })
         self.ctx.raspa_param["Component"] = {}
         self.ctx.raspa_inputs["raspa"]["block_pocket"] = {}
-
         for comp_dict in self.ctx.components.get_dict().values():
             comp = comp_dict['name']
             zeopp_label = "Zeopp_{}".format(comp)
@@ -354,15 +355,14 @@ class MulticompGridWorkChain(WorkChain):
                 "NumberOfIdentityChanges": len(list(self.ctx.components.get_dict())),  # todofuture: remove self-change
                 "IdentityChangesList": [i for i in range(len(list(self.ctx.components.get_dict())))]
             }
+            if not comp_dict['charged']:  # will switch on if any molecule charged
+                self.ctx.raspa_param["GeneralSettings"]['ChargeMethod'] = 'Ewald'
             if not comp_dict['singlebead']:
                 self.ctx.raspa_param["Component"][comp]["RotationProbability"] = 1.0
             if self.ctx[zeopp_label].outputs.output_parameters['Number_of_blocking_spheres'] > 0:
                 self.ctx.raspa_param["Component"][comp]["BlockPocketsFileName"] = {"framework_1": comp + "_block_file"}
                 self.ctx.raspa_inputs["raspa"]["block_pocket"][comp +
                                                                "_block_file"] = self.ctx[zeopp_label].outputs.block
-
-        self.ctx.raspa_param["System"]["framework_1"]["ExternalPressure"] = press * 1e5  # Pa
-        self.ctx.raspa_param["System"]["framework_1"]["ExternalTemperature"] = temp
 
     def run_raspa_gcmc(self):
         """Summits Raspa GCMC calculation for every condition (i.e, [temp, press] combination)."""
