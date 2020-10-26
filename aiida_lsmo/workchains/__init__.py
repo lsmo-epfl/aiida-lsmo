@@ -10,5 +10,6 @@ from .isotherm_calc_pe import IsothermCalcPEWorkChain
 from .sim_annealing import SimAnnealingWorkChain
 from .zeopp_multistage_ddec import ZeoppMultistageDdecWorkChain
 from .nanoporous_screening_1 import NanoporousScreening1WorkChain
-from .multicomp_grid import MulticompGridWorkChain
 from .multicomp_ads_des import MulticompAdsDesWorkChain
+from .multicomp_gcmc import MulticompGcmcWorkChain
+from .singlecomp_widom import SinglecompWidomWorkChain
