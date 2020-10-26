@@ -50,6 +50,14 @@ h2:
   singlebead: True
   charged: False
 
+h2-nonFH:
+  name: H2
+  forcefield: Buch-nonFH # simpler
+  molsatdens: 35.4 # experimental liq
+  proberad: 1.48
+  singlebead: True
+  charged: False
+
 h2-charged:
   name: H2
   forcefield: MDT+DL # most complex
