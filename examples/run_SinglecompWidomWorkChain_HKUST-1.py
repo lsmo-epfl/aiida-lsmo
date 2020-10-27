@@ -1,5 +1,5 @@
 #!/usr/bin/env python  # pylint: disable=invalid-name
-"""Run example Widom calculation with HKUST1 framework."""
+"""Run example Widom calculation in HKUST1 framework, using 0.7 scaling for the probe radius to compute blocks."""
 import os
 import click
 
@@ -19,8 +19,8 @@ NetworkParameters = DataFactory('zeopp.parameters')
 @click.argument('raspa_code_label')
 @click.argument('zeopp_code_label')
 def main(raspa_code_label, zeopp_code_label):
-    """Prepare inputs and submit the Isotherm workchain.
-    Usage: verdi run run_IsothermMultiCompWorkChain_HKUST-1.py raspa@localhost network@localhost"""
+    """Prepare inputs and submit the workchain.
+    Usage: verdi run run_thisworkchainexample.py raspa@localhost zeopp@localhost"""
 
     builder = SinglecompWidomWorkChain.get_builder()
 
@@ -44,7 +44,7 @@ def main(raspa_code_label, zeopp_code_label):
 
     builder.parameters = Dict(
         dict={
-            'zeopp_block_coeff': 0.7,
+            'zeopp_block_scaling': 0.7,
             'zeopp_block_samples': 10,  # Default: 100
             'raspa_widom_cycles': 100,  # Default: 1e5
             'temperatures': [200, 300]

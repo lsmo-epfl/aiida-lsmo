@@ -1,5 +1,5 @@
 #!/usr/bin/env python  # pylint: disable=invalid-name
-"""Run example 2-components isotherm calculation with HKUST1 framework."""
+"""Run example 3-components GCMC in HKUST-1, at 3 different T/P conditions. Skipping calculation of blocking spheres."""
 import os
 import click
 
@@ -20,8 +20,8 @@ SinglefileData = DataFactory('singlefile')
 @click.argument('raspa_code_label')
 @click.argument('zeopp_code_label')
 def main(raspa_code_label, zeopp_code_label):
-    """Prepare inputs and submit the Isotherm workchain.
-    Usage: verdi run run_IsothermMultiCompWorkChain_HKUST-1.py raspa@localhost network@localhost"""
+    """Prepare inputs and submit the workchain.
+    Usage: verdi run run_thisworkchainexample.py raspa@localhost zeopp@localhost"""
 
     builder = MulticompGcmcWorkChain.get_builder()
 
@@ -41,27 +41,22 @@ def main(raspa_code_label, zeopp_code_label):
     builder.raspa_base.raspa.metadata.options = options
     builder.zeopp.metadata.options = options
     builder.structure = CifData(file=os.path.abspath('data/HKUST-1.cif'), label="HKUST-1")
-    builder.conditions = Dict(
-        dict={
-            'molfraction': {
-                'co': 0.2,
-                'ethene': 0.3,
-                'ethane': 0.5,
-            },
-            't_widom': [
-                200,
-                300,
-            ],
-            'tp_gcmc': [
-                [200, 0.1],
-                [300, 0.5],
-                [400, 0.7],
-            ]
-        })
+    builder.conditions = Dict(dict={
+        'molfraction': {
+            'co': 0.2,
+            'ethene': 0.3,
+            'ethane': 0.5,
+        },
+        'tp_gcmc': [
+            [200, 0.1],
+            [300, 0.5],
+            [400, 0.7],
+        ]
+    })
 
     builder.parameters = Dict(
         dict={
-            'zeopp_block_scaling': 0.9,
+            'zeopp_block_scaling': 0.0,  # NOTE: excluding blocking sphere calculations
             'zeopp_block_samples': 10,  # Default: 100
             'raspa_gcmc_init_cycles': 100,  # Default: 1e3
             'raspa_gcmc_prod_cycles': 100,  # Default: 1e4
