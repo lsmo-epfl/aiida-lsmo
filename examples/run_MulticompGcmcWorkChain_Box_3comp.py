@@ -1,10 +1,5 @@
 #!/usr/bin/env python  # pylint: disable=invalid-name
-"""Run example two-component isotherm calculation with HKUST1 framework."""
-
-from __future__ import absolute_import
-from __future__ import print_function
-
-import os
+"""Run example 2-component isotherm calculation in a box."""
 import click
 
 from aiida.engine import run
@@ -12,7 +7,7 @@ from aiida.plugins import DataFactory, WorkflowFactory
 from aiida.orm import Code, Dict
 
 # Workchain objects
-MulticompGridWorkChain = WorkflowFactory('lsmo.multicomp_grid')  # pylint: disable=invalid-name
+MulticompGcmcWorkChain = WorkflowFactory('lsmo.multicomp_gcmc')  # pylint: disable=invalid-name
 
 # Data objects
 CifData = DataFactory('cif')  # pylint: disable=invalid-name
@@ -27,7 +22,7 @@ def main(raspa_code_label, zeopp_code_label):
     """Prepare inputs and submit the Isotherm workchain.
     Usage: verdi run run_IsothermMultiCompWorkChain_HKUST-1.py raspa@localhost network@localhost"""
 
-    builder = MulticompGridWorkChain.get_builder()
+    builder = MulticompGcmcWorkChain.get_builder()
 
     builder.metadata.label = "test"
 
@@ -44,7 +39,6 @@ def main(raspa_code_label, zeopp_code_label):
     }
     builder.raspa_base.raspa.metadata.options = options
     builder.zeopp.metadata.options = options
-    builder.structure = CifData(file=os.path.abspath('data/HKUST-1.cif'), label="HKUST-1")
     builder.conditions = Dict(
         dict={
             'molfraction': {
@@ -59,18 +53,14 @@ def main(raspa_code_label, zeopp_code_label):
             'tp_gcmc': [
                 [200, 0.1],
                 [300, 0.5],
-                [400, 1.0],
+                [400, 0.7],
             ]
         })
 
-    builder.parameters = Dict(
-        dict={
-            'zeopp_volpo_samples': 100,  # Default: 1e5 *NOTE: default is good for standard real-case!
-            'zeopp_block_samples': 10,  # Default: 100
-            'raspa_widom_cycles': 100,  # Default: 1e5
-            'raspa_gcmc_init_cycles': 100,  # Default: 1e3
-            'raspa_gcmc_prod_cycles': 100,  # Default: 1e4
-        })
+    builder.parameters = Dict(dict={
+        'raspa_gcmc_init_cycles': 1000,  # Default: 1e3
+        'raspa_gcmc_prod_cycles': 1000,  # Default: 1e4
+    })
 
     run(builder)
 

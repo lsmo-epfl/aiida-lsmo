@@ -27,7 +27,7 @@ PARAMETERS_DEFAULT = Dict(
         "ff_mixing_rule": 'Lorentz-Berthelot',  # str, Mixing rule for the forcefield
         "ff_separate_interactions": False,  # bool, if true use only ff_framework for framework-molecule interactions
         "ff_cutoff": 12.0,  # float, CutOff truncation for the VdW interactions (Angstrom)
-        "zeopp_block_coeff": 1.0,  # float, coefficient for reducing probe's diameter: use 0.0 for skipping block calc
+        "zeopp_block_scaling": 1.0,  # float, scaling probe's diameter: use 0.0 for skipping block calc
         "zeopp_block_samples": int(1000),  # int, Number of samples for BLOCK calculation (per A^3)
         "raspa_verbosity": 10,  # int, Print stats every: number of cycles / raspa_verbosity
         "raspa_widom_cycles": int(1e5),  # int, Number of widom cycles
@@ -62,7 +62,7 @@ def get_ff_parameters(molecule_dict, isotparam):
 @calcfunction
 def get_zeopp_parameters(molecule_dict, isotparam):
     """Get the ZeoppParameters from the inputs of the workchain"""
-    probe_rad = molecule_dict["proberad"] * isotparam["zeopp_block_coeff"]
+    probe_rad = molecule_dict["proberad"] * isotparam["zeopp_block_scaling"]
     param_dict = {
         'ha': 'DEF',
         'block': [probe_rad, isotparam['zeopp_block_samples']],
@@ -83,7 +83,7 @@ def get_atomic_radii(isotparam):
 
 @calcfunction
 def get_output_parameters(inp_parameters, **all_out_dicts):
-    """ Extract Widom and GCMC results to isotherm Dict """
+    """Extract results to output_parameters Dict."""
 
     out_dict = {
         'temperatures': inp_parameters['temperatures'],
@@ -132,7 +132,6 @@ class SinglecompWidomWorkChain(WorkChain):
             cls.setup,
             if_(cls.should_run_zeopp)(cls.run_zeopp, cls.inspect_zeopp_calc),
             cls.run_raspa_widom,
-            cls.inspect_widom_calc,
             cls.return_output_parameters,
         )
 
@@ -150,7 +149,7 @@ class SinglecompWidomWorkChain(WorkChain):
 
     def should_run_zeopp(self):
         """Return if it should run zeopp calculation."""
-        return not self.ctx.sim_in_box and self.ctx.parameters['zeopp_block_coeff'] > 0.0
+        return not self.ctx.sim_in_box and self.ctx.parameters['zeopp_block_scaling'] > 0.0
 
     def run_zeopp(self):
         """It performs the full zeopp calculation for all components."""
@@ -160,7 +159,7 @@ class SinglecompWidomWorkChain(WorkChain):
         zeopp_inputs['metadata']['call_link_label'] = "run_zeopp_block"
         zeopp_inputs['parameters'] = get_zeopp_parameters(self.ctx.molecule, self.ctx.parameters)
         running = self.submit(ZeoppCalculation, **zeopp_inputs)
-        self.report("Running zeo++ for block calculation<{}>".format(running.id))
+        self.report("Running zeo++ block calculation<{}>".format(running.id))
         self.to_context(**{"ZeoppBlock": running})
 
     def inspect_zeopp_calc(self):
@@ -171,7 +170,10 @@ class SinglecompWidomWorkChain(WorkChain):
             self.out_many(self.exposed_outputs(self.ctx.zeopp, ZeoppCalculation))
 
     def _get_widom_inputs(self):
-        """Write Raspa input parameters from scratch, for a Widom calculation"""
+        """Generate Raspa input parameters from scratch, for a Widom calculation."""
+        self.ctx.raspa_inputs = self.exposed_inputs(RaspaBaseWorkChain, 'raspa_base')
+        self.ctx.raspa_inputs['raspa']['file'] = FFBuilder(self.ctx.ff_params)
+        self.ctx.raspa_inputs["raspa"]["block_pocket"] = {}
         verbosity = self.ctx.parameters['raspa_widom_cycles'] / self.ctx.parameters['raspa_verbosity']
         self.ctx.raspa_param = {
             "GeneralSettings": {
@@ -220,8 +222,6 @@ class SinglecompWidomWorkChain(WorkChain):
     def run_raspa_widom(self):
         """Run parallel Widom calculation in RASPA, at all temperature specified in the conditions setting."""
 
-        self.ctx.raspa_inputs = self.exposed_inputs(RaspaBaseWorkChain, 'raspa_base')
-        self.ctx.raspa_inputs['raspa']['file'] = FFBuilder(self.ctx.ff_params)
         self._get_widom_inputs()
 
         for temp in self.inputs.parameters['temperatures']:
@@ -234,11 +234,6 @@ class SinglecompWidomWorkChain(WorkChain):
             running = self.submit(RaspaBaseWorkChain, **self.ctx.raspa_inputs)
             self.report(f"Running Raspa Widom @ {temp}K for the Henry coefficient of <{self.ctx.molecule['name']}>")
             self.to_context(**{widom_label: running})
-
-    def inspect_widom_calc(self):
-        """Asserts whether all widom calculations are finished ok."""
-        for temp in self.ctx.parameters['temperatures']:
-            assert self.ctx[f"RaspaWidom_{int(temp)}"]
 
     def return_output_parameters(self):
         """Merge all the parameters into output_parameters, depending on is_porous and is_kh_ehough."""
