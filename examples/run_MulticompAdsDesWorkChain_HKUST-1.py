@@ -48,24 +48,23 @@ def main(raspa_code_label, zeopp_code_label):
     builder.structure = CifData(file=os.path.abspath('data/HKUST-1.cif'), label="HKUST-1")
     builder.conditions = Dict(
         dict={
+            'molfraction': {
+                'xenon': 0.2,
+                'krypton': 0.8
+            },
             'adsorption': {
                 'temperature': 298,  #K
                 'pressure': 1,  #bar
-                'molfraction': {
-                    'xenon': 0.2,
-                    'krypton': 0.8
-                }
             },
             'desorption': {
                 'temperature': 308,
                 'pressure': 0.1,
-                'molfraction': 'adsorption',  #use composition in the material at adsorption
             },
         })
 
     builder.parameters = Dict(
         dict={
-            'zeopp_volpo_samples': 100,  # Default: 1e5 *NOTE: default is good for standard real-case!
+            'zeopp_block_scaling': 0.9,  # Default: 1.0
             'zeopp_block_samples': 10,  # Default: 100
             'raspa_widom_cycles': 100,  # Default: 1e5
             'raspa_gcmc_init_cycles': 100,  # Default: 1e3

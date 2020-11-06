@@ -30,8 +30,8 @@ PARAMETERS_DEFAULT = Dict(
         "zeopp_block_scaling": 1.0,  # float, scaling probe's diameter: use 0.0 for skipping block calc
         "zeopp_block_samples": int(1000),  # int, Number of samples for BLOCK calculation (per A^3)
         "raspa_verbosity": 10,  # int, Print stats every: number of cycles / raspa_verbosity
-        "raspa_gcmc_init_cycles": int(1e3),  # int, Number of GCMC initialization cycles
-        "raspa_gcmc_prod_cycles": int(1e4),  # int, Number of GCMC production cycles
+        "raspa_gcmc_init_cycles": int(1e5),  # int, Number of GCMC initialization cycles
+        "raspa_gcmc_prod_cycles": int(1e5),  # int, Number of GCMC production cycles
     })
 
 
@@ -115,16 +115,16 @@ def get_output_parameters(inp_conditions, components, **all_out_dicts):
     conv_ener = 1.0 / 120.273  # K to kJ/mol
 
     out_dict.update({
-        'temperatures': [tp[0] for tp in inp_conditions['tp_gcmc']],
+        'temperatures': [tp[0] for tp in inp_conditions['temp_press']],
         'temperatures_unit': 'K',
-        'pressures': [tp[1] for tp in inp_conditions['tp_gcmc']],
+        'pressures': [tp[1] for tp in inp_conditions['temp_press']],
         'pressures_unit': 'bar',
         'composition': {},
         'loading_absolute_unit': 'mol/kg' if key_system == "framework_1" else "(cm^3_STP/cm^3)",
         'enthalpy_of_adsorption_unit': 'kJ/mol',
     })
 
-    for i, _ in enumerate(inp_conditions['tp_gcmc']):
+    for i, _ in enumerate(inp_conditions['temp_press']):
         gcmc_out = all_out_dicts[f'RaspaGCMC_{i}'][key_system]  # can be framework_1 or box_1
         for comp_dict in components.get_dict().values():
             comp = comp_dict['name']
@@ -288,8 +288,8 @@ class MulticompGcmcWorkChain(WorkChain):
     def run_raspa_gcmc(self):
         """Summits Raspa GCMC calculation for every condition (i.e, [temp, press] combination)."""
         self._get_gcmc_inputs()
-        for i, tp_gcmc in enumerate(self.inputs.conditions['tp_gcmc']):
-            temp, press = tp_gcmc
+        for i, temp_press in enumerate(self.inputs.conditions['temp_press']):
+            temp, press = temp_press
             gcmc_label = "RaspaGCMC_{}".format(i)
             self.ctx.raspa_inputs['metadata']['label'] = gcmc_label
             self.ctx.raspa_inputs['metadata']['call_link_label'] = "run_{}".format(gcmc_label)
