@@ -64,7 +64,7 @@ def main(raspa_code_label, zeopp_code_label):
 
     builder.parameters = Dict(
         dict={
-            'zeopp_block_scaling': 0.9,  # Default: 1.0
+            'zeopp_probe_scaling': 0.9,  # Default: 1.0
             'zeopp_block_samples': 10,  # Default: 100
             'raspa_widom_cycles': 100,  # Default: 1e5
             'raspa_gcmc_init_cycles': 100,  # Default: 1e3

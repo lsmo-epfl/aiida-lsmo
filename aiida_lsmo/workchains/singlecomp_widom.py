@@ -27,7 +27,7 @@ PARAMETERS_DEFAULT = Dict(
         "ff_mixing_rule": 'Lorentz-Berthelot',  # str, Mixing rule for the forcefield
         "ff_separate_interactions": False,  # bool, if true use only ff_framework for framework-molecule interactions
         "ff_cutoff": 12.0,  # float, CutOff truncation for the VdW interactions (Angstrom)
-        "zeopp_block_scaling": 1.0,  # float, scaling probe's diameter: use 0.0 for skipping block calc
+        "zeopp_probe_scaling": 1.0,  # float, scaling probe's diameter: use 0.0 for skipping block calc
         "zeopp_block_samples": int(1000),  # int, Number of samples for BLOCK calculation (per A^3)
         "raspa_verbosity": 10,  # int, Print stats every: number of cycles / raspa_verbosity
         "raspa_widom_cycles": int(1e5),  # int, Number of widom cycles
@@ -62,7 +62,7 @@ def get_ff_parameters(molecule_dict, isotparam):
 @calcfunction
 def get_zeopp_parameters(molecule_dict, isotparam):
     """Get the ZeoppParameters from the inputs of the workchain"""
-    probe_rad = molecule_dict["proberad"] * isotparam["zeopp_block_scaling"]
+    probe_rad = molecule_dict["proberad"] * isotparam["zeopp_probe_scaling"]
     param_dict = {
         'ha': 'DEF',
         'block': [probe_rad, isotparam['zeopp_block_samples']],
@@ -149,7 +149,7 @@ class SinglecompWidomWorkChain(WorkChain):
 
     def should_run_zeopp(self):
         """Return if it should run zeopp calculation."""
-        return not self.ctx.sim_in_box and self.ctx.parameters['zeopp_block_scaling'] > 0.0
+        return not self.ctx.sim_in_box and self.ctx.parameters['zeopp_probe_scaling'] > 0.0
 
     def run_zeopp(self):
         """It performs the full zeopp calculation for all components."""
