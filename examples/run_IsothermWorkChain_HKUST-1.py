@@ -49,6 +49,7 @@ def main(raspa_code_label, zeopp_code_label):
         dict={
             'ff_framework': 'UFF',  # Default: UFF
             'temperature': 400,  # (K) Note: higher temperature will have less adsorbate and it is faster
+            'zeopp_probe_scaling': 0.8,
             'zeopp_volpo_samples': 1000,  # Default: 1e5 *NOTE: default is good for standard real-case!
             'zeopp_block_samples': 10,  # Default: 100
             'raspa_widom_cycles': 100,  # Default: 1e5
