@@ -27,7 +27,7 @@ PARAMETERS_DEFAULT = Dict(
         "ff_mixing_rule": 'Lorentz-Berthelot',  # str, Mixing rule for the forcefield
         "ff_separate_interactions": False,  # bool, if true use only ff_framework for framework-molecule interactions
         "ff_cutoff": 12.0,  # float, CutOff truncation for the VdW interactions (Angstrom)
-        "zeopp_block_scaling": 1.0,  # float, scaling probe's diameter: use 0.0 for skipping block calc
+        "zeopp_probe_scaling": 1.0,  # float, scaling probe's diameter: use 0.0 for skipping block calc
         "zeopp_block_samples": int(1000),  # int, Number of samples for BLOCK calculation (per A^3)
         "raspa_verbosity": 10,  # int, Print stats every: number of cycles / raspa_verbosity
         "raspa_gcmc_init_cycles": int(1e3),  # int, Number of GCMC initialization cycles
@@ -61,7 +61,7 @@ def get_components_dict(conditions, parameters):
         probe_rad = components_dict[key]['proberad']
         components_dict[key]['zeopp'] = {
             'ha': 'DEF',
-            'block': [probe_rad * parameters['zeopp_block_scaling'], parameters['zeopp_block_samples']],
+            'block': [probe_rad * parameters['zeopp_probe_scaling'], parameters['zeopp_block_samples']],
         }
     return Dict(dict=components_dict)
 
@@ -119,41 +119,42 @@ def get_output_parameters(inp_conditions, components, **all_out_dicts):
                 out_dict[key][comp] = all_out_dicts[zeopp_label][key]
 
     # Add GCMC results
-    key_system = list(all_out_dicts[f'RaspaGCMC_Ads'].get_dict().keys())[0]
-    conv_ener = 1.0 / 120.273  # K to kJ/mol
+    key_system = list(all_out_dicts[f'RaspaGCMC_Ads'].get_dict().keys())[0]  # can be framework_1 or box_1
 
     out_dict.update({
         'temperatures': [inp_conditions[x]['temperature'] for x in ['adsorption', 'desorption']],
         'temperatures_unit': 'K',
         'pressures': [inp_conditions[x]['pressure'] for x in ['adsorption', 'desorption']],
         'pressures_unit': 'bar',
-        'composition': {},
+        'composition': {comp_dict['name']: [] for comp_dict in components.get_dict().values()},
+        'loading_absolute_average': {comp_dict['name']: [] for comp_dict in components.get_dict().values()},
+        'loading_absolute_dev': {comp_dict['name']: [] for comp_dict in components.get_dict().values()},
+        'working_capacity': {},
+        'working_capacity_unit': 'mol/kg' if key_system == "framework_1" else "(cm^3_STP/cm^3)",
         'loading_absolute_unit': 'mol/kg' if key_system == "framework_1" else "(cm^3_STP/cm^3)",
-        'enthalpy_of_adsorption_unit': 'kJ/mol',
     })
 
-    for i in ["Ads", "Des"]:
-        gcmc_out = all_out_dicts[f'RaspaGCMC_{i}'][key_system]  # can be framework_1 or box_1
-        for comp_dict in components.get_dict().values():
-            comp = comp_dict['name']
-            out_dict['composition'][comp] = comp_dict['molfraction']
-            key_conv_load = "conversion_factor_molec_uc_to_mol_kg" \
-                            if key_system == "framework_1" else "conversion_factor_molec_uc_to_cm3stp_cm3"
+    for comp_dict in components.get_dict().values():
+        comp = comp_dict['name']
+        if key_system == "framework_1":
+            key_conv_load = "conversion_factor_molec_uc_to_mol_kg"
+        else:
+            key_conv_load = "conversion_factor_molec_uc_to_cm3stp_cm3"
+
+        for i in ["Ads", "Des"]:
+            gcmc_out = all_out_dicts[f'RaspaGCMC_{i}'][key_system]
             conv_load = gcmc_out['components'][comp][key_conv_load]
-            for label in [
-                    'loading_absolute_average', 'loading_absolute_dev', 'enthalpy_of_adsorption_average',
-                    'enthalpy_of_adsorption_dev'
-            ]:
-                if label not in out_dict:
-                    out_dict[label] = {}
-                if comp not in out_dict[label]:
-                    out_dict[label][comp] = []
-                if label.startswith('loading'):
-                    out_dict[label][comp].append(conv_load * gcmc_out['components'][comp][label])
-                elif label.startswith('enthalpy'):
-                    if gcmc_out['components'][comp][label] is None:
-                        gcmc_out['components'][comp][label] = 0
-                    out_dict[label][comp] = conv_ener * gcmc_out['components'][comp][label]
+            for label in ['loading_absolute_average', 'loading_absolute_dev']:
+                out_dict[label][comp] += [conv_load * gcmc_out['components'][comp][label]]
+
+    for comp_dict in components.get_dict().values():
+        comp = comp_dict['name']
+        out_dict['composition'][comp] += [comp_dict['molfraction']]  # adsorption
+        tot_load_ads = sum([load[0] for load in out_dict['loading_absolute_average'].values()])
+        comp_des = out_dict['loading_absolute_average'][comp][0] / tot_load_ads
+        out_dict['composition'][comp] += [comp_des]  #desorption
+        work_cap = out_dict['loading_absolute_average'][comp][0] - out_dict['loading_absolute_average'][comp][1]
+        out_dict['working_capacity'][comp] = work_cap
 
     return Dict(dict=out_dict)
 
@@ -204,7 +205,7 @@ class MulticompAdsDesWorkChain(WorkChain):
 
     def should_run_zeopp(self):
         """Return if it should run zeopp calculation."""
-        return not self.ctx.sim_in_box and self.ctx.parameters['zeopp_block_scaling'] > 0.0
+        return not self.ctx.sim_in_box and self.ctx.parameters['zeopp_probe_scaling'] > 0.0
 
     def run_zeopp(self):
         """It performs the full zeopp calculation for all components."""
@@ -337,7 +338,7 @@ class MulticompAdsDesWorkChain(WorkChain):
         self.ctx.raspa_inputs['metadata']['call_link_label'] = "run_raspa_gcmc_des"
         self.ctx.raspa_inputs['raspa']['parameters'] = Dict(dict=self.ctx.raspa_param)
         running = self.submit(RaspaBaseWorkChain, **self.ctx.raspa_inputs)
-        self.report("Running Raspa GCMC @ Adsorption conditions")
+        self.report("Running Raspa GCMC @ Desorption conditions")
         self.to_context(**{gcmc_label: running})
 
     def return_output_parameters(self):
