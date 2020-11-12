@@ -7,7 +7,7 @@ from . import DATA_DIR
 def test_bsse_parser():
     """Testing BSSE parser."""
     with open(os.path.join(DATA_DIR, 'BSSE_output_v5.1_.out')) as fobj:
-        res = parse_cp2k_output_bsse(fobj)
+        res = parse_cp2k_output_bsse(fobj.read())
         assert res["exceeded_walltime"] is False
         assert res["energy_description_list"] == [
             "Energy of A with basis set A", "Energy of B with basis set B", "Energy of A with basis set of A+B",

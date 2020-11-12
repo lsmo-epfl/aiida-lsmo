@@ -40,7 +40,7 @@ def render_ff_mixing_def(ff_data, params):
     force_field_lines = []
     ff_mix_found = False  #If becomes True, needs to handle the mixing differently
     # TODO: this needs to be sorted for python versions where dictionaries are not sorted! #pylint: disable=fixme
-    # If separate_interactions==True, prints only "zero-potential" interactions for the molecules
+    # If separate_interactions==True, prints only "none" interactions for the molecules
     for atom_type, ff_pot in ff_data['framework'][params['ff_framework']]['atom_types'].items():
         force_field_lines.append(" ".join([str(x) for x in [atom_type] + ff_pot]))
     for molecule, ff_name in params['ff_molecules'].items():
@@ -50,8 +50,8 @@ def render_ff_mixing_def(ff_data, params):
                 ff_pot = val['force_field_mix']
             else:
                 ff_pot = val['force_field']
-            # In case of "separate_interactions" write the ff only if zero-potential particle
-            if not params['separate_interactions'] or ff_pot[0].lower() == "zero-potential":
+            # In case of "separate_interactions" write the ff only if none particle
+            if not params['separate_interactions'] or ff_pot[0].lower() == "none":
                 force_field_lines.append(" ".join([str(x) for x in [atom_type] + ff_pot]))
 
     output.append(len(force_field_lines))
@@ -76,8 +76,8 @@ def mix_molecule_ff(ff_list, mixing_rule):
                 elif mixing_rule == 'jorgensen':
                     sig_mix = sqrt(ffi[3] * ffj[3])
                 ff_mix.append("{} {} lennard-jones {:.5f} {:.5f}".format(ffi[0], ffj[0], eps_mix, sig_mix))
-            elif "zero-potential" in [ffi[1], ffj[1]]:
-                ff_mix.append("{} {} zero-potential".format(ffi[0], ffj[0]))
+            elif "none" in [ffi[1], ffj[1]]:
+                ff_mix.append("{} {} none".format(ffi[0], ffj[0]))
             elif ffi[1].lower() == ffj[1].lower() == 'feynman-hibbs-lennard-jones':
                 eps_mix = sqrt(ffi[2] * ffj[2])
                 if mixing_rule == 'lorentz-berthelot':
@@ -104,7 +104,7 @@ def render_ff_def(ff_data, params, ff_mix_found):
             for atom_type, val in ff_data[molecule][ff_name]['atom_types'].items():
                 ff_pot = val['force_field']
                 if ff_pot == 'dummy_separate':  # Exclude molatoms-moldummy interactions
-                    ff_list.append([atom_type] + ['zero-potential'])
+                    ff_list.append([atom_type] + ['none'])
                 else:
                     ff_list.append([atom_type] + ff_pot)
         mixing_rule = params['mixing_rule'].lower()

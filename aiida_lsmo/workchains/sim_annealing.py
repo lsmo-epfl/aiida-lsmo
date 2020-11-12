@@ -68,7 +68,7 @@ def load_yaml():
 @calcfunction
 def get_molecule_from_restart_file(structure_cif, molecule_folderdata, input_dict, molecule_dict):
     """Get a CifData file having the cell of the initial (unexpanded) structure and the geometry of the loaded molecule.
-    TODO: this is source of error if there are more than one molecule, and the cell has been expandes,
+    TODO: this is source of error if there are more than one molecule AND the cell has been expanded,
     as you can not wrap them in the small cell.
     """
 
@@ -215,7 +215,7 @@ class SimAnnealingWorkChain(WorkChain):
         mult = check_resize_unit_cell(self.inputs.structure, 2 * self.ctx.parameters['ff_cutoff'])
         param["System"]["framework_1"]["UnitCells"] = "{} {} {}".format(mult[0], mult[1], mult[2])
 
-        if self.ctx.inp["raspa"]["block_pocket"]:  #TODO: check if working properly! # pylint: disable=fixme
+        if "block_pocket" in self.ctx.inp["raspa"]:
             param["Component"][self.ctx.molecule['name']]["BlockPocketsFileName"] = "block_file"
 
         if not self.ctx.molecule['singlebead']:
