@@ -741,9 +741,9 @@ SimAnnealing work chain
 ++++++++++++++++++++++++++++++++++++++++++++++
 
 The :py:func:`~aiida_lsmo.workchains.sim_annealing.SimAnnealingWorkChain` work chain
-allows to find the minimum configuration a number of gas molecules, in the pore volume of a framework.
-It runs several NVT simulations in RASPA at decreasing temperature to make the system move to its global minimum (simulated annealing),
-and it finally performs a minimization for the final fine tuning of the optimum position.
+is designed to find the minimum energy configuration for a given number of gas molecules in the pores of a framework.
+It runs several NVT Monte-Carlo simulations in RASPA at decreasing temperature in order to let the system move to its global minimum (simulated annealing),
+and then performs a geometry optimization for the final fine tuning of the adsorbate position(s).
 
 .. aiida-workchain:: SimAnnealingWorkChain
     :module: aiida_lsmo.workchains
@@ -779,32 +779,32 @@ and it finally performs a minimization for the final fine tuning of the optimum 
             "NVT simulation at 50 K",
             "Final energy minimization"
         ],
-        "energy_adsorbate/adsorbate_final_coulomb": [
+        "energy_ads/ads_coulomb_final": [
             -0.00095657162276787,
             ...
             3.5423777787399e-06
         ],
-        "energy_adsorbate/adsorbate_final_tot": [
+        "energy_ads/ads_tot_final": [
             -0.00095657162276787,
             ...
             3.5423777787399e-06
         ],
-        "energy_adsorbate/adsorbate_final_vdw": [
+        "energy_ads/ads_vdw_final": [
             0.0,
             ...
             0.0
         ],
-        "energy_host/adsorbate_final_coulomb": [
+        "energy_host/ads_coulomb_final": [
             -12.696035310164,
             ...
             -15.592788991158
         ],
-        "energy_host/adsorbate_final_tot": [
+        "energy_host/ads_tot_final": [
             -30.545798720022,
             ...
             -36.132005060753
         ],
-        "energy_host/adsorbate_final_vdw": [
+        "energy_host/ads_vdw_final": [
             -17.849763409859,
             ...
             -20.539216069678
@@ -812,6 +812,13 @@ and it finally performs a minimization for the final fine tuning of the optimum 
         "energy_unit": "kJ/mol",
         "number_of_molecules": 1
     }
+
+
+  In particular:
+
+  * ``host/ads`` describes the interaction between host and (all) adsorbates, ``ads/ads`` the interaction between adsorbates
+  * The binding energy is the final value of ``energy_host/ads_coulomb_final`` (you still need to divide by ``number_of_molecules``)
+  * ``energy_ads/ads_coulomb_final`` and ``energy_ads/ads_tot_final`` may be non-zero even for a single molecule due to rounding errors in Ewald summation
 
 Cp2kBindingEnergy work chain
 ++++++++++++++++++++++++++++++++++++++++++++++

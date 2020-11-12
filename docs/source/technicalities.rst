@@ -1,5 +1,5 @@
 =====================================
-Tecnicalities
+Technicalities
 =====================================
 
 Unit cell expansion
