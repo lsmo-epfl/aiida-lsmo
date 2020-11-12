@@ -11,43 +11,37 @@ from aiida_lsmo.utils import aiida_dict_merge, check_resize_unit_cell
 
 RaspaBaseWorkChain = WorkflowFactory('raspa.base')  #pylint: disable=invalid-name
 
-# Defining DataFactory and CalculationFactory
+# Defining DataFactory, CalculationFactory and default parameters
 CifData = DataFactory("cif")  #pylint: disable=invalid-name
 ZeoppParameters = DataFactory("zeopp.parameters")  #pylint: disable=invalid-name
 
 ZeoppCalculation = CalculationFactory("zeopp.network")  #pylint: disable=invalid-name
 FFBuilder = CalculationFactory('lsmo.ff_builder')  # pylint: disable=invalid-name
 
-# Default parameters
-PARAMETERS_DEFAULT = Dict(
-    dict={
-        "ff_framework": "UFF",  # str, Forcefield of the structure (used also as a definition of ff.rad for zeopp)
-        "ff_shifted": False,  # bool, Shift or truncate at cutoff
-        "ff_tail_corrections": True,  # bool, Apply tail corrections
-        "ff_mixing_rule": 'Lorentz-Berthelot',  # str, Mixing rule for the forcefield
-        "ff_separate_interactions": False,  # bool, if true use only ff_framework for framework-molecule interactions
-        "ff_cutoff": 12.0,  # float, CutOff truncation for the VdW interactions (Angstrom)
-        "zeopp_probe_scaling": 1.0,  # float, scaling probe's diameter: use 0.0 for skipping block calc
-        "zeopp_block_samples": int(1000),  # int, Number of samples for BLOCK calculation (per A^3)
-        "raspa_verbosity": 10,  # int, Print stats every: number of cycles / raspa_verbosity
-        "raspa_gcmc_init_cycles": int(1e3),  # int, Number of GCMC initialization cycles
-        "raspa_gcmc_prod_cycles": int(1e4),  # int, Number of GCMC production cycles
-    })
+PARAMETERS_DEFAULT = {
+    "ff_framework": "UFF",  # str, Forcefield of the structure (used also as a definition of ff.rad for zeopp)
+    "ff_shifted": False,  # bool, Shift or truncate at cutoff
+    "ff_tail_corrections": True,  # bool, Apply tail corrections
+    "ff_mixing_rule": 'Lorentz-Berthelot',  # str, Mixing rule for the forcefield
+    "ff_separate_interactions": False,  # bool, if true use only ff_framework for framework-molecule interactions
+    "ff_cutoff": 12.0,  # float, CutOff truncation for the VdW interactions (Angstrom)
+    "zeopp_probe_scaling": 1.0,  # float, scaling probe's diameter: use 0.0 for skipping block calc
+    "zeopp_block_samples": int(1000),  # int, Number of samples for BLOCK calculation (per A^3)
+    "raspa_verbosity": 10,  # int, Print stats every: number of cycles / raspa_verbosity
+    "raspa_gcmc_init_cycles": int(1e3),  # int, Number of GCMC initialization cycles
+    "raspa_gcmc_prod_cycles": int(1e4),  # int, Number of GCMC production cycles
+}
 
 
 @calcfunction
 def get_components_dict(conditions, parameters):
     """Construct components dict, like:
-    {
-        'xenon': {
-            'name': 'Xe',
-            'molfraction': xxx,
-            'proberad': xxx,
-            'zeopp': {...},
-            ...
-        },
-        ...
-    }
+    {'xenon': {
+    'name': 'Xe',
+    'molfraction': xxx,
+    'proberad': xxx,
+    'zeopp': {...},
+    },...}
     """
 
     components_dict = {}
@@ -173,10 +167,10 @@ class MulticompAdsDesWorkChain(WorkChain):
         spec.input('structure', valid_type=CifData, help='Adsorbent framework CIF.')
         spec.input("conditions",
                    valid_type=Dict,
-                   help='A dictionary of components with their corresponding mol fractions in the mixture.')
+                   help='Composition of the mixture, adsorption and desorption temperature and pressure.')
         spec.input("parameters",
                    valid_type=Dict,
-                   help='It provides the parameters which control the decision making behavior of workchain.')
+                   help='Main parameters and settings for the calculations, to overwrite PARAMETERS_DEFAULT.')
         spec.outline(
             cls.setup,
             if_(cls.should_run_zeopp)(cls.run_zeopp, cls.inspect_zeopp_calc),
@@ -185,10 +179,7 @@ class MulticompAdsDesWorkChain(WorkChain):
             cls.return_output_parameters,
         )
 
-        spec.output('output_parameters',
-                    valid_type=Dict,
-                    required=True,
-                    help='Results of the single temperature multi component workchain')
+        spec.output('output_parameters', valid_type=Dict, required=True, help='Main results of the work chain.')
 
         spec.output_namespace('block_files',
                               valid_type=SinglefileData,
@@ -199,7 +190,7 @@ class MulticompAdsDesWorkChain(WorkChain):
     def setup(self):
         """Initialize parameters"""
         self.ctx.sim_in_box = "structure" not in self.inputs.keys()
-        self.ctx.parameters = aiida_dict_merge(PARAMETERS_DEFAULT, self.inputs.parameters)
+        self.ctx.parameters = aiida_dict_merge(Dict(dict=PARAMETERS_DEFAULT), self.inputs.parameters)
         self.ctx.components = get_components_dict(self.inputs.conditions, self.ctx.parameters)
         self.ctx.ff_params = get_ff_parameters(self.ctx.components, self.ctx.parameters)
 
@@ -289,7 +280,7 @@ class MulticompAdsDesWorkChain(WorkChain):
                 "SwapProbability": 2.0,
                 "IdentityChangeProbability": 2.0,
                 "NumberOfIdentityChanges": len(list(self.ctx.components.get_dict())),  # todofuture: remove self-change
-                "IdentityChangesList": [i for i in range(len(list(self.ctx.components.get_dict())))]
+                "IdentityChangesList": list(range(len(list(self.ctx.components.get_dict()))))
             }
             if comp_dict['charged']:  # will switch on if any molecule charged
                 self.ctx.raspa_param["GeneralSettings"]['ChargeMethod'] = 'Ewald'

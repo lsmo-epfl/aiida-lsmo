@@ -11,28 +11,26 @@ from aiida_lsmo.utils import aiida_dict_merge, check_resize_unit_cell
 
 RaspaBaseWorkChain = WorkflowFactory('raspa.base')  #pylint: disable=invalid-name
 
-# Defining DataFactory and CalculationFactory
+# Defining DataFactory, CalculationFactory and default parameters
 CifData = DataFactory("cif")  #pylint: disable=invalid-name
 ZeoppParameters = DataFactory("zeopp.parameters")  #pylint: disable=invalid-name
 
 ZeoppCalculation = CalculationFactory("zeopp.network")  #pylint: disable=invalid-name
 FFBuilder = CalculationFactory('lsmo.ff_builder')  # pylint: disable=invalid-name
 
-# Default parameters
-PARAMETERS_DEFAULT = Dict(
-    dict={  #TODO: create IsothermParameters instead of Dict # pylint: disable=fixme
-        "ff_framework": "UFF",  # str, Forcefield of the structure (used also as a definition of ff.rad for zeopp)
-        "ff_shifted": False,  # bool, Shift or truncate at cutoff
-        "ff_tail_corrections": True,  # bool, Apply tail corrections
-        "ff_mixing_rule": 'Lorentz-Berthelot',  # str, Mixing rule for the forcefield
-        "ff_separate_interactions": False,  # bool, if true use only ff_framework for framework-molecule interactions
-        "ff_cutoff": 12.0,  # float, CutOff truncation for the VdW interactions (Angstrom)
-        "zeopp_probe_scaling": 1.0,  # float, scaling probe's diameter: use 0.0 for skipping block calc
-        "zeopp_block_samples": int(1000),  # int, Number of samples for BLOCK calculation (per A^3)
-        "raspa_verbosity": 10,  # int, Print stats every: number of cycles / raspa_verbosity
-        "raspa_widom_cycles": int(1e5),  # int, Number of widom cycles
-        "temperatures": [300, 400]
-    })
+PARAMETERS_DEFAULT = {  #TODO: create IsothermParameters instead of Dict # pylint: disable=fixme
+    "ff_framework": "UFF",  # str, Forcefield of the structure (used also as a definition of ff.rad for zeopp)
+    "ff_shifted": False,  # bool, Shift or truncate at cutoff
+    "ff_tail_corrections": True,  # bool, Apply tail corrections
+    "ff_mixing_rule": 'Lorentz-Berthelot',  # str, Mixing rule for the forcefield
+    "ff_separate_interactions": False,  # bool, if true use only ff_framework for framework-molecule interactions
+    "ff_cutoff": 12.0,  # float, CutOff truncation for the VdW interactions (Angstrom)
+    "zeopp_probe_scaling": 1.0,  # float, scaling probe's diameter: use 0.0 for skipping block calc
+    "zeopp_block_samples": int(1000),  # int, Number of samples for BLOCK calculation (per A^3)
+    "raspa_verbosity": 10,  # int, Print stats every: number of cycles / raspa_verbosity
+    "raspa_widom_cycles": int(1e5),  # int, Number of widom cycles
+    "temperatures": [300, 400]
+}
 
 
 @calcfunction
@@ -127,7 +125,7 @@ class SinglecompWidomWorkChain(WorkChain):
                    'Advanced: input a Dict for non-standard settings.')
         spec.input("parameters",
                    valid_type=Dict,
-                   help='It provides the parameters which control the decision making behavior of workchain.')
+                   help='Main parameters and settings for the calculations, to overwrite PARAMETERS_DEFAULT.')
         spec.outline(
             cls.setup,
             if_(cls.should_run_zeopp)(cls.run_zeopp, cls.inspect_zeopp_calc),
@@ -135,12 +133,14 @@ class SinglecompWidomWorkChain(WorkChain):
             cls.return_output_parameters,
         )
 
+        spec.output('output_parameters', valid_type=Dict, required=True, help='Main results of the work chain.')
+
         spec.expose_outputs(ZeoppCalculation, include=['block'])
 
     def setup(self):
         """Initialize parameters"""
         self.ctx.sim_in_box = "structure" not in self.inputs.keys()
-        self.ctx.parameters = aiida_dict_merge(PARAMETERS_DEFAULT, self.inputs.parameters)
+        self.ctx.parameters = aiida_dict_merge(Dict(dict=PARAMETERS_DEFAULT), self.inputs.parameters)
         if isinstance(self.inputs.molecule, Str):
             self.ctx.molecule = get_molecule_dict(self.inputs.molecule)
         elif isinstance(self.inputs.molecule, Dict):

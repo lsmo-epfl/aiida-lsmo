@@ -923,9 +923,8 @@ SinglecompWidom work chain
 
 The :py:func:`~aiida_lsmo.workchains.singlecomp_widom.SinglecompWidomWorkChain` work chain
 allows to compute the Henry's coefficient of a molecule via the Widom insertions algorithm.
-The user can specify a number of temperatures to perform this calculation, as a list value under the ``temperatures`` key
-of the ``parameters`` input Dict. The values of the ``output_parameters`` will be presented as lists as well,
-one for each temperature.
+The user can specify a list of temperatures to perform these calculations, and the results from the ``output_parameters`` 
+Dict will be presented as lists as well, one for each temperature.
 
 Blocking spheres are computed for the molecule before the calculation.
 
@@ -936,7 +935,7 @@ Blocking spheres are computed for the molecule before the calculation.
 
 
 * ``structure`` (``CifData``), if missing the calculation will be performed for an empty box, which is convenient to get the
-``widom_rosenbluth_factor_average`` for flexible molecules.
+  ``widom_rosenbluth_factor_average`` for flexible molecules.
 
 * ``molecule`` (see IsothermWorkChain)
 
@@ -1000,11 +999,11 @@ Blocking spheres are computed for the molecule before the calculation.
         "widom_rosenbluth_factor_unit": "-"
     }
 
-MulticompGcmcWorkChain work chain
+MulticompGcmc work chain
 ++++++++++++++++++++++++++++++++++++++++++++++
 
 The :py:func:`~aiida_lsmo.workchains.multicomp_gcmc.MulticompGcmcWorkChain` work chain
-performs in parallel GCMC calcultions, at all the T/P conditions specified, 
+performs in parallel GCMC calcultions, at all the conditions of temperature and pressure specified, 
 for a given mixture of molecules.
 
 Blocking spheres are computed for each molecule before the calculation.
@@ -1128,7 +1127,7 @@ Blocking spheres are computed for each molecule before the calculation.
     ],
     "temperatures_unit": "K"
 
-MulticompAdsDesWorkChain work chain
+MulticompAdsDes work chain
 ++++++++++++++++++++++++++++++++++++++++++++++
 
 The :py:func:`~aiida_lsmo.workchains.multicomp_ads_des.MulticompAdsDesWorkChain` work chain
@@ -1138,7 +1137,7 @@ the workchains uses the composition previously obtained at adsorption conditions
 
 Note that this is a conservative approximation, as one should reiterate and use for desorption the difference between the uptake 
 mixture at adsorption minus desorption. This may induce in artifact like negative working capacity, which are anyway
-an allarm that the desorption condition are not strong enough to evacuate a particular component.
+an allarm that the desorption condition are not strong enough to evacuate a particular component from the framework.
 
 .. aiida-workchain:: MulticompAdsDesWorkChain
     :module: aiida_lsmo.workchains
