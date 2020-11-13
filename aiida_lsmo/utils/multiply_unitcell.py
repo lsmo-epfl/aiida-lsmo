@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Utilities for unit cell multiplication, typically for cut-off issues."""
 
 from aiida.engine import calcfunction

@@ -27,12 +27,12 @@ def test_isotherm_mg_mof74(raspa_code, zeopp_code, mg_mof74_cifdata):
     builder.zeopp.code = zeopp_code
 
     options = {
-        "resources": {
-            "num_machines": 1,
-            "tot_num_mpiprocs": 1,
+        'resources': {
+            'num_machines': 1,
+            'tot_num_mpiprocs': 1,
         },
-        "max_wallclock_seconds": 1 * 60 * 60,
-        "withmpi": False,
+        'max_wallclock_seconds': 1 * 60 * 60,
+        'withmpi': False,
     }
 
     builder.raspa_base.raspa.metadata.options = options

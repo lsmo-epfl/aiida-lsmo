@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Calcfunctions to compute gas-selectivity related applications."""
 
 from aiida.engine import calcfunction
@@ -15,13 +16,13 @@ def calc_selectivity(isot_dict_a, isot_dict_b):
 
     out_dict = {}
     out_dict['is_porous'] = all([
-        "henry_coefficient_average" in isot_dict_a.get_dict() and "henry_coefficient_average" in isot_dict_b.get_dict()
+        'henry_coefficient_average' in isot_dict_a.get_dict() and 'henry_coefficient_average' in isot_dict_b.get_dict()
     ])
 
     if out_dict['is_porous']:
         out_dict[
-            "selectivity_average"] = isot_dict_a["henry_coefficient_average"] / isot_dict_b["henry_coefficient_average"]
-        out_dict["selectivity_dev"] = out_dict["selectivity_average"] * sqrt(
-            (isot_dict_a["henry_coefficient_dev"] / isot_dict_a["henry_coefficient_average"]) +
-            (isot_dict_b["henry_coefficient_dev"] / isot_dict_b["henry_coefficient_average"]))
+            'selectivity_average'] = isot_dict_a['henry_coefficient_average'] / isot_dict_b['henry_coefficient_average']
+        out_dict['selectivity_dev'] = out_dict['selectivity_average'] * sqrt(
+            (isot_dict_a['henry_coefficient_dev'] / isot_dict_a['henry_coefficient_average']) +
+            (isot_dict_b['henry_coefficient_dev'] / isot_dict_b['henry_coefficient_average']))
     return Dict(dict=out_dict)

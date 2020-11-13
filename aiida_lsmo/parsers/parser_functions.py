@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Functions used for specific parsing of output files."""
 
 import re
@@ -12,42 +13,42 @@ def parse_cp2k_output_bsse(fstring):
     lines = fstring.splitlines()
 
     result_dict = {
-        "exceeded_walltime": False,
-        "energy_description_list": [
-            "Energy of A with basis set A", "Energy of B with basis set B", "Energy of A with basis set of A+B",
-            "Energy of B with basis set of A+B", "Energy of A+B with basis set of A+B"
+        'exceeded_walltime': False,
+        'energy_description_list': [
+            'Energy of A with basis set A', 'Energy of B with basis set B', 'Energy of A with basis set of A+B',
+            'Energy of B with basis set of A+B', 'Energy of A+B with basis set of A+B'
         ],
-        "energy_list": [],
-        "energy_dispersion_list": []
+        'energy_list': [],
+        'energy_dispersion_list': []
     }
 
     read_energy = False
     for line in lines:
-        if "The number of warnings for this run is" in line:
-            result_dict["nwarnings"] = int(line.split()[-1])
-        if "exceeded requested execution time" in line:
-            result_dict["exceeded_walltime"] = True
-        if "SCF run converged in" in line:
+        if 'The number of warnings for this run is' in line:
+            result_dict['nwarnings'] = int(line.split()[-1])
+        if 'exceeded requested execution time' in line:
+            result_dict['exceeded_walltime'] = True
+        if 'SCF run converged in' in line:
             read_energy = True
         if read_energy:
-            if r"Dispersion energy:" in line:
-                result_dict["energy_dispersion_list"].append(float(line.split()[-1]))
-            if r"  Total energy:" in line:
-                result_dict["energy_list"].append(float(line.split()[-1]))
+            if r'Dispersion energy:' in line:
+                result_dict['energy_dispersion_list'].append(float(line.split()[-1]))
+            if r'  Total energy:' in line:
+                result_dict['energy_list'].append(float(line.split()[-1]))
                 read_energy = False
 
-    result_dict["energy"] = result_dict["energy_list"][4]
-    result_dict["energy_units"] = "a.u."
-    result_dict["binding_energy_raw"] = (result_dict["energy_list"][4] - result_dict["energy_list"][0] -
-                                         result_dict["energy_list"][1]) * HARTREE2KJMOL
-    result_dict["binding_energy_corr"] = (result_dict["energy_list"][4] - result_dict["energy_list"][2] -
-                                          result_dict["energy_list"][3]) * HARTREE2KJMOL
-    result_dict["binding_energy_bsse"] = result_dict["binding_energy_raw"] - result_dict["binding_energy_corr"]
-    result_dict["binding_energy_unit"] = "kJ/mol"
-    if result_dict["energy_dispersion_list"]:
-        result_dict["binding_energy_dispersion"] = (result_dict["energy_dispersion_list"][4] -
-                                                    result_dict["energy_dispersion_list"][0] -
-                                                    result_dict["energy_dispersion_list"][1]) * HARTREE2KJMOL
+    result_dict['energy'] = result_dict['energy_list'][4]
+    result_dict['energy_units'] = 'a.u.'
+    result_dict['binding_energy_raw'] = (result_dict['energy_list'][4] - result_dict['energy_list'][0] -
+                                         result_dict['energy_list'][1]) * HARTREE2KJMOL
+    result_dict['binding_energy_corr'] = (result_dict['energy_list'][4] - result_dict['energy_list'][2] -
+                                          result_dict['energy_list'][3]) * HARTREE2KJMOL
+    result_dict['binding_energy_bsse'] = result_dict['binding_energy_raw'] - result_dict['binding_energy_corr']
+    result_dict['binding_energy_unit'] = 'kJ/mol'
+    if result_dict['energy_dispersion_list']:
+        result_dict['binding_energy_dispersion'] = (result_dict['energy_dispersion_list'][4] -
+                                                    result_dict['energy_dispersion_list'][0] -
+                                                    result_dict['energy_dispersion_list'][1]) * HARTREE2KJMOL
 
     return result_dict
 
@@ -56,7 +57,7 @@ def parse_cp2k_output_advanced(fstring):  # pylint: disable=too-many-locals, too
     """Parse CP2K output into a dictionary (ADVANCED: more info parsed @ PRINT_LEVEL MEDIUM)"""
     lines = fstring.splitlines()
 
-    result_dict = {"exceeded_walltime": False}
+    result_dict = {'exceeded_walltime': False}
     result_dict['warnings'] = []
     line_is = None
     energy = None
@@ -66,18 +67,18 @@ def parse_cp2k_output_advanced(fstring):  # pylint: disable=too-many-locals, too
         if line.startswith(' ENERGY| '):
             energy = float(line.split()[8])
             result_dict['energy'] = energy
-            result_dict['energy_units'] = "a.u."
+            result_dict['energy_units'] = 'a.u.'
         if 'The number of warnings for this run is' in line:
             result_dict['nwarnings'] = int(line.split()[-1])
         if 'exceeded requested execution time' in line:
             result_dict['exceeded_walltime'] = True
-        if "KPOINTS| Band Structure Calculation" in line:
+        if 'KPOINTS| Band Structure Calculation' in line:
             kpoints, labels, bands = _parse_bands(lines, i_line)
-            result_dict["kpoint_data"] = {
-                "kpoints": kpoints,
-                "labels": labels,
-                "bands": bands,
-                "bands_unit": "eV",
+            result_dict['kpoint_data'] = {
+                'kpoints': kpoints,
+                'labels': labels,
+                'bands': bands,
+                'bands_unit': 'eV',
             }
         if line.startswith(' GLOBAL| Run type'):
             result_dict['run_type'] = line.split()[-1]
@@ -105,7 +106,7 @@ def parse_cp2k_output_advanced(fstring):  # pylint: disable=too-many-locals, too
         if re.search('Smear method', line):
             result_dict['smear_method'] = line.split()[-1]
 
-        if re.search(r"subspace spin", line):
+        if re.search(r'subspace spin', line):
             if int(line.split()[-1]) == 1:
                 line_is = 'eigen_spin1_au'
                 if 'eigen_spin1_au' not in result_dict.keys():
@@ -117,20 +118,20 @@ def parse_cp2k_output_advanced(fstring):  # pylint: disable=too-many-locals, too
             continue
 
         # Parse warnings
-        if re.search(r"Using a non-square number of", line):
+        if re.search(r'Using a non-square number of', line):
             result_dict['warnings'].append('Using a non-square number of MPI ranks')
-        if re.search(r"SCF run NOT converged", line):
-            warn = "One or more SCF run did not converge"
+        if re.search(r'SCF run NOT converged', line):
+            warn = 'One or more SCF run did not converge'
             if warn not in result_dict['warnings']:
                 result_dict['warnings'].append(warn)
-        if re.search(r"Specific L-BFGS convergence criteria", line):
-            result_dict["warnings"].append("LBFGS converged with specific criteria")
+        if re.search(r'Specific L-BFGS convergence criteria', line):
+            result_dict['warnings'].append('LBFGS converged with specific criteria')
 
         # If a tag has been detected, now read the following line knowing what they are
         if line_is is not None:
             # Read eigenvalues as 4-columns row, then convert to float
             if line_is in ['eigen_spin1_au', 'eigen_spin2_au']:
-                if re.search(r"-------------", line) or re.search(r"Reached convergence", line):
+                if re.search(r'-------------', line) or re.search(r'Reached convergence', line):
                     continue
                 if line.split() and len(line.split()) <= 4:
                     result_dict[line_is] += [float(x) for x in line.split()]
@@ -181,27 +182,27 @@ def parse_cp2k_output_advanced(fstring):  # pylint: disable=too-many-locals, too
             data = line.split()
             # Parse general info
             if line.startswith(' CELL|'):
-                if re.search(r"Volume", line):
+                if re.search(r'Volume', line):
                     cell_vol = float(data[3])
-                if re.search(r"Vector a", line):
+                if re.search(r'Vector a', line):
                     cell_a = float(data[9])
-                if re.search(r"Vector b", line):
+                if re.search(r'Vector b', line):
                     cell_b = float(data[9])
-                if re.search(r"Vector c", line):
+                if re.search(r'Vector c', line):
                     cell_c = float(data[9])
-                if re.search(r"alpha", line):
+                if re.search(r'alpha', line):
                     cell_alp = float(data[5])
-                if re.search(r"beta", line):
+                if re.search(r'beta', line):
                     cell_bet = float(data[5])
-                if re.search(r"gamma", line):
+                if re.search(r'gamma', line):
                     cell_gam = float(data[5])
 
-            if re.search(r"Dispersion energy", line):
+            if re.search(r'Dispersion energy', line):
                 dispersion = float(data[2])
             if re.search('Total charge density on r-space grids:', line):
                 # Printed at every outer OT, and needed for understanding if something is going wrong (if !=0)
                 edens_rspace = float(line.split()[-1])
-            if re.search(r"SCF run NOT converged", line):
+            if re.search(r'SCF run NOT converged', line):
                 scf_converged = False
 
             # Parse specific info
@@ -210,48 +211,48 @@ def parse_cp2k_output_advanced(fstring):  # pylint: disable=too-many-locals, too
                     print_now = True
             if result_dict['run_type'] in ['GEO_OPT', 'CELL_OPT']:
                 #Note: with CELL_OPT/LBFGS there is no "STEP 0", while there is with CELL_OPT/BFGS
-                if re.search(r"Informations at step", line):
+                if re.search(r'Informations at step', line):
                     step = int(data[5])
-                if re.search(r"Max. step size             =", line):
+                if re.search(r'Max. step size             =', line):
                     max_step = float(data[-1])
-                if re.search(r"RMS step size              =", line):
+                if re.search(r'RMS step size              =', line):
                     rms_step = float(data[-1])
-                if re.search(r"Max. gradient              =", line):
+                if re.search(r'Max. gradient              =', line):
                     max_grad = float(data[-1])
-                if re.search(r"RMS gradient               =", line):
+                if re.search(r'RMS gradient               =', line):
                     rms_grad = float(data[-1])
                 if len(data) == 1 and data[0] == '---------------------------------------------------':
                     print_now = True  # 51('-')
-                if re.search(r"Reevaluating energy at the minimum", line):  #not clear why it is doing a last one...
+                if re.search(r'Reevaluating energy at the minimum', line):  #not clear why it is doing a last one...
                     result_dict['motion_opt_converged'] = True
 
             if result_dict['run_type'] == 'CELL_OPT':
-                if re.search(r"Internal Pressure", line):
+                if re.search(r'Internal Pressure', line):
                     pressure = float(data[4])
             if result_dict['run_type'] == 'MD-NVT':
-                if re.search(r"STEP NUMBER", line):
+                if re.search(r'STEP NUMBER', line):
                     step = int(data[3])
-                if re.search(r"INITIAL PRESSURE\[bar\]", line):
+                if re.search(r'INITIAL PRESSURE\[bar\]', line):
                     pressure = float(data[3])
                     print_now = True
-                if re.search(r"PRESSURE \[bar\]", line):
+                if re.search(r'PRESSURE \[bar\]', line):
                     pressure = float(data[3])
                     print_now = True
             if result_dict['run_type'] == 'MD-NPT_F':
-                if re.search(r"^ STEP NUMBER", line):
+                if re.search(r'^ STEP NUMBER', line):
                     step = int(data[3])
-                if re.search(r"^ INITIAL PRESSURE\[bar\]", line):
+                if re.search(r'^ INITIAL PRESSURE\[bar\]', line):
                     pressure = float(data[3])
                     print_now = True
-                if re.search(r"^ PRESSURE \[bar\]", line):
+                if re.search(r'^ PRESSURE \[bar\]', line):
                     pressure = float(data[3])
-                if re.search(r"^ VOLUME\[bohr\^3\]", line):
+                if re.search(r'^ VOLUME\[bohr\^3\]', line):
                     cell_vol = float(data[3]) * (bohr2ang**3)
-                if re.search(r"^ CELL LNTHS\[bohr\]", line):
+                if re.search(r'^ CELL LNTHS\[bohr\]', line):
                     cell_a = float(data[3]) * bohr2ang
                     cell_b = float(data[4]) * bohr2ang
                     cell_c = float(data[5]) * bohr2ang
-                if re.search(r"^ CELL ANGLS\[deg\]", line):
+                if re.search(r'^ CELL ANGLS\[deg\]', line):
                     cell_alp = float(data[3])
                     cell_bet = float(data[4])
                     cell_gam = float(data[5])

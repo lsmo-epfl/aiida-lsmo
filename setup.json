@@ -31,7 +31,7 @@
         "aiida.parsers": [
             "lsmo.cp2k_bsse_parser = aiida_lsmo.parsers:Cp2kBsseParser",
             "lsmo.cp2k_advanced_parser = aiida_lsmo.parsers:Cp2kAdvancedParser"
-        ],    
+        ],
         "aiida.workflows": [
             "lsmo.binding_site = aiida_lsmo.workchains:BindingSiteWorkChain",
             "lsmo.cp2k_binding_energy = aiida_lsmo.workchains.cp2k_binding_energy:Cp2kBindingEnergyWorkChain",

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Test/example for the Cp2kMultistageWorkChain."""
 
 import os
@@ -16,8 +17,8 @@ Cp2kMultistageWorkChain = WorkflowFactory('lsmo.cp2k_multistage')  # pylint: dis
 def run_multistage_al(cp2k_code):
     """Example usage: verdi run thistest.py cp2k@localhost"""
 
-    print("Testing CP2K multistage workchain on Al (RKS, needs smearing)...")
-    print("EXPECTED: the OT (settings_0) will converge to a negative bandgap, then use SMEARING (settings_1)")
+    print('Testing CP2K multistage workchain on Al (RKS, needs smearing)...')
+    print('EXPECTED: the OT (settings_0) will converge to a negative bandgap, then use SMEARING (settings_1)')
 
     thisdir = os.path.dirname(os.path.abspath(__file__))
     structure = StructureData(ase=ase.io.read(os.path.join(thisdir, 'data/Al.cif')))
@@ -50,8 +51,8 @@ def run_multistage_al(cp2k_code):
     builder.cp2k_base.cp2k.parameters = parameters
     builder.cp2k_base.cp2k.code = cp2k_code
     builder.cp2k_base.cp2k.metadata.options.resources = {
-        "num_machines": 1,
-        "num_mpiprocs_per_machine": 1,
+        'num_machines': 1,
+        'num_mpiprocs_per_machine': 1,
     }
     builder.cp2k_base.cp2k.metadata.options.max_wallclock_seconds = 1 * 3 * 60
 

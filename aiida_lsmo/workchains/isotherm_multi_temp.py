@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """IsothermMultiTemp workchain."""
 
 from aiida.plugins import WorkflowFactory
@@ -83,13 +84,13 @@ class IsothermMultiTempWorkChain(WorkChain):
         # Set inputs for zeopp
         dict_merge(inputs, {
             'metadata': {
-                'label': "IsothermGeometric",
+                'label': 'IsothermGeometric',
                 'call_link_label': 'run_geometric',
             },
         })
 
         running = self.submit(IsothermWorkChain, **inputs)
-        self.report("Computing common gemetric properties")
+        self.report('Computing common gemetric properties')
         return ToContext(geom_only=running)
 
     def should_continue(self):
@@ -110,7 +111,7 @@ class IsothermMultiTempWorkChain(WorkChain):
         inputs = self.exposed_inputs(IsothermWorkChain)
         inputs['geometric'] = self.ctx.geom
         if 'block' in self.ctx.geom_only.outputs:
-            inputs['raspa_base']['raspa']["block_pocket"] = {"block_file": self.ctx.geom_only.outputs.block}
+            inputs['raspa_base']['raspa']['block_pocket'] = {'block_file': self.ctx.geom_only.outputs.block}
 
         # Update the parameters with only one temperature and submit
         for i in range(self.ctx.ntemp):
@@ -119,7 +120,7 @@ class IsothermMultiTempWorkChain(WorkChain):
             dict_merge(
                 inputs, {
                     'metadata': {
-                        'label': "Isotherm_{}".format(i),
+                        'label': 'Isotherm_{}'.format(i),
                         'call_link_label': 'run_isotherm_{}'.format(i),
                     },
                     'parameters': self.ctx.parameters_singletemp
@@ -137,6 +138,6 @@ class IsothermMultiTempWorkChain(WorkChain):
                 output_dict['isotherm_out_{}'.format(i)] = self.ctx['isotherm_{}'.format(
                     i)].outputs['output_parameters']
 
-        self.out("output_parameters", get_output_parameters(self.ctx.geom, **output_dict))
+        self.out('output_parameters', get_output_parameters(self.ctx.geom, **output_dict))
 
-        self.report("All the isotherms computed: output Dict<{}>".format(self.outputs['output_parameters'].pk))
+        self.report('All the isotherms computed: output Dict<{}>'.format(self.outputs['output_parameters'].pk))

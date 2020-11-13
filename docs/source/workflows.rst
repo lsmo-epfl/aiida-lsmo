@@ -153,8 +153,8 @@ What it can not do:
 Note that if the ``pressure_list`` value is provided, the other pressure inputs are neglected and the automatic pressure
 selection of the work chain is skipped.
 
-Note that you can scale the probe radius to empirically account for some framework flexibility and avoid overblocking. 
-Setting ``zeopp_probe_scaling`` to zero (or a small value) basically corresponds to skipping the permeability check and 
+Note that you can scale the probe radius to empirically account for some framework flexibility and avoid overblocking.
+Setting ``zeopp_probe_scaling`` to zero (or a small value) basically corresponds to skipping the permeability check and
 skips the calculation of blocking spheres.
 
 * ``geometric`` is not meant to be used by the user, but by the IsothermMultiTemp work chains.
@@ -456,7 +456,7 @@ Default input mixture is coal post-combustion flue gas, but also natural gas pos
 Multistage work chain
 ++++++++++++++++++++++
 
-The :py:func:`~aiida_lsmo.workchains.cp2k_multistage.Cp2kMultistageWorkChain` work chain in meant to automate 
+The :py:func:`~aiida_lsmo.workchains.cp2k_multistage.Cp2kMultistageWorkChain` work chain in meant to automate
 DFT optimizations in CP2K and guess some good parameters
 for the simulation, but it is written in such a versatile fashion that it can be used for many other functions.
 
@@ -923,7 +923,7 @@ SinglecompWidom work chain
 
 The :py:func:`~aiida_lsmo.workchains.singlecomp_widom.SinglecompWidomWorkChain` work chain
 allows to compute the Henry's coefficient of a molecule via the Widom insertions algorithm.
-The user can specify a list of temperatures to perform these calculations, and the results from the ``output_parameters`` 
+The user can specify a list of temperatures to perform these calculations, and the results from the ``output_parameters``
 Dict will be presented as lists as well, one for each temperature.
 
 Blocking spheres are computed for the molecule before the calculation.
@@ -1003,7 +1003,7 @@ MulticompGcmc work chain
 ++++++++++++++++++++++++++++++++++++++++++++++
 
 The :py:func:`~aiida_lsmo.workchains.multicomp_gcmc.MulticompGcmcWorkChain` work chain
-performs in parallel GCMC calcultions, at all the conditions of temperature and pressure specified, 
+performs in parallel GCMC calcultions, at all the conditions of temperature and pressure specified,
 for a given mixture of molecules.
 
 Blocking spheres are computed for each molecule before the calculation.
@@ -1131,7 +1131,7 @@ MulticompAdsDes work chain
 ++++++++++++++++++++++++++++++++++++++++++++++
 
 The :py:func:`~aiida_lsmo.workchains.multicomp_ads_des.MulticompAdsDesWorkChain` work chain
-is similar to MulticompGcmc, but it performs one simulation at given adsorption temperature, pressure and composition, 
+is similar to MulticompGcmc, but it performs one simulation at given adsorption temperature, pressure and composition,
 and a second one at given temperature and pressure for desorption. For the desorption mixure of the gas reservoir,
 the workchains uses the composition previously obtained at adsorption conditions inside the framework.
 
@@ -1242,7 +1242,7 @@ IsothermInflection work chain
 
 The :py:func:`~aiida_lsmo.workchains.isotherm_inflection.IsothermInflectionWorkChain` work chain
 is designed to compute those isotherms that may have hysteresis between adsorption and desorption.
-The work chain computes in parallel the uptake via GCMC at all pressure points from both the bare and the saturated 
+The work chain computes in parallel the uptake via GCMC at all pressure points from both the bare and the saturated
 framework. The saturated framework is obtaining by running a "quasi-NVT" simulation, initializated with a number
 of molecules equal to ``90% * pore volume * fluid density``. "Quasi-NVT" is defined as a GCMC calculations where the
 swap move is only rarely attempted.
@@ -1284,7 +1284,7 @@ Note that this work chain may run many calculations in parallel.
             'proberad': 1.7,
             'singlebead': True,
             'charged': False,
-            'pressure_zero': 1, # Saturation pressure @ T (bar) 
+            'pressure_zero': 1, # Saturation pressure @ T (bar)
 
 **Outputs details**
 

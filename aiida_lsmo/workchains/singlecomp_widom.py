@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """A work chain."""
 import os
 import ruamel.yaml as yaml
@@ -12,24 +13,24 @@ from aiida_lsmo.utils import aiida_dict_merge, check_resize_unit_cell
 RaspaBaseWorkChain = WorkflowFactory('raspa.base')  #pylint: disable=invalid-name
 
 # Defining DataFactory, CalculationFactory and default parameters
-CifData = DataFactory("cif")  #pylint: disable=invalid-name
-ZeoppParameters = DataFactory("zeopp.parameters")  #pylint: disable=invalid-name
+CifData = DataFactory('cif')  #pylint: disable=invalid-name
+ZeoppParameters = DataFactory('zeopp.parameters')  #pylint: disable=invalid-name
 
-ZeoppCalculation = CalculationFactory("zeopp.network")  #pylint: disable=invalid-name
+ZeoppCalculation = CalculationFactory('zeopp.network')  #pylint: disable=invalid-name
 FFBuilder = CalculationFactory('lsmo.ff_builder')  # pylint: disable=invalid-name
 
 PARAMETERS_DEFAULT = {  #TODO: create IsothermParameters instead of Dict # pylint: disable=fixme
-    "ff_framework": "UFF",  # str, Forcefield of the structure (used also as a definition of ff.rad for zeopp)
-    "ff_shifted": False,  # bool, Shift or truncate at cutoff
-    "ff_tail_corrections": True,  # bool, Apply tail corrections
-    "ff_mixing_rule": 'Lorentz-Berthelot',  # str, Mixing rule for the forcefield
-    "ff_separate_interactions": False,  # bool, if true use only ff_framework for framework-molecule interactions
-    "ff_cutoff": 12.0,  # float, CutOff truncation for the VdW interactions (Angstrom)
-    "zeopp_probe_scaling": 1.0,  # float, scaling probe's diameter: use 0.0 for skipping block calc
-    "zeopp_block_samples": int(1000),  # int, Number of samples for BLOCK calculation (per A^3)
-    "raspa_verbosity": 10,  # int, Print stats every: number of cycles / raspa_verbosity
-    "raspa_widom_cycles": int(1e5),  # int, Number of widom cycles
-    "temperatures": [300, 400]
+    'ff_framework': 'UFF',  # str, Forcefield of the structure (used also as a definition of ff.rad for zeopp)
+    'ff_shifted': False,  # bool, Shift or truncate at cutoff
+    'ff_tail_corrections': True,  # bool, Apply tail corrections
+    'ff_mixing_rule': 'Lorentz-Berthelot',  # str, Mixing rule for the forcefield
+    'ff_separate_interactions': False,  # bool, if true use only ff_framework for framework-molecule interactions
+    'ff_cutoff': 12.0,  # float, CutOff truncation for the VdW interactions (Angstrom)
+    'zeopp_probe_scaling': 1.0,  # float, scaling probe's diameter: use 0.0 for skipping block calc
+    'zeopp_block_samples': int(1000),  # int, Number of samples for BLOCK calculation (per A^3)
+    'raspa_verbosity': 10,  # int, Print stats every: number of cycles / raspa_verbosity
+    'raspa_widom_cycles': int(1e5),  # int, Number of widom cycles
+    'temperatures': [300, 400]
 }
 
 
@@ -37,7 +38,7 @@ PARAMETERS_DEFAULT = {  #TODO: create IsothermParameters instead of Dict # pylin
 def get_molecule_dict(molecule_name):
     """Get a Dict from the isotherm_molecules.yaml"""
     thisdir = os.path.dirname(os.path.abspath(__file__))
-    yamlfile = os.path.join(thisdir, "isotherm_data", "isotherm_molecules.yaml")
+    yamlfile = os.path.join(thisdir, 'isotherm_data', 'isotherm_molecules.yaml')
     with open(yamlfile, 'r') as stream:
         yaml_dict = yaml.safe_load(stream)
     molecule_dict = yaml_dict[molecule_name.value]
@@ -60,7 +61,7 @@ def get_ff_parameters(molecule_dict, isotparam):
 @calcfunction
 def get_zeopp_parameters(molecule_dict, isotparam):
     """Get the ZeoppParameters from the inputs of the workchain"""
-    probe_rad = molecule_dict["proberad"] * isotparam["zeopp_probe_scaling"]
+    probe_rad = molecule_dict['proberad'] * isotparam['zeopp_probe_scaling']
     param_dict = {
         'ha': 'DEF',
         'block': [probe_rad, isotparam['zeopp_block_samples']],
@@ -72,10 +73,10 @@ def get_zeopp_parameters(molecule_dict, isotparam):
 def get_atomic_radii(isotparam):
     """Get {ff_framework}.rad as SinglefileData form workchain/isotherm_data. If not existing use DEFAULT.rad."""
     thisdir = os.path.dirname(os.path.abspath(__file__))
-    filename = isotparam['ff_framework'] + ".rad"
-    filepath = os.path.join(thisdir, "isotherm_data", filename)
+    filename = isotparam['ff_framework'] + '.rad'
+    filepath = os.path.join(thisdir, 'isotherm_data', filename)
     if not os.path.isfile(filepath):
-        filepath = os.path.join(thisdir, "isotherm_data", "DEFAULT.rad")
+        filepath = os.path.join(thisdir, 'isotherm_data', 'DEFAULT.rad')
     return SinglefileData(file=filepath)
 
 
@@ -97,7 +98,7 @@ def get_output_parameters(inp_parameters, **all_out_dicts):
     ]
 
     for temp in inp_parameters['temperatures']:
-        widom_label = f"RaspaWidom_{int(temp)}"
+        widom_label = f'RaspaWidom_{int(temp)}'
         output_widom = all_out_dicts[widom_label].get_dict()
         for key in widom_keys:
             if key not in out_dict:
@@ -119,11 +120,11 @@ class SinglecompWidomWorkChain(WorkChain):
         spec.expose_inputs(ZeoppCalculation, namespace='zeopp', include=['code', 'metadata'])
         spec.expose_inputs(RaspaBaseWorkChain, namespace='raspa_base', exclude=['raspa.structure', 'raspa.parameters'])
         spec.input('structure', valid_type=CifData, required=False, help='Adsorbent framework CIF or None for a box.')
-        spec.input("molecule",
+        spec.input('molecule',
                    valid_type=(Str, Dict),
                    help='Adsorbate molecule: settings to be read from the yaml.' +
                    'Advanced: input a Dict for non-standard settings.')
-        spec.input("parameters",
+        spec.input('parameters',
                    valid_type=Dict,
                    help='Main parameters and settings for the calculations, to overwrite PARAMETERS_DEFAULT.')
         spec.outline(
@@ -139,7 +140,7 @@ class SinglecompWidomWorkChain(WorkChain):
 
     def setup(self):
         """Initialize parameters"""
-        self.ctx.sim_in_box = "structure" not in self.inputs.keys()
+        self.ctx.sim_in_box = 'structure' not in self.inputs.keys()
         self.ctx.parameters = aiida_dict_merge(Dict(dict=PARAMETERS_DEFAULT), self.inputs.parameters)
         if isinstance(self.inputs.molecule, Str):
             self.ctx.molecule = get_molecule_dict(self.inputs.molecule)
@@ -155,43 +156,43 @@ class SinglecompWidomWorkChain(WorkChain):
         """It performs the full zeopp calculation for all components."""
         zeopp_inputs = self.exposed_inputs(ZeoppCalculation, 'zeopp')
         zeopp_inputs.update({'structure': self.inputs.structure, 'atomic_radii': get_atomic_radii(self.ctx.parameters)})
-        zeopp_inputs['metadata']['label'] = "ZeoppBlock"
-        zeopp_inputs['metadata']['call_link_label'] = "run_zeopp_block"
+        zeopp_inputs['metadata']['label'] = 'ZeoppBlock'
+        zeopp_inputs['metadata']['call_link_label'] = 'run_zeopp_block'
         zeopp_inputs['parameters'] = get_zeopp_parameters(self.ctx.molecule, self.ctx.parameters)
         running = self.submit(ZeoppCalculation, **zeopp_inputs)
-        self.report("Running zeo++ block calculation<{}>".format(running.id))
-        self.to_context(**{"ZeoppBlock": running})
+        self.report('Running zeo++ block calculation<{}>'.format(running.id))
+        self.to_context(**{'ZeoppBlock': running})
 
     def inspect_zeopp_calc(self):
         """Asserts whether all widom calculations are finished ok and expose block file."""
-        assert self.ctx["ZeoppBlock"].is_finished_ok
+        assert self.ctx['ZeoppBlock'].is_finished_ok
 
-        if self.ctx["ZeoppBlock"].outputs.output_parameters['Number_of_blocking_spheres'] > 0:
+        if self.ctx['ZeoppBlock'].outputs.output_parameters['Number_of_blocking_spheres'] > 0:
             self.out_many(self.exposed_outputs(self.ctx.zeopp, ZeoppCalculation))
 
     def _get_widom_inputs(self):
         """Generate Raspa input parameters from scratch, for a Widom calculation."""
         self.ctx.raspa_inputs = self.exposed_inputs(RaspaBaseWorkChain, 'raspa_base')
         self.ctx.raspa_inputs['raspa']['file'] = FFBuilder(self.ctx.ff_params)
-        self.ctx.raspa_inputs["raspa"]["block_pocket"] = {}
+        self.ctx.raspa_inputs['raspa']['block_pocket'] = {}
         verbosity = self.ctx.parameters['raspa_widom_cycles'] / self.ctx.parameters['raspa_verbosity']
         self.ctx.raspa_param = {
-            "GeneralSettings": {
-                "SimulationType": "MonteCarlo",
-                "NumberOfInitializationCycles": 0,
-                "NumberOfCycles": self.ctx.parameters['raspa_widom_cycles'],
-                "PrintPropertiesEvery": verbosity,
-                "PrintEvery": int(1e10),
-                "RemoveAtomNumberCodeFromLabel": True,  # github.com/aiidateam/aiida-core/issues/3304
-                "Forcefield": "Local",
-                "UseChargesFromCIFFile": "yes",
-                "CutOff": self.ctx.parameters['ff_cutoff'],
-                "ChargeMethod": "Ewald" if self.ctx.molecule['charged'] else "None"
+            'GeneralSettings': {
+                'SimulationType': 'MonteCarlo',
+                'NumberOfInitializationCycles': 0,
+                'NumberOfCycles': self.ctx.parameters['raspa_widom_cycles'],
+                'PrintPropertiesEvery': verbosity,
+                'PrintEvery': int(1e10),
+                'RemoveAtomNumberCodeFromLabel': True,  # github.com/aiidateam/aiida-core/issues/3304
+                'Forcefield': 'Local',
+                'UseChargesFromCIFFile': 'yes',
+                'CutOff': self.ctx.parameters['ff_cutoff'],
+                'ChargeMethod': 'Ewald' if self.ctx.molecule['charged'] else 'None'
             },
-            "System": {},
-            "Component": {
+            'System': {},
+            'Component': {
                 self.ctx.molecule['name']: {
-                    "MoleculeDefinition": "Local",
+                    'MoleculeDefinition': 'Local',
                     'WidomProbability': 1.0
                 }
             }
@@ -199,25 +200,25 @@ class SinglecompWidomWorkChain(WorkChain):
 
         if self.ctx.sim_in_box:
             self.ctx.raspa_param['System'] = {
-                "box_1": {
-                    "type": "Box",
-                    "BoxLengths": "100 100 100"  #large to avoid Coulomb self interaction
+                'box_1': {
+                    'type': 'Box',
+                    'BoxLengths': '100 100 100'  #large to avoid Coulomb self interaction
                 }
             }
         else:
             mult = check_resize_unit_cell(self.inputs.structure, 2 * self.ctx.parameters['ff_cutoff'])
             self.ctx.raspa_param['System'] = {
-                "framework_1": {
-                    "type": "Framework",
-                    "UnitCells": f"{mult[0]} {mult[1]} {mult[2]}"
+                'framework_1': {
+                    'type': 'Framework',
+                    'UnitCells': f'{mult[0]} {mult[1]} {mult[2]}'
                 }
             }
-            self.ctx.raspa_inputs['raspa']['framework'] = {"framework_1": self.inputs.structure}
+            self.ctx.raspa_inputs['raspa']['framework'] = {'framework_1': self.inputs.structure}
 
-        if "ZeoppBlock" in self.ctx and \
-           self.ctx["ZeoppBlock"].outputs.output_parameters['Number_of_blocking_spheres'] > 0:
-            self.ctx.raspa_param["Component"][self.ctx.molecule['name']]["BlockPocketsFileName"] = "block_file"
-            self.ctx.inp["raspa"]["block_pocket"] = {"block_file": self.ctx["ZeoppBlock"].outputs.block}
+        if 'ZeoppBlock' in self.ctx and \
+           self.ctx['ZeoppBlock'].outputs.output_parameters['Number_of_blocking_spheres'] > 0:
+            self.ctx.raspa_param['Component'][self.ctx.molecule['name']]['BlockPocketsFileName'] = 'block_file'
+            self.ctx.inp['raspa']['block_pocket'] = {'block_file': self.ctx['ZeoppBlock'].outputs.block}
 
     def run_raspa_widom(self):
         """Run parallel Widom calculation in RASPA, at all temperature specified in the conditions setting."""
@@ -225,11 +226,11 @@ class SinglecompWidomWorkChain(WorkChain):
         self._get_widom_inputs()
 
         for temp in self.inputs.parameters['temperatures']:
-            widom_label = f"RaspaWidom_{int(temp)}"
+            widom_label = f'RaspaWidom_{int(temp)}'
             self.ctx.raspa_inputs['metadata']['label'] = widom_label
-            self.ctx.raspa_inputs['metadata']['call_link_label'] = f"run_{widom_label}"
+            self.ctx.raspa_inputs['metadata']['call_link_label'] = f'run_{widom_label}'
             system_key = list(self.ctx.raspa_param['System'].keys())[0]
-            self.ctx.raspa_param['System'][system_key]["ExternalTemperature"] = temp
+            self.ctx.raspa_param['System'][system_key]['ExternalTemperature'] = temp
             self.ctx.raspa_inputs['raspa']['parameters'] = Dict(dict=self.ctx.raspa_param)
             running = self.submit(RaspaBaseWorkChain, **self.ctx.raspa_inputs)
             self.report(f"Running Raspa Widom @ {temp}K for the Henry coefficient of <{self.ctx.molecule['name']}>")
@@ -243,6 +244,6 @@ class SinglecompWidomWorkChain(WorkChain):
         for key, val in self.ctx.items():
             if key.startswith('RaspaWidom_'):
                 all_out_dicts[key] = val.outputs.output_parameters
-        self.out("output_parameters", get_output_parameters(inp_parameters=self.ctx.parameters, **all_out_dicts))
+        self.out('output_parameters', get_output_parameters(inp_parameters=self.ctx.parameters, **all_out_dicts))
 
-        self.report("Workchain completed: output parameters Dict<{}>".format(self.outputs['output_parameters'].pk))
+        self.report('Workchain completed: output parameters Dict<{}>'.format(self.outputs['output_parameters'].pk))

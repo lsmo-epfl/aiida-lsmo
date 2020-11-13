@@ -20,8 +20,8 @@ def main(cp2k_code_label):
 
     cp2k_code = Code.get_from_string(cp2k_code_label)
 
-    print("Testing CP2K BindingEnergy work chain for CO2 in Zn-MOF-74 ...")
-    print("[NOTE: this test will run on 4 cpus and take ca. 10 minutes]")
+    print('Testing CP2K BindingEnergy work chain for CO2 in Zn-MOF-74 ...')
+    print('[NOTE: this test will run on 4 cpus and take ca. 10 minutes]')
 
     thisdir = os.path.dirname(os.path.abspath(__file__))
 
@@ -49,8 +49,8 @@ def main(cp2k_code_label):
     })
     builder.cp2k_base.cp2k.code = cp2k_code
     builder.cp2k_base.cp2k.metadata.options.resources = {
-        "num_machines": 1,
-        "num_mpiprocs_per_machine": 4,
+        'num_machines': 1,
+        'num_mpiprocs_per_machine': 4,
     }
     builder.cp2k_base.cp2k.metadata.options.max_wallclock_seconds = 1 * 5 * 60
 
