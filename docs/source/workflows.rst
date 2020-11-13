@@ -1236,3 +1236,158 @@ The approximation may induce artifacts such as negative working capacity for cer
         "Xe": 0.668530015842
     },
     "working_capacity_unit": "mol/kg"
+
+IsothermInflection work chain
+++++++++++++++++++++++++++++++++++++++++++++++
+
+The :py:func:`~aiida_lsmo.workchains.isotherm_inflection.IsothermInflectionWorkChain` work chain
+is designed to compute those isotherms that may have hysteresis between adsorption and desorption.
+The work chain computes in parallel the uptake via GCMC at all pressure points from both the bare and the saturated
+framework. The saturated framework is obtaining by running a "quasi-NVT" simulation, initializated with a number
+of molecules equal to ``90% * pore volume * fluid density``. "Quasi-NVT" is defined as a GCMC calculations where the
+swap move is only rarely attempted.
+
+Note that this work chain may run many calculations in parallel.
+
+.. aiida-workchain:: IsothermInflectionWorkChain
+    :module: aiida_lsmo.workchains
+
+**Inputs details**
+
+* ``parameters`` (``Dict``) modifies the default parameters::
+
+        "ff_framework": "UFF",  # (str) Forcefield of the structure.
+        "ff_separate_interactions": False,  # (bool) Use "separate_interactions" in the FF builder.
+        "ff_mixing_rule": "Lorentz-Berthelot",  # (string) Choose 'Lorentz-Berthelot' or 'Jorgensen'.
+        "ff_tail_corrections": True,  # (bool) Apply tail corrections.
+        "ff_shifted": False,  # (bool) Shift or truncate the potential at cutoff.
+        "ff_cutoff": 12.0,  # (float) CutOff truncation for the VdW interactions (Angstrom).
+        "temperature": 300,  # (float) Temperature of the simulation.
+        "zeopp_probe_scaling": 1.0,  # float, scaling probe's diameter: use 0.0 for skipping block calc
+        "zeopp_volpo_samples": int(1e5),  # (int) Number of samples for VOLPO calculation (per UC volume).
+        "zeopp_block_samples": int(100),  # (int) Number of samples for BLOCK calculation (per A^3).
+        "raspa_verbosity": 10,  # (int) Print stats every: number of cycles / raspa_verbosity.
+        "raspa_widom_cycles": int(1e5),  # (int) Number of Widom cycles.
+        "raspa_gcmc_init_cycles": int(1e3),  # (int) Number of GCMC initialization cycles.
+        "raspa_gcmc_prod_cycles": int(1e4),  # (int) Number of GCMC production cycles.
+        "pressure_min": 0.001,  # (float) Min pressure in P/P0 TODO: MIN selected from the henry coefficient!
+        "pressure_max": 1.0,  # (float) Max pressure in P/P0
+        "pressure_num": 20,  # (int) Number of pressure points considered, eqispaced in a log plot
+        "pressure_list": None,  # (list) Pressure list in P/P0. If 'None' pressure points are computed from min/max/num.
+
+* ``molecule`` (``Dict``), example::
+
+            'name': 'Ar',
+            'forcefield': 'HIRSCHFELDER',
+            "ff_cutoff": 8,
+            'molsatdens': 35.4, # NOTE: very important to define the initial amount of molecules!
+            'proberad': 1.7,
+            'singlebead': True,
+            'charged': False,
+            'pressure_zero': 1, # Saturation pressure @ T (bar)
+
+**Outputs details**
+
+* ``output_parameters`` (``Dict``), example::
+
+    "Density": 0.380639,
+    "Density_unit": "g/cm^3",
+    "Estimated_saturation_loading": 77.944428,
+    "Estimated_saturation_loading_unit": "mol/kg",
+    "Input_block": [
+        1.7,
+        100
+    ],
+    "Input_ha": "DEF",
+    "Input_structure_filename": "Graphite_20A.cif",
+    "Input_volpo": [
+        1.7,
+        1.7,
+        10000
+    ],
+    "Number_of_blocking_spheres": 0,
+    "POAV_A^3": 175.659,
+    "POAV_A^3_unit": "A^3",
+    "POAV_Volume_fraction": 0.8381,
+    "POAV_Volume_fraction_unit": null,
+    "POAV_cm^3/g": 2.20182,
+    "POAV_cm^3/g_unit": "cm^3/g",
+    "PONAV_A^3": 0.0,
+    "PONAV_A^3_unit": "A^3",
+    "PONAV_Volume_fraction": 0.0,
+    "PONAV_Volume_fraction_unit": null,
+    "PONAV_cm^3/g": 0.0,
+    "PONAV_cm^3/g_unit": "cm^3/g",
+    "Unitcell_volume": 209.592,
+    "Unitcell_volume_unit": "A^3",
+    "adsorption_energy_widom_average": -10.349783334,
+    "adsorption_energy_widom_dev": 0.0203871821,
+    "adsorption_energy_widom_unit": "kJ/mol",
+    "henry_coefficient_average": 0.387019,
+    "henry_coefficient_dev": 0.0244542,
+    "henry_coefficient_unit": "mol/kg/Pa",
+    "is_porous": true,
+    "isotherm": {
+        "conversion_factor_molec_uc_to_cm3stp_cm3": 177.5796535584,
+        "conversion_factor_molec_uc_to_mg_g": 831.5477157974,
+        "conversion_factor_molec_uc_to_mol_kg": 20.814711284,
+        "enthalpy_of_adsorption_average_from_dil": [
+            -10.813400929552,
+            -7.4639574135508,
+            -9.9392383993082,
+            null
+        ],
+        "enthalpy_of_adsorption_average_from_sat": [
+            null,
+            null,
+            -14.825644658402,
+            null
+        ],
+        "enthalpy_of_adsorption_dev_from_dil": [
+            4.8201465665611,
+            3.0478392822994,
+            5.5941478469815,
+            null
+        ],
+        "enthalpy_of_adsorption_dev_from_sat": [
+            null,
+            null,
+            7.2192916198981,
+            null
+        ],
+        "enthalpy_of_adsorption_unit": "kJ/mol",
+        "loading_absolute_average_from_dil": [
+            27.31930856025,
+            29.798489351576,
+            62.091027143015,
+            72.617323992055
+        ],
+        "loading_absolute_average_from_sat": [
+            29.151746536085,
+            30.534438070785,
+            72.907243184345,
+            77.211428125155
+        ],
+        "loading_absolute_dev_from_dil": [
+            0.94383239273726,
+            1.8944736272227,
+            18.62478172839,
+            2.3400142831813
+        ],
+        "loading_absolute_dev_from_sat": [
+            0.32025900270015,
+            0.26491967913899,
+            1.1170544140921,
+            0.40142657506021
+        ],
+        "loading_absolute_unit": "mol/kg",
+        "pressure": [
+            0.001,
+            0.01,
+            0.1,
+            1.0
+        ],
+        "pressure_unit": "bar"
+        "temperature": 87,
+        "temperature_unit": "K"
+    }

@@ -1,0 +1,24 @@
+# Total Number Of Atoms
+3
+# Number Of Groups
+1
+# Group 1 - Type (whole molecule)
+flexible
+# Group 1 - Number of atoms
+3
+# Group 1 - Atomic Positions
+0 CH3_alc
+1 O_alc
+2 H_alc
+# Chiral centers Bond  BondDipoles Bend  UrayBradley InvBend  Torsion Imp. Torsion Bond/Bond Stretch/Bend Bend/Bend Stretch/Torsion Bend/Torsion IntraVDW IntraCoulomb
+               0    2            0    1            0       0        0            0         0            0         0               0            0        0            0
+# Bond stretch: atom n1-n2, type, parameters
+0 1 FIXED_BOND 1.43
+1 2 FIXED_BOND 0.945
+# Bond bending: atom n1-n2-n3, type, parameters
+0 1 2 HARMONIC_BEND 55400 108.5
+# Number of config moves
+2
+# Number of fixed beads, list of beads
+2 0 1
+2 1 2

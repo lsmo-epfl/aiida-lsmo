@@ -68,7 +68,7 @@ h2-charged:
 
 o2:
   name: O2
-  forcefield: TraPPE # most complex
+  forcefield: TraPPE
   molsatdens: 71.3 # experimental liq
   proberad: 1.51
   singlebead: false
@@ -121,3 +121,22 @@ ethene:
   proberad: 1.83
   singlebead: false
   charged: false
+
+meoh:
+  name: MeOH
+  forcefield: TraPPE
+  molsatdens: 24.7 # exp liq
+  proberad: 1.875 # sigma CH3/2
+  singlebead: false
+  charged: true
+  rosenbluth: 1.00984 # @300K, for testing purpose
+
+etoh:
+  name: EtOH
+  forcefield: TraPPE
+  molsatdens: 17.13 # exp liq
+  proberad: 1.975 # sigma CH2/2
+  singlebead: false
+  charged: true
+  rosenbluth: 0.363384 # @300K, for testing purpose
+  pressure_zero: 0.217 #@300K exp (bar)

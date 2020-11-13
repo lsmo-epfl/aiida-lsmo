@@ -12,6 +12,7 @@ The aiida-lsmo plugin for `AiiDA`_
    get_started
    workflows
    technicalities
+   development
 
 
    API documentation <apidoc/aiida_lsmo>
