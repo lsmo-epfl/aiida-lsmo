@@ -43,6 +43,10 @@ def render_ff_mixing_def(ff_data, params):
     # TODO: this needs to be sorted for python versions where dictionaries are not sorted! #pylint: disable=fixme
     # If separate_interactions==True, prints only "none" interactions for the molecules
     for atom_type, ff_pot in ff_data['framework'][params['ff_framework']]['atom_types'].items():
+        try:  #correct if the atom_type has charges (e.g., zeolites)
+            ff_pot = ff_pot['force_field']
+        except TypeError:
+            pass
         force_field_lines.append(' '.join([str(x) for x in [atom_type] + ff_pot]))
     for molecule, ff_name in params['ff_molecules'].items():
         for atom_type, val in ff_data[molecule][ff_name]['atom_types'].items():
@@ -127,6 +131,15 @@ def render_pseudo_atoms_def(ff_data, params):
     output.append('# number of pseudo atoms')
 
     pseudo_atoms_lines = []
+
+    #add framework charges (e.g., zeolites)
+    for atom_type, val in ff_data['framework'][params['ff_framework']]['atom_types'].items():
+        try:
+            type_settings = val['pseudo_atom']
+            pseudo_atoms_lines.append(' '.join([str(x) for x in [atom_type] + type_settings]))
+        except TypeError:
+            pass
+
     for molecule, ff_name in params['ff_molecules'].items():
         for atom_type, val in ff_data[molecule][ff_name]['atom_types'].items():
             type_settings = val['pseudo_atom']
