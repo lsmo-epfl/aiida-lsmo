@@ -272,8 +272,8 @@ H2:
     atomic_positions:
       - [H2_gas, 0, 0, 0]
   Buch-nonFH:
-    description:
-      Buch force field without Fehinman-Hibbs rules, for a simpler use with mixtures. Use only for near ambient temperatures or above.
+    description: |
+      Buch force field without Feynman-Hibbs rules, for a simpler use with mixtures. Use only for near ambient temperatures or above.
     atom_types:
       H2_gas:
         force_field: [lennard-jones, 34.2, 2.96]
@@ -282,7 +282,7 @@ H2:
       - [H2_gas, 0, 0, 0]
   P-FH:
     description: >-
-      Pseudo-Fehinman-Hibbs single bead potential developped in Fischer2009 (10.1002/cphc.200900459), to improve the
+      Pseudo-Feynman-Hibbs single bead potential developed in Fischer2009 (10.1002/cphc.200900459), to improve the
       Buch potential and include FH correction in a lennard-jones potential, and tested with MOFs.
       NOTE to be used at 77K!
       Used by the group of Siegel, e.g., in Ahmed2019 (10.1038/s41467-019-09365-w).
@@ -677,9 +677,9 @@ C2H4:
     pc: 5041000
     af: 0.086
   TraPPE:
-    description:
+    description: |
       TraPPE united atom (UA) parameterization for ethene, aka ethylene (10.1021/jp001044x).
-      Note that this FF is not charged, and it is not capturing the mild negative charge of the C=C bond.
+      Note that this FF is not charged, and thus does not not capture the mild negative charge of the C=C bond.
     atom_types:
       CH2_ethene:
         force_field: [lennard-jones, 85.0, 3.675]
@@ -694,7 +694,7 @@ C2H6:
     pc: 4872000
     af: 0.100
   TraPPE:
-    description:
+    description: |
       TraPPE united atom (UA) parameterization for ethane (10.1021/jp001044x).
       Note that also EH version is reported.
     atom_types:

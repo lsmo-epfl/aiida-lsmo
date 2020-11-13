@@ -154,8 +154,8 @@ Note that if the ``pressure_list`` value is provided, the other pressure inputs 
 selection of the work chain is skipped.
 
 Note that you can scale the probe radius to empirically account for some framework flexibility and avoid overblocking. 
-Setting ``zeopp_probe_scaling`` to zero (or a small value) basically correspond to skip the permeability check and 
-skip the calculation of blocking spheres.
+Setting ``zeopp_probe_scaling`` to zero (or a small value) basically corresponds to skipping the permeability check and 
+skips the calculation of blocking spheres.
 
 * ``geometric`` is not meant to be used by the user, but by the IsothermMultiTemp work chains.
 
@@ -1135,9 +1135,8 @@ is similar to MulticompGcmc, but it performs one simulation at given adsorption 
 and a second one at given temperature and pressure for desorption. For the desorption mixure of the gas reservoir,
 the workchains uses the composition previously obtained at adsorption conditions inside the framework.
 
-Note that this is a conservative approximation, as one should reiterate and use for desorption the difference between the uptake 
-mixture at adsorption minus desorption. This may induce in artifact like negative working capacity, which are anyway
-an allarm that the desorption condition are not strong enough to evacuate a particular component from the framework.
+Note that this is an approximation - in order to arrive at the appropriate mixture for the gas reservoir at desorption, one should iterate, taking as the next desorption condition trial the difference between the mixture inside the framework at adsorption and the mixture inside the framework at desorption.
+The approximation may induce artifacts such as negative working capacity for certain components, which are in any case a warning sign that that the desorption (partial) pressure is not low enough to evacuate the component from the framework.
 
 .. aiida-workchain:: MulticompAdsDesWorkChain
     :module: aiida_lsmo.workchains
