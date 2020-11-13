@@ -17,4 +17,5 @@ filterwarnings = [
     "ignore::DeprecationWarning:frozendict:",
     "ignore::DeprecationWarning:sqlalchemy_utils:",
     "ignore::DeprecationWarning:reentry:",
+    "ignore::DeprecationWarning:babel:",
 ]
