@@ -31,7 +31,7 @@
         "aiida.parsers": [
             "lsmo.cp2k_bsse_parser = aiida_lsmo.parsers:Cp2kBsseParser",
             "lsmo.cp2k_advanced_parser = aiida_lsmo.parsers:Cp2kAdvancedParser"
-        ],    
+        ],
         "aiida.workflows": [
             "lsmo.binding_site = aiida_lsmo.workchains:BindingSiteWorkChain",
             "lsmo.cp2k_binding_energy = aiida_lsmo.workchains.cp2k_binding_energy:Cp2kBindingEnergyWorkChain",
@@ -54,14 +54,13 @@
     "extras_require": {
         "testing": [
             "pgtest~=1.3.1",
-            "aiida-testing @ git+https://github.com/ltalirz/aiida-testing@fix-args#egg=aiida-testing",
-            "pytest-cov~=2.6"
+            "aiida-testing @  git+https://github.com/aiidateam/aiida-testing@1c1697173e1c15da152997b0cb4955be030425be#egg=aiida-testing",
+            "pytest-cov~=2.7"
+
         ],
         "pre-commit": [
-                "pre-commit==1.17.0",
-                "yapf==0.28.0",
-                "prospector==1.1.7",
-                "pylint==2.3.1"
+                "pre-commit~=2.2",
+                "pylint~=2.6.0"
         ],
         "docs": [
             "sphinx",

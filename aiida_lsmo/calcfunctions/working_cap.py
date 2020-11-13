@@ -62,7 +62,7 @@ def calc_ch4_working_cap(isot_dict):
 
 
 @calcfunction
-def calc_h2_working_cap(isotmt_dict):
+def calc_h2_working_cap(isotmt_dict):  # pylint: disable=too-many-locals
     """Compute the H2 working capacity from the output_parameters Dict of MultiTempIsothermWorkChain.
     This must have run calculations at 1, 5 and 100 bar at 77, 198, 298 K.
     The US DOE Target for the Onboard Storage of Hydrogen Vehicles set the bar to 4.5 wt% and 30 g/L (Kapelewski2018).
@@ -95,7 +95,6 @@ def calc_h2_working_cap(isotmt_dict):
                 isotmt_dict["Density"]
         }
 
-        out_dict = {}
         for case, presstemp in case2pt.items():
             for unit, conv in unitconv.items():
                 load_average = isotmt_dict["isotherm"][temp2index[presstemp[0][1]]]["loading_absolute_average"][

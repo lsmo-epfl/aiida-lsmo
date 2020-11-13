@@ -23,20 +23,19 @@ def test_isotherm_mg_mof74(raspa_code, zeopp_code, mg_mof74_cifdata):
     """Test Isotherm workchain on MOF 74."""
 
     builder = IsothermWorkChain.get_builder()
-    builder.raspa_base.raspa.code = raspa_code
+
     builder.zeopp.code = zeopp_code
+    builder.zeopp.metadata.options = {'max_wallclock_seconds': 60}
 
-    options = {
-        "resources": {
-            "num_machines": 1,
-            "tot_num_mpiprocs": 1,
+    builder.raspa_base.raspa.code = raspa_code
+    builder.raspa_base.raspa.metadata.options = {
+        'resources': {
+            'num_machines': 1,
+            'tot_num_mpiprocs': 1,
         },
-        "max_wallclock_seconds": 1 * 60 * 60,
-        "withmpi": False,
+        'max_wallclock_seconds': 1 * 60 * 60,
+        'withmpi': False,
     }
-
-    builder.raspa_base.raspa.metadata.options = options
-    builder.zeopp.metadata.options = options
 
     builder.structure = mg_mof74_cifdata
     builder.molecule = Str('co2')
