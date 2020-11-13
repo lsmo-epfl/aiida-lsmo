@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """ZeoIsotherm work chain"""
 
 import os
@@ -22,30 +23,30 @@ ZeoppParameters = DataFactory('zeopp.parameters')  # pylint: disable=invalid-nam
 
 # Deafault parameters
 ISOTHERMPARAMETERS_DEFAULT = {  #TODO: create IsothermParameters instead of Dict # pylint: disable=fixme
-    "ff_framework": "Zeo-test",  # (str) Forcefield of the structure.
-    "ff_separate_interactions": False,  # (bool) Use "separate_interactions" in the FF builder.
-    "ff_mixing_rule": "Lorentz-Berthelot",  # (string) Choose 'Lorentz-Berthelot' or 'Jorgensen'.
-    "ff_tail_corrections": True,  # (bool) Apply tail corrections.
-    "ff_shifted": False,  # (bool) Shift or truncate the potential at cutoff.
-    "ff_cutoff": 12.0,  # (float) CutOff truncation for the VdW interactions (Angstrom).
-    "cations_equilibration_temp_list": [
+    'ff_framework': 'Zeo-test',  # (str) Forcefield of the structure.
+    'ff_separate_interactions': False,  # (bool) Use "separate_interactions" in the FF builder.
+    'ff_mixing_rule': 'Lorentz-Berthelot',  # (string) Choose 'Lorentz-Berthelot' or 'Jorgensen'.
+    'ff_tail_corrections': True,  # (bool) Apply tail corrections.
+    'ff_shifted': False,  # (bool) Shift or truncate the potential at cutoff.
+    'ff_cutoff': 12.0,  # (float) CutOff truncation for the VdW interactions (Angstrom).
+    'cations_equilibration_temp_list': [
         1000, 800, 600, 500, 400
     ],  # (list) List of temperatures for the equilibrations of cations: last will be "temperature".
-    "temperature": 300,  # (float) Temperature of the simulation.
-    "temperature_list": None,  # (list) To be used by IsothermMultiTempWorkChain.
-    "zeopp_volpo_samples": int(1e5),  # (int) Number of samples for VOLPO calculation (per UC volume).
-    "zeopp_block_samples": int(100),  # (int) Number of samples for BLOCK calculation (per A^3).
-    "raspa_minKh": 1e-10,  # (float) If Henry coefficient < raspa_minKh do not run the isotherm (mol/kg/Pa).
-    "raspa_verbosity": 10,  # (int) Print stats every: number of cycles / raspa_verbosity.
-    "raspa_widom_cycles": int(1e5),  # (int) Number of Widom cycles.
-    "raspa_nvt_cations_cycles": int(1e4),  # (int) Number of GCMC production cycles.
-    "raspa_gcmc_init_cycles": int(1e3),  # (int) Number of GCMC initialization cycles.
-    "raspa_gcmc_prod_cycles": int(1e4),  # (int) Number of GCMC production cycles.
-    "pressure_list": None,  # (list) Pressure list for the isotherm (bar): if given it will skip to guess it.
-    "pressure_precision": 0.1,  # (float) Precision in the sampling of the isotherm: 0.1 ok, 0.05 for high resolution.
-    "pressure_maxstep": 5,  # (float) Max distance between pressure points (bar).
-    "pressure_min": 0.001,  # (float) Lower pressure to sample (bar).
-    "pressure_max": 10  # (float) Upper pressure to sample (bar).
+    'temperature': 300,  # (float) Temperature of the simulation.
+    'temperature_list': None,  # (list) To be used by IsothermMultiTempWorkChain.
+    'zeopp_volpo_samples': int(1e5),  # (int) Number of samples for VOLPO calculation (per UC volume).
+    'zeopp_block_samples': int(100),  # (int) Number of samples for BLOCK calculation (per A^3).
+    'raspa_minKh': 1e-10,  # (float) If Henry coefficient < raspa_minKh do not run the isotherm (mol/kg/Pa).
+    'raspa_verbosity': 10,  # (int) Print stats every: number of cycles / raspa_verbosity.
+    'raspa_widom_cycles': int(1e5),  # (int) Number of Widom cycles.
+    'raspa_nvt_cations_cycles': int(1e4),  # (int) Number of GCMC production cycles.
+    'raspa_gcmc_init_cycles': int(1e3),  # (int) Number of GCMC initialization cycles.
+    'raspa_gcmc_prod_cycles': int(1e4),  # (int) Number of GCMC production cycles.
+    'pressure_list': None,  # (list) Pressure list for the isotherm (bar): if given it will skip to guess it.
+    'pressure_precision': 0.1,  # (float) Precision in the sampling of the isotherm: 0.1 ok, 0.05 for high resolution.
+    'pressure_maxstep': 5,  # (float) Max distance between pressure points (bar).
+    'pressure_min': 0.001,  # (float) Lower pressure to sample (bar).
+    'pressure_max': 10  # (float) Upper pressure to sample (bar).
 }
 
 
@@ -55,7 +56,7 @@ def get_molecule_dict(molecule_name):
     """Get a Dict from the isotherm_molecules.yaml"""
     import ruamel.yaml as yaml
     thisdir = os.path.dirname(os.path.abspath(__file__))
-    yamlfile = os.path.join(thisdir, "isotherm_data", "isotherm_molecules.yaml")
+    yamlfile = os.path.join(thisdir, 'isotherm_data', 'isotherm_molecules.yaml')
     with open(yamlfile, 'r') as stream:
         yaml_dict = yaml.safe_load(stream)
     molecule_dict = yaml_dict[molecule_name.value]
@@ -65,7 +66,7 @@ def get_molecule_dict(molecule_name):
 @calcfunction
 def get_zeopp_parameters(molecule_dict, isotparam):
     """Get the ZeoppParameters from the inputs of the workchain"""
-    probe_rad = molecule_dict["proberad"]
+    probe_rad = molecule_dict['proberad']
     param_dict = {
         'ha': 'DEF',
         'volpo': [probe_rad, probe_rad, isotparam['zeopp_volpo_samples']],
@@ -97,10 +98,10 @@ def choose_pressure_points(inp_param, geom, raspa_widom_out):
     """If 'presure_list' is not provide, model the isotherm as single-site langmuir and return the most important
     pressure points to evaluate for an isotherm, in a List.
     """
-    if inp_param["pressure_list"]:
-        pressure_points = inp_param["pressure_list"]
+    if inp_param['pressure_list']:
+        pressure_points = inp_param['pressure_list']
     else:
-        khenry = list(raspa_widom_out["framework_1"]["components"].values())[1]['henry_coefficient_average']  #mol/kg/Pa
+        khenry = list(raspa_widom_out['framework_1']['components'].values())[1]['henry_coefficient_average']  #mol/kg/Pa
         b_value = khenry / geom['Estimated_saturation_loading'] * 1e5  #(1/bar)
         pressure_points = [inp_param['pressure_min']]
         while True:
@@ -123,7 +124,7 @@ def get_geometric_dict(zeopp_out, molecule):
     geometric_dict.update({
         'Estimated_saturation_loading': zeopp_out['POAV_cm^3/g'] * molecule['molsatdens'],
         'Estimated_saturation_loading_unit': 'mol/kg',
-        'is_porous': geometric_dict["POAV_A^3"] > 0.000
+        'is_porous': geometric_dict['POAV_A^3'] > 0.000
     })
     return Dict(dict=geometric_dict)
 
@@ -135,7 +136,7 @@ def get_output_parameters(geom_out, inp_params, widom_out=None, pressures=None, 
     out_dict = geom_out.get_dict()
 
     if out_dict['is_porous'] and widom_out:
-        widom_out_mol = list(widom_out["framework_1"]["components"].values())[1]
+        widom_out_mol = list(widom_out['framework_1']['components'].values())[1]
 
         out_dict.update({
             'temperature': inp_params['temperature'],
@@ -170,9 +171,9 @@ def get_output_parameters(geom_out, inp_params, widom_out=None, pressures=None, 
 
             conv_ener = 1.0 / 120.273  # K to kJ/mol
             for i in range(len(pressures)):
-                gcmc_out = gcmc_out_dict['RaspaGCMC_{}'.format(i + 1)]["framework_1"]
-                gcmc_out_mol = list(gcmc_out["components"].values())[1]
-                conv_load = gcmc_out_mol["conversion_factor_molec_uc_to_mol_kg"]
+                gcmc_out = gcmc_out_dict['RaspaGCMC_{}'.format(i + 1)]['framework_1']
+                gcmc_out_mol = list(gcmc_out['components'].values())[1]
+                conv_load = gcmc_out_mol['conversion_factor_molec_uc_to_mol_kg']
 
                 for label in ['loading_absolute_average', 'loading_absolute_dev']:
                     isotherm[label].append(conv_load * gcmc_out_mol[label])
@@ -184,7 +185,7 @@ def get_output_parameters(geom_out, inp_params, widom_out=None, pressures=None, 
                         isotherm[label].append(None)
 
             out_dict.update({
-                "isotherm": isotherm,
+                'isotherm': isotherm,
                 'conversion_factor_molec_uc_to_cm3stp_cm3': gcmc_out_mol['conversion_factor_molec_uc_to_cm3stp_cm3'],
                 'conversion_factor_molec_uc_to_mg_g': gcmc_out_mol['conversion_factor_molec_uc_to_mg_g'],
                 'conversion_factor_molec_uc_to_mol_kg': gcmc_out_mol['conversion_factor_molec_uc_to_mol_kg'],
@@ -209,19 +210,19 @@ class ZeoIsothermWorkChain(WorkChain):
 
         spec.input('sial_ratio', valid_type=Float, default=Float(1), help='Get the Si/Al ratio in the zeolite.')
 
-        spec.input("molecule",
+        spec.input('molecule',
                    valid_type=(Str, Dict),
                    help='Adsorbate molecule: settings to be read from the yaml.' +
                    'Advanced: input a Dict for non-standard settings.')
 
-        spec.input("cation", valid_type=Str, default=Str("Na"), help='Cation to be used for charged zeolites (Na/Ca)')
+        spec.input('cation', valid_type=Str, default=Str('Na'), help='Cation to be used for charged zeolites (Na/Ca)')
         #TODO: need to implement Ca+2 # pylint: disable=fixme
 
-        spec.input("parameters",
+        spec.input('parameters',
                    valid_type=Dict,
                    help='Parameters for the Isotherm workchain: will be merged with IsothermParameters_defaults.')
 
-        spec.input("geometric",
+        spec.input('geometric',
                    valid_type=Dict,
                    required=False,
                    help='[Only used by IsothermMultiTempWorkChain] Already computed geometric properties')
@@ -270,12 +271,12 @@ class ZeoIsothermWorkChain(WorkChain):
         ntatoms = natoms / 3
         self.ctx.ncations = int(ntatoms / (self.inputs.sial_ratio + 1))
         self.ctx.current_equilibration_id = 0
-        self.ctx.cations_equilibration_temp_list = self.ctx.parameters["cations_equilibration_temp_list"] + [
+        self.ctx.cations_equilibration_temp_list = self.ctx.parameters['cations_equilibration_temp_list'] + [
             self.ctx.parameters['temperature']
         ]
 
         # Understand if IsothermMultiTempWorkChain is calling this work chain
-        if "geometric" in self.inputs:
+        if 'geometric' in self.inputs:
             self.ctx.multitemp_mode = 'run_single_temp'
         elif self.ctx.parameters['temperature_list']:
             self.ctx.multitemp_mode = 'run_geom_only'
@@ -296,53 +297,53 @@ class ZeoIsothermWorkChain(WorkChain):
         dict_merge(
             inputs, {
                 'metadata': {
-                    'label': "ZeoppVolpoBlock",
+                    'label': 'ZeoppVolpoBlock',
                     'call_link_label': 'run_zeopp_block_and_volpo',
                 },
                 'structure':
                     self.inputs.structure,
                 'atomic_radii':
                     SinglefileData(
-                        file=os.path.join(os.path.dirname(os.path.abspath(__file__)), "isotherm_data", "DEFAULT.rad")),
+                        file=os.path.join(os.path.dirname(os.path.abspath(__file__)), 'isotherm_data', 'DEFAULT.rad')),
                 'parameters':
                     get_zeopp_parameters(self.ctx.molecule, self.ctx.parameters)
             })
 
         running = self.submit(ZeoppCalculation, **inputs)
-        self.report("Running zeo++ block and volpo Calculation<{}>".format(running.id))
+        self.report('Running zeo++ block and volpo Calculation<{}>'.format(running.id))
         return ToContext(zeopp=running)
 
     def _get_nvt_cations(self):
         """Write Raspa input parameters from scratch, for a NVT calculation"""
 
         param = {
-            "GeneralSettings": {
-                "SimulationType": "MonteCarlo",
-                "NumberOfInitializationCycles": self.ctx.parameters['raspa_nvt_cations_cycles'] / 2,
-                "NumberOfCycles": self.ctx.parameters['raspa_nvt_cations_cycles'] / 2,
-                "PrintPropertiesEvery": int(1e10),
-                "PrintEvery": self.ctx.parameters['raspa_nvt_cations_cycles'] / self.ctx.parameters['raspa_verbosity'],
-                "RemoveAtomNumberCodeFromLabel": True,
-                "ModifyOxgensConnectedToAluminium": True,
-                "Forcefield": "Local",
-                "CutOff": self.ctx.parameters['ff_cutoff'],
-                "ChargeMethod": "Ewald",
-                "EwaldPrecision": 1e-6,
+            'GeneralSettings': {
+                'SimulationType': 'MonteCarlo',
+                'NumberOfInitializationCycles': self.ctx.parameters['raspa_nvt_cations_cycles'] / 2,
+                'NumberOfCycles': self.ctx.parameters['raspa_nvt_cations_cycles'] / 2,
+                'PrintPropertiesEvery': int(1e10),
+                'PrintEvery': self.ctx.parameters['raspa_nvt_cations_cycles'] / self.ctx.parameters['raspa_verbosity'],
+                'RemoveAtomNumberCodeFromLabel': True,
+                'ModifyOxgensConnectedToAluminium': True,
+                'Forcefield': 'Local',
+                'CutOff': self.ctx.parameters['ff_cutoff'],
+                'ChargeMethod': 'Ewald',
+                'EwaldPrecision': 1e-6,
             },
-            "System": {
-                "framework_1": {
-                    "type": "Framework",
-                    "UnitCells": "1 1 1",  #NOTE: it is expanded before!
-                    "ExternalTemperature": self.ctx.cations_equilibration_temp_list[0],
+            'System': {
+                'framework_1': {
+                    'type': 'Framework',
+                    'UnitCells': '1 1 1',  #NOTE: it is expanded before!
+                    'ExternalTemperature': self.ctx.cations_equilibration_temp_list[0],
                 }
             },
-            "Component": {
+            'Component': {
                 self.inputs.cation.value: {
-                    "MoleculeDefinition": "Local",
-                    "ExtraFrameworkMolecule": True,
-                    "TranslationProbability": 1.0,
-                    "RandomTranslationProbability": 1.0,  #Raspa warns to use this instead of ReinsertionProbability
-                    "CreateNumberOfMolecules": self.ctx.ncations,
+                    'MoleculeDefinition': 'Local',
+                    'ExtraFrameworkMolecule': True,
+                    'TranslationProbability': 1.0,
+                    'RandomTranslationProbability': 1.0,  #Raspa warns to use this instead of ReinsertionProbability
+                    'CreateNumberOfMolecules': self.ctx.ncations,
                 },
             },
         }
@@ -365,7 +366,7 @@ class ZeoIsothermWorkChain(WorkChain):
             # Create input parameters and pass the framework
             self.ctx.raspa_param = self._get_nvt_cations()
             self.ctx.inp['raspa']['parameters'] = Dict(dict=self.ctx.raspa_param)
-            self.ctx.inp['raspa']['framework'] = {"framework_1": self.inputs.structure}
+            self.ctx.inp['raspa']['framework'] = {'framework_1': self.inputs.structure}
 
             # Generate the force field with the ff_builder
             ff_params = get_ff_parameters(self.ctx.molecule, self.inputs.cation, self.ctx.parameters)
@@ -375,9 +376,9 @@ class ZeoIsothermWorkChain(WorkChain):
         elif self.ctx.current_equilibration_id > 0:
 
             # Update Parameters
-            self.ctx.raspa_param["System"]["framework_1"][
+            self.ctx.raspa_param['System']['framework_1'][
                 'ExternalTemperature'] = self.ctx.cations_equilibration_temp_list[self.ctx.current_equilibration_id]
-            self.ctx.raspa_param["Component"][self.inputs.cation.value]["CreateNumberOfMolecules"] = 0
+            self.ctx.raspa_param['Component'][self.inputs.cation.value]['CreateNumberOfMolecules'] = 0
             self.ctx.inp['raspa']['parameters'] = Dict(dict=self.ctx.raspa_param)
 
             # Update restart (if present, i.e., if current_p_index>0)
@@ -385,10 +386,10 @@ class ZeoIsothermWorkChain(WorkChain):
                 self.ctx.current_equilibration_id - 1].outputs.retrieved
 
         # Update metadata and submit
-        self.ctx.inp['metadata']['label'] = "RaspaNVTCations{}".format(self.ctx.current_equilibration_id)
-        self.ctx.inp['metadata']['call_link_label'] = "run_raspa_cations_{}".format(self.ctx.current_equilibration_id)
+        self.ctx.inp['metadata']['label'] = 'RaspaNVTCations{}'.format(self.ctx.current_equilibration_id)
+        self.ctx.inp['metadata']['call_link_label'] = 'run_raspa_cations_{}'.format(self.ctx.current_equilibration_id)
         running = self.submit(RaspaBaseWorkChain, **self.ctx.inp)
-        self.report("Running Raspa NVT @ {}K for equilibrating cations ({}/{})".format(
+        self.report('Running Raspa NVT @ {}K for equilibrating cations ({}/{})'.format(
             int(self.ctx.cations_equilibration_temp_list[self.ctx.current_equilibration_id]),
             self.ctx.current_equilibration_id + 1, len(self.ctx.cations_equilibration_temp_list)))
         self.ctx.current_equilibration_id += 1
@@ -406,13 +407,13 @@ class ZeoIsothermWorkChain(WorkChain):
         self.ctx.geom = get_geometric_dict(self.ctx.zeopp.outputs.output_parameters, self.ctx.molecule)
 
         if self.ctx.geom['is_porous']:
-            self.report("Found accessible pore volume: continue")
-            self.report("Found {} blocking spheres".format(self.ctx.geom['Number_of_blocking_spheres']))
+            self.report('Found accessible pore volume: continue')
+            self.report('Found {} blocking spheres'.format(self.ctx.geom['Number_of_blocking_spheres']))
             # Return block file only if blocking spheres are present
             if self.ctx.geom['Number_of_blocking_spheres'] > 0:
                 self.out_many(self.exposed_outputs(self.ctx.zeopp, ZeoppCalculation))
         else:
-            self.report("No accessible pore volume: stop")
+            self.report('No accessible pore volume: stop')
 
         return self.ctx.geom['is_porous'] and not self.ctx.multitemp_mode == 'run_geom_only'
 
@@ -420,25 +421,25 @@ class ZeoIsothermWorkChain(WorkChain):
         """Write Raspa input parameters from scratch, for a Widom calculation"""
 
         param = self.ctx.raspa_param
-        param["GeneralSettings"].update({
-            "NumberOfInitializationCycles": 0,
-            "NumberOfCycles": self.ctx.parameters['raspa_widom_cycles'],
-            "PrintPropertiesEvery": self.ctx.parameters['raspa_widom_cycles'] / self.ctx.parameters['raspa_verbosity'],
-            "PrintEvery": int(1e10),
-            "HeliumVoidFraction": self.ctx.geom["POAV_Volume_fraction"],
+        param['GeneralSettings'].update({
+            'NumberOfInitializationCycles': 0,
+            'NumberOfCycles': self.ctx.parameters['raspa_widom_cycles'],
+            'PrintPropertiesEvery': self.ctx.parameters['raspa_widom_cycles'] / self.ctx.parameters['raspa_verbosity'],
+            'PrintEvery': int(1e10),
+            'HeliumVoidFraction': self.ctx.geom['POAV_Volume_fraction'],
         })
-        param["Component"][self.inputs.cation.value].update({
-            "CreateNumberOfMolecules": 0,
+        param['Component'][self.inputs.cation.value].update({
+            'CreateNumberOfMolecules': 0,
         })
-        param["Component"][self.ctx.molecule['name']] = {
-            "MoleculeDefinition": "Local",
-            "ExtraFrameworkMolecule": False,
-            "WidomProbability": 1.0,
+        param['Component'][self.ctx.molecule['name']] = {
+            'MoleculeDefinition': 'Local',
+            'ExtraFrameworkMolecule': False,
+            'WidomProbability': 1.0,
         }
 
         # Check particular conditions and settings
         if self.ctx.geom['Number_of_blocking_spheres'] > 0:
-            param["Component"][self.ctx.molecule['name']]["BlockPocketsFileName"] = "block_file"
+            param['Component'][self.ctx.molecule['name']]['BlockPocketsFileName'] = 'block_file'
 
         return param
 
@@ -446,52 +447,52 @@ class ZeoIsothermWorkChain(WorkChain):
         """Run a Widom calculation in Raspa."""
 
         # Update labels
-        self.ctx.inp['metadata']['label'] = "RaspaWidom"
-        self.ctx.inp['metadata']['call_link_label'] = "run_raspa_widom"
+        self.ctx.inp['metadata']['label'] = 'RaspaWidom'
+        self.ctx.inp['metadata']['call_link_label'] = 'run_raspa_widom'
 
         # Update parameters dict, add block file, add restart
         self.ctx.raspa_param = self._update_param_for_widom()
         self.ctx.inp['raspa']['parameters'] = Dict(dict=self.ctx.raspa_param)
         if self.ctx.geom['Number_of_blocking_spheres'] > 0 and self.ctx.multitemp_mode != 'run_single_temp':
-            self.ctx.inp["raspa"]["block_pocket"] = {"block_file": self.ctx.zeopp.outputs.block}
+            self.ctx.inp['raspa']['block_pocket'] = {'block_file': self.ctx.zeopp.outputs.block}
         self.ctx.inp['raspa']['retrieved_parent_folder'] = self.ctx.raspa_nvt_cations[-1].outputs.retrieved
 
         running = self.submit(RaspaBaseWorkChain, **self.ctx.inp)
-        self.report("Running Raspa Widom @ {}K for the Henry coefficient".format(self.ctx.temperature))
+        self.report('Running Raspa Widom @ {}K for the Henry coefficient'.format(self.ctx.temperature))
         return ToContext(raspa_widom=running)
 
     def should_run_gcmc(self):
         """Output the widom results and decide to compute the isotherm if kH > kHmin, as defined by the user"""
 
-        self.ctx.is_kh_enough = list(self.ctx.raspa_widom.outputs['output_parameters']["framework_1"]["components"].
+        self.ctx.is_kh_enough = list(self.ctx.raspa_widom.outputs['output_parameters']['framework_1']['components'].
                                      values())[1]['henry_coefficient_average'] > self.ctx.parameters['raspa_minKh']
 
         if self.ctx.is_kh_enough:
-            self.report("kH larger than the threshold: continue")
+            self.report('kH larger than the threshold: continue')
             return True
 
-        self.report("kHh lower than the threshold: stop")
+        self.report('kHh lower than the threshold: stop')
         return False
 
     def _update_param_for_gcmc(self):
         """Update Raspa input parameter, from Widom to GCMC"""
 
         param = self.ctx.raspa_param
-        param["GeneralSettings"].update({
-            "NumberOfInitializationCycles": self.ctx.parameters['raspa_gcmc_init_cycles'],
-            "NumberOfCycles": self.ctx.parameters['raspa_gcmc_prod_cycles'],
-            "PrintPropertiesEvery": int(1e6),
-            "PrintEvery": self.ctx.parameters['raspa_gcmc_prod_cycles'] / self.ctx.parameters['raspa_verbosity']
+        param['GeneralSettings'].update({
+            'NumberOfInitializationCycles': self.ctx.parameters['raspa_gcmc_init_cycles'],
+            'NumberOfCycles': self.ctx.parameters['raspa_gcmc_prod_cycles'],
+            'PrintPropertiesEvery': int(1e6),
+            'PrintEvery': self.ctx.parameters['raspa_gcmc_prod_cycles'] / self.ctx.parameters['raspa_verbosity']
         })
-        param["Component"][self.ctx.molecule['name']].update({
-            "WidomProbability": 0.0,
-            "TranslationProbability": 1.0,
-            "ReinsertionProbability": 1.0,
-            "SwapProbability": 2.0,
+        param['Component'][self.ctx.molecule['name']].update({
+            'WidomProbability': 0.0,
+            'TranslationProbability': 1.0,
+            'ReinsertionProbability': 1.0,
+            'SwapProbability': 2.0,
         })
         # Check particular conditions
         if not self.ctx.molecule['singlebead']:
-            param["Component"][self.ctx.molecule['name']].update({"RotationProbability": 1.0})
+            param['Component'][self.ctx.molecule['name']].update({'RotationProbability': 1.0})
         return param
 
     def init_raspa_gcmc(self):
@@ -501,10 +502,10 @@ class ZeoIsothermWorkChain(WorkChain):
         self.ctx.pressures = choose_pressure_points(self.ctx.parameters, self.ctx.geom,
                                                     self.ctx.raspa_widom.outputs.output_parameters)
 
-        self.report("Computed Kh(mol/kg/Pa)={:.2e} POAV(cm3/g)={:.3f} Qsat(mol/kg)={:.2f}".format(
-            list(self.ctx.raspa_widom.outputs['output_parameters']["framework_1"]["components"].values())[1]
+        self.report('Computed Kh(mol/kg/Pa)={:.2e} POAV(cm3/g)={:.3f} Qsat(mol/kg)={:.2f}'.format(
+            list(self.ctx.raspa_widom.outputs['output_parameters']['framework_1']['components'].values())[1]
             ['henry_coefficient_average'], self.ctx.geom['POAV_cm^3/g'], self.ctx.geom['Estimated_saturation_loading']))
-        self.report("Now evaluating the isotherm @ {}K for {} pressure points".format(
+        self.report('Now evaluating the isotherm @ {}K for {} pressure points'.format(
             self.ctx.temperature, len(self.ctx.pressures)))
 
         self.ctx.raspa_param = self._update_param_for_gcmc()
@@ -519,11 +520,11 @@ class ZeoIsothermWorkChain(WorkChain):
         """Run a GCMC calculation in Raspa @ T,P. """
 
         # Update labels
-        self.ctx.inp['metadata']['label'] = "RaspaGCMC_{}".format(self.ctx.current_p_index + 1)
-        self.ctx.inp['metadata']['call_link_label'] = "run_raspa_gcmc_{}".format(self.ctx.current_p_index + 1)
+        self.ctx.inp['metadata']['label'] = 'RaspaGCMC_{}'.format(self.ctx.current_p_index + 1)
+        self.ctx.inp['metadata']['call_link_label'] = 'run_raspa_gcmc_{}'.format(self.ctx.current_p_index + 1)
 
         # Update pressure (NOTE: need to convert from bar to Pa)
-        self.ctx.raspa_param["System"]["framework_1"]['ExternalPressure'] = \
+        self.ctx.raspa_param['System']['framework_1']['ExternalPressure'] = \
             self.ctx.pressures[self.ctx.current_p_index] * 1e5
 
         # Update parameters Dict
@@ -536,7 +537,7 @@ class ZeoIsothermWorkChain(WorkChain):
 
         # Create the calculation process, launch it and update pressure index
         running = self.submit(RaspaBaseWorkChain, **self.ctx.inp)
-        self.report("Running Raspa GCMC @ {}K/{:.3f}bar (pressure {} of {})".format(
+        self.report('Running Raspa GCMC @ {}K/{:.3f}bar (pressure {} of {})'.format(
             self.ctx.temperature, self.ctx.pressures[self.ctx.current_p_index], self.ctx.current_p_index + 1,
             len(self.ctx.pressures)))
         self.ctx.current_p_index += 1
@@ -558,7 +559,7 @@ class ZeoIsothermWorkChain(WorkChain):
             self.ctx.pressures = None
 
         self.out(
-            "output_parameters",
+            'output_parameters',
             get_output_parameters(geom_out=self.ctx.geom,
                                   inp_params=self.ctx.parameters,
                                   widom_out=widom_out,
@@ -566,5 +567,5 @@ class ZeoIsothermWorkChain(WorkChain):
                                   **gcmc_out_dict))
 
         if not self.ctx.multitemp_mode == 'run_geom_only':
-            self.report("Isotherm @ {}K computed: ouput Dict<{}>".format(self.ctx.temperature,
+            self.report('Isotherm @ {}K computed: ouput Dict<{}>'.format(self.ctx.temperature,
                                                                          self.outputs['output_parameters'].pk))

@@ -28,25 +28,25 @@ def main(raspa_code_label, zeopp_code_label):
 
     builder = ZeoIsothermWorkChain.get_builder()
 
-    builder.metadata.label = "test"  # pylint: disable=no-member
+    builder.metadata.label = 'test'  # pylint: disable=no-member
 
     builder.raspa_base.raspa.code = Code.get_from_string(raspa_code_label)  # pylint: disable=no-member
     builder.zeopp.code = Code.get_from_string(zeopp_code_label)  # pylint: disable=no-member
 
     options = {
-        "resources": {
-            "num_machines": 1,
-            "tot_num_mpiprocs": 1,
+        'resources': {
+            'num_machines': 1,
+            'tot_num_mpiprocs': 1,
         },
-        "max_wallclock_seconds": 1 * 60 * 60,
-        "withmpi": False,
+        'max_wallclock_seconds': 1 * 60 * 60,
+        'withmpi': False,
     }
 
     builder.raspa_base.raspa.metadata.options = options  # pylint: disable=no-member
     builder.zeopp.metadata.options = options  # pylint: disable=no-member
     builder.raspa_base.max_iterations = Int(1)  # pylint: disable=no-member
 
-    builder.structure = CifData(file=os.path.abspath('data/zeo_LTA_p91.cif'), label="zeo_LTA_p91")
+    builder.structure = CifData(file=os.path.abspath('data/zeo_LTA_p91.cif'), label='zeo_LTA_p91')
     builder.sial_ratio = Float(1.101)
     builder.cation = Str('Na')
 
@@ -57,7 +57,7 @@ def main(raspa_code_label, zeopp_code_label):
             'temperature': 300,  # (K) Note: higher temperature will have less adsorbate and it is faster
             'zeopp_volpo_samples': 1000,  # Default: 1e5 *NOTE: default is good for standard real-case!
             'zeopp_block_samples': 10,  # Default: 100
-            "raspa_nvt_cations_cycles": 1000,
+            'raspa_nvt_cations_cycles': 1000,
             'raspa_widom_cycles': 100,  # Default: 1e5
             'raspa_gcmc_init_cycles': 10,  # Default: 1e3
             'raspa_gcmc_prod_cycles': 100,  # Default: 1e4
