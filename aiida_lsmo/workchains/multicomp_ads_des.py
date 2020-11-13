@@ -97,9 +97,8 @@ def get_geometric_output(zeopp_out):
     return Dict(dict=geometric_output)
 
 
-#pylint: disable = too-many-branches
 @calcfunction
-def get_output_parameters(inp_conditions, components, **all_out_dicts):
+def get_output_parameters(inp_conditions, components, **all_out_dicts):  #pylint: disable=too-many-branches,too-many-locals
     """Extract results to output_parameters Dict."""
     out_dict = {}
 
@@ -114,7 +113,7 @@ def get_output_parameters(inp_conditions, components, **all_out_dicts):
                 out_dict[key][comp] = all_out_dicts[zeopp_label][key]
 
     # Add GCMC results
-    key_system = list(all_out_dicts[f'RaspaGCMC_Ads'].get_dict().keys())[0]  # can be framework_1 or box_1
+    key_system = list(all_out_dicts['RaspaGCMC_Ads'].get_dict().keys())[0]  # can be framework_1 or box_1
 
     out_dict.update({
         'temperatures': [inp_conditions[x]['temperature'] for x in ['adsorption', 'desorption']],

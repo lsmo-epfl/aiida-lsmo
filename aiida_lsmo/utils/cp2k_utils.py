@@ -51,16 +51,16 @@ def get_kinds_with_ghost_section(structure, protocol_settings):
     return {'FORCE_EVAL': {'SUBSYS': {'KIND': kinds}}}
 
 
-def get_bsse_section(natoms_a, natoms_b, mult_a=1, mult_b=1, charge_a=0, charge_b=0):
+def get_bsse_section(natoms_a, natoms_b, mult_a=1, mult_b=1, charge_a=0, charge_b=0):  # pylint: disable=too-many-arguments
     """Get the &FORCE_EVAL/&BSSE section."""
     bsse_section = {
         'FORCE_EVAL': {
             'BSSE' : {
                 'FRAGMENT': [{
-                'LIST': '1..{}'.format(natoms_a)
+                    'LIST': '1..{}'.format(natoms_a)
                 },
                 {
-                'LIST': '{}..{}'.format(natoms_a + 1, natoms_a + natoms_b)
+                    'LIST': '{}..{}'.format(natoms_a + 1, natoms_a + natoms_b)
                 }],
                 'CONFIGURATION': [
                     { # A fragment with basis set A

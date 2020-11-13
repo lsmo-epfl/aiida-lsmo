@@ -1,0 +1,20 @@
+[tool.pylint.format]
+max-line-length = 120
+
+[tool.pylint.messages_control]
+disable = [
+    "import-outside-toplevel",
+    "duplicate-code",
+]
+
+
+[tool.pytest.ini_options]
+addopts = "--durations=0 --cov=aiida_lsmo"
+testpaths = [
+    "tests",
+]
+filterwarnings = [
+    "ignore::DeprecationWarning:frozendict:",
+    "ignore::DeprecationWarning:sqlalchemy_utils:",
+    "ignore::DeprecationWarning:reentry:",
+]

@@ -333,6 +333,7 @@ def run_apidoc(_):
 
 
 def setup(app):
+    """Set up application."""
     app.connect('builder-inited', run_apidoc)
 
 

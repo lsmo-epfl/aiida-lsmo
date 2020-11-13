@@ -89,9 +89,8 @@ def get_atomic_radii(isotparam):
     return SinglefileData(file=filepath)
 
 
-#pylint: disable = too-many-branches
 @calcfunction
-def get_output_parameters(inp_conditions, components, **all_out_dicts):
+def get_output_parameters(inp_conditions, components, **all_out_dicts):  #pylint: disable=too-many-branches,too-many-locals
     """Extract results to output_parameters Dict."""
     out_dict = {}
 
@@ -106,7 +105,7 @@ def get_output_parameters(inp_conditions, components, **all_out_dicts):
                 out_dict[key][comp] = all_out_dicts[zeopp_label][key]
 
     # Add GCMC results
-    key_system = list(all_out_dicts[f'RaspaGCMC_0'].get_dict().keys())[0]
+    key_system = list(all_out_dicts['RaspaGCMC_0'].get_dict().keys())[0]
     conv_ener = 1.0 / 120.273  # K to kJ/mol
 
     out_dict.update({
