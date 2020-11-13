@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """BindingSite workchain."""
 
 from aiida.plugins import DataFactory, WorkflowFactory

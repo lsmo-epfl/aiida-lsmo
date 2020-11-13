@@ -1,4 +1,5 @@
 #!/usr/bin/env python  # pylint: disable=invalid-name
+# -*- coding: utf-8 -*-
 """Run example 3-components GCMC in a box, at 3 different T/P conditions."""
 import click
 
@@ -22,18 +23,18 @@ def main(raspa_code_label, zeopp_code_label):
 
     builder = MulticompGcmcWorkChain.get_builder()
 
-    builder.metadata.label = "test"
+    builder.metadata.label = 'test'
 
     builder.raspa_base.raspa.code = Code.get_from_string(raspa_code_label)
     builder.zeopp.code = Code.get_from_string(zeopp_code_label)
 
     options = {
-        "resources": {
-            "num_machines": 1,
-            "tot_num_mpiprocs": 1,
+        'resources': {
+            'num_machines': 1,
+            'tot_num_mpiprocs': 1,
         },
-        "max_wallclock_seconds": 1 * 60 * 60,
-        "withmpi": False,
+        'max_wallclock_seconds': 1 * 60 * 60,
+        'withmpi': False,
     }
     builder.raspa_base.raspa.metadata.options = options
     builder.zeopp.metadata.options = options

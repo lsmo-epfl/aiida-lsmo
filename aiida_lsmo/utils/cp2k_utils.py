@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Utilities related to CP2K."""
 
 from aiida_lsmo.utils import HARTREE2EV
@@ -46,7 +47,7 @@ def get_kinds_with_ghost_section(structure, protocol_settings):
             'POTENTIAL': protocol_settings['pseudopotential'][atom],
             'MAGNETIZATION': protocol_settings['initial_magnetization'][atom],
         })
-        kinds.append({'_': atom + "_ghost", 'BASIS_SET': protocol_settings['basis_set'][atom], 'GHOST': True})
+        kinds.append({'_': atom + '_ghost', 'BASIS_SET': protocol_settings['basis_set'][atom], 'GHOST': True})
     return {'FORCE_EVAL': {'SUBSYS': {'KIND': kinds}}}
 
 
@@ -118,6 +119,6 @@ def ot_has_small_bandgap(cp2k_input, cp2k_output, bandgap_thr_ev):
             using_ot = False
     except KeyError:
         using_ot = False
-    min_bandgap_ev = min(cp2k_output["bandgap_spin1_au"], cp2k_output["bandgap_spin2_au"]) * HARTREE2EV
+    min_bandgap_ev = min(cp2k_output['bandgap_spin1_au'], cp2k_output['bandgap_spin2_au']) * HARTREE2EV
     is_bandgap_small = (min_bandgap_ev < bandgap_thr_ev)
     return using_ot and is_bandgap_small

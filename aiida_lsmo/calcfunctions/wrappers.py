@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Calculation functions that wrap some advanced script for process evaluation."""
 
 from aiida.engine import calcfunction
@@ -37,9 +38,9 @@ def calc_co2_parasitic_energy(isot_co2, isot_n2, pe_parameters):
         isot = [isot_co2, isot_n2][i].get_dict()
         t_iso[gas] = isot['temperature']
         iso_df[gas] = pd.DataFrame(columns=['pressure(Pa)', 'loading(mol/kg)', 'HoA(kJ/mol)'])
-        iso_df[gas]['pressure(Pa)'] = [p * bar2pa for p in isot['isotherm']["pressure"]]
-        iso_df[gas]['loading(mol/kg)'] = isot['isotherm']["loading_absolute_average"]
-        iso_df[gas]['HoA(kJ/mol)'] = isot['isotherm']["enthalpy_of_adsorption_average"]
+        iso_df[gas]['pressure(Pa)'] = [p * bar2pa for p in isot['isotherm']['pressure']]
+        iso_df[gas]['loading(mol/kg)'] = isot['isotherm']['loading_absolute_average']
+        iso_df[gas]['HoA(kJ/mol)'] = isot['isotherm']['enthalpy_of_adsorption_average']
         # TRICK: use the enthalpy from widom (energy-RT) which is more accurate
         #        that the one at 0.001 bar (and which also is NaN for weakly interacting systems)
         iso_df[gas]['HoA(kJ/mol)'].loc[0] = isot['adsorption_energy_widom_average'] - isot['temperature'] / 120.027

@@ -14,7 +14,7 @@ ZeoppMultistageDdecWorkChain = WorkflowFactory('lsmo.zeopp_multistage_ddec')  # 
 
 #Data objects
 CifData = DataFactory('cif')  # pylint: disable=invalid-name
-NetworkParameters = DataFactory("zeopp.parameters")  # pylint: disable=invalid-name
+NetworkParameters = DataFactory('zeopp.parameters')  # pylint: disable=invalid-name
 
 
 @click.command('cli')

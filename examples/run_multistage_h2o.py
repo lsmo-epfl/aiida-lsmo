@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """ Test/example for the Cp2kMultistageWorkChain"""
 
 import sys
@@ -15,7 +16,7 @@ Cp2kMultistageWorkChain = WorkflowFactory('lsmo.cp2k_multistage')  # pylint: dis
 def run_multistage_h2o(cp2k_code):
     """Example usage: verdi run thistest.py cp2k@localhost"""
 
-    print("Testing CP2K multistage workchain on H2O (RKS, no need for smearing)...")
+    print('Testing CP2K multistage workchain on H2O (RKS, no need for smearing)...')
     print(">>> Using 'test' tag")
 
     atoms = ase.build.molecule('H2O')
@@ -28,8 +29,8 @@ def run_multistage_h2o(cp2k_code):
     builder.protocol_tag = Str('test')
     builder.cp2k_base.cp2k.code = cp2k_code
     builder.cp2k_base.cp2k.metadata.options.resources = {
-        "num_machines": 1,
-        "num_mpiprocs_per_machine": 1,
+        'num_machines': 1,
+        'num_mpiprocs_per_machine': 1,
     }
     builder.cp2k_base.cp2k.metadata.options.max_wallclock_seconds = 1 * 3 * 60
 

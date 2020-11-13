@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Cp2kMultistageDdecWorkChain workchain"""
 
 from aiida.plugins import CalculationFactory, DataFactory, WorkflowFactory
