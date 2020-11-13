@@ -7,22 +7,16 @@ import ruamel.yaml as yaml
 from aiida.plugins import CalculationFactory, DataFactory, WorkflowFactory
 from aiida.orm import Dict, Str, List, SinglefileData
 from aiida.engine import calcfunction
-from aiida.engine import WorkChain, ToContext, append_, while_, if_
+from aiida.engine import WorkChain, ToContext, if_
 from aiida_lsmo.utils import check_resize_unit_cell, aiida_dict_merge
 from aiida_lsmo.utils import dict_merge
 
-# import sub-workchains
 RaspaBaseWorkChain = WorkflowFactory('raspa.base')  # pylint: disable=invalid-name
-
-# import calculations
 ZeoppCalculation = CalculationFactory('zeopp.network')  # pylint: disable=invalid-name
 FFBuilder = CalculationFactory('lsmo.ff_builder')  # pylint: disable=invalid-name
-
-# import aiida data
 CifData = DataFactory('cif')  # pylint: disable=invalid-name
 ZeoppParameters = DataFactory('zeopp.parameters')  # pylint: disable=invalid-name
 
-# Deafault parameters
 PARAMETERS_DEFAULT = {
     "ff_framework": "UFF",  # (str) Forcefield of the structure.
     "ff_separate_interactions": False,  # (bool) Use "separate_interactions" in the FF builder.
@@ -31,7 +25,7 @@ PARAMETERS_DEFAULT = {
     "ff_shifted": False,  # (bool) Shift or truncate the potential at cutoff.
     "ff_cutoff": 12.0,  # (float) CutOff truncation for the VdW interactions (Angstrom).
     "temperature": 300,  # (float) Temperature of the simulation.
-    "zeopp_probe_scaling": 1.0,
+    "zeopp_probe_scaling": 1.0,  # float, scaling probe's diameter: use 0.0 for skipping block calc
     "zeopp_volpo_samples": int(1e5),  # (int) Number of samples for VOLPO calculation (per UC volume).
     "zeopp_block_samples": int(100),  # (int) Number of samples for BLOCK calculation (per A^3).
     "raspa_verbosity": 10,  # (int) Print stats every: number of cycles / raspa_verbosity.
@@ -39,10 +33,13 @@ PARAMETERS_DEFAULT = {
     "raspa_gcmc_init_cycles": int(1e3),  # (int) Number of GCMC initialization cycles.
     "raspa_gcmc_prod_cycles": int(1e4),  # (int) Number of GCMC production cycles.
     "pressure_min": 0.001,  # (float) Min pressure in P/P0 TODO: MIN selected from the henry coefficient!
-    "pressure_max": 1.0,  # (float) Max pressure in P/P0 
+    "pressure_max": 1.0,  # (float) Max pressure in P/P0
     "pressure_num": 20,  # (int) Number of pressure points considered, eqispaced in a log plot
     "pressure_list": None,  # (list) Pressure list in P/P0. If 'None' pressure points are computed from min/max/num.
 }
+
+NAVO = 6.022E+23  # molec/mol
+A3TOL = 1E-27  # L/A3
 
 
 # calcfunctions (in order of appearence)
@@ -167,7 +164,6 @@ def get_output_parameters(pressures, geom_out, widom_out, **gcmc_dict):
         }
 
         conv_ener = 1.0 / 120.273  # K to kJ/mol
-        conv_press = 1e-5  # Pa to bar
         conv_load = isotherm["conversion_factor_molec_uc_to_mol_kg"]
 
         for i in range(len(pressures)):
@@ -192,7 +188,7 @@ def get_output_parameters(pressures, geom_out, widom_out, **gcmc_dict):
 class IsothermInflectionWorkChain(WorkChain):
     """A work chain to compute single component isotherms at adsorption and desorption:
     GCMC calculations are run in parallell at all pressures, starting from the empty framework and the saturated system.
-    This workchain is useful to spot adsorption hysteresis.  
+    This workchain is useful to spot adsorption hysteresis.
     """
 
     @classmethod
@@ -251,11 +247,6 @@ class IsothermInflectionWorkChain(WorkChain):
 
     def run_zeopp(self):
         """Perform Zeo++ block and VOLPO calculations."""
-
-        # Skip zeopp calculation if the geometric properties are already provided by IsothermMultiTemp
-        if self.ctx.multitemp_mode == 'run_single_temp':
-            return None
-
         # create inputs: exposed are code and metadata
         inputs = self.exposed_inputs(ZeoppCalculation, 'zeopp')
 
@@ -279,12 +270,8 @@ class IsothermInflectionWorkChain(WorkChain):
     def should_run_widom(self):
         """Submit widom calculation only if there is some accessible volume,
         also check the number of blocking spheres and estimate the saturation loading.
-        Also, stop if called by IsothermMultiTemp for geometric results only."""
+        """
 
-        # Get geometric properties and consider if IsothermMultiTempWorkChain is calling this workchain
-        if self.ctx.multitemp_mode == 'run_single_temp':
-            self.ctx.geom = self.inputs.geometric
-            return True
         self.ctx.geom = get_geometric_dict(self.ctx.zeopp.outputs.output_parameters, self.ctx.molecule)
 
         if self.ctx.geom['is_porous']:
@@ -383,8 +370,6 @@ class IsothermInflectionWorkChain(WorkChain):
 
     def _get_saturation_molecules(self):
         """Compute the estimate of molecules at saturation by: pore_vol * lid_dens * number_uc."""
-        NAVO = 6.022E+23  # molec/mol
-        A3TOL = 1E-27  # L/A3
         molar_dens = self.ctx.molecule['molsatdens']  #mol/l
         pore_vol = self.ctx.zeopp.outputs.output_parameters["POAV_A^3"]  #A3/UC
         molec_uc = molar_dens * NAVO * A3TOL * pore_vol  # molec/UC
@@ -453,7 +438,7 @@ class IsothermInflectionWorkChain(WorkChain):
         self.ctx.raspa_param = self._update_param_for_gcmc()
 
         for inp in ['dil', 'sat']:
-            for i, pressure in enumerate(self.ctx.pressures):
+            for i, _ in enumerate(self.ctx.pressures):
                 # Update labels
                 self.ctx.inp['metadata']['label'] = "RaspaGCMC_{}_{}".format(inp, i + 1)
                 self.ctx.inp['metadata']['call_link_label'] = "run_raspa_gcmc_{}_{}".format(inp, i + 1)

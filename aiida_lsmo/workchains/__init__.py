@@ -13,3 +13,4 @@ from .nanoporous_screening_1 import NanoporousScreening1WorkChain
 from .multicomp_ads_des import MulticompAdsDesWorkChain
 from .multicomp_gcmc import MulticompGcmcWorkChain
 from .singlecomp_widom import SinglecompWidomWorkChain
+from .isotherm_inflection import IsothermInflectionWorkChain

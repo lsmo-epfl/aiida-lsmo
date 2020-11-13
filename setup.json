@@ -45,7 +45,8 @@
             "lsmo.nanoporous_screening_1 = aiida_lsmo.workchains:NanoporousScreening1WorkChain",
             "lsmo.multicomp_ads_des = aiida_lsmo.workchains:MulticompAdsDesWorkChain",
             "lsmo.multicomp_gcmc = aiida_lsmo.workchains:MulticompGcmcWorkChain",
-            "lsmo.singlecomp_widom = aiida_lsmo.workchains:SinglecompWidomWorkChain"
+            "lsmo.singlecomp_widom = aiida_lsmo.workchains:SinglecompWidomWorkChain",
+            "lsmo.isotherm_inflection = aiida_lsmo.workchains:IsothermInflectionWorkChain"
         ]
     },
     "data_files": [
