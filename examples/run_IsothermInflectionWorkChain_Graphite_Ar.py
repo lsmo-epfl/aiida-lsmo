@@ -51,7 +51,6 @@ def main(raspa_code_label, zeopp_code_label):
             'proberad': 1.7,
             'singlebead': True,
             'charged': False,
-            'rosenbluth': 1,
             'pressure_zero': 1,
         })
 
@@ -65,8 +64,8 @@ def main(raspa_code_label, zeopp_code_label):
             'zeopp_volpo_samples': 10000,
             'zeopp_block_samples': 100,
             'raspa_widom_cycles': 1000,
-            'raspa_gcmc_init_cycles': 200,
-            'raspa_gcmc_prod_cycles': 200,
+            'raspa_gcmc_init_cycles': 300,
+            'raspa_gcmc_prod_cycles': 300,
             "pressure_num": 4,
             "raspa_verbosity": 10
         })

@@ -118,11 +118,11 @@ def get_geometric_dict(zeopp_out, molecule):
 
 
 @calcfunction
-def get_output_parameters(pressures, geom_out, widom_out, **gcmc_dict):
+def get_output_parameters(inp_params, pressures, geom_out, widom_out, **gcmc_dict):
     """Merge results from all the steps of the work chain.
-    > geom_out (Dict) contains the output of Zeo++
-    > widom_out (Dict) contains the output of Raspa's Widom insertions calculation
-    > **gcmc_dict (dict of Dicts) has the keys like: inp/out_RaspaGCMC/RaspaGCMCNew/RaspaGCMCSat_1..n
+    geom_out (Dict) contains the output of Zeo++
+    widom_out (Dict) contains the output of Raspa's Widom insertions calculation
+    gcmc_dict (dict of Dicts) has the keys like: inp/out_RaspaGCMC/RaspaGCMCNew/RaspaGCMCSat_1..n
     """
 
     out_dict = geom_out.get_dict()
@@ -146,6 +146,8 @@ def get_output_parameters(pressures, geom_out, widom_out, **gcmc_dict):
             gcmc_dict.values())[0]["framework_1"]["components"].values())[0]  #same for all, take just the first!
 
         isotherm = {
+            'temperature': inp_params['temperature'],
+            'temperature_unit': 'K',
             'pressure': pressures,
             'pressure_unit': 'bar',
             'loading_absolute_average_from_dil': [],
@@ -474,7 +476,8 @@ class IsothermInflectionWorkChain(WorkChain):
 
         self.out(
             "output_parameters",
-            get_output_parameters(pressures=self.ctx.pressures,
+            get_output_parameters(inp_params=self.ctx.parameters,
+                                  pressures=self.ctx.pressures,
                                   geom_out=self.ctx.geom,
                                   widom_out=widom_out,
                                   **gcmc_dict))
