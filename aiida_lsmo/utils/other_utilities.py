@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Other utilities"""
 
 import collections

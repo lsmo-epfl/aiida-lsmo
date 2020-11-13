@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """ZeoppMultistageDdecWorkChain work chain"""
 
 from aiida.plugins import CalculationFactory, DataFactory, WorkflowFactory
@@ -10,11 +11,11 @@ Cp2kMultistageDdecWorkChain = WorkflowFactory('lsmo.cp2k_multistage_ddec')  # py
 
 # import calculations
 DdecCalculation = CalculationFactory('ddec')  # pylint: disable=invalid-name
-ZeoppCalculation = CalculationFactory("zeopp.network")  # pylint: disable=invalid-name
+ZeoppCalculation = CalculationFactory('zeopp.network')  # pylint: disable=invalid-name
 
 # import aiida data
 CifData = DataFactory('cif')  # pylint: disable=invalid-name
-NetworkParameters = DataFactory("zeopp.parameters")  # pylint: disable=invalid-name
+NetworkParameters = DataFactory('zeopp.parameters')  # pylint: disable=invalid-name
 
 ZEOPP_PARAMETERS_DEFAULT = {  #Default parameters for microporous materials
     'ha': 'DEF',  # Using high accuracy (mandatory!)
@@ -53,11 +54,11 @@ class ZeoppMultistageDdecWorkChain(WorkChain):
         zeopp_inp = AttributeDict(self.exposed_inputs(ZeoppCalculation, 'zeopp'))
         zeopp_inp['parameters'] = self.inputs.zeopp.parameters
         zeopp_inp['structure'] = self.inputs.structure
-        zeopp_inp['metadata']['label'] = "zeopp_before_opt"
-        zeopp_inp['metadata']['call_link_label'] = "call_zeopp_before_opt"
+        zeopp_inp['metadata']['label'] = 'zeopp_before_opt'
+        zeopp_inp['metadata']['call_link_label'] = 'call_zeopp_before_opt'
 
         running_zeopp = self.submit(ZeoppCalculation, **zeopp_inp)
-        self.report("Running Zeo++ calculation <{}>".format(running_zeopp.pk))
+        self.report('Running Zeo++ calculation <{}>'.format(running_zeopp.pk))
         return ToContext(zeopp_before=running_zeopp)
 
     def run_multistageddec(self):
@@ -74,11 +75,11 @@ class ZeoppMultistageDdecWorkChain(WorkChain):
         zeopp_inp = AttributeDict(self.exposed_inputs(ZeoppCalculation, 'zeopp'))
         zeopp_inp['parameters'] = self.inputs.zeopp.parameters
         zeopp_inp['structure'] = self.ctx.msddec_wc.outputs.structure_ddec
-        zeopp_inp['metadata']['label'] = "zeopp_after_opt"
-        zeopp_inp['metadata']['call_link_label'] = "call_zeopp_after_opt"
+        zeopp_inp['metadata']['label'] = 'zeopp_after_opt'
+        zeopp_inp['metadata']['call_link_label'] = 'call_zeopp_after_opt'
 
         running_zeopp = self.submit(ZeoppCalculation, **zeopp_inp)
-        self.report("Running Zeo++ calculation <{}>".format(running_zeopp.pk))
+        self.report('Running Zeo++ calculation <{}>'.format(running_zeopp.pk))
         return ToContext(zeopp_after=running_zeopp)
 
     def return_results(self):
@@ -86,4 +87,4 @@ class ZeoppMultistageDdecWorkChain(WorkChain):
         self.out_many(self.exposed_outputs(self.ctx.zeopp_before, ZeoppCalculation, namespace='zeopp_before_opt'))
         self.out_many(self.exposed_outputs(self.ctx.msddec_wc, Cp2kMultistageDdecWorkChain))
         self.out_many(self.exposed_outputs(self.ctx.zeopp_after, ZeoppCalculation, namespace='zeopp_after_opt'))
-        self.report("WorkChain terminated correctly.")
+        self.report('WorkChain terminated correctly.')

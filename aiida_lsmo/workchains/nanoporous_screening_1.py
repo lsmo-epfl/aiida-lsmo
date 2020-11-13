@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """ZeoppMultistageDdecPeWorkChain workchain"""
 
 from aiida.orm import Group
@@ -41,11 +42,11 @@ class NanoporousScreening1WorkChain(WorkChain):
         """Create curated-xxx_XXXX_vx group and put the orig_cif inside, and exit if it already exists."""
         self.ctx.orig_cif = self.exposed_inputs(ZeoppMultistageDdecWorkChain)['structure']
         self.ctx.group = Group(
-            label="curated-{}_{}_v3".format(self.ctx.orig_cif.extras["class_material"], self.ctx.orig_cif.label),
+            label='curated-{}_{}_v3'.format(self.ctx.orig_cif.extras['class_material'], self.ctx.orig_cif.label),
             description=
-            "Group collecting the results of CURATED-COFs/MOFs/ZEOs: v3 is consistent with the API of Feb 2020")
+            'Group collecting the results of CURATED-COFs/MOFs/ZEOs: v3 is consistent with the API of Feb 2020')
         self.ctx.group.store()  # REMEMBER: this will crash if a node with the same label exists!
-        include_node("orig_cif", self.ctx.orig_cif, self.ctx.group)
+        include_node('orig_cif', self.ctx.orig_cif, self.ctx.group)
 
     def run_wc1(self):
         """Run work chain 1."""
@@ -57,13 +58,13 @@ class NanoporousScreening1WorkChain(WorkChain):
 
     def include_results_wc1(self):
         """Include results of work chain 1 in group."""
-        include_node("orig_zeopp_out", self.ctx.wc1.outputs.zeopp_before_opt__output_parameters, self.ctx.group)
-        include_node("dftopt_out", self.ctx.wc1.outputs.output_parameters, self.ctx.group)
-        self.ctx.wc1.outputs.structure_ddec.label = "{}_DDEC".format(self.ctx.orig_cif.label)
-        include_node("opt_cif_ddec", self.ctx.wc1.outputs.structure_ddec, self.ctx.group)
-        include_node("opt_zeopp_out", self.ctx.wc1.outputs.zeopp_after_opt__output_parameters, self.ctx.group)
-        include_node("dftopt_wc", self.ctx.wc1.called[-2], self.ctx.group)
-        include_node("ddec_wc", self.ctx.wc1.called[-3], self.ctx.group)
+        include_node('orig_zeopp_out', self.ctx.wc1.outputs.zeopp_before_opt__output_parameters, self.ctx.group)
+        include_node('dftopt_out', self.ctx.wc1.outputs.output_parameters, self.ctx.group)
+        self.ctx.wc1.outputs.structure_ddec.label = '{}_DDEC'.format(self.ctx.orig_cif.label)
+        include_node('opt_cif_ddec', self.ctx.wc1.outputs.structure_ddec, self.ctx.group)
+        include_node('opt_zeopp_out', self.ctx.wc1.outputs.zeopp_after_opt__output_parameters, self.ctx.group)
+        include_node('dftopt_wc', self.ctx.wc1.called[-2], self.ctx.group)
+        include_node('ddec_wc', self.ctx.wc1.called[-3], self.ctx.group)
 
     def run_wc2(self):
         """Run work chain 2."""
@@ -75,8 +76,8 @@ class NanoporousScreening1WorkChain(WorkChain):
 
     def include_results_wc2(self):
         """Include results of work chain 2 in group."""
-        include_node("isot_co2_out", self.ctx.wc2.outputs.co2__output_parameters, self.ctx.group)
-        include_node("isot_n2_out", self.ctx.wc2.outputs.n2__output_parameters, self.ctx.group)
-        include_node("pe_out", self.ctx.wc2.outputs.output_parameters, self.ctx.group)
-        include_node("isot_co2_wc", self.ctx.wc2.called[-1], self.ctx.group)
-        include_node("isot_n2_wc", self.ctx.wc2.called[-2], self.ctx.group)
+        include_node('isot_co2_out', self.ctx.wc2.outputs.co2__output_parameters, self.ctx.group)
+        include_node('isot_n2_out', self.ctx.wc2.outputs.n2__output_parameters, self.ctx.group)
+        include_node('pe_out', self.ctx.wc2.outputs.output_parameters, self.ctx.group)
+        include_node('isot_co2_wc', self.ctx.wc2.called[-1], self.ctx.group)
+        include_node('isot_n2_wc', self.ctx.wc2.called[-2], self.ctx.group)

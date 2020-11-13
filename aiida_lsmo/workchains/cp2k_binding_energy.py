@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Binding energy workchain"""
 
 import os
@@ -20,17 +21,17 @@ Cp2kBaseWorkChain = WorkflowFactory('cp2k.base')  # pylint: disable=invalid-name
 @calcfunction
 def get_output_parameters(**cp2k_out_dict):
     """Extracts important results to include in the output_parameters."""
-    output_dict = {"motion_step_info": {}}
-    output_dict["motion_opt_converged"] = cp2k_out_dict["final_geo_opt"]["motion_opt_converged"]
+    output_dict = {'motion_step_info': {}}
+    output_dict['motion_opt_converged'] = cp2k_out_dict['final_geo_opt']['motion_opt_converged']
     selected_motion_keys = [
-        "dispersion_energy_au", "energy_au", "max_grad_au", "max_step_au", "rms_grad_au", "rms_step_au", "scf_converged"
+        'dispersion_energy_au', 'energy_au', 'max_grad_au', 'max_step_au', 'rms_grad_au', 'rms_step_au', 'scf_converged'
     ]
     for key in selected_motion_keys:
-        output_dict["motion_step_info"][key] = cp2k_out_dict["final_geo_opt"]["motion_step_info"][key]
+        output_dict['motion_step_info'][key] = cp2k_out_dict['final_geo_opt']['motion_step_info'][key]
 
     selected_bsse_keys = [
-        "binding_energy_raw", "binding_energy_corr", "binding_energy_bsse", "binding_energy_unit",
-        "binding_energy_dispersion"
+        'binding_energy_raw', 'binding_energy_corr', 'binding_energy_bsse', 'binding_energy_unit',
+        'binding_energy_dispersion'
     ]
     for key in selected_bsse_keys:
         if key in cp2k_out_dict['bsse'].get_dict():  # "binding_energy_dispersion" may miss
@@ -165,7 +166,7 @@ class Cp2kBindingEnergyWorkChain(WorkChain):
                     },  # Can be adjusted from builder.cp2k_base.cp2k.parameters
                     'CONSTRAINT': {
                         'FIXED_ATOMS': {
-                            'LIST': "1..{}".format(self.ctx.natoms_structure)
+                            'LIST': '1..{}'.format(self.ctx.natoms_structure)
                         }
                     }
                 }
@@ -190,7 +191,7 @@ class Cp2kBindingEnergyWorkChain(WorkChain):
         self.ctx.base_inp['cp2k']['metadata'].update({'label': 'GEO_OPT'})
         self.ctx.base_inp['cp2k']['metadata']['options']['parser_name'] = 'lsmo.cp2k_advanced_parser'
         running_base = self.submit(Cp2kBaseWorkChain, **self.ctx.base_inp)
-        self.report("Optimize molecule position in the structure.")
+        self.report('Optimize molecule position in the structure.')
         return ToContext(stages=append_(running_base))
 
     def inspect_and_update_settings_geo_opt(self):  # pylint: disable=inconsistent-return-statements
@@ -207,17 +208,17 @@ class Cp2kBindingEnergyWorkChain(WorkChain):
             return self.exit_codes.ERROR_PARSING_OUTPUT  # pylint: disable=no-member
 
         # Settings are bad: the SCF did not converge in the final step
-        if not cp2k_out["motion_step_info"]["scf_converged"][-1]:
-            self.report("BAD SETTINGS: the SCF did not converge")
+        if not cp2k_out['motion_step_info']['scf_converged'][-1]:
+            self.report('BAD SETTINGS: the SCF did not converge')
             self.ctx.settings_ok = False
             self.ctx.settings_idx += 1
         else:
             # SCF converged, but the computed bandgap needs to be checked
-            self.report("Bandgaps spin1/spin2: {:.3f} and {:.3f} ev".format(cp2k_out["bandgap_spin1_au"] * HARTREE2EV,
-                                                                            cp2k_out["bandgap_spin2_au"] * HARTREE2EV))
+            self.report('Bandgaps spin1/spin2: {:.3f} and {:.3f} ev'.format(cp2k_out['bandgap_spin1_au'] * HARTREE2EV,
+                                                                            cp2k_out['bandgap_spin2_au'] * HARTREE2EV))
             bandgap_thr_ev = self.ctx.protocol['bandgap_thr_ev']
             if ot_has_small_bandgap(self.ctx.cp2k_param, cp2k_out, bandgap_thr_ev):
-                self.report("BAD SETTINGS: band gap is < {:.3f} eV".format(bandgap_thr_ev))
+                self.report('BAD SETTINGS: band gap is < {:.3f} eV'.format(bandgap_thr_ev))
                 self.ctx.settings_ok = False
                 self.ctx.settings_idx += 1
 
@@ -256,7 +257,7 @@ class Cp2kBindingEnergyWorkChain(WorkChain):
         self.ctx.base_inp['cp2k']['metadata'].update({'label': 'BSSE'})
         self.ctx.base_inp['cp2k']['metadata']['options']['parser_name'] = 'lsmo.cp2k_bsse_parser'
         running_base = self.submit(Cp2kBaseWorkChain, **self.ctx.base_inp)
-        self.report("Run BSSE calculation to compute corrected binding energy.")
+        self.report('Run BSSE calculation to compute corrected binding energy.')
 
         return ToContext(stages=append_(running_base))
 
@@ -268,12 +269,12 @@ class Cp2kBindingEnergyWorkChain(WorkChain):
 
         # Return parameters, loaded structure and molecule
         cp2k_out_dict = {
-            "final_geo_opt": self.ctx.stages[-2].outputs.output_parameters,
-            "bsse": self.ctx.stages[-1].outputs.output_parameters
+            'final_geo_opt': self.ctx.stages[-2].outputs.output_parameters,
+            'bsse': self.ctx.stages[-1].outputs.output_parameters
         }
         self.out('output_parameters', get_output_parameters(**cp2k_out_dict))
         self.out('loaded_structure', self.ctx.stages[-2].outputs.output_structure)
         self.out('loaded_molecule', get_loaded_molecule(self.outputs['loaded_structure'], self.inputs['molecule']))
-        self.report("Completed! Ouput Dict<{}>, loaded StructureData<{}>, loaded molecule StructureData<{}>".format(
+        self.report('Completed! Ouput Dict<{}>, loaded StructureData<{}>, loaded molecule StructureData<{}>'.format(
             self.outputs['output_parameters'].pk, self.outputs['loaded_structure'].pk,
             self.outputs['loaded_molecule'].pk))

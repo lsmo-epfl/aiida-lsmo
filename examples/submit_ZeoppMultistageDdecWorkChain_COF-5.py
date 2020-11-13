@@ -13,7 +13,7 @@ ZeoppMultistageDdecWorkChain = WorkflowFactory('lsmo.zeopp_multistage_ddec')  # 
 
 #Data objects
 CifData = DataFactory('cif')  # pylint: disable=invalid-name
-NetworkParameters = DataFactory("zeopp.parameters")  # pylint: disable=invalid-name
+NetworkParameters = DataFactory('zeopp.parameters')  # pylint: disable=invalid-name
 
 print('NOTE: this test will perform a real-case calculation on Fidis, taking a couple of hours!')
 
@@ -94,4 +94,4 @@ inputs = {
 }
 wc = submit(ZeoppMultistageDdecWorkChain, **inputs)
 
-print("Submitted CifData<{}> to ZeoppMultistageDdecWorkChain<{}>".format(structure.pk, wc.pk))
+print('Submitted CifData<{}> to ZeoppMultistageDdecWorkChain<{}>'.format(structure.pk, wc.pk))

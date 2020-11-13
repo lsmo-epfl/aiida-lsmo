@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 For pytest
 initialise a test database and profile

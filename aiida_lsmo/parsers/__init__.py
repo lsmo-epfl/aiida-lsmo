@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Parsers for the specific usage of aiida-lsmo workchains."""
 
 import io
@@ -32,9 +33,9 @@ class Cp2kBsseParser(Cp2kBaseParser):  # pylint: disable=too-few-public-methods
         # nwarnings is the last thing to be printed in the CP2K output file:
         # if it is not there, CP2K didn't finish properly
         if 'nwarnings' not in result_dict:
-            raise OutputParsingError("CP2K did not finish properly.")
+            raise OutputParsingError('CP2K did not finish properly.')
 
-        self.out("output_parameters", Dict(dict=result_dict))
+        self.out('output_parameters', Dict(dict=result_dict))
         return None
 
 
@@ -59,11 +60,11 @@ class Cp2kAdvancedParser(Cp2kBaseParser):  # pylint: disable=too-few-public-meth
         # nwarnings is the last thing to be printed in th eCP2K output file:
         # if it is not there, CP2K didn't finish properly
         if 'nwarnings' not in result_dict:
-            raise OutputParsingError("CP2K did not finish properly.")
+            raise OutputParsingError('CP2K did not finish properly.')
 
         # Compute the bandgap for Spin1 and Spin2 if eigen was parsed (works also with smearing!)
         if 'eigen_spin1_au' in result_dict:
-            if result_dict['dft_type'] == "RKS":
+            if result_dict['dft_type'] == 'RKS':
                 result_dict['eigen_spin2_au'] = result_dict['eigen_spin1_au']
 
             lumo_spin1_idx = result_dict['init_nel_spin1']
@@ -80,16 +81,16 @@ class Cp2kAdvancedParser(Cp2kBaseParser):  # pylint: disable=too-few-public-meth
             result_dict['bandgap_spin1_au'] = lumo_spin1 - homo_spin1
             result_dict['bandgap_spin2_au'] = lumo_spin2 - homo_spin2
 
-        if "kpoint_data" in result_dict:
+        if 'kpoint_data' in result_dict:
             bnds = BandsData()
-            bnds.set_kpoints(result_dict["kpoint_data"]["kpoints"])
-            bnds.labels = result_dict["kpoint_data"]["labels"]
+            bnds.set_kpoints(result_dict['kpoint_data']['kpoints'])
+            bnds.labels = result_dict['kpoint_data']['labels']
             bnds.set_bands(
-                result_dict["kpoint_data"]["bands"],
-                units=result_dict["kpoint_data"]["bands_unit"],
+                result_dict['kpoint_data']['bands'],
+                units=result_dict['kpoint_data']['bands_unit'],
             )
-            self.out("output_bands", bnds)
-            del result_dict["kpoint_data"]
+            self.out('output_bands', bnds)
+            del result_dict['kpoint_data']
 
-        self.out("output_parameters", Dict(dict=result_dict))
+        self.out('output_parameters', Dict(dict=result_dict))
         return None

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Workchains developed at LSMO laboratory."""
 
 from .binding_site import BindingSiteWorkChain

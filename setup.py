@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 """Setting up aiida-lsmo for AiiDA"""
 
 import json

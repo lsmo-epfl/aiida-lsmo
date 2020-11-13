@@ -26,24 +26,24 @@ def main(raspa_code_label, zeopp_code_label):
 
     builder = IsothermCalcPEWorkChain.get_builder()
 
-    builder.metadata.label = "test"
+    builder.metadata.label = 'test'
 
     builder.raspa_base.raspa.code = Code.get_from_string(raspa_code_label)
     builder.zeopp.code = Code.get_from_string(zeopp_code_label)
 
     options = {
-        "resources": {
-            "num_machines": 1,
-            "tot_num_mpiprocs": 1,
+        'resources': {
+            'num_machines': 1,
+            'tot_num_mpiprocs': 1,
         },
-        "max_wallclock_seconds": 1 * 60 * 60,
-        "withmpi": False,
+        'max_wallclock_seconds': 1 * 60 * 60,
+        'withmpi': False,
     }
 
     builder.raspa_base.raspa.metadata.options = options
     builder.zeopp.metadata.options = options
 
-    builder.structure = CifData(file=os.path.abspath('data/HKUST-1.cif'), label="HKUST-1")
+    builder.structure = CifData(file=os.path.abspath('data/HKUST-1.cif'), label='HKUST-1')
     # NOTE1: parameters are chosen for speed purpose. Use the default to be consistent to 10.1021/acscentsci.9b00619
     # NOTE2: calc_pe can fail due to this raw sampling of the isotherm. It happens in the ca. 20% of the cases.
     builder.parameters = Dict(

@@ -30,22 +30,22 @@ def main(raspa_code_label, zeopp_code_label):
 
     builder = MulticompAdsDesWorkChain.get_builder()
 
-    builder.metadata.label = "test"
+    builder.metadata.label = 'test'
 
     builder.raspa_base.raspa.code = Code.get_from_string(raspa_code_label)
     builder.zeopp.code = Code.get_from_string(zeopp_code_label)
 
     options = {
-        "resources": {
-            "num_machines": 1,
-            "tot_num_mpiprocs": 1,
+        'resources': {
+            'num_machines': 1,
+            'tot_num_mpiprocs': 1,
         },
-        "max_wallclock_seconds": 1 * 60 * 60,
-        "withmpi": False,
+        'max_wallclock_seconds': 1 * 60 * 60,
+        'withmpi': False,
     }
     builder.raspa_base.raspa.metadata.options = options
     builder.zeopp.metadata.options = options
-    builder.structure = CifData(file=os.path.abspath('data/HKUST-1.cif'), label="HKUST-1")
+    builder.structure = CifData(file=os.path.abspath('data/HKUST-1.cif'), label='HKUST-1')
     builder.conditions = Dict(
         dict={
             'molfraction': {

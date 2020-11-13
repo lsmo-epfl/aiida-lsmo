@@ -99,25 +99,25 @@ xenon:
   charged: False
 
 co:
-  name: CO         
-  forcefield: ESP-MM 
+  name: CO
+  forcefield: ESP-MM
   molsatdens: 11.1 #NIST @ critical density
-  proberad: 1.76 # O sigma/2    
-  singlebead: False  
-  charged: True      
+  proberad: 1.76 # O sigma/2
+  singlebead: False
+  charged: True
 
 ethane:
-  name: C2H6         
-  forcefield: TraPPE 
+  name: C2H6
+  forcefield: TraPPE
   molsatdens: 11.0
-  proberad: 1.87  
-  singlebead: False  
-  charged: False 
+  proberad: 1.87
+  singlebead: False
+  charged: False
 
 ethene:
-  name: C2H4         
-  forcefield: TraPPE 
+  name: C2H4
+  forcefield: TraPPE
   molsatdens: 11.0
-  proberad: 1.83    
-  singlebead: False  
-  charged: False 
+  proberad: 1.83
+  singlebead: False
+  charged: False

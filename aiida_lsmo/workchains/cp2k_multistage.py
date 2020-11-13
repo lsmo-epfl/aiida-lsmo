@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Multistage work chain."""
 
 import os
@@ -213,12 +214,12 @@ class Cp2kMultistageWorkChain(WorkChain):
         if self.ctx.resize['nx'] > 1 or self.ctx.resize['ny'] > 1 or self.ctx.resize['nz'] > 1:
             resized_struct = resize_unit_cell(self.ctx.structure, self.ctx.resize)
             self.ctx.structure = resized_struct
-            self.report("Unit cell resized by {}x{}x{} (StructureData<{}>)".format(self.ctx.resize['nx'],
+            self.report('Unit cell resized by {}x{}x{} (StructureData<{}>)'.format(self.ctx.resize['nx'],
                                                                                    self.ctx.resize['ny'],
                                                                                    self.ctx.resize['nz'],
                                                                                    resized_struct.pk))
         else:
-            self.report("Unit cell was NOT resized")
+            self.report('Unit cell was NOT resized')
 
         # Generate input parameters and store them
         self.ctx.cp2k_param = deepcopy(self.ctx.protocol['settings_0'])
@@ -270,7 +271,7 @@ class Cp2kMultistageWorkChain(WorkChain):
             {'label': self.ctx.base_inp['cp2k']['parameters'].get_dict()['GLOBAL']['RUN_TYPE']})
 
         running_base = self.submit(Cp2kBaseWorkChain, **self.ctx.base_inp)
-        self.report("submitted Cp2kBaseWorkChain for {}/{}".format(self.ctx.stage_tag, self.ctx.settings_tag))
+        self.report('submitted Cp2kBaseWorkChain for {}/{}'.format(self.ctx.stage_tag, self.ctx.settings_tag))
         return ToContext(stages=append_(running_base))
 
     def inspect_and_update_settings_stage0(self):  # pylint: disable=inconsistent-return-statements
@@ -287,17 +288,17 @@ class Cp2kMultistageWorkChain(WorkChain):
             return self.exit_codes.ERROR_PARSING_OUTPUT  # pylint: disable=no-member
 
         # Settings are bad: the SCF did not converge in the final step
-        if not cp2k_out["motion_step_info"]["scf_converged"][-1]:
-            self.report("BAD SETTINGS: the SCF did not converge")
+        if not cp2k_out['motion_step_info']['scf_converged'][-1]:
+            self.report('BAD SETTINGS: the SCF did not converge')
             self.ctx.settings_ok = False
             self.ctx.settings_idx += 1
         else:
             # SCF converged, but the computed bandgap needs to be checked
-            self.report("Bandgaps spin1/spin2: {:.3f} and {:.3f} ev".format(cp2k_out["bandgap_spin1_au"] * HARTREE2EV,
-                                                                            cp2k_out["bandgap_spin2_au"] * HARTREE2EV))
+            self.report('Bandgaps spin1/spin2: {:.3f} and {:.3f} ev'.format(cp2k_out['bandgap_spin1_au'] * HARTREE2EV,
+                                                                            cp2k_out['bandgap_spin2_au'] * HARTREE2EV))
             bandgap_thr_ev = self.ctx.protocol['bandgap_thr_ev']
             if ot_has_small_bandgap(self.ctx.cp2k_param, cp2k_out, bandgap_thr_ev):
-                self.report("BAD SETTINGS: band gap is < {:.3f} eV".format(bandgap_thr_ev))
+                self.report('BAD SETTINGS: band gap is < {:.3f} eV'.format(bandgap_thr_ev))
                 self.ctx.settings_ok = False
                 self.ctx.settings_idx += 1
 
@@ -333,7 +334,7 @@ class Cp2kMultistageWorkChain(WorkChain):
             dict_merge(self.ctx.cp2k_param, self.ctx.protocol[self.ctx.stage_tag])
         else:
             self.ctx.next_stage_exists = False
-            self.report("All stages computed, finishing...")
+            self.report('All stages computed, finishing...')
 
     def should_run_stage(self):
         """Return True if it exists a new stage to compute."""
@@ -354,7 +355,7 @@ class Cp2kMultistageWorkChain(WorkChain):
         # Output the final structure only if it was modified (there is any MD or OPT stage)
         if 'output_structure' in self.ctx.stages[-1].outputs:
             self.out('output_structure', self.ctx.stages[-1].outputs.output_structure)
-            self.report("Outputs: Dict<{}> and StructureData<{}>".format(self.outputs['output_parameters'].pk,
+            self.report('Outputs: Dict<{}> and StructureData<{}>'.format(self.outputs['output_parameters'].pk,
                                                                          self.outputs['output_structure'].pk))
         else:
-            self.report("Outputs: Dict<{}> and NO StructureData".format(self.outputs['output_parameters'].pk))
+            self.report('Outputs: Dict<{}> and NO StructureData'.format(self.outputs['output_parameters'].pk))

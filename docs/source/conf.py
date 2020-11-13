@@ -88,11 +88,11 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'aiida-lsmo'
-copyright_first_year = "2019"
-copyright_owners = "The AiiDA Team"
+copyright_first_year = '2019'
+copyright_owners = 'The AiiDA Team'
 
 current_year = str(time.localtime().tm_year)
-copyright_year_string = current_year if current_year == copyright_first_year else "{}-{}".format(
+copyright_year_string = current_year if current_year == copyright_first_year else '{}-{}'.format(
     copyright_first_year, current_year)
 # pylint: disable=redefined-builtin
 copyright = u'{}, {}. All rights reserved'.format(copyright_year_string, copyright_owners)
@@ -328,11 +328,12 @@ def run_apidoc(_):
 
     # See https://stackoverflow.com/a/30144019
     env = os.environ.copy()
-    env["SPHINX_APIDOC_OPTIONS"] = 'members,special-members,private-members,undoc-members,show-inheritance'
+    env['SPHINX_APIDOC_OPTIONS'] = 'members,special-members,private-members,undoc-members,show-inheritance'
     subprocess.check_call([cmd_path] + options, env=env)
 
 
 def setup(app):
+    """Set up application."""
     app.connect('builder-inited', run_apidoc)
 
 
