@@ -119,7 +119,7 @@ def get_geometric_dict(zeopp_out, molecule):
 
 
 @calcfunction
-def get_output_parameters(inp_params, pressures, geom_out, widom_out, **gcmc_dict):
+def get_output_parameters(inp_params, pressures, geom_out, widom_out, **gcmc_dict):  # pylint: disable=too-many-locals
     """Merge results from all the steps of the work chain.
     geom_out (Dict) contains the output of Zeo++
     widom_out (Dict) contains the output of Raspa's Widom insertions calculation
