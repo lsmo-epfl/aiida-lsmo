@@ -6,10 +6,10 @@
   hooks:
   - id: double-quote-string-fixer
     exclude: &exclude_files >
-        (?x)^(
-            tests/data/.*|
-            examples/data/.*|
-        )$
+      (?x)^(
+          tests/data/.*|
+          examples/data/.*|
+      )$
   - id: end-of-file-fixer
     exclude: *exclude_files
   - id: fix-encoding-pragma
@@ -19,6 +19,17 @@
   - id: trailing-whitespace
     exclude: *exclude_files
 
+- repo: https://github.com/macisamuele/language-formatters-pre-commit-hooks
+  rev: v1.5.0
+  hooks:
+  - id: pretty-format-yaml
+    args: [--autofix, --indent, "2", --preserve-quotes]
+
+- repo: https://github.com/adrienverge/yamllint
+  rev: v1.25.0
+  hooks:
+  - id: yamllint
+
 - repo: https://github.com/pre-commit/mirrors-yapf
   rev: v0.30.0
   hooks:
@@ -27,9 +38,9 @@
     name: yapf
     types: [python]
     exclude: >
-        (?x)^(
-            docs/.*|
-        )$
+      (?x)^(
+          docs/.*|
+      )$
     args: ['-i']
 
 - repo: local
