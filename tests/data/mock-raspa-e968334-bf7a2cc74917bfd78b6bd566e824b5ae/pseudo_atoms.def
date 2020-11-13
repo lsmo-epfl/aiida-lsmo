@@ -1,0 +1,4 @@
+# number of pseudo atoms
+1
+#type print as chem oxidation mass charge polarization B-factor radii connectivity anisotropic anisotropic-type tinker-type
+Ar_gas yes Ar Ar 0 39.95 0.0 0.0 1.0 1.0 0 0 relative 0

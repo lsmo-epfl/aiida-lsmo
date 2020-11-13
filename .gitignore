@@ -109,3 +109,5 @@ venv.bak/
 .DS_Store
 
 .idea/
+
+pip-wheel-metadata/

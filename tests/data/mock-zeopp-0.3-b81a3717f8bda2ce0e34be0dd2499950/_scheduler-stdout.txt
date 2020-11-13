@@ -1,0 +1,73 @@
+Loading radii. 
+High accuracy requested (DEF (default) settings). 
+Selected accuracy setting: DEF
+Opening File: Graphite_20A.cif
+Radii analysis: the smallest atom r = 1.736 while the largest atoms r = 1.736.
+Starting Voronoi decomposition
+Box dimensions:
+  va=(2.460000 0 0)
+  vb=(0.000000 4.260000 0)
+  vc=(0.000000 0.000000 20.000000)
+
+Total particles = 4
+
+Internal grid size = (1 1 3)
+
+Using voro++ with radii for particles.
+Performing Voronoi decomposition.
+Volume check:
+  Total domain volume  = 209.592000
+  Total Voronoi volume = 209.592000
+Voronoi decomposition finished. Rerouting Voronoi network information.
+Finished rerouting information.
+Finished Voronoi decomposition
+Command 0  -r
+Command 1  -ha
+Command 2  -block
+Box dimensions:
+  va=(2.460000 0 0)
+  vb=(0.000000 4.260000 0)
+  vc=(0.000000 0.000000 20.000000)
+
+Total particles = 4
+
+Internal grid size = (1 1 3)
+
+Using voro++ with radii for particles.
+Performing Voronoi decomposition.
+Volume check:
+  Total domain volume  = 209.592000
+  Total Voronoi volume = 209.592000
+Voronoi decomposition finished. Rerouting Voronoi network information.
+Finished rerouting information.
+Voronoi network with 2 nodes. 2 of them are accessible. 
+
+Finding channels and pockets in Dijkstra network of 2 node(s). 2 are expected to compose pores.
+Analyzed and assigned 2 nodes.
+Identified 1 channels and 0 pockets.
+2 nodes assigned to pores. 
+Command 3  -volpo
+Box dimensions:
+  va=(2.460000 0 0)
+  vb=(0.000000 4.260000 0)
+  vc=(0.000000 0.000000 20.000000)
+
+Total particles = 4
+
+Internal grid size = (1 1 3)
+
+Using voro++ with radii for particles.
+Performing Voronoi decomposition.
+Volume check:
+  Total domain volume  = 209.592000
+  Total Voronoi volume = 209.592000
+Voronoi decomposition finished. Rerouting Voronoi network information.
+Finished rerouting information.
+Voronoi network with 2 nodes. 2 of them are accessible. 
+
+Finding channels and pockets in Dijkstra network of 2 node(s). 2 are expected to compose pores.
+Analyzed and assigned 2 nodes.
+Identified 1 channels and 0 pockets.
+2 nodes assigned to pores. 
+ProbeOccupiableLoopStart: atoms: 4 count: 6593 count_inaxs: 0 count_inside: 3407 count_narrow: 0
+ProbeOccupiableLoopEnd: atoms: 4 count: 8381 count_inaxs: 0 count_inside: 1570 count_narrow: 49

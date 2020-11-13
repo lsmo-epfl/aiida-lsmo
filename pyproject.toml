@@ -12,7 +12,12 @@ disable = [
 addopts = "--durations=0 --cov=aiida_lsmo"
 testpaths = [
     "tests",
+    "examples",
 ]
+# test also examples
+python_functions = "test_* run_*"
+python_files = "test_*.py"
+
 filterwarnings = [
     "ignore::DeprecationWarning:frozendict:",
     "ignore::DeprecationWarning:sqlalchemy_utils:",
