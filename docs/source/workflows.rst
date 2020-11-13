@@ -135,6 +135,7 @@ What it can not do:
       "ff_cutoff": 12.0,  # (float) CutOff truncation for the VdW interactions (Angstrom).
       "temperature": 300,  # (float) Temperature of the simulation.
       "temperature_list": None,  # (list) To be used by IsothermMultiTempWorkChain.
+      "zeopp_probe_scaling": 1.0, # (float), scaling probe's diameter: molecular_rad * scaling
       "zeopp_volpo_samples": int(1e5),  # (int) Number of samples for VOLPO calculation (per UC volume).
       "zeopp_block_samples": int(100),  # (int) Number of samples for BLOCK calculation (per A^3).
       "raspa_minKh": 1e-10,  # (float) If Henry coefficient < raspa_minKh do not run the isotherm (mol/kg/Pa).
@@ -151,6 +152,10 @@ What it can not do:
 
 Note that if the ``pressure_list`` value is provided, the other pressure inputs are neglected and the automatic pressure
 selection of the work chain is skipped.
+
+Note that you can scale the probe radius to empirically account for some framework flexibility and avoid overblocking. 
+Setting ``zeopp_probe_scaling`` to zero (or a small value) basically corresponds to skipping the permeability check and 
+skips the calculation of blocking spheres.
 
 * ``geometric`` is not meant to be used by the user, but by the IsothermMultiTemp work chains.
 
@@ -435,7 +440,7 @@ What it can not do:
         "temperature_unit": "K"
     }
 
-IosthermCalcPE work chain
+IsothermCalcPE work chain
 ++++++++++++++++++++++++++
 
 The :py:func:`~aiida_lsmo.workchains.isotherm_calc_pe.IsothermCalcPEWorkChain` work chain takes as an input a structure
@@ -901,7 +906,7 @@ Look at the inputs details of the Multistage work chain for more information abo
         }
     }
 
-BindingSiteWorkChain work chain
+BindingSite work chain
 ++++++++++++++++++++++++++++++++++++++++++++++
 
 The :py:func:`~aiida_lsmo.workchains.binding_site.BindingSiteWorkChain` work chain
@@ -911,3 +916,323 @@ The outputs from the two workchain are collected under the ``ff`` and ``dft`` na
 
 .. aiida-workchain:: BindingSiteWorkChain
     :module: aiida_lsmo.workchains
+
+
+SinglecompWidom work chain
+++++++++++++++++++++++++++++++++++++++++++++++
+
+The :py:func:`~aiida_lsmo.workchains.singlecomp_widom.SinglecompWidomWorkChain` work chain
+allows to compute the Henry's coefficient of a molecule via the Widom insertions algorithm.
+The user can specify a list of temperatures to perform these calculations, and the results from the ``output_parameters`` 
+Dict will be presented as lists as well, one for each temperature.
+
+Blocking spheres are computed for the molecule before the calculation.
+
+.. aiida-workchain:: SinglecompWidomWorkChain
+    :module: aiida_lsmo.workchains
+
+**Inputs details**
+
+
+* ``structure`` (``CifData``), if missing the calculation will be performed for an empty box, which is convenient to get the
+  ``widom_rosenbluth_factor_average`` for flexible molecules.
+
+* ``molecule`` (see IsothermWorkChain)
+
+* ``parameters`` (``Dict``) modifies the default parameters::
+
+        "ff_framework": "UFF",  # str, Forcefield of the structure (used also as a definition of ff.rad for zeopp)
+        "ff_shifted": False,  # bool, Shift or truncate at cutoff
+        "ff_tail_corrections": True,  # bool, Apply tail corrections
+        "ff_mixing_rule": 'Lorentz-Berthelot',  # str, Mixing rule for the forcefield
+        "ff_separate_interactions": False,  # bool, if true use only ff_framework for framework-molecule interactions
+        "ff_cutoff": 12.0,  # float, CutOff truncation for the VdW interactions (Angstrom)
+        "zeopp_probe_scaling": 1.0,  # float, scaling probe's diameter: use 0.0 for skipping block calc
+        "zeopp_block_samples": int(1000),  # int, Number of samples for BLOCK calculation (per A^3)
+        "raspa_verbosity": 10,  # int, Print stats every: number of cycles / raspa_verbosity
+        "raspa_widom_cycles": int(1e5),  # int, Number of widom cycles
+        "temperatures": [300, 400]
+
+**Outputs details**
+
+* ``output_parameters`` (``Dict``), example::
+
+    {
+        "adsorption_energy_widom_average": [
+            -34.9698999639,
+            -34.8262538296,
+            -34.6772296828
+        ],
+        "adsorption_energy_widom_dev": [
+            0.0166320673,
+            0.0129078639,
+            0.015868202
+        ],
+        "adsorption_energy_widom_unit": "kJ/mol",
+        "henry_coefficient_average": [
+            0.00783847,
+            0.0025542,
+            0.000964045
+        ],
+        "henry_coefficient_dev": [
+            0.000100367,
+            1.78042e-05,
+            4.69145e-06
+        ],
+        "henry_coefficient_unit": "mol/kg/Pa",
+        "temperatures": [
+            273,
+            293,
+            313
+        ],
+        "temperatures_unit": "K",
+        "widom_rosenbluth_factor_average": [
+            21180.0,
+            7407.21,
+            2986.58
+        ],
+        "widom_rosenbluth_factor_dev": [
+            271.198648,
+            51.63243,
+            14.533953
+        ],
+        "widom_rosenbluth_factor_unit": "-"
+    }
+
+MulticompGcmc work chain
+++++++++++++++++++++++++++++++++++++++++++++++
+
+The :py:func:`~aiida_lsmo.workchains.multicomp_gcmc.MulticompGcmcWorkChain` work chain
+performs in parallel GCMC calcultions, at all the conditions of temperature and pressure specified, 
+for a given mixture of molecules.
+
+Blocking spheres are computed for each molecule before the calculation.
+
+.. aiida-workchain:: MulticompGcmcWorkChain
+    :module: aiida_lsmo.workchains
+
+**Inputs details**
+
+* ``parameters`` (``Dict``) modifies the default parameters::
+
+        "ff_framework": "UFF",  # str, Forcefield of the structure (used also as a definition of ff.rad for zeopp)
+        "ff_shifted": False,  # bool, Shift or truncate at cutoff
+        "ff_tail_corrections": True,  # bool, Apply tail corrections
+        "ff_mixing_rule": 'Lorentz-Berthelot',  # str, Mixing rule for the forcefield
+        "ff_separate_interactions": False,  # bool, if true use only ff_framework for framework-molecule interactions
+        "ff_cutoff": 12.0,  # float, CutOff truncation for the VdW interactions (Angstrom)
+        "zeopp_probe_scaling": 1.0,  # float, scaling probe's diameter: use 0.0 for skipping block calc
+        "zeopp_block_samples": int(1000),  # int, Number of samples for BLOCK calculation (per A^3)
+        "raspa_verbosity": 10,  # int, Print stats every: number of cycles / raspa_verbosity
+        "raspa_gcmc_init_cycles": int(1e5),  # int, Number of GCMC initialization cycles
+        "raspa_gcmc_prod_cycles": int(1e5),  # int, Number of GCMC production cycles
+
+* ``conditions`` (``Dict``), example::
+
+        'molfraction': {
+            'co': 0.2,
+            'ethene': 0.3,
+            'ethane': 0.5,
+        },
+        'tp_gcmc': [
+            [200, 0.1],
+            [300, 0.5],
+            [400, 0.7],
+        ]
+
+**Outputs details**
+
+* ``output_parameters`` (``Dict``), example::
+
+    "Input_block": {
+        "C2H4": [
+            1.647,
+            10
+        ],
+        "C2H6": [
+            1.683,
+            10
+        ],
+        "CO": [
+            1.584,
+            10
+        ]
+    },
+    "Number_of_blocking_spheres": {
+        "C2H4": 0,
+        "C2H6": 0,
+        "CO": 0
+    },
+    "composition": {
+        "C2H4": 0.3,
+        "C2H6": 0.5,
+        "CO": 0.2
+    },
+    "enthalpy_of_adsorption_average": {
+        "C2H4": -18.893613196644,
+        "C2H6": -23.953846166638,
+        "CO": -18.67727295403
+    },
+    "enthalpy_of_adsorption_dev": {
+        "C2H4": 8.3425044773141,
+        "C2H6": 7.6573330506431,
+        "CO": 12.788154764577
+    },
+    "enthalpy_of_adsorption_unit": "kJ/mol",
+    "loading_absolute_average": {
+        "C2H4": [
+            1.674941508006,
+            0.4649745087,
+            0.225254317548
+        ],
+        "C2H6": [
+            8.558630790138,
+            1.716272575446,
+            0.634431885204
+        ],
+        "CO": [
+            0.153958226214,
+            0.044430897498,
+            0.018598980348
+        ]
+    },
+    "loading_absolute_dev": {
+        "C2H4": [
+            0.37769902489165,
+            0.14568834858221,
+            0.060107934935359
+        ],
+        "C2H6": [
+            0.20733617827358,
+            0.1483606861503,
+            0.1634276608098
+        ],
+        "CO": [
+            0.098979061794361,
+            0.033704465508572,
+            0.014016046900518
+        ]
+    },
+    "loading_absolute_unit": "mol/kg",
+    "pressures": [
+        0.1,
+        0.5,
+        1.0
+    ],
+    "pressures_unit": "bar",
+    "temperatures": [
+        200,
+        300,
+        400
+    ],
+    "temperatures_unit": "K"
+
+MulticompAdsDes work chain
+++++++++++++++++++++++++++++++++++++++++++++++
+
+The :py:func:`~aiida_lsmo.workchains.multicomp_ads_des.MulticompAdsDesWorkChain` work chain
+is similar to MulticompGcmc, but it performs one simulation at given adsorption temperature, pressure and composition, 
+and a second one at given temperature and pressure for desorption. For the desorption mixure of the gas reservoir,
+the workchains uses the composition previously obtained at adsorption conditions inside the framework.
+
+Note that this is an approximation - in order to arrive at the appropriate mixture for the gas reservoir at desorption, one should iterate, taking as the next desorption condition trial the difference between the mixture inside the framework at adsorption and the mixture inside the framework at desorption.
+The approximation may induce artifacts such as negative working capacity for certain components, which are in any case a warning sign that that the desorption (partial) pressure is not low enough to evacuate the component from the framework.
+
+.. aiida-workchain:: MulticompAdsDesWorkChain
+    :module: aiida_lsmo.workchains
+
+**Inputs details**
+
+* ``parameters`` (``Dict``) modifies the default parameters::
+
+        "ff_framework": "UFF",  # str, Forcefield of the structure (used also as a definition of ff.rad for zeopp)
+        "ff_shifted": False,  # bool, Shift or truncate at cutoff
+        "ff_tail_corrections": True,  # bool, Apply tail corrections
+        "ff_mixing_rule": 'Lorentz-Berthelot',  # str, Mixing rule for the forcefield
+        "ff_separate_interactions": False,  # bool, if true use only ff_framework for framework-molecule interactions
+        "ff_cutoff": 12.0,  # float, CutOff truncation for the VdW interactions (Angstrom)
+        "zeopp_probe_scaling": 1.0,  # float, scaling probe's diameter: use 0.0 for skipping block calc
+        "zeopp_block_samples": int(1000),  # int, Number of samples for BLOCK calculation (per A^3)
+        "raspa_verbosity": 10,  # int, Print stats every: number of cycles / raspa_verbosity
+        "raspa_gcmc_init_cycles": int(1e5),  # int, Number of GCMC initialization cycles
+        "raspa_gcmc_prod_cycles": int(1e5),  # int, Number of GCMC production cycles
+
+* ``conditions`` (``Dict``), example::
+
+            'molfraction': {
+                'xenon': 0.2,
+                'krypton': 0.8
+            },
+            'adsorption': {
+                'temperature': 298, #K
+                'pressure': 1, #bar
+            },
+            'desorption': {
+                'temperature': 308,
+                'pressure': 0.1,
+            },
+
+**Outputs details**
+
+* ``output_parameters`` (``Dict``), example::
+
+    "Input_block": {
+        "Kr": [
+            1.647,
+            10
+        ],
+        "Xe": [
+            1.7865,
+            10
+        ]
+    },
+    "Number_of_blocking_spheres": {
+        "Kr": 0,
+        "Xe": 0
+    },
+    "composition": {
+        "Kr": [
+            0.8,
+            0.37188099808061
+        ],
+        "Xe": [
+            0.2,
+            0.62811900191939
+        ]
+    },
+    "loading_absolute_average": {
+        "Kr": [
+            0.80078943165,
+            0.042364344126
+        ],
+        "Xe": [
+            1.352559181974,
+            0.684029166132
+        ]
+    },
+    "loading_absolute_dev": {
+        "Kr": [
+            0.18747637335777,
+            0.02392208478975
+        ],
+        "Xe": [
+            0.20357386402562,
+            0.20233235593516
+        ]
+    },
+    "loading_absolute_unit": "mol/kg",
+    "pressures": [
+        1,
+        0.1
+    ],
+    "pressures_unit": "bar",
+    "temperatures": [
+        298,
+        308
+    ],
+    "temperatures_unit": "K",
+    "working_capacity": {
+        "Kr": 0.758425087524,
+        "Xe": 0.668530015842
+    },
+    "working_capacity_unit": "mol/kg"

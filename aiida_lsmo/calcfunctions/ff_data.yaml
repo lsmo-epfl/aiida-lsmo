@@ -260,8 +260,9 @@ H2:
       - [M_h2, 0, 0, 0]
       - [H_h2, 0, 0, +0.3705]
   Buch:
-    description:
+    description: >-
       Single bead model used by Thornton2017 (10.1021/acs.chemmater.6b04933) and parametrized in Buch1994 (10.1063/1.466854).
+      Implemented with Fehinman-Hibbs rules, better for low temperature simulations.
       Mix force field neglect FH correction, considering that the frame-H2 higher reduced mass, makes FH negligible.
     atom_types:
       H2_gas:
@@ -270,9 +271,18 @@ H2:
         pseudo_atom: [yes, H, H, 0, 2.0, 0.0, 0.0, 1.0, 1.00, 0, 0, relative, 0]
     atomic_positions:
       - [H2_gas, 0, 0, 0]
+  Buch-nonFH:
+    description: |
+      Buch force field without Feynman-Hibbs rules, for a simpler use with mixtures. Use only for near ambient temperatures or above.
+    atom_types:
+      H2_gas:
+        force_field: [lennard-jones, 34.2, 2.96]
+        pseudo_atom: [yes, H, H, 0, 2.0, 0.0, 0.0, 1.0, 1.00, 0, 0, relative, 0]
+    atomic_positions:
+      - [H2_gas, 0, 0, 0]
   P-FH:
     description: >-
-      Pseudo-Fehinman-Hibbs single bead potential developped in Fischer2009 (10.1002/cphc.200900459), to improve the
+      Pseudo-Feynman-Hibbs single bead potential developed in Fischer2009 (10.1002/cphc.200900459), to improve the
       Buch potential and include FH correction in a lennard-jones potential, and tested with MOFs.
       NOTE to be used at 77K!
       Used by the group of Siegel, e.g., in Ahmed2019 (10.1038/s41467-019-09365-w).
@@ -660,6 +670,40 @@ CH4:
         pseudo_atom: [yes, C, C, 0, 16.04, 0.0, 0.0, 1.0, 1.00, 0, 0, relative, 0]
     atomic_positions:
         - [CH4_sp3, 0, 0, 0]
+
+C2H4:
+  critical_constants:
+    tc: 282.34
+    pc: 5041000
+    af: 0.086
+  TraPPE:
+    description: |
+      TraPPE united atom (UA) parameterization for ethene, aka ethylene (10.1021/jp001044x).
+      Note that this FF is not charged, and thus does not not capture the mild negative charge of the C=C bond.
+    atom_types:
+      CH2_ethene:
+        force_field: [lennard-jones, 85.0, 3.675]
+        pseudo_atom: [yes, C, C, 0, 14.02, 0.0, 0.0, 1.0, 1.00, 0, 0, relative, 0]
+    atomic_positions:
+      - [CH2_ethene, 0, 0, +0.665]
+      - [CH2_ethene, 0, 0, -0.665]
+
+C2H6:
+  critical_constants:
+    tc: 305.32
+    pc: 4872000
+    af: 0.100
+  TraPPE:
+    description: |
+      TraPPE united atom (UA) parameterization for ethane (10.1021/jp001044x).
+      Note that also EH version is reported.
+    atom_types:
+      CH2_ethane:
+        force_field: [lennard-jones, 98.0, 3.75]
+        pseudo_atom: [yes, C, C, 0, 13.03, 0.0, 0.0, 1.0, 1.00, 0, 0, relative, 0]
+    atomic_positions:
+      - [CH2_ethane, 0, 0, +0.77]
+      - [CH2_ethane, 0, 0, -0.77]
 
 CO2:
   critical_constants:

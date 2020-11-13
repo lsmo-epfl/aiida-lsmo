@@ -1,30 +1,28 @@
 #!/usr/bin/env python  # pylint: disable=invalid-name
-# -*- coding: utf-8 -*-
-"""Run example isotherm calculation with HKUST1 framework."""
-
+"""Run example Widom calculation in HKUST1 framework, using 0.7 scaling for the probe radius to compute blocks."""
 import os
 import click
 
 from aiida.engine import run
 from aiida.plugins import DataFactory, WorkflowFactory
-from aiida.orm import Code, Dict, Str
+from aiida.orm import Code, Str, Dict
 
 # Workchain objects
-IsothermWorkChain = WorkflowFactory('lsmo.isotherm')  # pylint: disable=invalid-name
+SinglecompWidomWorkChain = WorkflowFactory('lsmo.singlecomp_widom')
 
 # Data objects
-CifData = DataFactory('cif')  # pylint: disable=invalid-name
-NetworkParameters = DataFactory('zeopp.parameters')  # pylint: disable=invalid-name
+CifData = DataFactory('cif')
+NetworkParameters = DataFactory('zeopp.parameters')
 
 
 @click.command('cli')
 @click.argument('raspa_code_label')
 @click.argument('zeopp_code_label')
 def main(raspa_code_label, zeopp_code_label):
-    """Prepare inputs and submit the Isotherm workchain.
-    Usage: verdi run run_isotherm_hkust1.py raspa@localhost network@localhost"""
+    """Prepare inputs and submit the workchain.
+    Usage: verdi run run_thisworkchainexample.py raspa@localhost zeopp@localhost"""
 
-    builder = IsothermWorkChain.get_builder()
+    builder = SinglecompWidomWorkChain.get_builder()
 
     builder.metadata.label = "test"
 
@@ -39,24 +37,17 @@ def main(raspa_code_label, zeopp_code_label):
         "max_wallclock_seconds": 1 * 60 * 60,
         "withmpi": False,
     }
-
     builder.raspa_base.raspa.metadata.options = options
     builder.zeopp.metadata.options = options
-
     builder.structure = CifData(file=os.path.abspath('data/HKUST-1.cif'), label="HKUST-1")
-    builder.molecule = Str('co2')
+    builder.molecule = Str("h2o")
+
     builder.parameters = Dict(
         dict={
-            'ff_framework': 'UFF',  # Default: UFF
-            'temperature': 400,  # (K) Note: higher temperature will have less adsorbate and it is faster
-            'zeopp_probe_scaling': 0.8,
-            'zeopp_volpo_samples': 1000,  # Default: 1e5 *NOTE: default is good for standard real-case!
+            'zeopp_probe_scaling': 0.7,
             'zeopp_block_samples': 10,  # Default: 100
             'raspa_widom_cycles': 100,  # Default: 1e5
-            'raspa_gcmc_init_cycles': 10,  # Default: 1e3
-            'raspa_gcmc_prod_cycles': 100,  # Default: 1e4
-            'pressure_min': 0.001,  # Default: 0.001 (bar)
-            'pressure_max': 3,  # Default: 10 (bar)
+            'temperatures': [200, 300]
         })
 
     run(builder)

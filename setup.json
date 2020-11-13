@@ -42,7 +42,10 @@
             "lsmo.isotherm_calc_pe = aiida_lsmo.workchains:IsothermCalcPEWorkChain",
             "lsmo.zeopp_multistage_ddec = aiida_lsmo.workchains:ZeoppMultistageDdecWorkChain",
             "lsmo.sim_annealing = aiida_lsmo.workchains.sim_annealing:SimAnnealingWorkChain",
-            "lsmo.nanoporous_screening_1 = aiida_lsmo.workchains:NanoporousScreening1WorkChain"
+            "lsmo.nanoporous_screening_1 = aiida_lsmo.workchains:NanoporousScreening1WorkChain",
+            "lsmo.multicomp_ads_des = aiida_lsmo.workchains:MulticompAdsDesWorkChain",
+            "lsmo.multicomp_gcmc = aiida_lsmo.workchains:MulticompGcmcWorkChain",
+            "lsmo.singlecomp_widom = aiida_lsmo.workchains:SinglecompWidomWorkChain"
         ]
     },
     "data_files": [

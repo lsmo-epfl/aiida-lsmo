@@ -1,3 +1,7 @@
+# This document contains standard values to be loaded by the "molecule" input in the Isotherm work chain and other work chains.
+# It is also used by the multicomp workchains, where the molecules' labels is specified in the "conditions" input.
+# Force fields are read from aiida-lsmo/calcfunctions/ff_data.yaml
+
 co2:
   name: CO2          # Raspa's MoleculeName
   forcefield: TraPPE # Raspa's MoleculeDefinition
@@ -40,6 +44,22 @@ h2o:
 
 h2:
   name: H2
+  forcefield: Buch # simpler
+  molsatdens: 35.4 # experimental liq
+  proberad: 1.48
+  singlebead: True
+  charged: False
+
+h2-nonFH:
+  name: H2
+  forcefield: Buch-nonFH # simpler
+  molsatdens: 35.4 # experimental liq
+  proberad: 1.48
+  singlebead: True
+  charged: False
+
+h2-charged:
+  name: H2
   forcefield: MDT+DL # most complex
   molsatdens: 35.4 # experimental liq
   proberad: 1.48
@@ -53,3 +73,51 @@ o2:
   proberad: 1.51
   singlebead: False
   charged: True
+
+argon:
+  name: Ar
+  forcefield: HIRSCHFELDER
+  molsatdens: 8.40 #NIST @ dens crit
+  proberad: 1.7
+  singlebead: True
+  charged: False
+
+krypton:
+  name: Kr
+  forcefield: BOATO
+  molsatdens: 10.93 #NIST 300K/200bar
+  proberad: 1.830
+  singlebead: True
+  charged: False
+
+xenon:
+  name: Xe
+  forcefield: BOATO
+  molsatdens: 15.95 #NIST 300K/200bar
+  proberad: 1.985
+  singlebead: True
+  charged: False
+
+co:
+  name: CO         
+  forcefield: ESP-MM 
+  molsatdens: 11.1 #NIST @ critical density
+  proberad: 1.76 # O sigma/2    
+  singlebead: False  
+  charged: True      
+
+ethane:
+  name: C2H6         
+  forcefield: TraPPE 
+  molsatdens: 11.0
+  proberad: 1.87  
+  singlebead: False  
+  charged: False 
+
+ethene:
+  name: C2H4         
+  forcefield: TraPPE 
+  molsatdens: 11.0
+  proberad: 1.83    
+  singlebead: False  
+  charged: False 

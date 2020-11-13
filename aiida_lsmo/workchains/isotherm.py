@@ -30,6 +30,7 @@ ISOTHERMPARAMETERS_DEFAULT = {  #TODO: create IsothermParameters instead of Dict
     "ff_cutoff": 12.0,  # (float) CutOff truncation for the VdW interactions (Angstrom).
     "temperature": 300,  # (float) Temperature of the simulation.
     "temperature_list": None,  # (list) To be used by IsothermMultiTempWorkChain.
+    "zeopp_probe_scaling": 1.0,  # float, scaling probe's diameter: molecular_rad * scaling
     "zeopp_volpo_samples": int(1e5),  # (int) Number of samples for VOLPO calculation (per UC volume).
     "zeopp_block_samples": int(100),  # (int) Number of samples for BLOCK calculation (per A^3).
     "raspa_minKh": 1e-10,  # (float) If Henry coefficient < raspa_minKh do not run the isotherm (mol/kg/Pa).
@@ -72,7 +73,7 @@ def get_atomic_radii(isotparam):
 @calcfunction
 def get_zeopp_parameters(molecule_dict, isotparam):
     """Get the ZeoppParameters from the inputs of the workchain"""
-    probe_rad = molecule_dict["proberad"]
+    probe_rad = molecule_dict["proberad"] * isotparam['zeopp_probe_scaling']
     param_dict = {
         'ha': 'DEF',
         'volpo': [probe_rad, probe_rad, isotparam['zeopp_volpo_samples']],
