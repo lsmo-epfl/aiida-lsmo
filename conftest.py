@@ -3,7 +3,6 @@
 For pytest
 initialise a test database and profile
 """
-import os
 import pytest
 from tests import DATA_DIR
 
@@ -33,8 +32,8 @@ def raspa_code(mock_code_factory):
         label='raspa-e968334',
         data_dir_abspath=DATA_DIR,
         entry_point='raspa',
-        # files *not* to copy into the data directory
-        ignore_files=('_aiidasubmit.sh',))
+        # paths *not* to copy into the data directory
+        ignore_paths=('_aiidasubmit.sh', 'CrashRestart/*', 'Movies/*', 'VTK/*', 'RestartInitial/*'))
 
 
 @pytest.fixture(scope='function')
@@ -46,13 +45,3 @@ def zeopp_code(mock_code_factory):
         entry_point='zeopp.network',
         # files *not* to copy into the data directory
         ignore_files=('_aiidasubmit.sh', 'UFF.rad'))
-
-
-@pytest.fixture(scope='function')
-def mg_mof74_cifdata():
-    """CifData for Mg MOF74 CIF."""
-    from aiida.orm import CifData  # pylint: disable=import-outside-toplevel
-    with open(os.path.join(DATA_DIR, 'Mg_MOF_74.cif'), 'rb') as handle:
-        cif = CifData(file=handle)
-
-    return cif

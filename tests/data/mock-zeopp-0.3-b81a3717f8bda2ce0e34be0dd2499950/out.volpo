@@ -1,0 +1,3 @@
+@ out.volpo Unitcell_volume: 209.592   Density: 0.380639   POAV_A^3: 175.659 POAV_Volume_fraction: 0.8381 POAV_cm^3/g: 2.20182 PONAV_A^3: 0 PONAV_Volume_fraction: 0 PONAV_cm^3/g: 0
+PROBE_OCCUPIABLE_VOL_CALC: filename| density(g/cm3)| probe rad| N points| probe ctr A fract| probe ctr NA fract| A fract| NA fract| narrow fract |ovlp fract.
+PROBE_OCCUPIABLE___RESULT: out.volpo	0.380639	1.7	10000	0.6593	0	0.8381	0	0.0049	0.157

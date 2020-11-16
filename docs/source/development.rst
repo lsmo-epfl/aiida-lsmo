@@ -29,6 +29,8 @@ If you are changing the inputs for one or more of the simulation codes, you will
          zeopp-0.3: /path/to/zeoplusplus/network
          raspa-e968334: /path/to/RASPA2/src/.libs/simulate
 
+    where the code labels need to correspond to the ones used in the pytest fixtures defined in the top-level ``conftest.py``.
+
 While running the tests, ``aiida-testing`` will then automatically run the simulation code for new inputs as needed and store its outputs in ``tests/data``
 
 Please remember to:

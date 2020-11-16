@@ -5,22 +5,22 @@ Compiled as a 64-bits application
 Compiler: gcc 9.3.0
 Compile Date = Mar 18 2020, Compile Time = 13:46:53
 
-Fri Nov 13 17:02:21 2020
-Simulation started on Friday, November 13.
-The start time was 05:02 PM.
+Mon Nov 16 20:13:36 2020
+Simulation started on Monday, November 16.
+The start time was 08:13 PM.
 
 Cpu data:    x86_64
 Cpu Model:   MacBookPro11,4
 Host name:   B126028.local
 OS release:  19.6.0
 OS type:     Darwin
-OS version:  19G2021
+OS version:  19H15
 
 
 Simulation
 ===========================================================================
 Dimensions: 3
-Random number seed: 1605283341
+Random number seed: 1605554016
 RASPA directory set to: /Users/leopold/Personal/Programmierung/qm-codes/RASPA2/src/.libs
 String appended to output-files: 
 Number of cycles: 100
@@ -1214,11 +1214,11 @@ Host/Host energy:                                             0.00000000
 	Host/Host bondipole-bonddipole Real energy:                   0.00000000
 	Host/Host bondipole-bonddipole Fourier energy:                0.00000000
 
-Host/Adsorbate energy:                                        0.00000000
+Host/Adsorbate energy:                                       -0.00000000
 	Host/Adsorbate VDW energy:                                    0.00000000
-	Host/Adsorbate Coulomb energy:                               -0.00000000
-	Host/Adsorbate charge-charge Real energy:                    -0.00000000
-	Host/Adsorbate charge-charge Fourier energy:                 -0.00000000
+	Host/Adsorbate Coulomb energy:                                0.00000000
+	Host/Adsorbate charge-charge Real energy:                     0.00000000
+	Host/Adsorbate charge-charge Fourier energy:                  0.00000000
 	Host/Adsorbate charge-bonddipole Real energy:                 0.00000000
 	Host/Adsorbate charge-bonddipole Fourier energy:              0.00000000
 	Host/Adsorbate bondipole-bonddipole Real energy:              0.00000000
@@ -1282,7 +1282,7 @@ Out-of-plane distance constraints energy:                     0.00000000
 Exclusion constraints energy:                                 0.00000000
 
 ===================================================================
-Total energy: -7705.552532299913
+Total energy: -7705.552532299915
 	Total Van der Waals: 0.000000
 	Total Coulomb: 0.000000
 
@@ -1315,10 +1315,10 @@ Bead: 2
 Performance of the translation move:
 ======================================
 Component 0 [CO2]
-	total        2.000000 0.000000 0.000000
-	succesfull   2.000000 0.000000 0.000000
-	accepted   1.000000 0.000000 0.000000
-	displacement 0.487500 0.162500 0.162500
+	total        0.000000 0.000000 0.000000
+	succesfull   0.000000 0.000000 0.000000
+	accepted   0.000000 0.000000 0.000000
+	displacement 0.162500 0.162500 0.162500
 
 
 Random translation move was OFF for all components
@@ -1326,25 +1326,24 @@ Random translation move was OFF for all components
 Performance of the rotation move:
 =================================
 Component 0 [CO2]
-	total        1.000000 1.000000 2.000000
-	succesfull   1.000000 1.000000 2.000000
-	accepted   1.000000 1.000000 1.000000
-	angle-change 9.375000 9.375000 9.375000
+	total        0.000000 0.000000 0.000000
+	succesfull   0.000000 0.000000 0.000000
+	accepted   0.000000 0.000000 0.000000
+	angle-change 3.125000 3.125000 3.125000
 
 
 Random rotation move was OFF for all components
 
 Performance of the swap addition move:
 ======================================
-Component [CO2] total tried: 392.000000 succesfull growth: 392.000000 (100.000000 [%]) accepted: 1.000000 (0.255102 [%])
+Component [CO2] total tried: 406.000000 succesfull growth: 406.000000 (100.000000 [%]) accepted: 1.000000 (0.246305 [%])
 
 Performance of the swap deletion move:
 ======================================
-Component [CO2] total tried: 389.000000 succesfull growth: 1.000000 (0.257069 [%]) accepted: 1.000000 (0.257069 [%])
+Component [CO2] total tried: 423.000000 succesfull growth: 1.000000 (0.236407 [%]) accepted: 1.000000 (0.236407 [%])
 
 Performance of the Reinsertion move:
 ====================================
-Component [CO2] total tried: 3.000000 succesfull growth: 3.000000 (100.000000 [%]) accepted: 3.000000 (100.000000 [%])
 
 Reinsertion-in-plane move was OFF for all components
 
@@ -1408,25 +1407,25 @@ Gibbs Widom move was OFF for all components
 
 Total CPU timings:
 ===========================================
-initialization:              0.153935 [s]
+initialization:              0.138391 [s]
 equilibration:                      0 [s]
-production run:              1.310946 [s]
-total time:                  1.464881 [s]
+production run:              1.213475 [s]
+total time:                  1.351866 [s]
 
 Production run CPU timings of the MC moves:
 ===========================================
 Component: 0 (CO2)
-	translation:                                  0.002222 [s]
+	translation:                                  0.000288 [s]
 	random translation:                                  0 [s]
-	rotation:                                     0.003664 [s]
+	rotation:                                     0.000351 [s]
 	random rotation:                                     0 [s]
 	partial reinsertion:                                 0 [s]
-	reinsertion:                                  0.016664 [s]
+	reinsertion:                                  0.000323 [s]
 	reinsertion in-place:                                0 [s]
 	reinsertion in-plane:                                0 [s]
 	identity switch:                                     0 [s]
-	swap (insertion):                             1.275792 [s]
-	swap (deletion):                              0.003939 [s]
+	swap (insertion):                             1.201793 [s]
+	swap (deletion):                               0.00299 [s]
 	swap lambda (CFMC):                                  0 [s]
 	swap lambda (CB/CFMC):                               0 [s]
 	Widom:                                               0 [s]
@@ -1443,17 +1442,17 @@ Component: 0 (CO2)
 	Convert Gibbs fract. to integer:                     0 [s]
 
 Total all components:
-	translation:                                  0.002222 [s]
+	translation:                                  0.000288 [s]
 	random translation:                                  0 [s]
-	rotation:                                     0.003664 [s]
+	rotation:                                     0.000351 [s]
 	random rotation:                                     0 [s]
 	partial reinsertion:                                 0 [s]
-	reinsertion:                                  0.016664 [s]
+	reinsertion:                                  0.000323 [s]
 	reinsertion in-place:                                0 [s]
 	reinsertion in-plane:                                0 [s]
 	identity switch:                                     0 [s]
-	swap (insertion):                             1.275792 [s]
-	swap (deletion):                              1.275792 [s]
+	swap (insertion):                             1.201793 [s]
+	swap (deletion):                              1.201793 [s]
 	swap lambda (CFMC):                                  0 [s]
 	swap lambda (CB/CFMC):                               0 [s]
 	Widom:                                               0 [s]
@@ -1488,17 +1487,17 @@ Production run CPU timings of the MC moves summed over all systems and component
 ==================================================================================
 
 Particles moves:
-	translation:                                  0.002222 [s]
+	translation:                                  0.000288 [s]
 	random translation:                                  0 [s]
-	rotation:                                     0.003664 [s]
+	rotation:                                     0.000351 [s]
 	random rotation:                                     0 [s]
 	partial reinsertion:                                 0 [s]
-	reinsertion:                                  0.016664 [s]
+	reinsertion:                                  0.000323 [s]
 	reinsertion in-place:                                0 [s]
 	reinsertion in-plane:                                0 [s]
 	identity switch:                                     0 [s]
-	swap (insertion):                             1.275792 [s]
-	swap (deletion):                              1.275792 [s]
+	swap (insertion):                             1.201793 [s]
+	swap (deletion):                              1.201793 [s]
 	swap lambda (CFMC):                                  0 [s]
 	swap lambda (CB/CFMC):                               0 [s]
 	Widom:                                               0 [s]
@@ -1730,11 +1729,11 @@ Host/Host energy-drift:                                              0
 		Host/Host Fourier charge-bonddipole energy-drift:                0
 		Host/Host Real bonddipole-bonddipole energy-drift:               0
 		Host/Host Fourier bonddipole-bonddipole energy-drift:            0
-Host/Adsorbate energy-drift:                                         5.46936e-13
-	Host/Adsorbate VDW energy-drift:                                   8.20404e-13
-	Host/Adsorbate Coulomb energy-drift:                               -6.8367e-14
-		Host/Adsorbate Real charge-charge energy-drift:                  -6.8367e-14
-		Host/Adsorbate Fourier charge-charge energy-drift:               -8.54587e-15
+Host/Adsorbate energy-drift:                                         -3.41835e-14
+	Host/Adsorbate VDW energy-drift:                                   0
+	Host/Adsorbate Coulomb energy-drift:                               0
+		Host/Adsorbate Real charge-charge energy-drift:                  0
+		Host/Adsorbate Fourier charge-charge energy-drift:               0
 		Host/Adsorbate Real charge-bonddipole energy-drift:              0
 		Host/Adsorbate Fourier charge-bonddipole energy-drift:           0
 		Host/Adsorbate Real bonddipole-bonddipole energy-drift:          0
@@ -1748,11 +1747,11 @@ Host/Cation energy-drift:                                            0
 		Host/Cation Fourier charge-bonddipole energy-drift:              0
 		Host/Cation Real bonddipole-bonddipole energy-drift:             0
 		Host/Cation Fourier bonddipole-bonddipole energy-drift:          0
-Adsorbate/Adsorbate energy-drift:                                     7.60516e-13
+Adsorbate/Adsorbate energy-drift:                                     0
 	Adsorbate/Adsorbate VDW energy-drift:                               0
-	Adsorbate/Adsorbate Coulomb energy-drift:                           7.60516e-13
+	Adsorbate/Adsorbate Coulomb energy-drift:                           0
 		Adsorbate/Adsorbate Real charge-charge energy-drift:              0
-		Adsorbate/Adsorbate Fourier charge-charge energy-drift:           7.60516e-13
+		Adsorbate/Adsorbate Fourier charge-charge energy-drift:           0
 		Adsorbate/Adsorbate Real charge-bonddipole energy-drift:          0
 		Adsorbate/Adsorbate Fourier charge-bonddipole energy-drift:       0
 		Adsorbate/Adsorbate Real bonddipole-bonddipole energy-drift:      0
@@ -1794,7 +1793,7 @@ Out-of-plane distance constraints energy-drift:                    0
 Exclusion constraints energy-drift:                 0
 
 ===================================================================
-Total energy-drift: 2.18774e-12
+Total energy-drift: 0
 
 
 Component 0 [CO2]
@@ -2424,12 +2423,12 @@ Average Cation-Cation energy:
 Average Host-Adsorbate energy:
 ==============================
 	Block[ 0] 0.00000            Van der Waals: 0.00000            Coulomb: 0.00000            [K]
-	Block[ 1] 0.00000            Van der Waals: 0.00000            Coulomb: -0.00000           [K]
-	Block[ 2] 0.00000            Van der Waals: 0.00000            Coulomb: -0.00000           [K]
-	Block[ 3] 0.00000            Van der Waals: 0.00000            Coulomb: -0.00000           [K]
-	Block[ 4] 0.00000            Van der Waals: 0.00000            Coulomb: -0.00000           [K]
+	Block[ 1] 0.00000            Van der Waals: 0.00000            Coulomb: 0.00000            [K]
+	Block[ 2] 0.00000            Van der Waals: 0.00000            Coulomb: 0.00000            [K]
+	Block[ 3] 0.00000            Van der Waals: 0.00000            Coulomb: 0.00000            [K]
+	Block[ 4] -0.00000           Van der Waals: 0.00000            Coulomb: 0.00000            [K]
 	------------------------------------------------------------------------------
-	Average   0.00000            Van der Waals: 0.000000           Coulomb: -0.00000           [K]
+	Average   -0.00000           Van der Waals: 0.000000           Coulomb: 0.00000            [K]
 	      +/- 0.00000                       +/- 0.000000                +/- 0.00000            [K]
 
 Average Host-Cation energy:
@@ -2592,7 +2591,7 @@ Total energy:
 	Block[ 3]        -7705.55253 [K]
 	Block[ 4]        -7705.55253 [K]
 	------------------------------------------------------------------------------
-	Average          -7705.55253 [K] +/-            0.00024 [K]
+	Average          -7705.55253 [K] +/-            0.00017 [K]
 
 Number of molecules:
 ====================
@@ -2723,7 +2722,7 @@ Average adsorption energy <U_gh>_1-<U_h>_0 obtained from Widom-insertion:
 Simulation finished,  0 warnings
 
 
-Fri Nov 13 17:02:22 2020
-Simulation finished on Friday, November 13.
-The end time was 05:02 PM.
+Mon Nov 16 20:13:37 2020
+Simulation finished on Monday, November 16.
+The end time was 08:13 PM.
 
