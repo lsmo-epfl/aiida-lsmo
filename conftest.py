@@ -32,8 +32,8 @@ def raspa_code(mock_code_factory):
         label='raspa-e968334',
         data_dir_abspath=DATA_DIR,
         entry_point='raspa',
-        # files *not* to copy into the data directory
-        ignore_files=('_aiidasubmit.sh',))
+        # paths *not* to copy into the data directory
+        ignore_paths=('_aiidasubmit.sh', 'CrashRestart/*', 'Movies/*', 'VTK/*', 'RestartInitial/*'))
 
 
 @pytest.fixture(scope='function')

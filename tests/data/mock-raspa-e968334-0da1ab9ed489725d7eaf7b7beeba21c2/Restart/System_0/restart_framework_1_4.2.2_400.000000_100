@@ -37,9 +37,9 @@ Component 0 (CO2)
 	Maximum-CF-Lambda-change component 0: 0.500000
 	Maximum-CBCF-Lambda-change component 0: 0.500000
 
-	Maximum-translation-change component 0: 0.487500,0.162500,0.162500
+	Maximum-translation-change component 0: 0.162500,0.162500,0.162500
 	Maximum-translation-in-plane-change component 0: 0.000000,0.000000,0.000000
-	Maximum-rotation-change component 0: 0.163625 0.163625 0.163625
+	Maximum-rotation-change component 0: 0.054542 0.054542 0.054542
 
 Reactions: 0
 

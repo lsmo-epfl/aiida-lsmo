@@ -5,22 +5,22 @@ Compiled as a 64-bits application
 Compiler: gcc 9.3.0
 Compile Date = Mar 18 2020, Compile Time = 13:46:53
 
-Fri Nov 13 18:37:43 2020
-Simulation started on Friday, November 13.
-The start time was 06:37 PM.
+Mon Nov 16 20:12:18 2020
+Simulation started on Monday, November 16.
+The start time was 08:12 PM.
 
 Cpu data:    x86_64
 Cpu Model:   MacBookPro11,4
 Host name:   B126028.local
 OS release:  19.6.0
 OS type:     Darwin
-OS version:  19G2021
+OS version:  19H15
 
 
 Simulation
 ===========================================================================
 Dimensions: 3
-Random number seed: 1605289063
+Random number seed: 1605553937
 RASPA directory set to: /Users/leopold/Personal/Programmierung/qm-codes/RASPA2/src/.libs
 String appended to output-files: 
 Number of cycles: 300
@@ -629,8 +629,8 @@ Host/Host energy:                                             0.00000000
 	Host/Host bondipole-bonddipole Real energy:                   0.00000000
 	Host/Host bondipole-bonddipole Fourier energy:                0.00000000
 
-Host/Adsorbate energy:                                   -15228.30777368
-	Host/Adsorbate VDW energy:                               -15228.30777368
+Host/Adsorbate energy:                                   -26585.01757185
+	Host/Adsorbate VDW energy:                               -26585.01757185
 	Host/Adsorbate Coulomb energy:                                0.00000000
 	Host/Adsorbate charge-charge Real energy:                     0.00000000
 	Host/Adsorbate charge-charge Fourier energy:                  0.00000000
@@ -649,8 +649,8 @@ Host/Cation energy:                                           0.00000000
 	Host/Cation bondipole-bonddipole Real energy:                 0.00000000
 	Host/Cation bondipole-bonddipole Fourier energy:              0.00000000
 
-Adsorbate/Adsorbate energy:                                   165929.52868788
-	Adsorbate/Adsorbate VDW energy:                               165929.52868788
+Adsorbate/Adsorbate energy:                                   169971.72768678
+	Adsorbate/Adsorbate VDW energy:                               169971.72768678
 	Adsorbate/Adsorbate Coulomb energy:                                0.00000000
 	Adsorbate/Adsorbate charge-charge Real energy:                     0.00000000
 	Adsorbate/Adsorbate charge-charge Fourier energy:                  0.00000000
@@ -697,8 +697,8 @@ Out-of-plane distance constraints energy:                     0.00000000
 Exclusion constraints energy:                                 0.00000000
 
 ===================================================================
-Total energy: 136087.804801519727
-	Total Van der Waals: 150701.220914
+Total energy: 128773.294002248454
+	Total Van der Waals: 143386.710115
 	Total Coulomb: 0.000000
 
 	Total Polarization: 0.000000
@@ -736,11 +736,11 @@ Number of Framework-atoms:    112
 Number of Adsorbates:          93 (93 integer, 0 fractional, 0 reaction)
 Number of Cations:              0 (0 integer, 0 fractional, 0 reaction
 
-Current total potential energy:            136087.8048015197 [K]
+Current total potential energy:            128773.2940022485 [K]
 	Current Host-Host energy:                     0.0000000000 [K]
-	Current Host-Adsorbate energy:           -15228.3077736772 [K]
+	Current Host-Adsorbate energy:           -26585.0175718466 [K]
 	Current Host-Cation energy:                   0.0000000000 [K]
-	Current Adsorbate-Adsorbate energy:      165929.5286878848 [K]
+	Current Adsorbate-Adsorbate energy:      169971.7276867829 [K]
 	Current Cation-Cation energy:                 0.0000000000 [K]
 	Current Adsorbate-Cation energy:              0.0000000000 [K]
 
@@ -769,11 +769,11 @@ Number of Framework-atoms:    112
 Number of Adsorbates:          93 (93 integer, 0 fractional, 0 reaction)
 Number of Cations:              0 (0 integer, 0 fractional, 0 reaction
 
-Current total potential energy:           -104204.7468246259 [K]
+Current total potential energy:           -103264.7252357144 [K]
 	Current Host-Host energy:                     0.0000000000 [K]
-	Current Host-Adsorbate energy:           -46260.1278508991 [K]
+	Current Host-Adsorbate energy:           -44813.7535933629 [K]
 	Current Host-Cation energy:                   0.0000000000 [K]
-	Current Adsorbate-Adsorbate energy:      -43331.2028610389 [K]
+	Current Adsorbate-Adsorbate energy:      -43837.5555296636 [K]
 	Current Cation-Cation energy:                 0.0000000000 [K]
 	Current Adsorbate-Cation energy:              0.0000000000 [K]
 
@@ -802,11 +802,11 @@ Number of Framework-atoms:    112
 Number of Adsorbates:          93 (93 integer, 0 fractional, 0 reaction)
 Number of Cations:              0 (0 integer, 0 fractional, 0 reaction
 
-Current total potential energy:           -108198.9224103454 [K]
+Current total potential energy:           -110551.6910343403 [K]
 	Current Host-Host energy:                     0.0000000000 [K]
-	Current Host-Adsorbate energy:           -50431.3398811738 [K]
+	Current Host-Adsorbate energy:           -50056.1074415917 [K]
 	Current Host-Cation energy:                   0.0000000000 [K]
-	Current Adsorbate-Adsorbate energy:      -43154.1664164838 [K]
+	Current Adsorbate-Adsorbate energy:      -45882.1674800605 [K]
 	Current Cation-Cation energy:                 0.0000000000 [K]
 	Current Adsorbate-Cation energy:              0.0000000000 [K]
 
@@ -835,11 +835,11 @@ Number of Framework-atoms:    112
 Number of Adsorbates:          93 (93 integer, 0 fractional, 0 reaction)
 Number of Cations:              0 (0 integer, 0 fractional, 0 reaction
 
-Current total potential energy:           -111165.7748584717 [K]
+Current total potential energy:           -112113.9908349829 [K]
 	Current Host-Host energy:                     0.0000000000 [K]
-	Current Host-Adsorbate energy:           -51255.9606337828 [K]
+	Current Host-Adsorbate energy:           -50570.2065065580 [K]
 	Current Host-Cation energy:                   0.0000000000 [K]
-	Current Adsorbate-Adsorbate energy:      -45296.3981120011 [K]
+	Current Adsorbate-Adsorbate energy:      -46930.3682157363 [K]
 	Current Cation-Cation energy:                 0.0000000000 [K]
 	Current Adsorbate-Cation energy:              0.0000000000 [K]
 
@@ -868,11 +868,11 @@ Number of Framework-atoms:    112
 Number of Adsorbates:          93 (93 integer, 0 fractional, 0 reaction)
 Number of Cations:              0 (0 integer, 0 fractional, 0 reaction
 
-Current total potential energy:           -111837.5786985435 [K]
+Current total potential energy:           -112929.5206592241 [K]
 	Current Host-Host energy:                     0.0000000000 [K]
-	Current Host-Adsorbate energy:           -52300.6769644344 [K]
+	Current Host-Adsorbate energy:           -50831.6507966058 [K]
 	Current Host-Cation energy:                   0.0000000000 [K]
-	Current Adsorbate-Adsorbate energy:      -44923.4856214214 [K]
+	Current Adsorbate-Adsorbate energy:      -47484.4537499297 [K]
 	Current Cation-Cation energy:                 0.0000000000 [K]
 	Current Adsorbate-Cation energy:              0.0000000000 [K]
 
@@ -901,11 +901,11 @@ Number of Framework-atoms:    112
 Number of Adsorbates:          93 (93 integer, 0 fractional, 0 reaction)
 Number of Cations:              0 (0 integer, 0 fractional, 0 reaction
 
-Current total potential energy:           -112372.7251859181 [K]
+Current total potential energy:           -113448.2432140966 [K]
 	Current Host-Host energy:                     0.0000000000 [K]
-	Current Host-Adsorbate energy:           -51747.5986390602 [K]
+	Current Host-Adsorbate energy:           -51436.8955743212 [K]
 	Current Host-Cation energy:                   0.0000000000 [K]
-	Current Adsorbate-Adsorbate energy:      -46011.7104341700 [K]
+	Current Adsorbate-Adsorbate energy:      -47397.9315270869 [K]
 	Current Cation-Cation energy:                 0.0000000000 [K]
 	Current Adsorbate-Cation energy:              0.0000000000 [K]
 
@@ -934,11 +934,11 @@ Number of Framework-atoms:    112
 Number of Adsorbates:          93 (93 integer, 0 fractional, 0 reaction)
 Number of Cations:              0 (0 integer, 0 fractional, 0 reaction
 
-Current total potential energy:           -113262.5312691900 [K]
+Current total potential energy:           -114446.4167259396 [K]
 	Current Host-Host energy:                     0.0000000000 [K]
-	Current Host-Adsorbate energy:           -52820.0890473031 [K]
+	Current Host-Adsorbate energy:           -51897.1717118709 [K]
 	Current Host-Cation energy:                   0.0000000000 [K]
-	Current Adsorbate-Adsorbate energy:      -45829.0261091994 [K]
+	Current Adsorbate-Adsorbate energy:      -47935.8289013803 [K]
 	Current Cation-Cation energy:                 0.0000000000 [K]
 	Current Adsorbate-Cation energy:              0.0000000000 [K]
 
@@ -967,11 +967,11 @@ Number of Framework-atoms:    112
 Number of Adsorbates:          93 (93 integer, 0 fractional, 0 reaction)
 Number of Cations:              0 (0 integer, 0 fractional, 0 reaction
 
-Current total potential energy:           -114430.9264950931 [K]
+Current total potential energy:           -115302.7485219837 [K]
 	Current Host-Host energy:                     0.0000000000 [K]
-	Current Host-Adsorbate energy:           -53335.3335993016 [K]
+	Current Host-Adsorbate energy:           -51608.6709654988 [K]
 	Current Host-Cation energy:                   0.0000000000 [K]
-	Current Adsorbate-Adsorbate energy:      -46482.1767831038 [K]
+	Current Adsorbate-Adsorbate energy:      -49080.6614437968 [K]
 	Current Cation-Cation energy:                 0.0000000000 [K]
 	Current Adsorbate-Cation energy:              0.0000000000 [K]
 
@@ -1000,11 +1000,11 @@ Number of Framework-atoms:    112
 Number of Adsorbates:          93 (93 integer, 0 fractional, 0 reaction)
 Number of Cations:              0 (0 integer, 0 fractional, 0 reaction
 
-Current total potential energy:           -113441.1285531348 [K]
+Current total potential energy:           -115120.5359619228 [K]
 	Current Host-Host energy:                     0.0000000000 [K]
-	Current Host-Adsorbate energy:           -53044.4804408958 [K]
+	Current Host-Adsorbate energy:           -51738.1320102099 [K]
 	Current Host-Cation energy:                   0.0000000000 [K]
-	Current Adsorbate-Adsorbate energy:      -45783.2319995514 [K]
+	Current Adsorbate-Adsorbate energy:      -48768.9878390247 [K]
 	Current Cation-Cation energy:                 0.0000000000 [K]
 	Current Adsorbate-Cation energy:              0.0000000000 [K]
 
@@ -1033,11 +1033,11 @@ Number of Framework-atoms:    112
 Number of Adsorbates:          93 (93 integer, 0 fractional, 0 reaction)
 Number of Cations:              0 (0 integer, 0 fractional, 0 reaction
 
-Current total potential energy:           -114042.0811405075 [K]
+Current total potential energy:           -115522.3707632370 [K]
 	Current Host-Host energy:                     0.0000000000 [K]
-	Current Host-Adsorbate energy:           -53271.8325951913 [K]
+	Current Host-Adsorbate energy:           -51920.1436632910 [K]
 	Current Host-Cation energy:                   0.0000000000 [K]
-	Current Adsorbate-Adsorbate energy:      -46156.8324326289 [K]
+	Current Adsorbate-Adsorbate energy:      -48988.8109872578 [K]
 	Current Cation-Cation energy:                 0.0000000000 [K]
 	Current Adsorbate-Cation energy:              0.0000000000 [K]
 
@@ -1079,11 +1079,11 @@ Number of Framework-atoms:    112
 Number of Adsorbates:          93 (93 integer, 0 fractional, 0 reaction)
 Number of Cations:              0 (0 integer, 0 fractional, 0 reaction)
 
-Current total potential energy:           -116224.0524635285 [K]  (avg.     -116224.0524635285)
+Current total potential energy:           -113749.4321525383 [K]  (avg.     -113749.4321525383)
 	Current Host-Host energy:                     0.0000000000 [K]  (avg.           0.0000000000)
-	Current Host-Adsorbate energy:           -53170.4299159501 [K]  (avg.      -53170.4299159501)
+	Current Host-Adsorbate energy:           -51420.5525551623 [K]  (avg.      -51420.5525551623)
 	Current Host-Cation energy:                   0.0000000000 [K]  (avg.           0.0000000000)
-	Current Adsorbate-Adsorbate energy:      -48440.2064348905 [K]  (avg.      -48440.2064348905)
+	Current Adsorbate-Adsorbate energy:      -47715.4634846881 [K]  (avg.      -47715.4634846881)
 	Current Cation-Cation energy:                 0.0000000000 [K]  (avg.           0.0000000000)
 	Current Adsorbate-Cation energy:              0.0000000000 [K]  (avg.           0.0000000000)
 
@@ -1113,11 +1113,11 @@ Number of Framework-atoms:    112
 Number of Adsorbates:          93 (93 integer, 0 fractional, 0 reaction)
 Number of Cations:              0 (0 integer, 0 fractional, 0 reaction)
 
-Current total potential energy:           -116017.9461631023 [K]  (avg.     -116556.1101781667)
+Current total potential energy:           -114734.9369853558 [K]  (avg.     -114261.6573802744)
 	Current Host-Host energy:                     0.0000000000 [K]  (avg.           0.0000000000)
-	Current Host-Adsorbate energy:           -53574.3098031517 [K]  (avg.      -54291.8607528354)
+	Current Host-Adsorbate energy:           -52524.7376176455 [K]  (avg.      -51908.6795072149)
 	Current Host-Cation energy:                   0.0000000000 [K]  (avg.           0.0000000000)
-	Current Adsorbate-Adsorbate energy:      -47830.2202472628 [K]  (avg.      -47650.8333126435)
+	Current Adsorbate-Adsorbate energy:      -47596.7832550226 [K]  (avg.      -47739.5617603716)
 	Current Cation-Cation energy:                 0.0000000000 [K]  (avg.           0.0000000000)
 	Current Adsorbate-Cation energy:              0.0000000000 [K]  (avg.           0.0000000000)
 
@@ -1147,11 +1147,11 @@ Number of Framework-atoms:    112
 Number of Adsorbates:          93 (93 integer, 0 fractional, 0 reaction)
 Number of Cations:              0 (0 integer, 0 fractional, 0 reaction)
 
-Current total potential energy:           -117142.2418358130 [K]  (avg.     -116737.7587868058)
+Current total potential energy:           -113883.5119888021 [K]  (avg.     -114472.6278810583)
 	Current Host-Host energy:                     0.0000000000 [K]  (avg.           0.0000000000)
-	Current Host-Adsorbate energy:           -54614.7016042491 [K]  (avg.      -54205.1473317552)
+	Current Host-Adsorbate energy:           -52013.6307170609 [K]  (avg.      -52169.9138945304)
 	Current Host-Cation energy:                   0.0000000000 [K]  (avg.           0.0000000000)
-	Current Adsorbate-Adsorbate energy:      -47914.1241188760 [K]  (avg.      -47919.1953423629)
+	Current Adsorbate-Adsorbate energy:      -47256.4651590537 [K]  (avg.      -47689.2978738402)
 	Current Cation-Cation energy:                 0.0000000000 [K]  (avg.           0.0000000000)
 	Current Adsorbate-Cation energy:              0.0000000000 [K]  (avg.           0.0000000000)
 
@@ -1181,11 +1181,11 @@ Number of Framework-atoms:    112
 Number of Adsorbates:          93 (93 integer, 0 fractional, 0 reaction)
 Number of Cations:              0 (0 integer, 0 fractional, 0 reaction)
 
-Current total potential energy:           -115848.2325170374 [K]  (avg.     -116801.4728253236)
+Current total potential energy:           -114672.0530162604 [K]  (avg.     -114342.1942384653)
 	Current Host-Host energy:                     0.0000000000 [K]  (avg.           0.0000000000)
-	Current Host-Adsorbate energy:           -55033.3638164933 [K]  (avg.      -54485.2544332201)
+	Current Host-Adsorbate energy:           -52521.4011482373 [K]  (avg.      -52209.3926597408)
 	Current Host-Cation energy:                   0.0000000000 [K]  (avg.           0.0000000000)
-	Current Adsorbate-Adsorbate energy:      -46201.4525878560 [K]  (avg.      -47702.8022794156)
+	Current Adsorbate-Adsorbate energy:      -47537.2357553354 [K]  (avg.      -47519.3854660368)
 	Current Cation-Cation energy:                 0.0000000000 [K]  (avg.           0.0000000000)
 	Current Adsorbate-Cation energy:              0.0000000000 [K]  (avg.           0.0000000000)
 
@@ -1215,11 +1215,11 @@ Number of Framework-atoms:    112
 Number of Adsorbates:          93 (93 integer, 0 fractional, 0 reaction)
 Number of Cations:              0 (0 integer, 0 fractional, 0 reaction)
 
-Current total potential energy:           -116231.2136905153 [K]  (avg.     -116717.3716661830)
+Current total potential energy:           -114930.5740626314 [K]  (avg.     -114435.2690315571)
 	Current Host-Host energy:                     0.0000000000 [K]  (avg.           0.0000000000)
-	Current Host-Adsorbate energy:           -55961.8949415630 [K]  (avg.      -54771.1702242346)
+	Current Host-Adsorbate energy:           -52837.0867256025 [K]  (avg.      -52348.9012577788)
 	Current Host-Cation energy:                   0.0000000000 [K]  (avg.           0.0000000000)
-	Current Adsorbate-Adsorbate energy:      -45655.9026362641 [K]  (avg.      -47332.7853292603)
+	Current Adsorbate-Adsorbate energy:      -47480.0712243414 [K]  (avg.      -47472.9516610906)
 	Current Cation-Cation energy:                 0.0000000000 [K]  (avg.           0.0000000000)
 	Current Adsorbate-Cation energy:              0.0000000000 [K]  (avg.           0.0000000000)
 
@@ -1249,11 +1249,11 @@ Number of Framework-atoms:    112
 Number of Adsorbates:          93 (93 integer, 0 fractional, 0 reaction)
 Number of Cations:              0 (0 integer, 0 fractional, 0 reaction)
 
-Current total potential energy:           -117066.3564342615 [K]  (avg.     -116771.7004341410)
+Current total potential energy:           -116149.6103981515 [K]  (avg.     -114601.0668859229)
 	Current Host-Host energy:                     0.0000000000 [K]  (avg.           0.0000000000)
-	Current Host-Adsorbate energy:           -55797.3903188886 [K]  (avg.      -54996.6347955665)
+	Current Host-Adsorbate energy:           -53090.8680405405 [K]  (avg.      -52444.4902433568)
 	Current Host-Cation energy:                   0.0000000000 [K]  (avg.           0.0000000000)
-	Current Adsorbate-Adsorbate energy:      -46655.5500026848 [K]  (avg.      -47161.6495258864)
+	Current Adsorbate-Adsorbate energy:      -48445.3262449234 [K]  (avg.      -47543.1605298785)
 	Current Cation-Cation energy:                 0.0000000000 [K]  (avg.           0.0000000000)
 	Current Adsorbate-Cation energy:              0.0000000000 [K]  (avg.           0.0000000000)
 
@@ -1283,11 +1283,11 @@ Number of Framework-atoms:    112
 Number of Adsorbates:          93 (93 integer, 0 fractional, 0 reaction)
 Number of Cations:              0 (0 integer, 0 fractional, 0 reaction)
 
-Current total potential energy:           -117296.0044421006 [K]  (avg.     -116837.2100515771)
+Current total potential energy:           -115966.3891057377 [K]  (avg.     -114820.9808021537)
 	Current Host-Host energy:                     0.0000000000 [K]  (avg.           0.0000000000)
-	Current Host-Adsorbate energy:           -56098.0240508260 [K]  (avg.      -55094.4171943115)
+	Current Host-Adsorbate energy:           -53619.7418037893 [K]  (avg.      -52551.7098980285)
 	Current Host-Cation energy:                   0.0000000000 [K]  (avg.           0.0000000000)
-	Current Adsorbate-Adsorbate energy:      -46584.5642785863 [K]  (avg.      -47129.3767445775)
+	Current Adsorbate-Adsorbate energy:      -47733.2311892609 [K]  (avg.      -47655.8547914375)
 	Current Cation-Cation energy:                 0.0000000000 [K]  (avg.           0.0000000000)
 	Current Adsorbate-Cation energy:              0.0000000000 [K]  (avg.           0.0000000000)
 
@@ -1317,11 +1317,11 @@ Number of Framework-atoms:    112
 Number of Adsorbates:          93 (93 integer, 0 fractional, 0 reaction)
 Number of Cations:              0 (0 integer, 0 fractional, 0 reaction)
 
-Current total potential energy:           -117599.2673213768 [K]  (avg.     -116908.6066116889)
+Current total potential energy:           -116275.5463680668 [K]  (avg.     -114974.2135925448)
 	Current Host-Host energy:                     0.0000000000 [K]  (avg.           0.0000000000)
-	Current Host-Adsorbate energy:           -56258.8392610757 [K]  (avg.      -55279.8379892107)
+	Current Host-Adsorbate energy:           -53417.1034614121 [K]  (avg.      -52738.5317964547)
 	Current Host-Cation energy:                   0.0000000000 [K]  (avg.           0.0000000000)
-	Current Adsorbate-Adsorbate energy:      -46727.0119476125 [K]  (avg.      -47015.3525097900)
+	Current Adsorbate-Adsorbate energy:      -48245.0267939670 [K]  (avg.      -47622.2656834025)
 	Current Cation-Cation energy:                 0.0000000000 [K]  (avg.           0.0000000000)
 	Current Adsorbate-Cation energy:              0.0000000000 [K]  (avg.           0.0000000000)
 
@@ -1351,11 +1351,11 @@ Number of Framework-atoms:    112
 Number of Adsorbates:          93 (93 integer, 0 fractional, 0 reaction)
 Number of Cations:              0 (0 integer, 0 fractional, 0 reaction)
 
-Current total potential energy:           -118676.1583379833 [K]  (avg.     -117005.8532730726)
+Current total potential energy:           -116193.3788040281 [K]  (avg.     -115203.7016462658)
 	Current Host-Host energy:                     0.0000000000 [K]  (avg.           0.0000000000)
-	Current Host-Adsorbate energy:           -55802.0001990676 [K]  (avg.      -55322.2586260633)
+	Current Host-Adsorbate energy:           -53529.8960726767 [K]  (avg.      -52837.9416235443)
 	Current Host-Cation energy:                   0.0000000000 [K]  (avg.           0.0000000000)
-	Current Adsorbate-Adsorbate energy:      -48260.7420262271 [K]  (avg.      -47070.1785343211)
+	Current Adsorbate-Adsorbate energy:      -48050.0666186636 [K]  (avg.      -47752.3439100339)
 	Current Cation-Cation energy:                 0.0000000000 [K]  (avg.           0.0000000000)
 	Current Adsorbate-Cation energy:              0.0000000000 [K]  (avg.           0.0000000000)
 
@@ -1385,11 +1385,11 @@ Number of Framework-atoms:    112
 Number of Adsorbates:          93 (93 integer, 0 fractional, 0 reaction)
 Number of Cations:              0 (0 integer, 0 fractional, 0 reaction)
 
-Current total potential energy:           -115681.9126941673 [K]  (avg.     -117024.8824380330)
+Current total potential energy:           -115234.1929405430 [K]  (avg.     -115245.0378704198)
 	Current Host-Host energy:                     0.0000000000 [K]  (avg.           0.0000000000)
-	Current Host-Adsorbate energy:           -55441.1655867033 [K]  (avg.      -55377.5487694086)
+	Current Host-Adsorbate energy:           -53306.4569241840 [K]  (avg.      -52875.6309231297)
 	Current Host-Cation energy:                   0.0000000000 [K]  (avg.           0.0000000000)
-	Current Adsorbate-Adsorbate energy:      -45627.3309947755 [K]  (avg.      -47033.9175559362)
+	Current Adsorbate-Adsorbate energy:      -47314.3199036713 [K]  (avg.      -47755.9908346024)
 	Current Cation-Cation energy:                 0.0000000000 [K]  (avg.           0.0000000000)
 	Current Adsorbate-Cation energy:              0.0000000000 [K]  (avg.           0.0000000000)
 
@@ -1463,8 +1463,8 @@ Host/Host energy:                                             0.00000000
 	Host/Host bondipole-bonddipole Real energy:                   0.00000000
 	Host/Host bondipole-bonddipole Fourier energy:                0.00000000
 
-Host/Adsorbate energy:                                   -56331.73190127
-	Host/Adsorbate VDW energy:                               -56331.73190127
+Host/Adsorbate energy:                                   -53626.74560898
+	Host/Adsorbate VDW energy:                               -53626.74560898
 	Host/Adsorbate Coulomb energy:                                0.00000000
 	Host/Adsorbate charge-charge Real energy:                     0.00000000
 	Host/Adsorbate charge-charge Fourier energy:                  0.00000000
@@ -1483,8 +1483,8 @@ Host/Cation energy:                                           0.00000000
 	Host/Cation bondipole-bonddipole Real energy:                 0.00000000
 	Host/Cation bondipole-bonddipole Fourier energy:              0.00000000
 
-Adsorbate/Adsorbate energy:                                   -47599.04413372
-	Adsorbate/Adsorbate VDW energy:                               -47599.04413372
+Adsorbate/Adsorbate energy:                                   -46359.05073797
+	Adsorbate/Adsorbate VDW energy:                               -46359.05073797
 	Adsorbate/Adsorbate Coulomb energy:                                0.00000000
 	Adsorbate/Adsorbate charge-charge Real energy:                     0.00000000
 	Adsorbate/Adsorbate charge-charge Fourier energy:                  0.00000000
@@ -1531,8 +1531,8 @@ Out-of-plane distance constraints energy:                     0.00000000
 Exclusion constraints energy:                                 0.00000000
 
 ===================================================================
-Total energy: -118544.192147681824
-	Total Van der Waals: -103930.776035
+Total energy: -114599.212459642426
+	Total Van der Waals: -99985.796347
 	Total Coulomb: 0.000000
 
 	Total Polarization: 0.000000
@@ -1552,10 +1552,10 @@ Bead: 0
 Performance of the translation move:
 ======================================
 Component 0 [Ar]
-	total        6059.000000 6141.000000 6139.000000
-	succesfull   3515.000000 3653.000000 2378.000000
-	accepted   0.580129 0.594854 0.387360
-	displacement 0.581951 0.570425 0.619693
+	total        6121.000000 6153.000000 6074.000000
+	succesfull   2935.000000 2876.000000 2465.000000
+	accepted   0.479497 0.467414 0.405828
+	displacement 0.677508 0.668094 0.608926
 
 
 Random translation move was OFF for all components
@@ -1566,15 +1566,15 @@ Random rotation move was OFF for all components
 
 Performance of the swap addition move:
 ======================================
-Component [Ar] total tried: 92.000000 succesfull growth: 56.000000 (60.869565 [%]) accepted: 0.000000 (0.000000 [%])
+Component [Ar] total tried: 83.000000 succesfull growth: 52.000000 (62.650602 [%]) accepted: 0.000000 (0.000000 [%])
 
 Performance of the swap deletion move:
 ======================================
-Component [Ar] total tried: 100.000000 succesfull growth: 100.000000 (100.000000 [%]) accepted: 0.000000 (0.000000 [%])
+Component [Ar] total tried: 107.000000 succesfull growth: 107.000000 (100.000000 [%]) accepted: 0.000000 (0.000000 [%])
 
 Performance of the Reinsertion move:
 ====================================
-Component [Ar] total tried: 9369.000000 succesfull growth: 5966.000000 (63.678087 [%]) accepted: 64.000000 (0.683104 [%])
+Component [Ar] total tried: 9362.000000 succesfull growth: 5747.000000 (61.386456 [%]) accepted: 65.000000 (0.694296 [%])
 
 Reinsertion-in-plane move was OFF for all components
 
@@ -1638,25 +1638,25 @@ Gibbs Widom move was OFF for all components
 
 Total CPU timings:
 ===========================================
-initialization:              1.403694 [s]
+initialization:               1.31597 [s]
 equilibration:                      0 [s]
-production run:              1.537327 [s]
-total time:                  2.941021 [s]
+production run:              1.310956 [s]
+total time:                  2.626926 [s]
 
 Production run CPU timings of the MC moves:
 ===========================================
 Component: 0 (Ar)
-	translation:                                  0.308849 [s]
+	translation:                                  0.263822 [s]
 	random translation:                                  0 [s]
 	rotation:                                            0 [s]
 	random rotation:                                     0 [s]
 	partial reinsertion:                                 0 [s]
-	reinsertion:                                  1.163848 [s]
+	reinsertion:                                  0.995379 [s]
 	reinsertion in-place:                                0 [s]
 	reinsertion in-plane:                                0 [s]
 	identity switch:                                     0 [s]
-	swap (insertion):                             0.011156 [s]
-	swap (deletion):                              0.012043 [s]
+	swap (insertion):                             0.008301 [s]
+	swap (deletion):                              0.011014 [s]
 	swap lambda (CFMC):                                  0 [s]
 	swap lambda (CB/CFMC):                               0 [s]
 	Widom:                                               0 [s]
@@ -1673,17 +1673,17 @@ Component: 0 (Ar)
 	Convert Gibbs fract. to integer:                     0 [s]
 
 Total all components:
-	translation:                                  0.308849 [s]
+	translation:                                  0.263822 [s]
 	random translation:                                  0 [s]
 	rotation:                                            0 [s]
 	random rotation:                                     0 [s]
 	partial reinsertion:                                 0 [s]
-	reinsertion:                                  1.163848 [s]
+	reinsertion:                                  0.995379 [s]
 	reinsertion in-place:                                0 [s]
 	reinsertion in-plane:                                0 [s]
 	identity switch:                                     0 [s]
-	swap (insertion):                             0.011156 [s]
-	swap (deletion):                              0.011156 [s]
+	swap (insertion):                             0.008301 [s]
+	swap (deletion):                              0.008301 [s]
 	swap lambda (CFMC):                                  0 [s]
 	swap lambda (CB/CFMC):                               0 [s]
 	Widom:                                               0 [s]
@@ -1718,17 +1718,17 @@ Production run CPU timings of the MC moves summed over all systems and component
 ==================================================================================
 
 Particles moves:
-	translation:                                  0.308849 [s]
+	translation:                                  0.263822 [s]
 	random translation:                                  0 [s]
 	rotation:                                            0 [s]
 	random rotation:                                     0 [s]
 	partial reinsertion:                                 0 [s]
-	reinsertion:                                  1.163848 [s]
+	reinsertion:                                  0.995379 [s]
 	reinsertion in-place:                                0 [s]
 	reinsertion in-plane:                                0 [s]
 	identity switch:                                     0 [s]
-	swap (insertion):                             0.011156 [s]
-	swap (deletion):                              0.011156 [s]
+	swap (insertion):                             0.008301 [s]
+	swap (deletion):                              0.008301 [s]
 	swap lambda (CFMC):                                  0 [s]
 	swap lambda (CB/CFMC):                               0 [s]
 	Widom:                                               0 [s]
@@ -1824,8 +1824,8 @@ Host/Host energy:                                             0.00000000
 	Host/Host bondipole-bonddipole Real energy:                   0.00000000
 	Host/Host bondipole-bonddipole Fourier energy:                0.00000000
 
-Host/Adsorbate energy:                                   -56331.73190127
-	Host/Adsorbate VDW energy:                               -56331.73190127
+Host/Adsorbate energy:                                   -53626.74560898
+	Host/Adsorbate VDW energy:                               -53626.74560898
 	Host/Adsorbate Coulomb energy:                                0.00000000
 	Host/Adsorbate charge-charge Real energy:                     0.00000000
 	Host/Adsorbate charge-charge Fourier energy:                  0.00000000
@@ -1844,8 +1844,8 @@ Host/Cation energy:                                           0.00000000
 	Host/Cation bondipole-bonddipole Real energy:                 0.00000000
 	Host/Cation bondipole-bonddipole Fourier energy:              0.00000000
 
-Adsorbate/Adsorbate energy:                                   -47599.04413372
-	Adsorbate/Adsorbate VDW energy:                               -47599.04413372
+Adsorbate/Adsorbate energy:                                   -46359.05073797
+	Adsorbate/Adsorbate VDW energy:                               -46359.05073797
 	Adsorbate/Adsorbate Coulomb energy:                                0.00000000
 	Adsorbate/Adsorbate charge-charge Real energy:                     0.00000000
 	Adsorbate/Adsorbate charge-charge Fourier energy:                  0.00000000
@@ -1892,8 +1892,8 @@ Out-of-plane distance constraints energy:                     0.00000000
 Exclusion constraints energy:                                 0.00000000
 
 ===================================================================
-Total energy: -118544.192147681213
-	Total Van der Waals: -103930.776035
+Total energy: -114599.212459641989
+	Total Van der Waals: -99985.796347
 	Total Coulomb: 0.000000
 
 	Total Polarization: 0.000000
@@ -1960,8 +1960,8 @@ Host/Host energy-drift:                                              0
 		Host/Host Fourier charge-bonddipole energy-drift:                0
 		Host/Host Real bonddipole-bonddipole energy-drift:               0
 		Host/Host Fourier bonddipole-bonddipole energy-drift:            0
-Host/Adsorbate energy-drift:                                         3.50039e-11
-	Host/Adsorbate VDW energy-drift:                                   3.50039e-11
+Host/Adsorbate energy-drift:                                         -3.67541e-10
+	Host/Adsorbate VDW energy-drift:                                   -3.67541e-10
 	Host/Adsorbate Coulomb energy-drift:                               0
 		Host/Adsorbate Real charge-charge energy-drift:                  0
 		Host/Adsorbate Fourier charge-charge energy-drift:               0
@@ -1978,8 +1978,8 @@ Host/Cation energy-drift:                                            0
 		Host/Cation Fourier charge-bonddipole energy-drift:              0
 		Host/Cation Real bonddipole-bonddipole energy-drift:             0
 		Host/Cation Fourier bonddipole-bonddipole energy-drift:          0
-Adsorbate/Adsorbate energy-drift:                                     1.13763e-10
-	Adsorbate/Adsorbate VDW energy-drift:                               1.13763e-10
+Adsorbate/Adsorbate energy-drift:                                     -3.50039e-11
+	Adsorbate/Adsorbate VDW energy-drift:                               -3.50039e-11
 	Adsorbate/Adsorbate Coulomb energy-drift:                           0
 		Adsorbate/Adsorbate Real charge-charge energy-drift:              0
 		Adsorbate/Adsorbate Fourier charge-charge energy-drift:           0
@@ -2024,7 +2024,7 @@ Out-of-plane distance constraints energy-drift:                    0
 Exclusion constraints energy-drift:                 0
 
 ===================================================================
-Total energy-drift: -6.12568e-10
+Total energy-drift: -4.37549e-10
 
 
 Component 0 [Ar]
@@ -2167,22 +2167,22 @@ Average compressibility Z:
 
 Average Heat Capacity (MC-NPT-ensemble): [1/(kB T^2)]*[<H^2>-<H>^2]
 ===================================================================
-	Block[ 0] 377.949409 [J/mol/K]
-	Block[ 1] 379.343335 [J/mol/K]
-	Block[ 2] 547.200943 [J/mol/K]
-	Block[ 3] 434.809750 [J/mol/K]
-	Block[ 4] 743.713434 [J/mol/K]
+	Block[ 0] 225.132793 [J/mol/K]
+	Block[ 1] 315.460150 [J/mol/K]
+	Block[ 2] 401.754328 [J/mol/K]
+	Block[ 3] 713.592301 [J/mol/K]
+	Block[ 4] 390.204494 [J/mol/K]
 	------------------------------------------------------------------------------
-	Average            496.60337 [J/mol/K] +/-          276.07336 [J/mol/K]
-	Average            118.69106 [cal/mol/K] +/-           65.98312 [cal/mol/K]
+	Average            409.22881 [J/mol/K] +/-          329.53159 [J/mol/K]
+	Average             97.80803 [cal/mol/K] +/-           78.75994 [cal/mol/K]
 
 Enthalpy of adsorption:
 =======================
 
-	Block[ 0] -inf               [K]
-	Block[ 1] inf                [K]
-	Block[ 2] -inf               [K]
-	Block[ 3] -inf               [K]
+	Block[ 0] nan                [K]
+	Block[ 1] -inf               [K]
+	Block[ 2] inf                [K]
+	Block[ 3] inf                [K]
 	Block[ 4] inf                [K]
 	------------------------------------------------------------------------------
 	Average                  nan +/-                nan [K]
@@ -2631,14 +2631,14 @@ Average Host-Host energy:
 
 Average Adsorbate-Adsorbate energy:
 ===================================
-	Block[ 0] -47919.27986       Van der Waals: -47919.27986       Coulomb: 0.00000            [K]
-	Block[ 1] -46774.23884       Van der Waals: -46774.23884       Coulomb: 0.00000            [K]
-	Block[ 2] -46703.69174       Van der Waals: -46703.69174       Coulomb: 0.00000            [K]
-	Block[ 3] -46863.66097       Van der Waals: -46863.66097       Coulomb: 0.00000            [K]
-	Block[ 4] -46942.78066       Van der Waals: -46942.78066       Coulomb: 0.00000            [K]
+	Block[ 0] -47696.51175       Van der Waals: -47696.51175       Coulomb: 0.00000            [K]
+	Block[ 1] -47249.27291       Van der Waals: -47249.27291       Coulomb: 0.00000            [K]
+	Block[ 2] -48020.49010       Van der Waals: -48020.49010       Coulomb: 0.00000            [K]
+	Block[ 3] -48038.13883       Van der Waals: -48038.13883       Coulomb: 0.00000            [K]
+	Block[ 4] -47664.55017       Van der Waals: -47664.55017       Coulomb: 0.00000            [K]
 	------------------------------------------------------------------------------
-	Average   -47040.73041       Van der Waals: -47040.730414      Coulomb: 0.00000            [K]
-	      +/- 893.26802                     +/- 893.268024              +/- 0.00000            [K]
+	Average   -47733.79275       Van der Waals: -47733.792752      Coulomb: 0.00000            [K]
+	      +/- 576.72579                     +/- 576.725787              +/- 0.00000            [K]
 
 Average Cation-Cation energy:
 =============================
@@ -2653,14 +2653,14 @@ Average Cation-Cation energy:
 
 Average Host-Adsorbate energy:
 ==============================
-	Block[ 0] -54198.32143       Van der Waals: -54198.32143       Coulomb: 0.00000            [K]
-	Block[ 1] -55324.17361       Van der Waals: -55324.17361       Coulomb: 0.00000            [K]
-	Block[ 2] -55744.02977       Van der Waals: -55744.02977       Coulomb: 0.00000            [K]
-	Block[ 3] -56014.51401       Van der Waals: -56014.51401       Coulomb: 0.00000            [K]
-	Block[ 4] -56070.68421       Van der Waals: -56070.68421       Coulomb: 0.00000            [K]
+	Block[ 0] -52172.51861       Van der Waals: -52172.51861       Coulomb: 0.00000            [K]
+	Block[ 1] -52517.14748       Van der Waals: -52517.14748       Coulomb: 0.00000            [K]
+	Block[ 2] -52947.66307       Van der Waals: -52947.66307       Coulomb: 0.00000            [K]
+	Block[ 3] -53702.90476       Van der Waals: -53702.90476       Coulomb: 0.00000            [K]
+	Block[ 4] -53474.75480       Van der Waals: -53474.75480       Coulomb: 0.00000            [K]
 	------------------------------------------------------------------------------
-	Average   -55470.34460       Van der Waals: -55470.344603      Coulomb: 0.00000            [K]
-	      +/- 1377.19729                    +/- 1377.197290             +/- 0.00000            [K]
+	Average   -52962.99774       Van der Waals: -52962.997744      Coulomb: 0.00000            [K]
+	      +/- 1143.05994                    +/- 1143.059942             +/- 0.00000            [K]
 
 Average Host-Cation energy:
 ===========================
@@ -2816,13 +2816,13 @@ Exclusion-constraints energy:
 
 Total energy:
 =============
-	Block[ 0]      -116731.01740 [K]
-	Block[ 1]      -116711.82856 [K]
-	Block[ 2]      -117061.13762 [K]
-	Block[ 3]      -117491.59109 [K]
-	Block[ 4]      -117626.88098 [K]
+	Block[ 0]      -114482.44648 [K]
+	Block[ 1]      -114379.83650 [K]
+	Block[ 2]      -115581.56929 [K]
+	Block[ 3]      -116354.45970 [K]
+	Block[ 4]      -115752.72108 [K]
 	------------------------------------------------------------------------------
-	Average        -117124.49113 [K] +/-          756.98538 [K]
+	Average        -115310.20661 [K] +/-         1525.96111 [K]
 
 Number of molecules:
 ====================
@@ -2953,7 +2953,7 @@ Average adsorption energy <U_gh>_1-<U_h>_0 obtained from Widom-insertion:
 Simulation finished,  0 warnings
 
 
-Fri Nov 13 18:37:46 2020
-Simulation finished on Friday, November 13.
-The end time was 06:37 PM.
+Mon Nov 16 20:12:20 2020
+Simulation finished on Monday, November 16.
+The end time was 08:12 PM.
 

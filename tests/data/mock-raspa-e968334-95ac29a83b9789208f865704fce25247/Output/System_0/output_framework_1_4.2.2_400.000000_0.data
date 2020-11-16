@@ -5,22 +5,22 @@ Compiled as a 64-bits application
 Compiler: gcc 9.3.0
 Compile Date = Mar 18 2020, Compile Time = 13:46:53
 
-Fri Nov 13 17:02:01 2020
-Simulation started on Friday, November 13.
-The start time was 05:02 PM.
+Mon Nov 16 20:13:22 2020
+Simulation started on Monday, November 16.
+The start time was 08:13 PM.
 
 Cpu data:    x86_64
 Cpu Model:   MacBookPro11,4
 Host name:   B126028.local
 OS release:  19.6.0
 OS type:     Darwin
-OS version:  19G2021
+OS version:  19H15
 
 
 Simulation
 ===========================================================================
 Dimensions: 3
-Random number seed: 1605283321
+Random number seed: 1605554001
 RASPA directory set to: /Users/leopold/Personal/Programmierung/qm-codes/RASPA2/src/.libs
 String appended to output-files: 
 Number of cycles: 100
@@ -817,11 +817,11 @@ Framework surface area:       0.0000000000 [m^2/g]        0.0000000000 [m^2/cm^3
 	Cation surface area:                       0.0000000000 [m^2/g]        0.0000000000 [m^2/cm^3]       0.0000000000 [A^2]
 Compressibility:                nan [-]
 Henry coefficients
-	Component 0: 3.94304e-06 [mol/kg/Pa] (Rosenbluth factor new: 11.9904 [-])
+	Component 0: 3.92926e-06 [mol/kg/Pa] (Rosenbluth factor new: 11.9485 [-])
 Energy <U_gh>_1-<U_h>_0 from Widom
-	Component 0:   -1862.4461298714 [K]  (    -15.4852430103 [kJ/mol])
-Component [CO2] average Widom:      11.9903872800, average chemical potential:   -4977.5485462245 [K]
-		(average excess chemical potential:    -993.6429891327 [K], ideal-gas contribution:   -3983.9055570918 [K])
+	Component 0:   -1851.4094699107 [K]  (    -15.3934790883 [kJ/mol])
+Component [CO2] average Widom:      11.9485075111, average chemical potential:   -4976.1489879190 [K]
+		(average excess chemical potential:    -992.2434308271 [K], ideal-gas contribution:   -3983.9055570918 [K])
 
 
 Average Properties at Current cycle: 20 out of 100
@@ -832,11 +832,11 @@ Framework surface area:       0.0000000000 [m^2/g]        0.0000000000 [m^2/cm^3
 	Cation surface area:                       0.0000000000 [m^2/g]        0.0000000000 [m^2/cm^3]       0.0000000000 [A^2]
 Compressibility:                nan [-]
 Henry coefficients
-	Component 0: 4.17598e-06 [mol/kg/Pa] (Rosenbluth factor new: 12.6988 [-])
+	Component 0: 4.11898e-06 [mol/kg/Pa] (Rosenbluth factor new: 12.5254 [-])
 Energy <U_gh>_1-<U_h>_0 from Widom
-	Component 0:   -1857.3935701416 [K]  (    -15.4432336797 [kJ/mol])
-Component [CO2] average Widom:      12.6987592524, average chemical potential:   -5000.5081759010 [K]
-		(average excess chemical potential:   -1016.6026188092 [K], ideal-gas contribution:   -3983.9055570918 [K])
+	Component 0:   -1893.1081982369 [K]  (    -15.7401817021 [kJ/mol])
+Component [CO2] average Widom:      12.5254097700, average chemical potential:   -4995.0101992519 [K]
+		(average excess chemical potential:   -1011.1046421601 [K], ideal-gas contribution:   -3983.9055570918 [K])
 
 
 Average Properties at Current cycle: 30 out of 100
@@ -847,11 +847,11 @@ Framework surface area:       0.0000000000 [m^2/g]        0.0000000000 [m^2/cm^3
 	Cation surface area:                       0.0000000000 [m^2/g]        0.0000000000 [m^2/cm^3]       0.0000000000 [A^2]
 Compressibility:                nan [-]
 Henry coefficients
-	Component 0: 4.20101e-06 [mol/kg/Pa] (Rosenbluth factor new: 12.7749 [-])
+	Component 0: 4.17278e-06 [mol/kg/Pa] (Rosenbluth factor new: 12.689 [-])
 Energy <U_gh>_1-<U_h>_0 from Widom
-	Component 0:   -1870.1990017840 [K]  (    -15.5497039919 [kJ/mol])
-Component [CO2] average Widom:      12.7748575058, average chemical potential:   -5002.8980539643 [K]
-		(average excess chemical potential:   -1018.9924968725 [K], ideal-gas contribution:   -3983.9055570918 [K])
+	Component 0:   -1887.4963526407 [K]  (    -15.6935222088 [kJ/mol])
+Component [CO2] average Widom:      12.6890268169, average chemical potential:   -5000.2014947411 [K]
+		(average excess chemical potential:   -1016.2959376493 [K], ideal-gas contribution:   -3983.9055570918 [K])
 
 
 Average Properties at Current cycle: 40 out of 100
@@ -862,11 +862,11 @@ Framework surface area:       0.0000000000 [m^2/g]        0.0000000000 [m^2/cm^3
 	Cation surface area:                       0.0000000000 [m^2/g]        0.0000000000 [m^2/cm^3]       0.0000000000 [A^2]
 Compressibility:                nan [-]
 Henry coefficients
-	Component 0: 4.13033e-06 [mol/kg/Pa] (Rosenbluth factor new: 12.5599 [-])
+	Component 0: 4.1745e-06 [mol/kg/Pa] (Rosenbluth factor new: 12.6943 [-])
 Energy <U_gh>_1-<U_h>_0 from Widom
-	Component 0:   -1847.3513361350 [K]  (    -15.3597378774 [kJ/mol])
-Component [CO2] average Widom:      12.5599304513, average chemical potential:   -4996.1111046724 [K]
-		(average excess chemical potential:   -1012.2055475806 [K], ideal-gas contribution:   -3983.9055570918 [K])
+	Component 0:   -1891.9607429259 [K]  (    -15.7306412252 [kJ/mol])
+Component [CO2] average Widom:      12.6942554358, average chemical potential:   -5000.3662842604 [K]
+		(average excess chemical potential:   -1016.4607271686 [K], ideal-gas contribution:   -3983.9055570918 [K])
 
 
 Average Properties at Current cycle: 50 out of 100
@@ -877,11 +877,11 @@ Framework surface area:       0.0000000000 [m^2/g]        0.0000000000 [m^2/cm^3
 	Cation surface area:                       0.0000000000 [m^2/g]        0.0000000000 [m^2/cm^3]       0.0000000000 [A^2]
 Compressibility:                nan [-]
 Henry coefficients
-	Component 0: 4.26423e-06 [mol/kg/Pa] (Rosenbluth factor new: 12.9671 [-])
+	Component 0: 4.17728e-06 [mol/kg/Pa] (Rosenbluth factor new: 12.7027 [-])
 Energy <U_gh>_1-<U_h>_0 from Widom
-	Component 0:   -1847.2029323110 [K]  (    -15.3585039790 [kJ/mol])
-Component [CO2] average Widom:      12.9671157298, average chemical potential:   -5008.8731039021 [K]
-		(average excess chemical potential:   -1024.9675468102 [K], ideal-gas contribution:   -3983.9055570918 [K])
+	Component 0:   -1879.4692676445 [K]  (    -15.6267812922 [kJ/mol])
+Component [CO2] average Widom:      12.7027120216, average chemical potential:   -5000.6326654699 [K]
+		(average excess chemical potential:   -1016.7271083781 [K], ideal-gas contribution:   -3983.9055570918 [K])
 
 
 Average Properties at Current cycle: 60 out of 100
@@ -892,11 +892,11 @@ Framework surface area:       0.0000000000 [m^2/g]        0.0000000000 [m^2/cm^3
 	Cation surface area:                       0.0000000000 [m^2/g]        0.0000000000 [m^2/cm^3]       0.0000000000 [A^2]
 Compressibility:                nan [-]
 Henry coefficients
-	Component 0: 4.29992e-06 [mol/kg/Pa] (Rosenbluth factor new: 13.0756 [-])
+	Component 0: 4.23153e-06 [mol/kg/Pa] (Rosenbluth factor new: 12.8677 [-])
 Energy <U_gh>_1-<U_h>_0 from Widom
-	Component 0:   -1864.4675639359 [K]  (    -15.5020501530 [kJ/mol])
-Component [CO2] average Widom:      13.0756491401, average chemical potential:   -5012.2071319279 [K]
-		(average excess chemical potential:   -1028.3015748361 [K], ideal-gas contribution:   -3983.9055570918 [K])
+	Component 0:   -1878.7498992426 [K]  (    -15.6208001288 [kJ/mol])
+Component [CO2] average Widom:      12.8676745368, average chemical potential:   -5005.7937904234 [K]
+		(average excess chemical potential:   -1021.8882333316 [K], ideal-gas contribution:   -3983.9055570918 [K])
 
 
 Average Properties at Current cycle: 70 out of 100
@@ -907,11 +907,11 @@ Framework surface area:       0.0000000000 [m^2/g]        0.0000000000 [m^2/cm^3
 	Cation surface area:                       0.0000000000 [m^2/g]        0.0000000000 [m^2/cm^3]       0.0000000000 [A^2]
 Compressibility:                nan [-]
 Henry coefficients
-	Component 0: 4.24829e-06 [mol/kg/Pa] (Rosenbluth factor new: 12.9186 [-])
+	Component 0: 4.23762e-06 [mol/kg/Pa] (Rosenbluth factor new: 12.8862 [-])
 Energy <U_gh>_1-<U_h>_0 from Widom
-	Component 0:   -1863.3671201208 [K]  (    -15.4929005515 [kJ/mol])
-Component [CO2] average Widom:      12.9186370446, average chemical potential:   -5007.3748655356 [K]
-		(average excess chemical potential:   -1023.4693084437 [K], ideal-gas contribution:   -3983.9055570918 [K])
+	Component 0:   -1881.0832906827 [K]  (    -15.6402010301 [kJ/mol])
+Component [CO2] average Widom:      12.8861807737, average chemical potential:   -5006.3686560116 [K]
+		(average excess chemical potential:   -1022.4630989197 [K], ideal-gas contribution:   -3983.9055570918 [K])
 
 
 Average Properties at Current cycle: 80 out of 100
@@ -922,11 +922,11 @@ Framework surface area:       0.0000000000 [m^2/g]        0.0000000000 [m^2/cm^3
 	Cation surface area:                       0.0000000000 [m^2/g]        0.0000000000 [m^2/cm^3]       0.0000000000 [A^2]
 Compressibility:                nan [-]
 Henry coefficients
-	Component 0: 4.26104e-06 [mol/kg/Pa] (Rosenbluth factor new: 12.9574 [-])
+	Component 0: 4.28871e-06 [mol/kg/Pa] (Rosenbluth factor new: 13.0415 [-])
 Energy <U_gh>_1-<U_h>_0 from Widom
-	Component 0:   -1874.3794805332 [K]  (    -15.5844624358 [kJ/mol])
-Component [CO2] average Widom:      12.9573951721, average chemical potential:   -5008.5731386130 [K]
-		(average excess chemical potential:   -1024.6675815211 [K], ideal-gas contribution:   -3983.9055570918 [K])
+	Component 0:   -1887.6674052658 [K]  (    -15.6949444198 [kJ/mol])
+Component [CO2] average Widom:      13.0415390807, average chemical potential:   -5011.1622994194 [K]
+		(average excess chemical potential:   -1027.2567423276 [K], ideal-gas contribution:   -3983.9055570918 [K])
 
 
 Average Properties at Current cycle: 90 out of 100
@@ -937,11 +937,11 @@ Framework surface area:       0.0000000000 [m^2/g]        0.0000000000 [m^2/cm^3
 	Cation surface area:                       0.0000000000 [m^2/g]        0.0000000000 [m^2/cm^3]       0.0000000000 [A^2]
 Compressibility:                nan [-]
 Henry coefficients
-	Component 0: 4.34673e-06 [mol/kg/Pa] (Rosenbluth factor new: 13.218 [-])
+	Component 0: 4.30059e-06 [mol/kg/Pa] (Rosenbluth factor new: 13.0777 [-])
 Energy <U_gh>_1-<U_h>_0 from Widom
-	Component 0:   -1884.7162722465 [K]  (    -15.6704073279 [kJ/mol])
-Component [CO2] average Widom:      13.2179906585, average chemical potential:   -5016.5380054409 [K]
-		(average excess chemical potential:   -1032.6324483491 [K], ideal-gas contribution:   -3983.9055570918 [K])
+	Component 0:   -1877.6149581845 [K]  (    -15.6113637012 [kJ/mol])
+Component [CO2] average Widom:      13.0776795154, average chemical potential:   -5012.2692388084 [K]
+		(average excess chemical potential:   -1028.3636817166 [K], ideal-gas contribution:   -3983.9055570918 [K])
 
 
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -1188,8 +1188,8 @@ Total CPU timings:
 ===========================================
 initialization:                     0 [s]
 equilibration:                      0 [s]
-production run:              6.505262 [s]
-total time:                  6.505262 [s]
+production run:               5.63455 [s]
+total time:                   5.63455 [s]
 
 Production run CPU timings of the MC moves:
 ===========================================
@@ -1207,7 +1207,7 @@ Component: 0 (CO2)
 	swap (deletion):                                     0 [s]
 	swap lambda (CFMC):                                  0 [s]
 	swap lambda (CB/CFMC):                               0 [s]
-	Widom:                                        6.498122 [s]
+	Widom:                                        5.628237 [s]
 	CF-Widom:                                            0 [s]
 	Gibbs Widom:                                         0 [s]
 	surface area:                                        0 [s]
@@ -1234,7 +1234,7 @@ Total all components:
 	swap (deletion):                                     0 [s]
 	swap lambda (CFMC):                                  0 [s]
 	swap lambda (CB/CFMC):                               0 [s]
-	Widom:                                        6.498122 [s]
+	Widom:                                        5.628237 [s]
 	CF-Widom:                                            0 [s]
 	Gibbs Widom:                                         0 [s]
 	surface area:                                        0 [s]
@@ -1279,7 +1279,7 @@ Particles moves:
 	swap (deletion):                                     0 [s]
 	swap lambda (CFMC):                                  0 [s]
 	swap lambda (CB/CFMC):                               0 [s]
-	Widom:                                        6.498122 [s]
+	Widom:                                        5.628237 [s]
 	CF-Widom:                                            0 [s]
 	Gibbs Widom:                                         0 [s]
 	surface area:                                        0 [s]
@@ -2406,23 +2406,23 @@ Component 0 [CO2]
 
 Average Widom Rosenbluth factor:
 ================================
-	Block[ 0] 12.6988 [-]
-	Block[ 1] 12.4211 [-]
-	Block[ 2] 14.1071 [-]
-	Block[ 3] 12.6026 [-]
-	Block[ 4] 14.1766 [-]
+	Block[ 0] 12.5254 [-]
+	Block[ 1] 12.8631 [-]
+	Block[ 2] 13.2145 [-]
+	Block[ 3] 13.5631 [-]
+	Block[ 4] 13.1644 [-]
 	------------------------------------------------------------------------------
-	[CO2] Average Widom Rosenbluth-weight:   13.2012 +/- 1.546936 [-]
+	[CO2] Average Widom Rosenbluth-weight:   13.0661 +/- 0.699878 [-]
 
 Average Widom chemical potential:
 =================================
-	Block[ 0] -5000.51 [-]
-	Block[ 1] -4991.67 [-]
-	Block[ 2] -5042.58 [-]
-	Block[ 3] -4997.47 [-]
-	Block[ 4] -5044.54 [-]
+	Block[ 0] -4995.01 [-]
+	Block[ 1] -5005.65 [-]
+	Block[ 2] -5016.43 [-]
+	Block[ 3] -5026.85 [-]
+	Block[ 4] -5014.91 [-]
 	------------------------------------------------------------------------------
-	[CO2] Average chemical potential:   -5015.35 +/- 46.428801 [K]
+	[CO2] Average chemical potential:   -5011.77 +/- 21.490642 [K]
 
 Average Widom Ideal-gas contribution:
 =====================================
@@ -2436,13 +2436,13 @@ Average Widom Ideal-gas contribution:
 
 Average Widom excess contribution:
 ==================================
-	Block[ 0] -1016.6 [-]
-	Block[ 1] -1007.76 [-]
-	Block[ 2] -1058.67 [-]
-	Block[ 3] -1013.56 [-]
-	Block[ 4] -1060.64 [-]
+	Block[ 0] -1011.1 [-]
+	Block[ 1] -1021.75 [-]
+	Block[ 2] -1032.53 [-]
+	Block[ 3] -1042.94 [-]
+	Block[ 4] -1031.01 [-]
 	------------------------------------------------------------------------------
-	[CO2] Average Widom excess chemical potential:   -1031.45 +/- 46.428801 [-]
+	[CO2] Average Widom excess chemical potential:   -1027.87 +/- 21.490642 [-]
 
 Average Gibbs Widom Rosenbluth factor:
 ======================================
@@ -2486,29 +2486,29 @@ Average Gibbs Widom excess contribution:
 
 Average Henry coefficient:
 ==========================
-	Block[ 0] 4.17598e-06 [mol/kg/Pa]
-	Block[ 1] 4.08468e-06 [mol/kg/Pa]
-	Block[ 2] 4.63911e-06 [mol/kg/Pa]
-	Block[ 3] 4.14437e-06 [mol/kg/Pa]
-	Block[ 4] 4.66196e-06 [mol/kg/Pa]
+	Block[ 0] 4.11898e-06 [mol/kg/Pa]
+	Block[ 1] 4.23003e-06 [mol/kg/Pa]
+	Block[ 2] 4.34559e-06 [mol/kg/Pa]
+	Block[ 3] 4.46023e-06 [mol/kg/Pa]
+	Block[ 4] 4.32911e-06 [mol/kg/Pa]
 	------------------------------------------------------------------------------
-	[CO2] Average Henry coefficient:  4.34122e-06 +/- 5.0871e-07 [mol/kg/Pa]
+	[CO2] Average Henry coefficient:  4.29679e-06 +/- 2.30155e-07 [mol/kg/Pa]
 
 Average adsorption energy <U_gh>_1-<U_h>_0 obtained from Widom-insertion:
 (Note: the total heat of adsorption is dH=<U_gh>_1-<U_h>_0 - <U_g> - RT)
 =========================================================================
-	Block[ 0] -1857.3935701416   [K]
-	Block[ 1] -1837.0846210241   [K]
-	Block[ 2] -1894.9456687522   [K]
-	Block[ 3] -1905.2313051416   [K]
-	Block[ 4] -1954.2346324822   [K]
+	Block[ 0] -1893.1081982369   [K]
+	Block[ 1] -1890.8434114325   [K]
+	Block[ 2] -1853.3684375797   [K]
+	Block[ 3] -1913.0481711154   [K]
+	Block[ 4] -1857.5804336631   [K]
 	------------------------------------------------------------------------------
-	[CO2] Average  <U_gh>_1-<U_h>_0:    -1889.7779595084 +/-      81.2182757573 [K]       (    -15.7124925490 +/-       0.6752865046 kJ/mol)
+	[CO2] Average  <U_gh>_1-<U_h>_0:    -1881.5897304055 +/-      45.4385466709 [K]       (    -15.6444118054 +/-       0.3777972023 kJ/mol)
 
 Simulation finished,  0 warnings
 
 
-Fri Nov 13 17:02:08 2020
-Simulation finished on Friday, November 13.
-The end time was 05:02 PM.
+Mon Nov 16 20:13:27 2020
+Simulation finished on Monday, November 16.
+The end time was 08:13 PM.
 
