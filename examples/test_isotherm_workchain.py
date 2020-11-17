@@ -31,7 +31,7 @@ def mg_mof74_cifdata():
 
 
 def run_isotherm_mg_mof74(raspa_code, zeopp_code, mg_mof74_cifdata):  # pylint: disable=redefined-outer-name
-    """Test Isotherm workchain on MOF 74."""
+    """Run Isotherm workchain on MOF 74."""
 
     builder = IsothermWorkChain.get_builder()
 
@@ -74,7 +74,7 @@ def run_isotherm_mg_mof74(raspa_code, zeopp_code, mg_mof74_cifdata):  # pylint: 
 @cmdline.utils.decorators.with_dbenv()
 @click.option('--raspa-code', type=cmdline.params.types.CodeParamType())
 @click.option('--zeopp-code', type=cmdline.params.types.CodeParamType())
-def cli(raspa_code, zeopp_code, cif):
+def cli(raspa_code, zeopp_code):
     """Run example.
 
     Example usage: $ ./test_isotherm_workchain.py --raspa-code raspa-4467e14@fidis --zeopp-code zeopp-46ce745@fidis

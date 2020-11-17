@@ -22,7 +22,7 @@ def cp2k_code(mock_code_factory):
         data_dir_abspath=DATA_DIR,
         entry_point='cp2k',
         # files *not* to copy into the data directory
-        ignore_files=('_aiidasubmit.sh'))
+        ignore_paths=('_aiidasubmit.sh', 'BASIS_MOLOPT', 'GTH_POTENTIALS', 'dftd3.dat', '*.bak*'))
 
 
 @pytest.fixture(scope='function')
@@ -44,4 +44,4 @@ def zeopp_code(mock_code_factory):
         data_dir_abspath=DATA_DIR,
         entry_point='zeopp.network',
         # files *not* to copy into the data directory
-        ignore_files=('_aiidasubmit.sh', 'UFF.rad'))
+        ignore_paths=('_aiidasubmit.sh', 'UFF.rad'))
