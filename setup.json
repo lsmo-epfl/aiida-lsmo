@@ -18,7 +18,8 @@
         "aiida-zeopp~=1.0,>=1.0.3",
         "aiida-raspa~=1.1",
         "calc-pe~=1.0,>=1.0.1",
-        "ruamel.yaml~=0.16.5"
+        "ruamel.yaml~=0.16.5",
+        "ase<3.20"
     ],
     "entry_points": {
         "aiida.calculations": [
