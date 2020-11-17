@@ -55,7 +55,7 @@
     "extras_require": {
         "testing": [
             "pgtest~=1.3.1",
-            "aiida-testing @  git+https://github.com/ltalirz/aiida-testing@8fd5b7e4fc59256770d2c66690edd8820b36a3b1#egg=aiida-testing",
+            "aiida-testing @  git+https://github.com/ltalirz/aiida-testing@9eed55498f500a7ab4be8cba9d8cac1333334179#egg=aiida-testing",
             "pytest-cov~=2.7"
 
         ],

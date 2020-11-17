@@ -443,7 +443,7 @@ What it can not do:
 IsothermCalcPE work chain
 ++++++++++++++++++++++++++
 
-The :py:func:`~aiida_lsmo.workchains.isotherm_calc_pe.IsothermCalcPEWorkChain` work chain takes as an input a structure
+The :py:class:`~aiida_lsmo.workchains.isotherm_calc_pe.IsothermCalcPEWorkChain` work chain takes as an input a structure
 with partial charges, computes the isotherms for CO2 and N2 at
 ambient temperature and models the process of carbon capture and compression for geological sequestration.
 The final outcome informs about the performance of the adsorbent for this application, including the CO2 parasitic energy,
@@ -453,10 +453,10 @@ Default input mixture is coal post-combustion flue gas, but also natural gas pos
 .. aiida-workchain:: IsothermCalcPEWorkChain
     :module: aiida_lsmo.workchains
 
-Multistage work chain
-++++++++++++++++++++++
+CP2K multistage work chain
+++++++++++++++++++++++++++++
 
-The :py:func:`~aiida_lsmo.workchains.cp2k_multistage.Cp2kMultistageWorkChain` work chain in meant to automate
+The :py:class:`~aiida_lsmo.workchains.cp2k_multistage.Cp2kMultistageWorkChain` work chain in meant to automate
 DFT optimizations in CP2K and guess some good parameters
 for the simulation, but it is written in such a versatile fashion that it can be used for many other functions.
 
