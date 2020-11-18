@@ -2,15 +2,16 @@
 # -*- coding: utf-8 -*-
 """Run example two-component isotherm calculation with HKUST1 framework."""
 
-from __future__ import absolute_import
-from __future__ import print_function
-
 import os
 import click
+import pytest
 
-from aiida.engine import run
+from aiida import engine
 from aiida.plugins import DataFactory, WorkflowFactory
-from aiida.orm import Code, Dict
+from aiida.orm import Dict
+from aiida import cmdline
+
+from . import DATA_DIR
 
 # Workchain objects
 MulticompAdsDesWorkChain = WorkflowFactory('lsmo.multicomp_ads_des')  # pylint: disable=invalid-name
@@ -21,19 +22,24 @@ NetworkParameters = DataFactory('zeopp.parameters')  # pylint: disable=invalid-n
 SinglefileData = DataFactory('singlefile')
 
 
-@click.command('cli')
-@click.argument('raspa_code_label')
-@click.argument('zeopp_code_label')
-def main(raspa_code_label, zeopp_code_label):
-    """Prepare inputs and submit the Isotherm workchain.
-    Usage: verdi run run_IsothermMultiCompWorkChain_HKUST-1.py raspa@localhost network@localhost"""
+@pytest.fixture(scope='function')
+def hkust_1_cifdata():
+    """CifData for HKUST-1."""
+    with open(os.path.join(DATA_DIR, 'HKUST-1.cif'), 'rb') as handle:
+        cif = CifData(file=handle, label='HKUST-1')
+
+    return cif
+
+
+def run_multicomp_ads_des_hkust_1(raspa_code, zeopp_code, hkust_1_cifdata):  # pylint: disable=redefined-outer-name
+    """Prepare inputs and submit the Isotherm workchain."""
 
     builder = MulticompAdsDesWorkChain.get_builder()
 
     builder.metadata.label = 'test'
 
-    builder.raspa_base.raspa.code = Code.get_from_string(raspa_code_label)
-    builder.zeopp.code = Code.get_from_string(zeopp_code_label)
+    builder.raspa_base.raspa.code = raspa_code
+    builder.zeopp.code = zeopp_code
 
     options = {
         'resources': {
@@ -45,7 +51,7 @@ def main(raspa_code_label, zeopp_code_label):
     }
     builder.raspa_base.raspa.metadata.options = options
     builder.zeopp.metadata.options = options
-    builder.structure = CifData(file=os.path.abspath('data/HKUST-1.cif'), label='HKUST-1')
+    builder.structure = hkust_1_cifdata
     builder.conditions = Dict(
         dict={
             'molfraction': {
@@ -71,10 +77,31 @@ def main(raspa_code_label, zeopp_code_label):
             'raspa_gcmc_prod_cycles': 100,  # Default: 1e4
         })
 
-    run(builder)
+    results = engine.run(builder)
+
+    params = results['output_parameters'].get_dict()
+
+    # checking results
+    assert params['loading_absolute_average']['Kr'][1] == pytest.approx(0.02, abs=0.02)
+    assert params['loading_absolute_average']['Xe'][1] == pytest.approx(0.74, abs=0.2)
+
+
+@click.command()
+@cmdline.utils.decorators.with_dbenv()
+@click.option('--raspa-code', type=cmdline.params.types.CodeParamType())
+@click.option('--zeopp-code', type=cmdline.params.types.CodeParamType())
+def cli(raspa_code, zeopp_code):
+    """Run example.
+
+    Example usage: $ ./test_MulticompAdsDesWorkChain_HKUST-1.py --raspa-code ... --zeopp-code ...
+
+    Help: $ ./test_MulticompAdsDesWorkChain_HKUST.py --help
+    """
+    with open(os.path.join(DATA_DIR, 'HKUST-1.cif'), 'rb') as handle:
+        cif = CifData(file=handle)
+
+    run_multicomp_ads_des_hkust_1(raspa_code, zeopp_code, cif)
 
 
 if __name__ == '__main__':
-    main()  # pylint: disable=no-value-for-parameter
-
-# EOF
+    cli()  # pylint: disable=no-value-for-parameter
