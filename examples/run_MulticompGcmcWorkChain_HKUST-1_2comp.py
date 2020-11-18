@@ -47,7 +47,7 @@ def main(raspa_code_label, zeopp_code_label):
             'xenon': 0.2,
             'krypton': 0.8,
         },
-        'tp_gcmc': [
+        'temp_press': [
             [200, 0.1],
             [300, 0.5],
             [400, 1.0],

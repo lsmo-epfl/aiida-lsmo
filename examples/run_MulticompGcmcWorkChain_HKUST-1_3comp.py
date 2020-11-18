@@ -48,7 +48,7 @@ def main(raspa_code_label, zeopp_code_label):
             'ethene': 0.3,
             'ethane': 0.5,
         },
-        'tp_gcmc': [
+        'temp_press': [
             [200, 0.1],
             [300, 0.5],
             [400, 0.7],
