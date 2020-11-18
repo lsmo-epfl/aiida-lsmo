@@ -2,10 +2,12 @@
 # -*- coding: utf-8 -*-
 """Run example 3-components GCMC in a box, at 3 different T/P conditions."""
 import click
+import pytest
 
-from aiida.engine import run
+from aiida import engine
 from aiida.plugins import DataFactory, WorkflowFactory
-from aiida.orm import Code, Dict
+from aiida.orm import Dict
+from aiida import cmdline
 
 # Workchain objects
 MulticompGcmcWorkChain = WorkflowFactory('lsmo.multicomp_gcmc')  # pylint: disable=invalid-name
@@ -14,19 +16,15 @@ MulticompGcmcWorkChain = WorkflowFactory('lsmo.multicomp_gcmc')  # pylint: disab
 CifData = DataFactory('cif')  # pylint: disable=invalid-name
 
 
-@click.command('cli')
-@click.argument('raspa_code_label')
-@click.argument('zeopp_code_label')
-def main(raspa_code_label, zeopp_code_label):
-    """Prepare inputs and submit the workchain.
-    Usage: verdi run run_thisworkchainexample.py raspa@localhost zeopp@localhost"""
+def run_multicomp_gcmc_box(raspa_code, zeopp_code):  # pylint: disable=redefined-outer-name
+    """Prepare inputs and submit the workchain."""
 
     builder = MulticompGcmcWorkChain.get_builder()
 
     builder.metadata.label = 'test'
 
-    builder.raspa_base.raspa.code = Code.get_from_string(raspa_code_label)
-    builder.zeopp.code = Code.get_from_string(zeopp_code_label)
+    builder.raspa_base.raspa.code = raspa_code
+    builder.zeopp.code = zeopp_code
 
     options = {
         'resources': {
@@ -56,10 +54,24 @@ def main(raspa_code_label, zeopp_code_label):
         'raspa_gcmc_prod_cycles': 1000,  # Default: 1e4
     })
 
-    run(builder)
+    results = engine.run(builder)
+    import pdb
+    pdb.set_trace()
+
+
+@click.command()
+@cmdline.utils.decorators.with_dbenv()
+@click.option('--raspa-code', type=cmdline.params.types.CodeParamType())
+@click.option('--zeopp-code', type=cmdline.params.types.CodeParamType())
+def cli(raspa_code, zeopp_code):
+    """Run example.
+
+    Example usage: $ ./test_MulticompGcmcWorkChain_Box_3comp.py --raspa-code ... --zeopp-code ...
+
+    Help: $ ./test_MulticompGcmcWorkChain_Box_3comp.py --help
+    """
+    run_multicomp_gcmc_box(raspa_code, zeopp_code)
 
 
 if __name__ == '__main__':
-    main()  # pylint: disable=no-value-for-parameter
-
-# EOF
+    cli()  # pylint: disable=no-value-for-parameter
