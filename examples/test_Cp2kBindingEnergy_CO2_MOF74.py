@@ -1,0 +1,98 @@
+# -*- coding: utf-8 -*-
+# pylint: disable=invalid-name
+""" Test/example for the BindingEnergyWorkChain"""
+
+import pytest
+import click
+import ase.build
+
+from aiida.plugins import DataFactory, WorkflowFactory
+from aiida import cmdline
+from aiida import engine
+from aiida.orm import Dict, StructureData, Str, SinglefileData
+from . import DATA_DIR
+
+# Workchain objects
+BindingEnergyWorkChain = WorkflowFactory('lsmo.cp2k_binding_energy')
+
+# Data objects
+StructureData = DataFactory('structure')
+
+
+@pytest.fixture(scope='function')
+def zn_mof74():
+    """StructureData for MOF 74."""
+    return StructureData(ase=ase.io.read(DATA_DIR / 'Zn-MOF-74.cif'))
+
+
+@pytest.fixture(scope='function')
+def co2_in_mof74():
+    """StructureData for CO2 in Zn-MOF-74."""
+    return StructureData(ase=ase.io.read(DATA_DIR / 'CO2_in_Zn-MOF-74.cif'))
+
+
+def run_binding_energy_co2_mof74(cp2k_code, zn_mof74, co2_in_mof74):  # pylint: disable=redefined-outer-name
+    """Compute binding energy of CO2 in MOF 74"""
+
+    print('Testing CP2K BindingEnergy work chain for CO2 in Zn-MOF-74 ...')
+    print('[NOTE: this test will run on 4 cpus and take ca. 10 minutes]')
+
+    # Construct process builder
+    builder = BindingEnergyWorkChain.get_builder()
+    builder.structure = zn_mof74
+    builder.molecule = co2_in_mof74
+    builder.protocol_tag = Str('test')
+    builder.cp2k_base.cp2k.parameters = Dict(dict={ # Lowering CP2K default setting for a faster test calculation
+        'FORCE_EVAL': {
+            'DFT': {
+                'SCF': {
+                    'EPS_SCF': 1.0E-4,
+                    'OUTER_SCF': {
+                        'EPS_SCF': 1.0E-4,
+                    },
+                },
+            },
+        },
+        'MOTION': {
+            'GEO_OPT': {
+                'MAX_ITER': 5
+            }
+        },
+    })
+    builder.cp2k_base.cp2k.code = cp2k_code
+    builder.cp2k_base.cp2k.metadata.options.resources = {
+        'num_machines': 1,
+        'num_mpiprocs_per_machine': 4,
+    }
+    builder.cp2k_base.cp2k.metadata.options.max_wallclock_seconds = 1 * 5 * 60
+
+    # The following is not needed, if the files are available in the data directory of your CP2K executable
+    CP2K_DIR = DATA_DIR / 'cp2k'
+    builder.cp2k_base.cp2k.file = {
+        'basis': SinglefileData(file=str(CP2K_DIR / 'BASIS_MOLOPT')),
+        'pseudo': SinglefileData(file=str(CP2K_DIR / 'GTH_POTENTIALS')),
+        'dftd3': SinglefileData(file=str(CP2K_DIR / 'dftd3.dat')),
+    }
+
+    results = engine.run(builder)
+
+    params = results['output_parameters'].get_dict()
+    assert params['binding_energy_raw'] == pytest.approx(-24.86, abs=0.01)
+    assert params['motion_step_info']['scf_converged'][-1]
+
+
+@click.command()
+@cmdline.utils.decorators.with_dbenv()
+@click.option('--cp2k-code', type=cmdline.params.types.CodeParamType())
+def cli(cp2k_code):
+    """Run example.
+
+    Example usage: $ ./test_multistage_aluminum.py --cp2k-code my-cp2k@myhost
+    """
+    run_binding_energy_co2_mof74(cp2k_code,
+                                 zn_mof74=StructureData(ase=ase.io.read(DATA_DIR / 'Zn-MOF-74.cif')),
+                                 co2_in_mof74=StructureData(ase=ase.io.read(DATA_DIR / 'CO2_in_Zn-MOF-74.cif')))
+
+
+if __name__ == '__main__':
+    cli()  # pylint: disable=no-value-for-parameter
