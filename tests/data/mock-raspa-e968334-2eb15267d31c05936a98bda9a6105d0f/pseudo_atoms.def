@@ -1,0 +1,5 @@
+# number of pseudo atoms
+2
+#type print as chem oxidation mass charge polarization B-factor radii connectivity anisotropic anisotropic-type tinker-type
+Kr_gas yes Kr Kr 0 83.8 0.0 0.0 1.0 1.0 0 0 relative 0
+Xe_gas yes Xe Xe 0 131.29 0.0 0.0 1.0 1.0 0 0 relative 0

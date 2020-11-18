@@ -1,0 +1,48 @@
+Loading radii. 
+High accuracy requested (DEF (default) settings). 
+Selected accuracy setting: DEF
+Opening File: HKUST-1.cif
+Radii analysis: the smallest atom r = 1.286 while the largest atoms r = 1.715.
+Starting Voronoi decomposition
+Box dimensions:
+  va=(26.343000 0 0)
+  vb=(0.000000 26.343000 0)
+  vc=(0.000000 0.000000 26.343000)
+
+Total particles = 16464
+
+Internal grid size = (13 13 13)
+
+Using voro++ with radii for particles.
+Performing Voronoi decomposition.
+Volume check:
+  Total domain volume  = 18280.820976
+  Total Voronoi volume = 18280.820976
+Voronoi decomposition finished. Rerouting Voronoi network information.
+Finished rerouting information.
+Finished Voronoi decomposition
+Command 0  -r
+Command 1  -ha
+Command 2  -block
+Box dimensions:
+  va=(26.343000 0 0)
+  vb=(0.000000 26.343000 0)
+  vc=(0.000000 0.000000 26.343000)
+
+Total particles = 16464
+
+Internal grid size = (13 13 13)
+
+Using voro++ with radii for particles.
+Performing Voronoi decomposition.
+Volume check:
+  Total domain volume  = 18280.820976
+  Total Voronoi volume = 18280.820976
+Voronoi decomposition finished. Rerouting Voronoi network information.
+Finished rerouting information.
+Voronoi network with 85527 nodes. 8640 of them are accessible. 
+
+Finding channels and pockets in Dijkstra network of 85527 node(s). 8640 are expected to compose pores.
+Analyzed and assigned 85527 nodes.
+Identified 1 channels and 0 pockets.
+8640 nodes assigned to pores. 
