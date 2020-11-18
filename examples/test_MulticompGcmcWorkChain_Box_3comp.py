@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 """Run example 3-components GCMC in a box, at 3 different T/P conditions."""
 import click
-import pytest
 
 from aiida import engine
 from aiida.plugins import DataFactory, WorkflowFactory
@@ -42,7 +41,7 @@ def run_multicomp_gcmc_box(raspa_code, zeopp_code):  # pylint: disable=redefined
             'ethene': 0.3,
             'ethane': 0.5,
         },
-        'tp_gcmc': [
+        'temp_press': [
             [200, 0.1],
             [300, 0.5],
             [400, 0.7],
@@ -55,8 +54,10 @@ def run_multicomp_gcmc_box(raspa_code, zeopp_code):  # pylint: disable=redefined
     })
 
     results = engine.run(builder)
-    import pdb
-    pdb.set_trace()
+
+    params = results['output_parameters'].get_dict()
+    for molecule in ['CO', 'C2H4', 'C2H6']:
+        assert molecule in params['loading_absolute_average']
 
 
 @click.command()

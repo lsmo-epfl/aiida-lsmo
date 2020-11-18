@@ -1,0 +1,3 @@
+Writing Crash-file!: 0
+Writing Crash-file!: 0
+Writing Crash-file!: 1000
