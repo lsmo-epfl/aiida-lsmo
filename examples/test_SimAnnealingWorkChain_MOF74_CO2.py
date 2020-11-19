@@ -29,7 +29,7 @@ def zn_mof74_cifdata():
     return cif
 
 
-def run_isotherm_mg_mof74(raspa_code, zn_mof74_cifdata):  # pylint: disable=redefined-outer-name
+def run_sim_annealing_zn_mof74(raspa_code, zn_mof74_cifdata):  # pylint: disable=redefined-outer-name
     """Prepare inputs and submit the work chain."""
 
     builder = SimAnnealingWorkChain.get_builder()
@@ -67,7 +67,7 @@ def cli(raspa_code):
     with open(os.path.join(DATA_DIR, 'Zn-MOF-74.cif.cif'), 'rb') as handle:
         cif = CifData(file=handle)
 
-    run_isotherm_mg_mof74(raspa_code, cif)
+    run_sim_annealing_zn_mof74(raspa_code, cif)
 
 
 if __name__ == '__main__':

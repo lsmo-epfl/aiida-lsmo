@@ -25,11 +25,21 @@ If you are changing the inputs for one or more of the simulation codes, you will
 
         mock_code:
          # code-label: absolute path
-         cp2k-7.1: /path/to/cp2k-7.1-Linux-x86_64.ssmp
+         cp2k-7.1: /path/to/cp2k-7.1-Linux-x86_64.popt
          zeopp-0.3: /path/to/zeoplusplus/network
          raspa-e968334: /path/to/RASPA2/src/.libs/simulate
 
     where the code labels need to correspond to the ones used in the pytest fixtures defined in the top-level ``conftest.py``.
+
+    .. note:: The tests currently assume a serial cp2k executable (``.sopt`` or ``.ssmp`` extension).
+
+ 3. Rerun the corresponding test with ``--mock-regenerate-test-data``, e.g.
+
+    .. code-block:: console
+
+        pytest examples/test_multistage_aluminum.py --mock-regenerate-test-data
+
+
 
 While running the tests, ``aiida-testing`` will then automatically run the simulation code for new inputs as needed and store its outputs in ``tests/data``
 

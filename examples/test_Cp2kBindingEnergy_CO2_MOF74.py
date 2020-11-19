@@ -35,7 +35,6 @@ def run_binding_energy_co2_mof74(cp2k_code, zn_mof74, co2_in_mof74):  # pylint: 
     """Compute binding energy of CO2 in MOF 74"""
 
     print('Testing CP2K BindingEnergy work chain for CO2 in Zn-MOF-74 ...')
-    print('[NOTE: this test will run on 4 cpus and take ca. 10 minutes]')
 
     # Construct process builder
     builder = BindingEnergyWorkChain.get_builder()
@@ -62,8 +61,9 @@ def run_binding_energy_co2_mof74(cp2k_code, zn_mof74, co2_in_mof74):  # pylint: 
     builder.cp2k_base.cp2k.code = cp2k_code
     builder.cp2k_base.cp2k.metadata.options.resources = {
         'num_machines': 1,
-        'num_mpiprocs_per_machine': 4,
+        'num_mpiprocs_per_machine': 1,  # increase this to 4 in order to speed up the calculation
     }
+    builder.cp2k_base.cp2k.metadata.options.withmpi = False  # comment this for parallel cp2k executable
     builder.cp2k_base.cp2k.metadata.options.max_wallclock_seconds = 1 * 5 * 60
 
     # The following is not needed, if the files are available in the data directory of your CP2K executable
