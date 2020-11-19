@@ -1,7 +1,7 @@
  # Version information for this restart file 
- # current date 2020-11-17 11:40:44.254
- # current working dir /private/var/folders/8y/7c7qkxcx5vxb749rt3sw5sh40000gp/T/tmpj0jjpx93/b7/f1/9e3e-e2c6-4515-8883-272e98092e48
- # Program compiled at                              Tue Nov 17 02:47:52 CET 2020
+ # current date 2020-11-20 03:53:02.013
+ # current working dir /private/var/folders/8y/7c7qkxcx5vxb749rt3sw5sh40000gp/T/tmpc2_oypr1/7e/b6/f9fd-ec41-4ba6-af30-d1af71b3012d
+ # Program compiled at                              Tue Nov 17 02:38:14 CET 2020
  # Program compiled on                                             B126028.local
  # Program compiled for                           Darwin-IntelMacintosh-gfortran
  # Source code revision number                                         svn:18464
@@ -153,10 +153,10 @@
        MULTIPLE_UNIT_CELL  1 1 1
      &END CELL
      &COORD
-Al    5.9944325295952837E-12    5.9942760915690189E-12    5.9938526194973291E-12
-Al    5.7204718808558822E-12    2.0247899999992156E+00    2.0247899999992258E+00
-Al    2.0247899999992169E+00    5.7188836773711908E-12    2.0247899999992081E+00
-Al    2.0247899999992125E+00    2.0247899999992174E+00    5.7170422110579549E-12
+Al    5.9965456415280766E-12    5.9935569190512216E-12    6.0043735177100579E-12
+Al    5.7232188971673055E-12    2.0247899999992125E+00    2.0247899999992192E+00
+Al    2.0247899999992192E+00    5.7206044250564767E-12    2.0247899999992063E+00
+Al    2.0247899999992129E+00    2.0247899999992227E+00    5.7092644682440532E-12
      &END COORD
      &KIND Al
        BASIS_SET DZVP-MOLOPT-SR-GTH-q3
