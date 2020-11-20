@@ -5,11 +5,61 @@ import shutil
 import os
 from math import sqrt
 import ruamel.yaml as yaml
+from voluptuous import Schema, Optional, Any
 
 from aiida.orm import SinglefileData
 from aiida.engine import calcfunction
 
 THISDIR = os.path.dirname(os.path.abspath(__file__))
+
+# BEGIN Schema for ff_data.yml
+NUMBER = Any(int, float)
+FRAMEWORK_FF_SCHEMA = Schema(
+    {
+        'description': str,
+        'atom_types': dict,
+    },
+    required=True,
+)
+
+MOLECULE_FF_SCHEMA = Schema(
+    {
+        'description': str,
+        'atom_types': {
+            str: {
+                'force_field':
+                    Any(['lennard-jones', NUMBER, NUMBER], ['feynman-hibbs-lennard-jones', NUMBER, NUMBER, NUMBER],
+                        ['none'], 'dummy_separate'),
+                'pseudo_atom':
+                    list,
+                Optional('force_field_mix'):
+                    list,
+            }
+        },
+        'atomic_positions': Any([[str, NUMBER, NUMBER, NUMBER]], 'flexible')
+    },
+    required=True)
+
+MOLECULE_SCHEMA = Schema({
+    'critical_constants': {
+        'tc': NUMBER,
+        'pc': NUMBER,
+        'af': NUMBER,
+    },
+    str: MOLECULE_FF_SCHEMA,
+},
+                         required=True)
+
+FF_DATA_SCHEMA = Schema(
+    {
+        'framework': {
+            str: FRAMEWORK_FF_SCHEMA,
+        },
+        str: MOLECULE_SCHEMA,
+    },
+    required=True,
+)
+# END Schema for ff_data.yml
 
 
 def check_ff_list(inp_list):
@@ -33,8 +83,11 @@ def check_ff_list(inp_list):
 def load_yaml():
     """Load the ff_data.yaml as a dict."""
     yamlfullpath = os.path.join(THISDIR, 'ff_data.yaml')
+
     with open(yamlfullpath, 'r') as stream:
         ff_data = yaml.safe_load(stream)
+
+    FF_DATA_SCHEMA(ff_data)
     return ff_data
 
 
