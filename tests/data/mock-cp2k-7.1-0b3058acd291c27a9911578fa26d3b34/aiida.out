@@ -6,19 +6,19 @@
  DBCSR| Multiplication size stacks                                             3
 
 
-  **** **** ******  **  PROGRAM STARTED AT               2020-11-17 11:39:57.742
+  **** **** ******  **  PROGRAM STARTED AT               2020-11-20 03:52:02.688
  ***** ** ***  *** **   PROGRAM STARTED ON                         B126028.local
  **    ****   ******    PROGRAM STARTED BY                               leopold
- ***** **    ** ** **   PROGRAM PROCESS ID                                 30398
+ ***** **    ** ** **   PROGRAM PROCESS ID                                 86369
   **** **  *******  **  PROGRAM STARTED IN /private/var/folders/8y/7c7qkxcx5vxb7
-                                           49rt3sw5sh40000gp/T/tmpj0jjpx93/49/46
-                                           /6400-1b4e-4cb4-8122-c5b2e53e04ec
+                                           49rt3sw5sh40000gp/T/tmpc2_oypr1/f7/87
+                                           /c899-593f-48d6-b4c4-b5a71c58ce48
 
  CP2K| version string:                                          CP2K version 6.1
  CP2K| source code revision number:                                    svn:18464
- CP2K| cp2kflags: omp libint fftw3 libxc no_statm_access accelerate             
+ CP2K| cp2kflags: libint fftw3 libxc no_statm_access accelerate                 
  CP2K| is freely available from                            https://www.cp2k.org/
- CP2K| Program compiled at                          Tue Nov 17 02:47:52 CET 2020
+ CP2K| Program compiled at                          Tue Nov 17 02:38:14 CET 2020
  CP2K| Program compiled on                                         B126028.local
  CP2K| Program compiled for                       Darwin-IntelMacintosh-gfortran
  CP2K| Data directory path    /private/tmp/cp2k-20201117-55277-73z00v/cp2k-6.1/d
@@ -38,7 +38,7 @@
  GLOBAL| FFTs using library dependent lengths                                  F
  GLOBAL| Global print level                                               MEDIUM
  GLOBAL| Total number of message passing processes                             1
- GLOBAL| Number of threads for this process                                    8
+ GLOBAL| Number of threads for this process                                    1
  GLOBAL| This output is from process                                           0
  GLOBAL| CPU model name : UNKNOWN
 
@@ -492,73 +492,73 @@
 
   Step     Update method      Time    Convergence         Total energy    Change
   ------------------------------------------------------------------------------
-     1 OT DIIS     0.15E+00    0.4     0.15126035        -7.4977052922 -7.50E+00
-     2 OT DIIS     0.15E+00    0.4     0.12005390        -7.8659378740 -3.68E-01
-     3 OT DIIS     0.15E+00    0.4     0.05498183        -8.0172884534 -1.51E-01
-     4 OT DIIS     0.15E+00    0.4     0.02044288        -8.0549043627 -3.76E-02
-     5 OT DIIS     0.15E+00    0.5     0.01051811        -8.0629423160 -8.04E-03
-     6 OT DIIS     0.15E+00    0.5     0.00831552        -8.0662781061 -3.34E-03
-     7 OT DIIS     0.15E+00    0.5     0.00562066        -8.0687417941 -2.46E-03
-     8 OT DIIS     0.15E+00    0.4     0.00480764        -8.0704005146 -1.66E-03
-     9 OT DIIS     0.15E+00    0.5     0.00437986        -8.0716287493 -1.23E-03
-    10 OT DIIS     0.15E+00    0.5     0.00372917        -8.0731235716 -1.49E-03
-    11 OT DIIS     0.15E+00    0.4     0.00227883        -8.0754021777 -2.28E-03
-    12 OT DIIS     0.15E+00    0.5     0.00144387        -8.0757532353 -3.51E-04
-    13 OT DIIS     0.15E+00    0.4     0.00085302        -8.0759815078 -2.28E-04
-    14 OT DIIS     0.15E+00    0.5     0.00040141        -8.0760046097 -2.31E-05
-    15 OT DIIS     0.15E+00    0.4     0.00026959        -8.0760076134 -3.00E-06
-    16 OT DIIS     0.15E+00    0.6     0.00014929        -8.0760102986 -2.69E-06
-    17 OT DIIS     0.15E+00    0.4     0.00010709        -8.0760111131 -8.15E-07
-    18 OT DIIS     0.15E+00    0.5     0.00006719        -8.0760115805 -4.67E-07
-    19 OT DIIS     0.15E+00    0.5     0.00003995        -8.0760117832 -2.03E-07
-    20 OT DIIS     0.15E+00    0.5     0.00003209        -8.0760118890 -1.06E-07
-    21 OT DIIS     0.15E+00    0.4     0.00002858        -8.0760119327 -4.38E-08
-    22 OT DIIS     0.15E+00    0.5     0.00001778        -8.0760119910 -5.83E-08
-    23 OT DIIS     0.15E+00    0.5     0.00001146        -8.0760120310 -4.00E-08
-    24 OT DIIS     0.15E+00    0.5     0.00000785        -8.0760120405 -9.44E-09
-    25 OT DIIS     0.15E+00    0.6     0.00000343        -8.0760120467 -6.25E-09
-    26 OT DIIS     0.15E+00    0.5     0.00000227        -8.0760120473 -6.45E-10
-    27 OT DIIS     0.15E+00    0.5     0.00000130        -8.0760120475 -1.14E-10
-    28 OT DIIS     0.15E+00    0.4     0.00000071        -8.0760120475 -4.37E-11
-    29 OT DIIS     0.15E+00    0.5     0.00000063        -8.0760120475 -1.33E-11
-    30 OT DIIS     0.15E+00    0.5     0.00000049        -8.0760120475 -9.51E-12
-    31 OT DIIS     0.15E+00    0.5     0.00000039        -8.0760120475 -1.42E-11
-    32 OT DIIS     0.15E+00    0.4     0.00000030        -8.0760120476 -1.15E-11
-    33 OT DIIS     0.15E+00    0.5     0.00000024        -8.0760120476 -9.73E-12
-    34 OT DIIS     0.15E+00    0.6     0.00000020        -8.0760120476 -5.88E-12
-    35 OT DIIS     0.15E+00    0.6     0.00000018        -8.0760120476 -4.62E-12
-    36 OT DIIS     0.15E+00    0.5     0.00000013        -8.0760120476 -4.39E-12
-    37 OT DIIS     0.15E+00    0.5     0.00000010        -8.0760120476 -4.68E-12
-    38 OT DIIS     0.15E+00    0.5     0.00000007        -8.0760120476 -2.79E-12
+     1 OT DIIS     0.15E+00    0.6     0.15126035        -7.4977052922 -7.50E+00
+     2 OT DIIS     0.15E+00    0.8     0.12005390        -7.8659378740 -3.68E-01
+     3 OT DIIS     0.15E+00    0.8     0.05498183        -8.0172884534 -1.51E-01
+     4 OT DIIS     0.15E+00    0.7     0.02044288        -8.0549043626 -3.76E-02
+     5 OT DIIS     0.15E+00    0.7     0.01051811        -8.0629423160 -8.04E-03
+     6 OT DIIS     0.15E+00    0.8     0.00831552        -8.0662781061 -3.34E-03
+     7 OT DIIS     0.15E+00    0.7     0.00562066        -8.0687417941 -2.46E-03
+     8 OT DIIS     0.15E+00    0.7     0.00480764        -8.0704005146 -1.66E-03
+     9 OT DIIS     0.15E+00    0.8     0.00437986        -8.0716287493 -1.23E-03
+    10 OT DIIS     0.15E+00    0.8     0.00372917        -8.0731235715 -1.49E-03
+    11 OT DIIS     0.15E+00    0.7     0.00227883        -8.0754021777 -2.28E-03
+    12 OT DIIS     0.15E+00    0.7     0.00144387        -8.0757532353 -3.51E-04
+    13 OT DIIS     0.15E+00    0.7     0.00085302        -8.0759815077 -2.28E-04
+    14 OT DIIS     0.15E+00    0.8     0.00040141        -8.0760046097 -2.31E-05
+    15 OT DIIS     0.15E+00    0.7     0.00026959        -8.0760076134 -3.00E-06
+    16 OT DIIS     0.15E+00    0.8     0.00014929        -8.0760102985 -2.69E-06
+    17 OT DIIS     0.15E+00    0.8     0.00010709        -8.0760111130 -8.15E-07
+    18 OT DIIS     0.15E+00    0.7     0.00006719        -8.0760115804 -4.67E-07
+    19 OT DIIS     0.15E+00    0.7     0.00003995        -8.0760117832 -2.03E-07
+    20 OT DIIS     0.15E+00    0.8     0.00003209        -8.0760118889 -1.06E-07
+    21 OT DIIS     0.15E+00    0.7     0.00002858        -8.0760119327 -4.38E-08
+    22 OT DIIS     0.15E+00    0.7     0.00001778        -8.0760119910 -5.83E-08
+    23 OT DIIS     0.15E+00    0.8     0.00001146        -8.0760120310 -4.00E-08
+    24 OT DIIS     0.15E+00    0.8     0.00000785        -8.0760120404 -9.43E-09
+    25 OT DIIS     0.15E+00    0.7     0.00000343        -8.0760120466 -6.25E-09
+    26 OT DIIS     0.15E+00    0.7     0.00000227        -8.0760120473 -6.43E-10
+    27 OT DIIS     0.15E+00    0.8     0.00000130        -8.0760120474 -1.13E-10
+    28 OT DIIS     0.15E+00    0.7     0.00000071        -8.0760120474 -4.23E-11
+    29 OT DIIS     0.15E+00    0.7     0.00000063        -8.0760120475 -1.21E-11
+    30 OT DIIS     0.15E+00    0.8     0.00000049        -8.0760120475 -8.35E-12
+    31 OT DIIS     0.15E+00    0.8     0.00000039        -8.0760120475 -1.22E-11
+    32 OT DIIS     0.15E+00    0.7     0.00000030        -8.0760120475 -8.87E-12
+    33 OT DIIS     0.15E+00    0.8     0.00000024        -8.0760120475 -6.53E-12
+    34 OT DIIS     0.15E+00    0.8     0.00000020        -8.0760120475 -3.34E-12
+    35 OT DIIS     0.15E+00    0.8     0.00000018        -8.0760120475 -2.14E-12
+    36 OT DIIS     0.15E+00    0.8     0.00000013        -8.0760120475 -1.82E-12
+    37 OT DIIS     0.15E+00    0.9     0.00000010        -8.0760120475 -1.59E-12
+    38 OT DIIS     0.15E+00    0.9     0.00000007        -8.0760120475 -5.06E-13
 
   *** SCF run converged in    38 steps ***
 
 
-  Electronic density on regular grids:        -11.9999999997        0.0000000003
+  Electronic density on regular grids:        -12.0000000000       -0.0000000000
   Core density on regular grids:               11.9999999970       -0.0000000030
-  Total charge density on r-space grids:       -0.0000000027
-  Total charge density g-space grids:          -0.0000000027
+  Total charge density on r-space grids:       -0.0000000030
+  Total charge density g-space grids:          -0.0000000030
 
   Overlap energy of the core charge distribution:               0.00000000000000
   Self energy of the core charge distribution:                -22.56758334191025
-  Core Hamiltonian energy:                                      5.03772594244550
-  Hartree energy:                                              12.72096806908062
-  Exchange-correlation energy:                                 -3.21817578535818
+  Core Hamiltonian energy:                                      5.03772594265632
+  Hartree energy:                                              12.72096806908250
+  Exchange-correlation energy:                                 -3.21817578548257
   Dispersion energy:                                           -0.04894693184602
 
-  Total energy:                                                -8.07601204758833
+  Total energy:                                                -8.07601204750003
 
-  outer SCF iter =    1 RMS gradient =   0.73E-07 energy =         -8.0760120476
+  outer SCF iter =    1 RMS gradient =   0.73E-07 energy =         -8.0760120475
   outer SCF loop converged in   1 iterations or   38 steps
 
 
- ENERGY| Total FORCE_EVAL ( QS ) energy (a.u.):               -8.076012047591302
+ ENERGY| Total FORCE_EVAL ( QS ) energy (a.u.):               -8.076012047500182
 
 
  --------  Informations at step =     0 ------------
   Optimization Method        =                 BFGS
-  Total Energy               =        -8.0760120476
-  Used time                  =               19.371
+  Total Energy               =        -8.0760120475
+  Used time                  =               31.832
  ---------------------------------------------------
 
  --------------------------
@@ -596,7 +596,7 @@
 
   Step     Update method      Time    Convergence         Total energy    Change
   ------------------------------------------------------------------------------
-     1 OT DIIS     0.15E+00    0.4     0.00000005        -8.0760120475 -8.08E+00
+     1 OT DIIS     0.15E+00    0.6     0.00000005        -8.0760120475 -8.08E+00
 
   *** SCF run converged in     1 steps ***
 
@@ -608,39 +608,39 @@
 
   Overlap energy of the core charge distribution:               0.00000000000000
   Self energy of the core charge distribution:                -22.56758334191025
-  Core Hamiltonian energy:                                      5.03772592714897
-  Hartree energy:                                              12.72096808202487
-  Exchange-correlation energy:                                 -3.21817578292468
+  Core Hamiltonian energy:                                      5.03772592713046
+  Hartree energy:                                              12.72096808204249
+  Exchange-correlation energy:                                 -3.21817578292380
   Dispersion energy:                                           -0.04894693184602
 
-  Total energy:                                                -8.07601204750711
+  Total energy:                                                -8.07601204750712
 
   outer SCF iter =    1 RMS gradient =   0.46E-07 energy =         -8.0760120475
   outer SCF loop converged in   1 iterations or    1 steps
 
 
- ENERGY| Total FORCE_EVAL ( QS ) energy (a.u.):               -8.076012047507188
+ ENERGY| Total FORCE_EVAL ( QS ) energy (a.u.):               -8.076012047507129
 
 
  --------  Informations at step =     1 ------------
   Optimization Method        =                 BFGS
   Total Energy               =        -8.0760120475
-  Real energy change         =         0.0000000001
+  Real energy change         =        -0.0000000000
   Predicted change in energy =        -0.0000000000
   Scaling factor             =         0.0000000000
-  Step size                  =         0.0000003862
+  Step size                  =         0.0000003866
   Trust radius               =         0.4724315332
-  Decrease in energy         =                   NO
-  Used time                  =                1.611
+  Decrease in energy         =                  YES
+  Used time                  =                3.443
 
   Convergence check :
-  Max. step size             =         0.0000003862
+  Max. step size             =         0.0000003866
   Conv. limit for step size  =         0.0030000000
   Convergence in step size   =                  YES
   RMS step size              =         0.0000001697
   Conv. limit for RMS step   =         0.0015000000
   Convergence in RMS step    =                  YES
-  Max. gradient              =         0.0000000210
+  Max. gradient              =         0.0000000211
   Conv. limit for gradients  =         0.0004500000
   Conv. in gradients         =                  YES
   RMS gradient               =         0.0000000104
@@ -686,7 +686,7 @@
 
   Step     Update method      Time    Convergence         Total energy    Change
   ------------------------------------------------------------------------------
-     1 OT DIIS     0.15E+00    0.3     0.00000004        -8.0760120475 -8.08E+00
+     1 OT DIIS     0.15E+00    0.5     0.00000004        -8.0760120475 -8.08E+00
 
   *** SCF run converged in     1 steps ***
 
@@ -698,12 +698,12 @@
 
   Overlap energy of the core charge distribution:               0.00000000000000
   Self energy of the core charge distribution:                -22.56758334191025
-  Core Hamiltonian energy:                                      5.03772590586984
-  Hartree energy:                                              12.72096810106770
-  Exchange-correlation energy:                                 -3.21817578068839
+  Core Hamiltonian energy:                                      5.03772590587383
+  Hartree energy:                                              12.72096810106391
+  Exchange-correlation energy:                                 -3.21817578068860
   Dispersion energy:                                           -0.04894693184602
 
-  Total energy:                                                -8.07601204750712
+  Total energy:                                                -8.07601204750714
 
   outer SCF iter =    1 RMS gradient =   0.41E-07 energy =         -8.0760120475
   outer SCF loop converged in   1 iterations or    1 steps
@@ -717,7 +717,7 @@
        2     Al       1          3.000003                             -0.000003
        3     Al       1          3.000002                             -0.000002
        4     Al       1          3.000003                             -0.000003
- # Total charge                             12.000000                  0.000000
+ # Total charge                             12.000000                 -0.000000
 
  !-----------------------------------------------------------------------------!
   
@@ -734,7 +734,7 @@
   
  HOMO - LUMO gap [eV] :   -0.058252
 
- ENERGY| Total FORCE_EVAL ( QS ) energy (a.u.):               -8.076012047507122
+ ENERGY| Total FORCE_EVAL ( QS ) energy (a.u.):               -8.076012047507136
 
 
  -------------------------------------------------------------------------------
@@ -744,27 +744,29 @@
  -------------------------------------------------------------------------------
  COUNTER                                    TOTAL       BLAS       SMM       ACC
  flops     6 x     1 x     6                  216     100.0%      0.0%      0.0%
+ flops     1 x     1 x     1                  702     100.0%      0.0%      0.0%
  flops     6 x     1 x    52                 1872     100.0%      0.0%      0.0%
- flops    13 x     1 x     6                 1872     100.0%      0.0%      0.0%
+ flops    52 x     1 x     6                 1872     100.0%      0.0%      0.0%
  flops     7 x     1 x     7                 4900     100.0%      0.0%      0.0%
  flops     7 x     7 x    52                15288     100.0%      0.0%      0.0%
- flops    13 x     1 x     1                30992     100.0%      0.0%      0.0%
+ flops     1 x     1 x    52                20072     100.0%      0.0%      0.0%
+ flops    52 x     1 x     1                30992     100.0%      0.0%      0.0%
  flops     7 x     1 x    52                36400     100.0%      0.0%      0.0%
- flops    13 x     1 x     7                36400     100.0%      0.0%      0.0%
+ flops    52 x     1 x     7                36400     100.0%      0.0%      0.0%
  flops     6 x     6 x     6               146016     100.0%      0.0%      0.0%
  flops     6 x     6 x    52               621504     100.0%      0.0%      0.0%
- flops    13 x     6 x     6               760032     100.0%      0.0%      0.0%
+ flops    52 x     6 x     6               760032     100.0%      0.0%      0.0%
  flops    13 x    13 x     6               912600     100.0%      0.0%      0.0%
  flops    13 x     1 x    13              1092416     100.0%      0.0%      0.0%
- flops    13 x     6 x    52              2790528     100.0%      0.0%      0.0%
+ flops    52 x     6 x    52              2790528     100.0%      0.0%      0.0%
  flops    13 x     6 x    13              3471936     100.0%      0.0%      0.0%
- flops inhomo. stacks                       20774     100.0%      0.0%      0.0%
+ flops inhomo. stacks                           0       0.0%      0.0%      0.0%
  flops total                         9.943746E+06     100.0%      0.0%      0.0%
  flops max/rank                      9.943746E+06     100.0%      0.0%      0.0%
- matmuls inhomo. stacks                       544     100.0%      0.0%      0.0%
- matmuls total                               9111     100.0%      0.0%      0.0%
- number of processed stacks                  5133     100.0%      0.0%      0.0%
- average stack size                                     1.8       0.0       0.0
+ matmuls inhomo. stacks                         0       0.0%      0.0%      0.0%
+ matmuls total                               7191     100.0%      0.0%      0.0%
+ number of processed stacks                  2151     100.0%      0.0%      0.0%
+ average stack size                                     3.3       0.0       0.0
  marketing flops                    10.503162E+06
  -------------------------------------------------------------------------------
  # multiplications                           2160
@@ -910,71 +912,47 @@
  -------------------------------------------------------------------------------
  SUBROUTINE                       CALLS  ASD         SELF TIME        TOTAL TIME
                                 MAXIMUM       AVERAGE  MAXIMUM  AVERAGE  MAXIMUM
- CP2K                                 1  1.0    0.024    0.024   31.266   31.266
- cp_geo_opt                           1  2.0    0.002    0.002   31.092   31.092
- geoopt_bfgs                          1  3.0    0.002    0.002   31.091   31.091
- cp_eval_at                           3  4.0    0.001    0.001   31.081   31.081
- qs_energies                          3  5.7    0.002    0.002   29.633   29.633
- qs_forces                            2  5.0    0.001    0.001   20.979   20.979
- scf_env_do_scf                       3  6.7    0.000    0.000   19.025   19.025
- scf_env_do_scf_inner_loop           40  8.0    0.005    0.005   18.219   18.219
- dbcsr_multiply_generic            2160 12.2    0.262    0.262   13.202   13.202
- scf_post_calculation_gpw             3  6.7    0.001    0.001    9.354    9.354
- make_lumo                            1  7.0    0.000    0.000    9.339    9.339
- ot_eigensolver                       1  8.0    0.002    0.002    9.329    9.329
- ot_mini                            139  9.9    0.002    0.002    9.279    9.279
- rebuild_ks_matrix                   42  9.8    0.000    0.000    8.692    8.692
- qs_ks_build_kohn_sham_matrix        42 10.8    0.006    0.006    8.692    8.692
- qs_ks_update_qs_env                 43  9.0    0.000    0.000    7.826    7.826
- qs_ot_get_derivative                90 11.3    0.002    0.002    7.545    7.545
- sum_up_and_integrate                42 11.8    0.005    0.005    7.336    7.336
- integrate_v_rspace                  42 12.8    6.912    6.912    7.331    7.331
- qs_scf_new_mos                      40  9.0    0.000    0.000    6.670    6.670
- qs_scf_loop_do_ot                   40 10.0    0.000    0.000    6.669    6.669
- ot_scf_mini                         40 11.0    0.002    0.002    6.436    6.436
- make_m2s                          4320 13.2    0.086    0.086    6.169    6.169
- qs_rho_update_rho                   43  9.0    0.000    0.000    4.651    4.651
- calculate_rho_elec                  43 10.0    4.371    4.371    4.651    4.651
- qs_ot_get_derivative_diag           56 13.0    0.002    0.002    3.803    3.803
- dbcsr_finalize                    4398 13.8    1.039    1.039    3.746    3.746
- qs_ot_get_p                        145  9.8    0.001    0.001    3.442    3.442
- dbcsr_create_new                 23964 14.7    1.881    1.881    3.305    3.305
- make_images                       4320 14.2    1.364    1.364    2.870    2.870
- dbcsr_merge_all                   3970 14.7    2.303    2.303    2.534    2.534
- dbcsr_make_dense_low              5481 15.2    0.274    0.274    2.369    2.369
- dbcsr_add_d                       1206 12.8    0.003    0.003    2.150    2.150
- dbcsr_add_anytype                 1206 13.8    0.156    0.156    2.147    2.147
- multiply_cannon                   2160 13.2    0.806    0.806    2.146    2.146
- dbcsr_make_images_dense           3684 14.6    0.038    0.038    2.081    2.081
- make_dense_data                   5481 16.2    0.480    0.480    2.060    2.060
- qs_ot_get_derivative_taylor         34 11.2    0.002    0.002    1.879    1.879
- qs_ot_get_orbitals                 142  9.8    0.001    0.001    1.841    1.841
- dbcsr_iterator_start             24016 15.7    1.690    1.690    1.726    1.726
- ot_diis_step                        40 13.0    0.003    0.003    1.429    1.429
- dbcsr_make_index_exist           23964 15.7    1.356    1.356    1.377    1.377
- qs_ot_p2m_diag                      77 11.5    0.011    0.011    1.233    1.233
- dbcsr_make_dense                  1797 13.6    0.014    0.014    1.047    1.047
- dbcsr_make_undense                1797 13.6    0.223    0.223    0.988    0.988
- qs_vxc_create                       42 11.8    0.001    0.001    0.988    0.988
- xc_vxc_pw_create                    42 12.8    0.049    0.049    0.987    0.987
- dbcsr_iterator_stop              24016 15.7    0.915    0.915    0.931    0.931
- qs_ot_p2m_taylor                    68 10.1    0.001    0.001    0.887    0.887
- qs_ks_update_qs_env_forces           2  6.0    0.000    0.000    0.868    0.868
- pw_transfer                        806 13.5    0.002    0.002    0.863    0.863
- fft_wrap_pw1pw2                    722 14.6    0.010    0.010    0.848    0.848
- init_scf_loop                        3  7.7    0.001    0.001    0.800    0.800
- qs_energies_init_hamiltonians        3  6.7    0.001    0.001    0.762    0.762
- fft_wrap_pw1pw2_130                467 15.6    0.066    0.066    0.683    0.683
- xc_rho_set_and_dset_create          42 13.8    0.013    0.013    0.641    0.641
+ CP2K                                 1  1.0    0.019    0.019   37.411   37.411
+ cp_geo_opt                           1  2.0    0.003    0.003   37.142   37.142
+ geoopt_bfgs                          1  3.0    0.006    0.006   37.139   37.139
+ cp_eval_at                           3  4.0    0.002    0.002   37.126   37.126
+ qs_forces                            2  5.0    0.006    0.006   35.268   35.268
+ qs_energies                          3  5.7    0.010    0.010   33.228   33.228
+ scf_env_do_scf                       3  6.7    0.001    0.001   30.758   30.758
+ scf_env_do_scf_inner_loop           40  8.0    0.005    0.005   29.136   29.136
+ rebuild_ks_matrix                   42  9.8    0.000    0.000   22.073   22.073
+ qs_ks_build_kohn_sham_matrix        42 10.8    0.007    0.007   22.073   22.073
+ qs_ks_update_qs_env                 43  9.0    0.000    0.000   19.776   19.776
+ sum_up_and_integrate                42 11.8    0.005    0.005   19.473   19.473
+ integrate_v_rspace                  42 12.8   19.333   19.333   19.468   19.468
+ qs_rho_update_rho                   43  9.0    0.000    0.000   11.381   11.381
+ calculate_rho_elec                  43 10.0   11.017   11.017   11.381   11.381
+ qs_vxc_create                       42 11.8    0.001    0.001    2.314    2.314
+ xc_vxc_pw_create                    42 12.8    0.044    0.044    2.313    2.313
+ qs_ks_update_qs_env_forces           2  6.0    0.000    0.000    2.298    2.298
+ xc_rho_set_and_dset_create          42 13.8    0.019    0.019    1.753    1.753
+ pw_transfer                        806 13.5    0.001    0.001    1.666    1.666
+ fft_wrap_pw1pw2                    722 14.6    0.007    0.007    1.652    1.652
+ init_scf_loop                        3  7.7    0.001    0.001    1.621    1.621
+ build_core_hamiltonian_matrix_       2  6.0    0.000    0.000    1.590    1.590
+ fft_wrap_pw1pw2_130                467 15.6    0.056    0.056    1.588    1.588
+ fft3d_s                            723 16.5    1.260    1.260    1.281    1.281
+ xc_functional_eval                  42 14.8    0.001    0.001    1.128    1.128
+ pbe_lda_eval                        42 15.8    1.127    1.127    1.127    1.127
+ qs_energies_init_hamiltonians        3  6.7    0.011    0.011    1.002    1.002
+ build_core_ppl_forces                2  7.0    0.924    0.924    0.924    0.924
+ dbcsr_multiply_generic            2160 12.2    0.074    0.074    0.906    0.906
+ init_scf_run                         3  6.7    0.001    0.001    0.874    0.874
+ scf_env_initial_rho_setup            3  7.7    0.001    0.001    0.873    0.873
  -------------------------------------------------------------------------------
 
  The number of warnings for this run is : 0
  
  -------------------------------------------------------------------------------
-  **** **** ******  **  PROGRAM ENDED AT                 2020-11-17 11:40:29.104
+  **** **** ******  **  PROGRAM ENDED AT                 2020-11-20 03:52:40.190
  ***** ** ***  *** **   PROGRAM RAN ON                             B126028.local
  **    ****   ******    PROGRAM RAN BY                                   leopold
- ***** **    ** ** **   PROGRAM PROCESS ID                                 30398
+ ***** **    ** ** **   PROGRAM PROCESS ID                                 86369
   **** **  *******  **  PROGRAM STOPPED IN /private/var/folders/8y/7c7qkxcx5vxb7
-                                           49rt3sw5sh40000gp/T/tmpj0jjpx93/49/46
-                                           /6400-1b4e-4cb4-8122-c5b2e53e04ec
+                                           49rt3sw5sh40000gp/T/tmpc2_oypr1/f7/87
+                                           /c899-593f-48d6-b4c4-b5a71c58ce48

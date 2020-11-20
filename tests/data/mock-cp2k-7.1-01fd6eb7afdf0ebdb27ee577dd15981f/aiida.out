@@ -6,19 +6,19 @@
  DBCSR| Multiplication size stacks                                             3
 
 
-  **** **** ******  **  PROGRAM STARTED AT               2020-11-17 11:40:56.081
+  **** **** ******  **  PROGRAM STARTED AT               2020-11-20 03:53:14.945
  ***** ** ***  *** **   PROGRAM STARTED ON                         B126028.local
  **    ****   ******    PROGRAM STARTED BY                               leopold
- ***** **    ** ** **   PROGRAM PROCESS ID                                 32144
+ ***** **    ** ** **   PROGRAM PROCESS ID                                 87987
   **** **  *******  **  PROGRAM STARTED IN /private/var/folders/8y/7c7qkxcx5vxb7
-                                           49rt3sw5sh40000gp/T/tmpj0jjpx93/a1/1a
-                                           /0049-a10d-48d3-b420-e85d82d18aad
+                                           49rt3sw5sh40000gp/T/tmpc2_oypr1/6a/92
+                                           /c666-8a9d-4d08-8313-2b0b14734772
 
  CP2K| version string:                                          CP2K version 6.1
  CP2K| source code revision number:                                    svn:18464
- CP2K| cp2kflags: omp libint fftw3 libxc no_statm_access accelerate             
+ CP2K| cp2kflags: libint fftw3 libxc no_statm_access accelerate                 
  CP2K| is freely available from                            https://www.cp2k.org/
- CP2K| Program compiled at                          Tue Nov 17 02:47:52 CET 2020
+ CP2K| Program compiled at                          Tue Nov 17 02:38:14 CET 2020
  CP2K| Program compiled on                                         B126028.local
  CP2K| Program compiled for                       Darwin-IntelMacintosh-gfortran
  CP2K| Data directory path    /private/tmp/cp2k-20201117-55277-73z00v/cp2k-6.1/d
@@ -38,7 +38,7 @@
  GLOBAL| FFTs using library dependent lengths                                  F
  GLOBAL| Global print level                                               MEDIUM
  GLOBAL| Total number of message passing processes                             1
- GLOBAL| Number of threads for this process                                    8
+ GLOBAL| Number of threads for this process                                    1
  GLOBAL| This output is from process                                           0
  GLOBAL| CPU model name : UNKNOWN
 
@@ -432,9 +432,9 @@
  ROT| Principal axes and moments of inertia in atomic units:
  ROT|                                1                 2                 3
  ROT| EIGENVALUES            0.144017252E+07   0.144017252E+07   0.144017252E+07
- ROT|      X                     0.084993285       0.811538974       0.578083588
- ROT|      Y                     0.660831516      -0.480130045       0.576868137
- ROT|      Z                    -0.745706275      -0.332985936       0.577098361
+ ROT|      X                     0.322548954       0.749876346       0.577622401
+ ROT|      Y                     0.495459117      -0.653715613       0.571993147
+ ROT|      Z                    -0.806524913      -0.101692493       0.582388360
  ROT| Numer of Rotovibrational vectors:     6
 
  Calculation of degrees of freedom
@@ -475,7 +475,7 @@
 
   Step     Update method      Time    Convergence         Total energy    Change
   ------------------------------------------------------------------------------
-     1 NoMix/Diag. 0.40E+00    0.3     1.3376E-09        -8.0774993703 -8.08E+00
+     1 NoMix/Diag. 0.40E+00    0.6     1.3371E-09        -8.0774993703 -8.08E+00
 
   *** SCF run converged in     1 steps ***
 
@@ -489,14 +489,14 @@
   Self energy of the core charge distribution:                -22.56758334191025
   Core Hamiltonian energy:                                      5.03837234471241
   Hartree energy:                                              12.70990117180057
-  Exchange-correlation energy:                                 -3.20924261310308
+  Exchange-correlation energy:                                 -3.20924261310303
   Dispersion energy:                                           -0.04894693184602
   Electronic entropic energy:                                  -0.00362830110187
   Fermi energy:                                                 0.19871521825654
 
-  Total energy:                                                -8.07749937034638
+  Total energy:                                                -8.07749937034632
 
- ENERGY| Total FORCE_EVAL ( QS ) energy (a.u.):               -8.081127671448217
+ ENERGY| Total FORCE_EVAL ( QS ) energy (a.u.):               -8.081127671448204
 
 
  MD_ENERGIES| Initialization proceeding
@@ -526,20 +526,20 @@
 
   Step     Update method      Time    Convergence         Total energy    Change
   ------------------------------------------------------------------------------
-     1 NoMix/Diag. 0.40E+00    0.2     3.52969850        -8.0641250246 -8.06E+00
-     2 Broy./Diag. 0.40E+00    0.3     0.03362701        -8.0801552318 -1.60E-02
-     3 Broy./Diag. 0.40E+00    0.3     0.09297623        -8.0808257980 -6.71E-04
-     4 Broy./Diag. 0.40E+00    0.3     0.07387767        -8.0809185914 -9.28E-05
-     5 Broy./Diag. 0.40E+00    0.4     0.00617678        -8.0810653978 -1.47E-04
-     6 Broy./Diag. 0.40E+00    0.3     0.00827584        -8.0810940131 -2.86E-05
-     7 Broy./Diag. 0.40E+00    0.3     0.00454767        -8.0811128894 -1.89E-05
-     8 Broy./Diag. 0.40E+00    0.3     0.00015491        -8.0811224971 -9.61E-06
-     9 Broy./Diag. 0.40E+00    0.3     0.00003208        -8.0811234729 -9.76E-07
-    10 Broy./Diag. 0.40E+00    0.3     0.00004906        -8.0811239229 -4.50E-07
-    11 Broy./Diag. 0.40E+00    0.3     0.00002801        -8.0811247926 -8.70E-07
-    12 Broy./Diag. 0.40E+00    0.3     0.00000106        -8.0811249394 -1.47E-07
-    13 Broy./Diag. 0.40E+00    0.4     0.00000017        -8.0811249605 -2.11E-08
-    14 Broy./Diag. 0.40E+00    0.4     0.00000007        -8.0811249633 -2.77E-09
+     1 NoMix/Diag. 0.40E+00    0.6     3.52969850        -8.0641250246 -8.06E+00
+     2 Broy./Diag. 0.40E+00    0.8     0.03362701        -8.0801552318 -1.60E-02
+     3 Broy./Diag. 0.40E+00    0.9     0.09297623        -8.0808257980 -6.71E-04
+     4 Broy./Diag. 0.40E+00    0.9     0.07387767        -8.0809185914 -9.28E-05
+     5 Broy./Diag. 0.40E+00    0.9     0.00617678        -8.0810653978 -1.47E-04
+     6 Broy./Diag. 0.40E+00    0.9     0.00827584        -8.0810940131 -2.86E-05
+     7 Broy./Diag. 0.40E+00    0.9     0.00454767        -8.0811128894 -1.89E-05
+     8 Broy./Diag. 0.40E+00    0.8     0.00015491        -8.0811224971 -9.61E-06
+     9 Broy./Diag. 0.40E+00    0.8     0.00003208        -8.0811234729 -9.76E-07
+    10 Broy./Diag. 0.40E+00    0.8     0.00004906        -8.0811239229 -4.50E-07
+    11 Broy./Diag. 0.40E+00    0.8     0.00002801        -8.0811247926 -8.70E-07
+    12 Broy./Diag. 0.40E+00    0.8     0.00000106        -8.0811249394 -1.47E-07
+    13 Broy./Diag. 0.40E+00    0.8     0.00000017        -8.0811249605 -2.11E-08
+    14 Broy./Diag. 0.40E+00    0.8     0.00000007        -8.0811249633 -2.77E-09
 
   *** SCF run converged in    14 steps ***
 
@@ -551,16 +551,16 @@
 
   Overlap energy of the core charge distribution:               0.00000000000000
   Self energy of the core charge distribution:                -22.56758334191025
-  Core Hamiltonian energy:                                      5.03838671142328
-  Hartree energy:                                              12.70989672221041
-  Exchange-correlation energy:                                 -3.20924978910161
+  Core Hamiltonian energy:                                      5.03838671142335
+  Hartree energy:                                              12.70989672221040
+  Exchange-correlation energy:                                 -3.20924978910162
   Dispersion energy:                                           -0.04894696543385
   Electronic entropic energy:                                  -0.00362830048904
   Fermi energy:                                                 0.19871474489114
 
-  Total energy:                                                -8.08112496330114
+  Total energy:                                                -8.08112496330109
 
- ENERGY| Total FORCE_EVAL ( QS ) energy (a.u.):               -8.081124964933611
+ ENERGY| Total FORCE_EVAL ( QS ) energy (a.u.):               -8.081124964933613
 
 
  Centre of mass motion (COM):                            x =        0.0000000000
@@ -574,12 +574,12 @@
  CONSERVED QUANTITY [hartree] =                              -0.807685247716E+01
 
                                               INSTANTANEOUS             AVERAGES
- CPU TIME [s]                 =                        7.41                 7.41
- ENERGY DRIFT PER ATOM [K]    =         -0.507271582011E-03   0.000000000000E+00
+ CPU TIME [s]                 =                       17.83                17.83
+ ENERGY DRIFT PER ATOM [K]    =         -0.507272703868E-03   0.000000000000E+00
  POTENTIAL ENERGY[hartree]    =         -0.808112496493E+01  -0.808112496493E+01
  KINETIC ENERGY [hartree]     =          0.407320225812E-02   0.407320225812E-02
  TEMPERATURE [K]              =                     285.825              285.825
- PRESSURE [bar]               =          0.582602982325E+05   0.582602982325E+05
+ PRESSURE [bar]               =          0.582602982324E+05   0.582602982324E+05
  *******************************************************************************
 
 
@@ -597,20 +597,20 @@
 
   Step     Update method      Time    Convergence         Total energy    Change
   ------------------------------------------------------------------------------
-     1 Broy./Diag. 0.40E+00    0.2     3.19356450        -8.0656915730 -8.07E+00
-     2 Broy./Diag. 0.40E+00    0.4     0.05462147        -8.0802025514 -1.45E-02
-     3 Broy./Diag. 0.40E+00    0.4     0.12789797        -8.0808440269 -6.41E-04
-     4 Broy./Diag. 0.40E+00    0.3     0.09242501        -8.0809242284 -8.02E-05
-     5 Broy./Diag. 0.40E+00    0.3     0.00550352        -8.0810718509 -1.48E-04
-     6 Broy./Diag. 0.40E+00    0.4     0.00919789        -8.0810959278 -2.41E-05
-     7 Broy./Diag. 0.40E+00    0.4     0.00452521        -8.0811099056 -1.40E-05
-     8 Broy./Diag. 0.40E+00    0.4     0.00017683        -8.0811160655 -6.16E-06
-     9 Broy./Diag. 0.40E+00    0.4     0.00001745        -8.0811162289 -1.63E-07
-    10 Broy./Diag. 0.40E+00    0.4     0.00004157        -8.0811168243 -5.95E-07
-    11 Broy./Diag. 0.40E+00    0.4     0.00003325        -8.0811171128 -2.89E-07
-    12 Broy./Diag. 0.40E+00    0.4     0.00000146        -8.0811172763 -1.64E-07
-    13 Broy./Diag. 0.40E+00    0.4     0.00000017        -8.0811173061 -2.97E-08
-    14 Broy./Diag. 0.40E+00    0.4     0.00000005        -8.0811173099 -3.77E-09
+     1 Broy./Diag. 0.40E+00    0.5     3.19356450        -8.0656915730 -8.07E+00
+     2 Broy./Diag. 0.40E+00    0.8     0.05462147        -8.0802025514 -1.45E-02
+     3 Broy./Diag. 0.40E+00    0.8     0.12789797        -8.0808440269 -6.41E-04
+     4 Broy./Diag. 0.40E+00    0.8     0.09242501        -8.0809242284 -8.02E-05
+     5 Broy./Diag. 0.40E+00    0.8     0.00550352        -8.0810718509 -1.48E-04
+     6 Broy./Diag. 0.40E+00    0.8     0.00919789        -8.0810959278 -2.41E-05
+     7 Broy./Diag. 0.40E+00    0.8     0.00452521        -8.0811099056 -1.40E-05
+     8 Broy./Diag. 0.40E+00    0.7     0.00017683        -8.0811160655 -6.16E-06
+     9 Broy./Diag. 0.40E+00    0.8     0.00001745        -8.0811162289 -1.63E-07
+    10 Broy./Diag. 0.40E+00    0.8     0.00004157        -8.0811168243 -5.95E-07
+    11 Broy./Diag. 0.40E+00    0.8     0.00003325        -8.0811171128 -2.89E-07
+    12 Broy./Diag. 0.40E+00    0.8     0.00000146        -8.0811172763 -1.64E-07
+    13 Broy./Diag. 0.40E+00    0.8     0.00000017        -8.0811173061 -2.97E-08
+    14 Broy./Diag. 0.40E+00    0.8     0.00000005        -8.0811173099 -3.77E-09
 
   *** SCF run converged in    14 steps ***
 
@@ -622,14 +622,14 @@
 
   Overlap energy of the core charge distribution:               0.00000000000000
   Self energy of the core charge distribution:                -22.56758334191025
-  Core Hamiltonian energy:                                      5.03842743008304
+  Core Hamiltonian energy:                                      5.03842743008308
   Hartree energy:                                              12.70988385932293
-  Exchange-correlation energy:                                 -3.20926990522336
+  Exchange-correlation energy:                                 -3.20926990522338
   Dispersion energy:                                           -0.04894705992872
   Electronic entropic energy:                                  -0.00362829220192
   Fermi energy:                                                 0.19871341283139
 
-  Total energy:                                                -8.08111730985827
+  Total energy:                                                -8.08111730985825
 
  !-----------------------------------------------------------------------------!
                      Mulliken Population Analysis
@@ -653,7 +653,7 @@
  ---------------------------------------------
        0.45911549
 
- ENERGY| Total FORCE_EVAL ( QS ) energy (a.u.):               -8.081117312093301
+ ENERGY| Total FORCE_EVAL ( QS ) energy (a.u.):               -8.081117312093294
 
 
  Centre of mass motion (COM):                            x =        0.0000000001
@@ -667,8 +667,8 @@
  CONSERVED QUANTITY [hartree] =                              -0.807685247493E+01
 
                                               INSTANTANEOUS             AVERAGES
- CPU TIME [s]                 =                        6.43                 6.92
- ENERGY DRIFT PER ATOM [K]    =         -0.331486139837E-03  -0.165743069919E-03
+ CPU TIME [s]                 =                       13.17                15.50
+ ENERGY DRIFT PER ATOM [K]    =         -0.331486560533E-03  -0.165743280267E-03
  POTENTIAL ENERGY[hartree]    =         -0.808111731209E+01  -0.808112113851E+01
  KINETIC ENERGY [hartree]     =          0.381092630290E-02   0.394206428051E-02
  TEMPERATURE [K]              =                     267.421              276.623
@@ -690,8 +690,8 @@
  flops max/rank                      6.995248E+06     100.0%      0.0%      0.0%
  matmuls inhomo. stacks                         0       0.0%      0.0%      0.0%
  matmuls total                                446     100.0%      0.0%      0.0%
- number of processed stacks                   164     100.0%      0.0%      0.0%
- average stack size                                     2.7       0.0       0.0
+ number of processed stacks                    41     100.0%      0.0%      0.0%
+ average stack size                                    10.9       0.0       0.0
  marketing flops                     2.168608E+06
  -------------------------------------------------------------------------------
  # multiplications                             38
@@ -830,53 +830,45 @@
  -------------------------------------------------------------------------------
  SUBROUTINE                       CALLS  ASD         SELF TIME        TOTAL TIME
                                 MAXIMUM       AVERAGE  MAXIMUM  AVERAGE  MAXIMUM
- CP2K                                 1  1.0    0.011    0.011   14.013   14.013
- qs_mol_dyn_low                       1  2.0    0.008    0.008   13.863   13.863
- qs_forces                            3  3.7    0.000    0.000   13.831   13.831
- velocity_verlet                      2  3.0    0.002    0.002   12.295   12.295
- qs_energies                          3  4.7    0.000    0.000   11.615   11.615
- scf_env_do_scf                       3  5.7    0.000    0.000   10.281   10.281
- scf_env_do_scf_inner_loop           29  7.0    0.004    0.004   10.281   10.281
- rebuild_ks_matrix                   32  8.7    0.000    0.000    7.394    7.394
- qs_ks_build_kohn_sham_matrix        32  9.7    0.004    0.004    7.393    7.393
- sum_up_and_integrate                32 10.7    0.004    0.004    6.207    6.207
- integrate_v_rspace                  32 11.7    5.847    5.847    6.203    6.203
- qs_ks_update_qs_env                 29  8.0    0.000    0.000    6.092    6.092
- qs_rho_update_rho                   32  8.0    0.000    0.000    3.595    3.595
- calculate_rho_elec                  32  9.0    3.351    3.351    3.595    3.595
- qs_ks_update_qs_env_forces           3  4.7    0.000    0.000    1.303    1.303
- qs_vxc_create                       32 10.7    0.000    0.000    1.031    1.031
- xc_vxc_pw_create                    32 11.7    0.129    0.129    1.030    1.030
- build_core_hamiltonian_matrix_       3  4.7    0.000    0.000    0.912    0.912
- pw_transfer                        637 12.2    0.002    0.002    0.894    0.894
- fft_wrap_pw1pw2                    573 13.3    0.009    0.009    0.880    0.880
- qs_energies_init_hamiltonians        3  5.7    0.000    0.000    0.856    0.856
- fft_wrap_pw1pw2_130                381 14.3    0.062    0.062    0.735    0.735
- qs_scf_new_mos                      29  8.0    0.001    0.001    0.629    0.629
- cp_dbcsr_plus_fm_fm_t_native        35  9.7    0.001    0.001    0.615    0.615
- xc_rho_set_and_dset_create          32 12.7    0.013    0.013    0.600    0.600
- fft3d_s                            574 15.3    0.564    0.564    0.571    0.571
- calculate_dm_sparse                 32  8.9    0.000    0.000    0.569    0.569
- dbcsr_multiply_generic              38 10.9    0.007    0.007    0.502    0.502
- build_core_ppl_forces                3  5.7    0.470    0.470    0.470    0.470
- dbcsr_finalize                     591 12.5    0.168    0.168    0.459    0.459
- init_scf_run                         3  5.7    0.000    0.000    0.421    0.421
- scf_env_initial_rho_setup            3  6.7    0.000    0.000    0.413    0.413
- build_core_hamiltonian_matrix        3  6.7    0.000    0.000    0.413    0.413
- xc_functional_eval                  32 13.7    0.000    0.000    0.354    0.354
- pbe_lda_eval                        32 14.7    0.354    0.354    0.354    0.354
- make_m2s                            76 11.9    0.003    0.003    0.349    0.349
- calculate_dispersion_pairpot         3  6.7    0.339    0.339    0.339    0.339
- build_core_ppnl_forces               3  5.7    0.283    0.283    0.283    0.283
+ CP2K                                 1  1.0    0.011    0.011   31.165   31.165
+ qs_mol_dyn_low                       1  2.0    0.009    0.009   31.019   31.019
+ qs_forces                            3  3.7    0.000    0.000   30.988   30.988
+ velocity_verlet                      2  3.0    0.002    0.002   27.486   27.486
+ qs_energies                          3  4.7    0.000    0.000   25.529   25.529
+ scf_env_do_scf                       3  5.7    0.000    0.000   23.468   23.468
+ scf_env_do_scf_inner_loop           29  7.0    0.004    0.004   23.467   23.467
+ rebuild_ks_matrix                   32  8.7    0.000    0.000   18.478   18.478
+ qs_ks_build_kohn_sham_matrix        32  9.7    0.003    0.003   18.478   18.478
+ sum_up_and_integrate                32 10.7    0.004    0.004   16.405   16.405
+ integrate_v_rspace                  32 11.7   16.290   16.290   16.402   16.402
+ qs_ks_update_qs_env                 29  8.0    0.000    0.000   15.209   15.209
+ qs_rho_update_rho                   32  8.0    0.000    0.000    8.831    8.831
+ calculate_rho_elec                  32  9.0    8.546    8.546    8.831    8.831
+ qs_ks_update_qs_env_forces           3  4.7    0.000    0.000    3.270    3.270
+ build_core_hamiltonian_matrix_       3  4.7    0.000    0.000    2.188    2.188
+ qs_vxc_create                       32 10.7    0.000    0.000    1.857    1.857
+ xc_vxc_pw_create                    32 11.7    0.101    0.101    1.856    1.856
+ pw_transfer                        637 12.2    0.001    0.001    1.418    1.418
+ fft_wrap_pw1pw2                    573 13.3    0.006    0.006    1.406    1.406
+ fft_wrap_pw1pw2_130                381 14.3    0.045    0.045    1.347    1.347
+ xc_rho_set_and_dset_create          32 12.7    0.014    0.014    1.335    1.335
+ build_core_ppl_forces                3  5.7    1.302    1.302    1.302    1.302
+ fft3d_s                            574 15.3    1.072    1.072    1.100    1.100
+ qs_energies_init_hamiltonians        3  5.7    0.000    0.000    1.090    1.090
+ init_scf_run                         3  5.7    0.000    0.000    0.966    0.966
+ scf_env_initial_rho_setup            3  6.7    0.000    0.000    0.965    0.965
+ xc_functional_eval                  32 13.7    0.000    0.000    0.867    0.867
+ pbe_lda_eval                        32 14.7    0.867    0.867    0.867    0.867
+ build_core_hamiltonian_matrix        3  6.7    0.000    0.000    0.697    0.697
  -------------------------------------------------------------------------------
 
  The number of warnings for this run is : 1
  
  -------------------------------------------------------------------------------
-  **** **** ******  **  PROGRAM ENDED AT                 2020-11-17 11:41:10.165
+  **** **** ******  **  PROGRAM ENDED AT                 2020-11-20 03:53:46.184
  ***** ** ***  *** **   PROGRAM RAN ON                             B126028.local
  **    ****   ******    PROGRAM RAN BY                                   leopold
- ***** **    ** ** **   PROGRAM PROCESS ID                                 32144
+ ***** **    ** ** **   PROGRAM PROCESS ID                                 87987
   **** **  *******  **  PROGRAM STOPPED IN /private/var/folders/8y/7c7qkxcx5vxb7
-                                           49rt3sw5sh40000gp/T/tmpj0jjpx93/a1/1a
-                                           /0049-a10d-48d3-b420-e85d82d18aad
+                                           49rt3sw5sh40000gp/T/tmpc2_oypr1/6a/92
+                                           /c666-8a9d-4d08-8313-2b0b14734772

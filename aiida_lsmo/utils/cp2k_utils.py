@@ -26,7 +26,7 @@ def get_kinds_section(structure, protocol_settings):
     """ Write the &KIND sections given the structure and the settings_dict"""
     kinds = []
     all_atoms = set(structure.get_ase().get_chemical_symbols())
-    for atom in all_atoms:
+    for atom in sorted(all_atoms):
         kinds.append({
             '_': atom,
             'BASIS_SET': protocol_settings['basis_set'][atom],
@@ -40,7 +40,7 @@ def get_kinds_with_ghost_section(structure, protocol_settings):
     """Write the &KIND sections given the structure and the settings_dict, and add also GHOST atoms"""
     kinds = []
     all_atoms = set(structure.get_ase().get_chemical_symbols())
-    for atom in all_atoms:
+    for atom in sorted(all_atoms):
         kinds.append({
             '_': atom,
             'BASIS_SET': protocol_settings['basis_set'][atom],

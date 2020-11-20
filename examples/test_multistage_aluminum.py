@@ -62,10 +62,10 @@ def run_multistage_al(cp2k_code, al_structuredata):  # pylint: disable=redefined
         'num_machines': 1,
         'num_mpiprocs_per_machine': 1,
     }
+    builder.cp2k_base.cp2k.metadata.options.withmpi = False  # comment this for parallel cp2k executable
     builder.cp2k_base.cp2k.metadata.options.max_wallclock_seconds = 1 * 3 * 60
-    builder.cp2k_base.cp2k.metadata.options.withmpi = False
-    CP2K_DIR = DATA_DIR / 'cp2k'
     # The following is not needed, if the files are available in the data directory of your CP2K executable
+    CP2K_DIR = DATA_DIR / 'cp2k'
     builder.cp2k_base.cp2k.file = {
         'basis': SinglefileData(file=str(CP2K_DIR / 'BASIS_MOLOPT')),
         'pseudo': SinglefileData(file=str(CP2K_DIR / 'GTH_POTENTIALS')),
