@@ -6,7 +6,7 @@ import os
 import click
 import pytest
 
-from aiida.engine import run
+from aiida import engine
 from aiida.plugins import DataFactory, WorkflowFactory
 from aiida.orm import Dict, Str
 from aiida import cmdline
@@ -49,7 +49,9 @@ def run_sim_annealing_zn_mof74(raspa_code, zn_mof74_cifdata):  # pylint: disable
         'mc_steps': int(10),  # (int) Number of MC cycles.
     })
 
-    results = run(builder)
+    results, node = engine.run_get_node(builder)
+
+    assert node.is_finished_ok, results
     params = results['output_parameters'].get_dict()
     assert params['energy_host/ads_tot_final'][-1] == pytest.approx(-36, abs=5)
 

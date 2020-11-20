@@ -28,6 +28,7 @@ If you are changing the inputs for one or more of the simulation codes, you will
          cp2k-7.1: /path/to/cp2k-7.1-Linux-x86_64.popt
          zeopp-0.3: /path/to/zeoplusplus/network
          raspa-e968334: /path/to/RASPA2/src/.libs/simulate
+         chargemol-09_26_2017: /path/to/Chargemol_09_02_2017_linux_serial
 
     where the code labels need to correspond to the ones used in the pytest fixtures defined in the top-level ``conftest.py``.
 

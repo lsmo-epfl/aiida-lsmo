@@ -81,7 +81,9 @@ def run_isotherm_inflection_ar_graphite(raspa_code, zeopp_code, graphite_20a):  
             'raspa_verbosity': 10
         })
 
-    results = engine.run(builder)
+    results, node = engine.run_get_node(builder)
+
+    assert node.is_finished_ok, results
 
     params = results['output_parameters'].get_dict()
     assert 'loading_absolute_dev_from_dil' in params['isotherm']
