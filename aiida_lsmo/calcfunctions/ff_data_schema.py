@@ -2,7 +2,7 @@
 """Voluptuous schema for ff_data.yml"""
 from voluptuous import Schema, Optional, Any
 
-__all__ = ('FF_DATA_SCHEMA')
+__all__ = ('FF_DATA_SCHEMA',)
 
 NUMBER = Any(int, float)
 FRAMEWORK_FF_SCHEMA = Schema(

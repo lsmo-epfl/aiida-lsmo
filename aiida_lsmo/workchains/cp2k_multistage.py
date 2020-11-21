@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 """Multistage work chain."""
 
-import os
 from copy import deepcopy
-import ruamel.yaml as yaml  # does not convert OFF to False
 
 from aiida.common import AttributeDict
 from aiida.engine import append_, while_, WorkChain, ToContext
@@ -13,6 +11,7 @@ from aiida.plugins import WorkflowFactory
 from aiida_lsmo.utils import dict_merge, HARTREE2EV
 from aiida_lsmo.utils.multiply_unitcell import check_resize_unit_cell_legacy, resize_unit_cell
 from aiida_lsmo.utils.cp2k_utils import get_input_multiplicity, get_kinds_section, ot_has_small_bandgap
+from .cp2k_multistage_protocols import load_isotherm_protocol
 
 Cp2kBaseWorkChain = WorkflowFactory('cp2k.base')  # pylint: disable=invalid-name
 
@@ -193,12 +192,9 @@ class Cp2kMultistageWorkChain(WorkChain):
 
         # Read yaml file selected as SinglefileData or chosen with the tag, and overwrite with custom modifications
         if 'protocol_yaml' in self.inputs:
-            self.ctx.protocol = yaml.safe_load(self.inputs.protocol_yaml.open())
+            self.ctx.protocol = load_isotherm_protocol(path=self.inputs.protocol_yaml)
         else:
-            thisdir = os.path.dirname(os.path.abspath(__file__))
-            yamlfullpath = os.path.join(thisdir, 'cp2k_multistage_protocols', self.inputs.protocol_tag.value + '.yaml')
-            with open(yamlfullpath, 'r') as stream:
-                self.ctx.protocol = yaml.safe_load(stream)
+            self.ctx.protocol = load_isotherm_protocol(tag=self.inputs.protocol_tag.value)
         dict_merge(self.ctx.protocol, self.inputs.protocol_modify.get_dict())
 
         # Initialize

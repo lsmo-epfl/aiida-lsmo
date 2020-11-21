@@ -2,7 +2,7 @@
 """Voluptuous schema for isotherm_molecules.yaml"""
 from voluptuous import Schema, Optional, Any
 
-__all__ = ('ISOTHERM_MOLECULES_SCHEMA')
+__all__ = ('ISOTHERM_MOLECULES_SCHEMA',)
 
 NUMBER = Any(int, float)
 MOLECULE_SCHEMA = Schema(

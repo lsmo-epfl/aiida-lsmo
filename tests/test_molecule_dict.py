@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""Test for ff_builder"""  # pylint: disable=invalid-name
+"""Test for molecule dictionaries"""  # pylint: disable=invalid-name
 
 from aiida import orm
 from aiida_lsmo.workchains.isotherm import get_molecule_dict
