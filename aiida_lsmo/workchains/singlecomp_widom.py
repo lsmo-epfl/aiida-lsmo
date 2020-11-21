@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 """A work chain."""
-import os
-import ruamel.yaml as yaml
 
 # AiiDA modules
 from aiida.plugins import CalculationFactory, DataFactory, WorkflowFactory
-from aiida.orm import Str, Dict, SinglefileData
+from aiida.orm import Str, Dict
 from aiida.engine import calcfunction
 from aiida.engine import WorkChain, if_
 from aiida_lsmo.utils import aiida_dict_merge, check_resize_unit_cell
+
+from .isotherm import get_molecule_dict, get_ff_parameters, get_atomic_radii
 
 RaspaBaseWorkChain = WorkflowFactory('raspa.base')  #pylint: disable=invalid-name
 
@@ -35,30 +35,6 @@ PARAMETERS_DEFAULT = {  #TODO: create IsothermParameters instead of Dict # pylin
 
 
 @calcfunction
-def get_molecule_dict(molecule_name):
-    """Get a Dict from the isotherm_molecules.yaml"""
-    thisdir = os.path.dirname(os.path.abspath(__file__))
-    yamlfile = os.path.join(thisdir, 'isotherm_data', 'isotherm_molecules.yaml')
-    with open(yamlfile, 'r') as stream:
-        yaml_dict = yaml.safe_load(stream)
-    molecule_dict = yaml_dict[molecule_name.value]
-    return Dict(dict=molecule_dict)
-
-
-@calcfunction
-def get_ff_parameters(molecule_dict, isotparam):
-    """Get the parameters for ff_builder."""
-    ff_params = {}
-    ff_params['ff_framework'] = isotparam['ff_framework']
-    ff_params['ff_molecules'] = {molecule_dict['name']: molecule_dict['forcefield']}
-    ff_params['shifted'] = isotparam['ff_shifted']
-    ff_params['tail_corrections'] = isotparam['ff_tail_corrections']
-    ff_params['mixing_rule'] = isotparam['ff_mixing_rule']
-    ff_params['separate_interactions'] = isotparam['ff_separate_interactions']
-    return Dict(dict=ff_params)
-
-
-@calcfunction
 def get_zeopp_parameters(molecule_dict, isotparam):
     """Get the ZeoppParameters from the inputs of the workchain"""
     probe_rad = molecule_dict['proberad'] * isotparam['zeopp_probe_scaling']
@@ -67,17 +43,6 @@ def get_zeopp_parameters(molecule_dict, isotparam):
         'block': [probe_rad, isotparam['zeopp_block_samples']],
     }
     return ZeoppParameters(dict=param_dict)
-
-
-@calcfunction
-def get_atomic_radii(isotparam):
-    """Get {ff_framework}.rad as SinglefileData form workchain/isotherm_data. If not existing use DEFAULT.rad."""
-    thisdir = os.path.dirname(os.path.abspath(__file__))
-    filename = isotparam['ff_framework'] + '.rad'
-    filepath = os.path.join(thisdir, 'isotherm_data', filename)
-    if not os.path.isfile(filepath):
-        filepath = os.path.join(thisdir, 'isotherm_data', 'DEFAULT.rad')
-    return SinglefileData(file=filepath)
 
 
 @calcfunction

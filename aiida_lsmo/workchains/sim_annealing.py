@@ -2,13 +2,15 @@
 """Isotherm workchain"""
 
 import os
-import ruamel.yaml as yaml
 import ase
 from aiida.plugins import CalculationFactory, DataFactory, WorkflowFactory
 from aiida.orm import Dict, Str
 from aiida.engine import calcfunction
 from aiida.engine import WorkChain, ToContext, append_, while_
 from aiida_lsmo.utils import check_resize_unit_cell, aiida_dict_merge, aiida_cif_merge
+from aiida_lsmo.calcfunctions.ff_builder_module import load_yaml
+
+from .isotherm import get_molecule_dict, get_ff_parameters
 
 # import sub-workchains
 RaspaBaseWorkChain = WorkflowFactory('raspa.base')  # pylint: disable=invalid-name
@@ -34,38 +36,6 @@ PARAMETERS_DEFAULT = {
 
 
 # calcfunctions (in order of appearence)
-@calcfunction
-def get_molecule_dict(molecule_name):
-    """Get a Dict from the isotherm_molecules.yaml"""
-    thisdir = os.path.dirname(os.path.abspath(__file__))
-    yamlfile = os.path.join(thisdir, 'isotherm_data', 'isotherm_molecules.yaml')
-    with open(yamlfile, 'r') as stream:
-        yaml_dict = yaml.safe_load(stream)
-    molecule_dict = yaml_dict[molecule_name.value]
-    return Dict(dict=molecule_dict)
-
-
-def get_ff_parameters(molecule_dict, isotparam):
-    """Get the parameters for ff_builder."""
-    ff_params = {}
-    ff_params['ff_framework'] = isotparam['ff_framework']
-    ff_params['ff_molecules'] = {molecule_dict['name']: molecule_dict['forcefield']}
-    ff_params['shifted'] = isotparam['ff_shifted']
-    ff_params['tail_corrections'] = isotparam['ff_tail_corrections']
-    ff_params['mixing_rule'] = isotparam['ff_mixing_rule']
-    ff_params['separate_interactions'] = isotparam['ff_separate_interactions']
-    return Dict(dict=ff_params)
-
-
-def load_yaml():
-    """ Load the ff_data.yaml as a dict."""
-    thisdir = os.path.dirname(os.path.abspath(__file__))
-    yamlfullpath = os.path.join(thisdir, '..', 'calcfunctions', 'ff_data.yaml')
-    with open(yamlfullpath, 'r') as stream:
-        ff_data = yaml.safe_load(stream)
-    return ff_data
-
-
 @calcfunction
 def get_molecule_from_restart_file(structure_cif, molecule_folderdata, input_dict, molecule_dict):
     """Get a CifData file having the cell of the initial (unexpanded) structure and the geometry of the loaded molecule.

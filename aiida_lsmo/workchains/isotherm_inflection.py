@@ -1,16 +1,15 @@
 # -*- coding: utf-8 -*-
 """A work chain."""
 
-import os
 import numpy as np
-import ruamel.yaml as yaml
 
 from aiida.plugins import CalculationFactory, DataFactory, WorkflowFactory
-from aiida.orm import Dict, Str, List, SinglefileData
+from aiida.orm import Dict, Str, List
 from aiida.engine import calcfunction
 from aiida.engine import WorkChain, ToContext, if_
-from aiida_lsmo.utils import check_resize_unit_cell, aiida_dict_merge
-from aiida_lsmo.utils import dict_merge
+from aiida_lsmo.utils import check_resize_unit_cell, aiida_dict_merge, dict_merge
+
+from .isotherm import get_molecule_dict, get_atomic_radii, get_ff_parameters, get_zeopp_parameters, get_geometric_dict
 
 RaspaBaseWorkChain = WorkflowFactory('raspa.base')  # pylint: disable=invalid-name
 ZeoppCalculation = CalculationFactory('zeopp.network')  # pylint: disable=invalid-name
@@ -45,53 +44,6 @@ A3TOL = 1E-27  # L/A3
 
 # calcfunctions (in order of appearence)
 @calcfunction
-def get_molecule_dict(molecule_name):
-    """Get a Dict from the isotherm_molecules.yaml"""
-    thisdir = os.path.dirname(os.path.abspath(__file__))
-    yamlfile = os.path.join(thisdir, 'isotherm_data', 'isotherm_molecules.yaml')
-    with open(yamlfile, 'r') as stream:
-        yaml_dict = yaml.safe_load(stream)
-    molecule_dict = yaml_dict[molecule_name.value]
-    return Dict(dict=molecule_dict)
-
-
-@calcfunction
-def get_atomic_radii(isotparam):
-    """Get {ff_framework}.rad as SinglefileData form workchain/isotherm_data. If not existing use DEFAULT.rad."""
-    thisdir = os.path.dirname(os.path.abspath(__file__))
-    filename = isotparam['ff_framework'] + '.rad'
-    filepath = os.path.join(thisdir, 'isotherm_data', filename)
-    if not os.path.isfile(filepath):
-        filepath = os.path.join(thisdir, 'isotherm_data', 'DEFAULT.rad')
-    return SinglefileData(file=filepath)
-
-
-@calcfunction
-def get_zeopp_parameters(molecule_dict, isotparam):
-    """Get the ZeoppParameters from the inputs of the workchain"""
-    probe_rad = molecule_dict['proberad'] * isotparam['zeopp_probe_scaling']
-    param_dict = {
-        'ha': 'DEF',
-        'volpo': [probe_rad, probe_rad, isotparam['zeopp_volpo_samples']],
-        'block': [probe_rad, isotparam['zeopp_block_samples']],
-    }
-    return ZeoppParameters(dict=param_dict)
-
-
-@calcfunction
-def get_ff_parameters(molecule_dict, isotparam):
-    """Get the parameters for ff_builder."""
-    ff_params = {}
-    ff_params['ff_framework'] = isotparam['ff_framework']
-    ff_params['ff_molecules'] = {molecule_dict['name']: molecule_dict['forcefield']}
-    ff_params['shifted'] = isotparam['ff_shifted']
-    ff_params['tail_corrections'] = isotparam['ff_tail_corrections']
-    ff_params['mixing_rule'] = isotparam['ff_mixing_rule']
-    ff_params['separate_interactions'] = isotparam['ff_separate_interactions']
-    return Dict(dict=ff_params)
-
-
-@calcfunction
 def get_pressure_points(molecule_dict, isotparam):
     """Multiply p/p0 with p0 to have pressure points in bar if pressure_list!=None,
     or choose them based on pressure_min/max/num, to be equispaced in a Log plot.
@@ -104,18 +56,6 @@ def get_pressure_points(molecule_dict, isotparam):
         exp_list = np.linspace(exp_min, exp_max, isotparam['pressure_num'])
         pressure_points = [10**x for x in exp_list]
     return List(list=pressure_points)
-
-
-@calcfunction
-def get_geometric_dict(zeopp_out, molecule):
-    """Return the geometric Dict from Zeopp results, including Qsat and is_porous"""
-    geometric_dict = zeopp_out.get_dict()
-    geometric_dict.update({
-        'Estimated_saturation_loading': zeopp_out['POAV_cm^3/g'] * molecule['molsatdens'],
-        'Estimated_saturation_loading_unit': 'mol/kg',
-        'is_porous': geometric_dict['POAV_A^3'] > 0.000
-    })
-    return Dict(dict=geometric_dict)
 
 
 @calcfunction
