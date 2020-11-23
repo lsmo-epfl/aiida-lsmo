@@ -7,8 +7,8 @@ from aiida.plugins import CalculationFactory, DataFactory, WorkflowFactory
 from aiida.orm import Dict, Str, List, SinglefileData
 from aiida.engine import calcfunction
 from aiida.engine import WorkChain, ToContext, append_, while_, if_
-from aiida_lsmo.utils import check_resize_unit_cell, aiida_dict_merge
-from aiida_lsmo.utils import dict_merge
+from aiida_lsmo.utils import check_resize_unit_cell, aiida_dict_merge, dict_merge
+from aiida_lsmo.utils.isotherm_molecules_schema import ISOTHERM_MOLECULES_SCHEMA
 
 # import sub-workchains
 RaspaBaseWorkChain = WorkflowFactory('raspa.base')  # pylint: disable=invalid-name
@@ -56,6 +56,7 @@ def get_molecule_dict(molecule_name):
     yamlfile = os.path.join(thisdir, 'isotherm_data', 'isotherm_molecules.yaml')
     with open(yamlfile, 'r') as stream:
         yaml_dict = yaml.safe_load(stream)
+        ISOTHERM_MOLECULES_SCHEMA(yaml_dict)
     molecule_dict = yaml_dict[molecule_name.value]
     return Dict(dict=molecule_dict)
 

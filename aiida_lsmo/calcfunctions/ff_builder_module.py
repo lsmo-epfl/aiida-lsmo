@@ -9,6 +9,8 @@ import ruamel.yaml as yaml
 from aiida.orm import SinglefileData
 from aiida.engine import calcfunction
 
+from .ff_data_schema import FF_DATA_SCHEMA
+
 THISDIR = os.path.dirname(os.path.abspath(__file__))
 
 
@@ -31,10 +33,16 @@ def check_ff_list(inp_list):
 
 
 def load_yaml():
-    """Load the ff_data.yaml as a dict."""
+    """Load the ff_data.yaml as a dict.
+
+    Includes validation against schema.
+    """
     yamlfullpath = os.path.join(THISDIR, 'ff_data.yaml')
+
     with open(yamlfullpath, 'r') as stream:
         ff_data = yaml.safe_load(stream)
+
+    FF_DATA_SCHEMA(ff_data)
     return ff_data
 
 
