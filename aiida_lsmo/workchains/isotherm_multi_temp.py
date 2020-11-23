@@ -15,7 +15,7 @@ def get_parameters_singletemp(i, parameters):
     """Get input Dict for a single isotherm calculation."""
     parameters_singletemp = parameters.get_dict()
     parameters_singletemp['temperature'] = parameters_singletemp['temperature_list'][i]
-    parameters_singletemp['temperature_list'] = None
+    parameters_singletemp.pop('temperature_list', None)
     return Dict(dict=parameters_singletemp)
 
 

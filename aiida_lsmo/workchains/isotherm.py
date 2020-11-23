@@ -3,15 +3,15 @@
 
 import os
 import ruamel.yaml as yaml
-from voluptuous import Schema, Required, Any
+from voluptuous import Required, Any
 
 from aiida.plugins import CalculationFactory, DataFactory, WorkflowFactory
 from aiida.orm import Dict, Str, List, SinglefileData
 from aiida.engine import calcfunction
 from aiida.engine import WorkChain, ToContext, append_, while_, if_
-from aiida_lsmo.utils import check_resize_unit_cell, dict_merge
+from aiida_lsmo.utils import check_resize_unit_cell, dict_merge, get_valid_dict
 from aiida_lsmo.utils.isotherm_molecules_schema import ISOTHERM_MOLECULES_SCHEMA
-
+from .parameters_schemas import FF_PARAMETERS_VALIDATOR
 # import sub-workchains
 RaspaBaseWorkChain = WorkflowFactory('raspa.base')  # pylint: disable=invalid-name
 
@@ -26,35 +26,6 @@ ZeoppParameters = DataFactory('zeopp.parameters')  # pylint: disable=invalid-nam
 # Schema for isotherm parameters, including default values
 NUMBER = Any(int, float)
 
-BASIC_PARAMETERS_SCHEMA = Schema({
-    Required('ff_framework', default='UFF'): str,  # Forcefield of the structure.
-    Required('ff_separate_interactions', default=False): bool,  # Use "separate_interactions" in the FF builder.
-    Required('ff_mixing_rule', default='Lorentz-Berthelot'): Any('Lorentz-Berthelot', 'Jorgensen'),  # Mixing rule
-    Required('ff_tail_corrections', default=True): bool,  # Apply tail corrections.
-    Required('ff_shifted', default=False): bool,  # Shift or truncate the potential at cutoff.
-    Required('ff_cutoff', default=12.0): NUMBER,  # CutOff truncation for the VdW interactions (Angstrom).
-    Required('temperature', default=300): NUMBER,  # Temperature of the simulation.
-    Required('zeopp_probe_scaling', default=1.0): NUMBER,  # scaling probe's diameter: molecular_rad * scaling
-    Required('zeopp_volpo_samples', default=int(1e5)): int,  # Number of samples for VOLPO calculation (per UC volume).
-    Required('zeopp_block_samples', default=int(100)): int,  # Number of samples for BLOCK calculation (per A^3).
-    Required('raspa_verbosity', default=10): int,  # Print stats every: number of cycles / raspa_verbosity.
-    Required('raspa_widom_cycles', default=int(1e5)): int,  # Number of Widom cycles.
-    Required('raspa_gcmc_init_cycles', default=int(1e3)): int,  # Number of GCMC initialization cycles.
-    Required('raspa_gcmc_prod_cycles', default=int(1e4)): int,  # Number of GCMC production cycles.
-    Required('pressure_min', default=0.001): NUMBER,  # Lower pressure to sample (bar).
-    Required('pressure_max', default=10): NUMBER,  # Upper pressure to sample (bar).
-    'pressure_list': list,  # Pressure list for the isotherm (bar): if given it will skip to guess it.
-})
-
-ISOTHERM_PARAMETERS_SCHEMA = BASIC_PARAMETERS_SCHEMA.extend({
-    'temperature_list': list,  # To be used by IsothermMultiTempWorkChain.
-    Required('raspa_minKh', default=1e-10):
-        NUMBER,  # If Henry coefficient < raspa_minKh do not run the isotherm (mol/kg/Pa).
-    Required('pressure_maxstep', default=5.0): NUMBER,  # (float) Max distance between pressure points (bar).
-    Required('pressure_precision', default=0.1):
-        NUMBER,  # (float) Precision in the sampling of the isotherm: 0.1 ok, 0.05 for high resolution.
-})
-
 
 # calcfunctions (in order of appearence)
 @calcfunction
@@ -68,13 +39,6 @@ def get_molecule_dict(molecule_name):
         ISOTHERM_MOLECULES_SCHEMA(yaml_dict)
     molecule_dict = yaml_dict[molecule_name.value]
     return Dict(dict=molecule_dict)
-
-
-@calcfunction
-def get_isotherm_parameters(parameters):
-    """Get isotherm parameters from user input (and validate them)."""
-    validated = ISOTHERM_PARAMETERS_SCHEMA(parameters.get_dict())
-    return Dict(dict=validated)
 
 
 @calcfunction
@@ -219,7 +183,27 @@ class IsothermWorkChain(WorkChain):
     it also runs a raspa widom calculation for the Henry coefficient.
     """
 
-    parameters_schema = ISOTHERM_PARAMETERS_SCHEMA.schema
+    parameters_schema = FF_PARAMETERS_VALIDATOR.extend({
+        Required('zeopp_probe_scaling', default=1.0): NUMBER,  # scaling probe's diameter: molecular_rad * scaling
+        Required('zeopp_volpo_samples', default=int(1e5)):
+            int,  # Number of samples for VOLPO calculation (per UC volume).
+        Required('zeopp_block_samples', default=int(100)): int,  # Number of samples for BLOCK calculation (per A^3).
+        Required('raspa_verbosity', default=10): int,  # Print stats every: number of cycles / raspa_verbosity.
+        Required('raspa_widom_cycles', default=int(1e5)): int,  # Number of Widom cycles.
+        Required('raspa_gcmc_init_cycles', default=int(1e3)): int,  # Number of GCMC initialization cycles.
+        Required('raspa_gcmc_prod_cycles', default=int(1e4)): int,  # Number of GCMC production cycles.
+        Required('raspa_minKh', default=1e-10):
+            NUMBER,  # If Henry coefficient < raspa_minKh do not run the isotherm (mol/kg/Pa).
+        Required('temperature', default=300): NUMBER,  # Temperature of the simulation.
+        'temperature_list': list,  # To be used by IsothermMultiTempWorkChain.
+        Required('pressure_min', default=0.001): NUMBER,  # Lower pressure to sample (bar).
+        Required('pressure_max', default=10): NUMBER,  # Upper pressure to sample (bar).
+        Required('pressure_maxstep', default=5.0): NUMBER,  # (float) Max distance between pressure points (bar).
+        Required('pressure_precision', default=0.1):
+            NUMBER,  # (float) Precision in the sampling of the isotherm: 0.1 ok, 0.05 for high resolution.
+        'pressure_list': list,  # Pressure list for the isotherm (bar): if given it will skip to guess it.
+    })
+    parameters_info = parameters_schema.schema  # shorthand for printing
 
     @classmethod
     def define(cls, spec):
@@ -238,6 +222,7 @@ class IsothermWorkChain(WorkChain):
 
         spec.input('parameters',
                    valid_type=Dict,
+                   validator=lambda dict_node, port: cls.parameters_schema(dict_node.get_dict()),
                    help='Parameters for the Isotherm workchain (see workchain.schema for default values).')
 
         spec.input('geometric',
@@ -278,7 +263,7 @@ class IsothermWorkChain(WorkChain):
             self.ctx.molecule = self.inputs.molecule
 
         # Get the parameters Dict, merging defaults with user settings
-        self.ctx.parameters = get_isotherm_parameters(self.inputs.parameters)
+        self.ctx.parameters = get_valid_dict(dict_node=self.inputs.parameters, schema=self.parameters_schema)
 
         # Get integer temperature in context for easy reports
         self.ctx.temperature = int(round(self.ctx.parameters['temperature']))
@@ -286,7 +271,7 @@ class IsothermWorkChain(WorkChain):
         # Understand if IsothermMultiTempWorkChain is calling this work chain
         if 'geometric' in self.inputs:
             self.ctx.multitemp_mode = 'run_single_temp'
-        elif self.ctx.parameters['temperature_list']:
+        elif 'temperature_list' in self.ctx.parameters:
             self.ctx.multitemp_mode = 'run_geom_only'
         else:
             self.ctx.multitemp_mode = None

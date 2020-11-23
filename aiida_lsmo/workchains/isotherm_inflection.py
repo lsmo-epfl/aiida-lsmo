@@ -8,10 +8,10 @@ from aiida.plugins import CalculationFactory, DataFactory, WorkflowFactory
 from aiida.orm import Dict, Str, List
 from aiida.engine import calcfunction
 from aiida.engine import WorkChain, ToContext, if_
-from aiida_lsmo.utils import check_resize_unit_cell, dict_merge
+from aiida_lsmo.utils import check_resize_unit_cell, dict_merge, get_valid_dict
 
-from .isotherm import (get_molecule_dict, get_atomic_radii, get_ff_parameters, get_zeopp_parameters, get_geometric_dict,
-                       BASIC_PARAMETERS_SCHEMA)
+from .isotherm import (get_molecule_dict, get_atomic_radii, get_ff_parameters, get_zeopp_parameters, get_geometric_dict)
+from .parameters_schemas import FF_PARAMETERS_VALIDATOR, NUMBER
 
 RaspaBaseWorkChain = WorkflowFactory('raspa.base')  # pylint: disable=invalid-name
 ZeoppCalculation = CalculationFactory('zeopp.network')  # pylint: disable=invalid-name
@@ -19,22 +19,11 @@ FFBuilder = CalculationFactory('lsmo.ff_builder')  # pylint: disable=invalid-nam
 CifData = DataFactory('cif')  # pylint: disable=invalid-name
 ZeoppParameters = DataFactory('zeopp.parameters')  # pylint: disable=invalid-name
 
-INFLECTION_PARAMETERS_SCHEMA = BASIC_PARAMETERS_SCHEMA.extend({
-    Required('pressure_num', default=20): int,  # Number of pressure points considered, eqispaced in a log plot
-})
-
 NAVO = 6.022E+23  # molec/mol
 A3TOL = 1E-27  # L/A3
 
 
 # calcfunctions (in order of appearence)
-@calcfunction
-def get_inflection_parameters(parameters):
-    """Get inflection parameters from user input (and validate them)."""
-    validated = INFLECTION_PARAMETERS_SCHEMA(parameters.get_dict())
-    return Dict(dict=validated)
-
-
 @calcfunction
 def get_pressure_points(molecule_dict, isotparam):
     """Multiply p/p0 with p0 to have pressure points in bar if pressure_list!=None,
@@ -126,7 +115,22 @@ class IsothermInflectionWorkChain(WorkChain):
     This workchain is useful to spot adsorption hysteresis.
     """
 
-    parameters_schema = INFLECTION_PARAMETERS_SCHEMA.schema
+    parameters_schema = FF_PARAMETERS_VALIDATOR.extend({
+        Required('zeopp_probe_scaling', default=1.0): NUMBER,  # scaling probe's diameter: molecular_rad * scaling
+        Required('zeopp_volpo_samples', default=int(1e5)):
+            int,  # Number of samples for VOLPO calculation (per UC volume).
+        Required('zeopp_block_samples', default=int(100)): int,  # Number of samples for BLOCK calculation (per A^3).
+        Required('raspa_verbosity', default=10): int,  # Print stats every: number of cycles / raspa_verbosity.
+        Required('raspa_widom_cycles', default=int(1e5)): int,  # Number of Widom cycles.
+        Required('raspa_gcmc_init_cycles', default=int(1e3)): int,  # Number of GCMC initialization cycles.
+        Required('raspa_gcmc_prod_cycles', default=int(1e4)): int,  # Number of GCMC production cycles.
+        Required('temperature', default=300): NUMBER,  # Temperature of the simulation.
+        Required('pressure_min', default=0.001): NUMBER,  # Lower pressure to sample (bar).
+        Required('pressure_max', default=10): NUMBER,  # Upper pressure to sample (bar).
+        'pressure_list': list,  # Pressure list for the isotherm (bar): if given it will skip to guess it.
+        Required('pressure_num', default=20): int,  # Number of pressure points considered, eqispaced in a log plot
+    })
+    parameters_info = parameters_schema.schema  # shorthand for printing
 
     @classmethod
     def define(cls, spec):
@@ -145,6 +149,7 @@ class IsothermInflectionWorkChain(WorkChain):
 
         spec.input('parameters',
                    valid_type=Dict,
+                   validator=lambda dict_node, port: cls.parameters_schema(dict_node.get_dict()),
                    help='Parameters for the Isotherm workchain (see workchain.schema for default values).')
 
         spec.outline(
@@ -174,7 +179,7 @@ class IsothermInflectionWorkChain(WorkChain):
             self.ctx.molecule = self.inputs.molecule
 
         # Get the parameters Dict, merging defaults with user settings
-        self.ctx.parameters = get_inflection_parameters(self.inputs.parameters)
+        self.ctx.parameters = get_valid_dict(dict_node=self.inputs.parameters, schema=self.parameters_schema)
 
         # Get integer temperature in context for easy reports
         self.ctx.temperature = int(round(self.ctx.parameters['temperature']))

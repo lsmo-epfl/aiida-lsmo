@@ -92,3 +92,9 @@ def get_structure_from_cif(cifdata):
 def get_cif_from_structure(structuredata):
     """Convert CifData to StructureData maintaining the provenance."""
     return structuredata.get_cif()
+
+
+@calcfunction
+def get_valid_dict(dict_node, schema):
+    """Validate dictionary against schema and return Dict instance."""
+    return Dict(dict=schema(dict_node.get_dict()))

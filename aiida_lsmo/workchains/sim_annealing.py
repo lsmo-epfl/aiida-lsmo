@@ -2,15 +2,17 @@
 """Isotherm workchain"""
 
 import os
+from voluptuous import Required
 import ase
 from aiida.plugins import CalculationFactory, DataFactory, WorkflowFactory
 from aiida.orm import Dict, Str
 from aiida.engine import calcfunction
 from aiida.engine import WorkChain, ToContext, append_, while_
-from aiida_lsmo.utils import check_resize_unit_cell, aiida_dict_merge, aiida_cif_merge
+from aiida_lsmo.utils import check_resize_unit_cell, aiida_cif_merge, get_valid_dict
 from aiida_lsmo.calcfunctions.ff_builder_module import load_yaml
 
 from .isotherm import get_molecule_dict, get_ff_parameters
+from .parameters_schemas import FF_PARAMETERS_VALIDATOR
 
 # import sub-workchains
 RaspaBaseWorkChain = WorkflowFactory('raspa.base')  # pylint: disable=invalid-name
@@ -20,19 +22,6 @@ FFBuilder = CalculationFactory('lsmo.ff_builder')  # pylint: disable=invalid-nam
 
 # import aiida data
 CifData = DataFactory('cif')  # pylint: disable=invalid-name
-
-# Deafault parameters
-PARAMETERS_DEFAULT = {
-    'ff_framework': 'UFF',  # (str) Forcefield of the structure.
-    'ff_separate_interactions': False,  # (bool) Use "separate_interactions" in the FF builder.
-    'ff_mixing_rule': 'Lorentz-Berthelot',  # (string) Choose 'Lorentz-Berthelot' or 'Jorgensen'.
-    'ff_tail_corrections': True,  # (bool) Apply tail corrections.
-    'ff_shifted': False,  # (bool) Shift or truncate the potential at cutoff.
-    'ff_cutoff': 12.0,  # (float) CutOff truncation for the VdW interactions (Angstrom).
-    'temperature_list': [300, 250, 200, 250, 100, 50],  # (list) List of decreasing temperatures for the annealing.
-    'mc_steps': int(1e3),  # (int) Number of MC cycles.
-    'number_of_molecules': 1  # (int) Number of molecules loaded in the framework.
-}
 
 
 # calcfunctions (in order of appearence)
@@ -86,10 +75,7 @@ def get_output_parameters(input_dict, min_out_dict, **nvt_out_dict):
     else:
         number_of_molecules = 1
 
-    if 'temperature_list' in input_dict.get_dict():
-        temperature_list = input_dict['temperature_list']
-    else:
-        temperature_list = [300, 250, 200, 250, 100, 50]
+    temperature_list = input_dict['temperature_list']
 
     out_dict = {'number_of_molecules': number_of_molecules, 'description': [], 'energy_unit': 'kJ/mol'}
 
@@ -123,6 +109,14 @@ class SimAnnealingWorkChain(WorkChain):
     i.e., decreasing the temperature of a Monte Carlo simulation and finally running and energy minimization step.
     """
 
+    parameters_schema = FF_PARAMETERS_VALIDATOR.extend({
+        Required('temperature_list', default=[300, 250, 200, 250, 100, 50]):
+            list,  # List of decreasing temperatures for the annealing.
+        Required('mc_steps', default=int(1e3)): int,  # Number of MC cycles.
+        Required('number_of_molecules', default=1): int  # Number of molecules loaded in the framework.
+    })
+    parameters_info = parameters_schema.schema  # shorthand for printing
+
     @classmethod
     def define(cls, spec):
         super().define(spec)
@@ -138,6 +132,7 @@ class SimAnnealingWorkChain(WorkChain):
 
         spec.input('parameters',
                    valid_type=Dict,
+                   validator=lambda dict_node, port: cls.parameters_schema(dict_node.get_dict()),
                    help='Parameters for the SimAnnealing workchain: will be merged with default ones.')
 
         spec.outline(cls.setup, while_(cls.should_run_nvt)(cls.run_raspa_nvt,), cls.run_raspa_min, cls.return_results)
@@ -208,7 +203,7 @@ class SimAnnealingWorkChain(WorkChain):
             self.ctx.molecule = self.inputs.molecule
 
         # Get the parameters Dict, merging defaults with user settings
-        self.ctx.parameters = aiida_dict_merge(Dict(dict=PARAMETERS_DEFAULT), self.inputs.parameters)
+        self.ctx.parameters = get_valid_dict(dict_node=self.inputs.parameters, schema=self.parameters_schema)
 
         # Initialize the input for raspa_base, which later will need only minor updates
         self.ctx.inp = self.exposed_inputs(RaspaBaseWorkChain, 'raspa_base')
