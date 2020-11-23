@@ -1,10 +1,14 @@
 # -*- coding: utf-8 -*-
 """ZeoppMultistageDdecWorkChain work chain"""
+import functools
+from voluptuous import Schema, Required
 
 from aiida.plugins import CalculationFactory, DataFactory, WorkflowFactory
 from aiida.common import AttributeDict
 from aiida.engine import WorkChain, ToContext
-from aiida_lsmo.utils import get_structure_from_cif
+from aiida_lsmo.utils import get_structure_from_cif, validate_dict
+
+from .parameters_schemas import NUMBER
 
 # import sub-workchains
 Cp2kMultistageDdecWorkChain = WorkflowFactory('lsmo.cp2k_multistage_ddec')  # pylint: disable=invalid-name
@@ -17,18 +21,20 @@ ZeoppCalculation = CalculationFactory('zeopp.network')  # pylint: disable=invali
 CifData = DataFactory('cif')  # pylint: disable=invalid-name
 NetworkParameters = DataFactory('zeopp.parameters')  # pylint: disable=invalid-name
 
-ZEOPP_PARAMETERS_DEFAULT = {  #Default parameters for microporous materials
-    'ha': 'DEF',  # Using high accuracy (mandatory!)
-    'res': True,  # Max included, free and incl in free sphere
-    'sa': [1.86, 1.86, 100000],  # Nitrogen probe to compute surface
-    'vol': [0.0, 0.0, 1000000],  # Geometric pore volume
-    'volpo': [1.86, 1.86, 100000],  # Nitrogen probe to compute PO pore volume
-    'psd': [1.2, 1.2, 10000]  # Small probe to compute the pore size distr
-}
-
 
 class ZeoppMultistageDdecWorkChain(WorkChain):
     """A workchain that combines: Zeopp + Cp2kMultistageWorkChain + Cp2kDdecWorkChain + Zeopp"""
+
+    parameters_schema = Schema({
+        Required('ha', default='DEF'): str,  # Using high accuracy (mandatory!)
+        Required('res', default=True): bool,  # Max included, free and incl in free sphere
+        Required('sa', default=[1.86, 1.86, 100000]): [NUMBER, NUMBER, int],  # Nitrogen probe to compute surface
+        Required('vol', default=[0.0, 0.0, 1000000]): [NUMBER, NUMBER, int],  # Geometric pore volume
+        Required('volpo', default=[1.86, 1.86, 100000]): [NUMBER, NUMBER, int],
+        # Nitrogen probe to compute PO pore volume
+        Required('psd', default=[1.2, 1.2, 10000]): [NUMBER, NUMBER, int],  # Small probe to compute the pore size distr
+    })
+    parameters_info = parameters_schema.schema  # shorthand for printing
 
     @classmethod
     def define(cls, spec):
@@ -37,7 +43,8 @@ class ZeoppMultistageDdecWorkChain(WorkChain):
 
         spec.input('structure', valid_type=CifData, help='input structure')
         spec.expose_inputs(ZeoppCalculation, namespace='zeopp', exclude=['structure'])
-        spec.inputs['zeopp']['parameters'].default = lambda: NetworkParameters(dict=ZEOPP_PARAMETERS_DEFAULT)
+        spec.inputs['zeopp']['parameters'].default = lambda: NetworkParameters(dict=cls.parameters_schema({}))
+        spec.inputs['zeopp']['parameters'].validator = functools.partial(validate_dict, schema=cls.parameters_schema)
         spec.inputs['zeopp']['parameters'].required = False
 
         spec.expose_inputs(Cp2kMultistageDdecWorkChain, exclude=['structure'])

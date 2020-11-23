@@ -2,6 +2,7 @@
 """Isotherm workchain"""
 
 import os
+import functools
 import ruamel.yaml as yaml
 from voluptuous import Required, Any
 
@@ -9,7 +10,7 @@ from aiida.plugins import CalculationFactory, DataFactory, WorkflowFactory
 from aiida.orm import Dict, Str, List, SinglefileData
 from aiida.engine import calcfunction
 from aiida.engine import WorkChain, ToContext, append_, while_, if_
-from aiida_lsmo.utils import check_resize_unit_cell, dict_merge, get_valid_dict
+from aiida_lsmo.utils import check_resize_unit_cell, dict_merge, get_valid_dict, validate_dict
 from aiida_lsmo.utils.isotherm_molecules_schema import ISOTHERM_MOLECULES_SCHEMA
 from .parameters_schemas import FF_PARAMETERS_VALIDATOR
 # import sub-workchains
@@ -222,7 +223,7 @@ class IsothermWorkChain(WorkChain):
 
         spec.input('parameters',
                    valid_type=Dict,
-                   validator=lambda dict_node, port: cls.parameters_schema(dict_node.get_dict()),
+                   validator=functools.partial(validate_dict, schema=cls.parameters_schema),
                    help='Parameters for the Isotherm workchain (see workchain.schema for default values).')
 
         spec.input('geometric',

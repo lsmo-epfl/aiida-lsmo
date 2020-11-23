@@ -1,14 +1,17 @@
 # -*- coding: utf-8 -*-
 """A work chain."""
+import functools
+from voluptuous import Required
 
 # AiiDA modules
 from aiida.plugins import CalculationFactory, DataFactory, WorkflowFactory
 from aiida.orm import Str, Dict
 from aiida.engine import calcfunction
 from aiida.engine import WorkChain, if_
-from aiida_lsmo.utils import aiida_dict_merge, check_resize_unit_cell
+from aiida_lsmo.utils import get_valid_dict, check_resize_unit_cell
 
-from .isotherm import get_molecule_dict, get_ff_parameters, get_atomic_radii
+from .isotherm import get_molecule_dict, get_ff_parameters, get_atomic_radii, validate_dict
+from .parameters_schemas import FF_PARAMETERS_VALIDATOR, NUMBER
 
 RaspaBaseWorkChain = WorkflowFactory('raspa.base')  #pylint: disable=invalid-name
 
@@ -18,20 +21,6 @@ ZeoppParameters = DataFactory('zeopp.parameters')  #pylint: disable=invalid-name
 
 ZeoppCalculation = CalculationFactory('zeopp.network')  #pylint: disable=invalid-name
 FFBuilder = CalculationFactory('lsmo.ff_builder')  # pylint: disable=invalid-name
-
-PARAMETERS_DEFAULT = {  #TODO: create IsothermParameters instead of Dict # pylint: disable=fixme
-    'ff_framework': 'UFF',  # str, Forcefield of the structure (used also as a definition of ff.rad for zeopp)
-    'ff_shifted': False,  # bool, Shift or truncate at cutoff
-    'ff_tail_corrections': True,  # bool, Apply tail corrections
-    'ff_mixing_rule': 'Lorentz-Berthelot',  # str, Mixing rule for the forcefield
-    'ff_separate_interactions': False,  # bool, if true use only ff_framework for framework-molecule interactions
-    'ff_cutoff': 12.0,  # float, CutOff truncation for the VdW interactions (Angstrom)
-    'zeopp_probe_scaling': 1.0,  # float, scaling probe's diameter: use 0.0 for skipping block calc
-    'zeopp_block_samples': int(1000),  # int, Number of samples for BLOCK calculation (per A^3)
-    'raspa_verbosity': 10,  # int, Print stats every: number of cycles / raspa_verbosity
-    'raspa_widom_cycles': int(1e5),  # int, Number of widom cycles
-    'temperatures': [300, 400]
-}
 
 
 @calcfunction
@@ -78,6 +67,15 @@ def get_output_parameters(inp_parameters, **all_out_dicts):
 class SinglecompWidomWorkChain(WorkChain):
     """Computes widom insertion for a framework/box at different temperatures."""
 
+    parameters_schema = FF_PARAMETERS_VALIDATOR.extend({
+        Required('zeopp_probe_scaling', default=1.0): NUMBER,  # scaling probe's diameter: molecular_rad * scaling
+        Required('zeopp_block_samples', default=int(100)): int,  # Number of samples for BLOCK calculation (per A^3).
+        Required('raspa_verbosity', default=10): int,  # Print stats every: number of cycles / raspa_verbosity.
+        Required('raspa_widom_cycles', default=int(1e5)): int,  # Number of Widom cycles.
+        Required('temperatures', default=[300, 400]): [NUMBER],
+    })
+    parameters_info = parameters_schema.schema  # shorthand for printing
+
     @classmethod
     def define(cls, spec):
         super(SinglecompWidomWorkChain, cls).define(spec)
@@ -91,6 +89,7 @@ class SinglecompWidomWorkChain(WorkChain):
                    'Advanced: input a Dict for non-standard settings.')
         spec.input('parameters',
                    valid_type=Dict,
+                   validator=functools.partial(validate_dict, schema=cls.parameters_schema),
                    help='Main parameters and settings for the calculations, to overwrite PARAMETERS_DEFAULT.')
         spec.outline(
             cls.setup,
@@ -106,7 +105,7 @@ class SinglecompWidomWorkChain(WorkChain):
     def setup(self):
         """Initialize parameters"""
         self.ctx.sim_in_box = 'structure' not in self.inputs.keys()
-        self.ctx.parameters = aiida_dict_merge(Dict(dict=PARAMETERS_DEFAULT), self.inputs.parameters)
+        self.ctx.parameters = get_valid_dict(dict_node=self.inputs.parameters, schema=self.parameters_schema)
         if isinstance(self.inputs.molecule, Str):
             self.ctx.molecule = get_molecule_dict(self.inputs.molecule)
         elif isinstance(self.inputs.molecule, Dict):

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """A work chain."""
-
+import functools
 import numpy as np
 from voluptuous import Required
 
@@ -10,7 +10,8 @@ from aiida.engine import calcfunction
 from aiida.engine import WorkChain, ToContext, if_
 from aiida_lsmo.utils import check_resize_unit_cell, dict_merge, get_valid_dict
 
-from .isotherm import (get_molecule_dict, get_atomic_radii, get_ff_parameters, get_zeopp_parameters, get_geometric_dict)
+from .isotherm import (get_molecule_dict, get_atomic_radii, get_ff_parameters, get_zeopp_parameters, validate_dict,
+                       get_geometric_dict)
 from .parameters_schemas import FF_PARAMETERS_VALIDATOR, NUMBER
 
 RaspaBaseWorkChain = WorkflowFactory('raspa.base')  # pylint: disable=invalid-name
@@ -149,7 +150,7 @@ class IsothermInflectionWorkChain(WorkChain):
 
         spec.input('parameters',
                    valid_type=Dict,
-                   validator=lambda dict_node, port: cls.parameters_schema(dict_node.get_dict()),
+                   validator=functools.partial(validate_dict, schema=cls.parameters_schema),
                    help='Parameters for the Isotherm workchain (see workchain.schema for default values).')
 
         spec.outline(

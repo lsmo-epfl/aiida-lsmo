@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """A work chain."""
 import os
+import functools
 import ruamel.yaml as yaml
 from voluptuous import Required
 
@@ -9,7 +10,7 @@ from aiida.plugins import CalculationFactory, DataFactory, WorkflowFactory
 from aiida.orm import Dict, SinglefileData
 from aiida.engine import calcfunction
 from aiida.engine import WorkChain, if_
-from aiida_lsmo.utils import check_resize_unit_cell, get_valid_dict
+from aiida_lsmo.utils import check_resize_unit_cell, get_valid_dict, validate_dict
 
 from .parameters_schemas import FF_PARAMETERS_VALIDATOR, NUMBER
 
@@ -159,7 +160,7 @@ class MulticompGcmcWorkChain(WorkChain):
                    help='Composition of the mixture, list of temperature and pressure conditions.')
         spec.input('parameters',
                    valid_type=Dict,
-                   validator=lambda dict_node, port: cls.parameters_schema(dict_node.get_dict()),
+                   validator=functools.partial(validate_dict, schema=cls.parameters_schema),
                    help='Main parameters and settings for the calculations, to overwrite PARAMETERS_DEFAULT.')
         spec.outline(
             cls.setup,

@@ -1,11 +1,15 @@
 # -*- coding: utf-8 -*-
 """IsothermCalcPE work chain."""
+import functools
+from voluptuous import Required
 
 from aiida.plugins import DataFactory, WorkflowFactory
 from aiida.orm import Dict, Str
 from aiida.engine import WorkChain
-from aiida_lsmo.utils import dict_merge
+from aiida_lsmo.utils import dict_merge, validate_dict
 from aiida_lsmo.calcfunctions import PE_PARAMETERS_DEFAULT, calc_co2_parasitic_energy
+
+from .parameters_schemas import FF_PARAMETERS_VALIDATOR, NUMBER
 
 # import sub-workchains
 IsothermWorkChain = WorkflowFactory('lsmo.isotherm')  #pylint: disable=invalid-name
@@ -13,30 +17,29 @@ IsothermWorkChain = WorkflowFactory('lsmo.isotherm')  #pylint: disable=invalid-n
 # import aiida data
 CifData = DataFactory('cif')  #pylint: disable=invalid-name
 
-ISOTHERM_PARAMETERS_DEFAULT = {  # Parameters used in 10.1021/acscentsci.9b00619
-    'ff_framework': 'UFF',  # valid_type=Str, help='Forcefield of the structure.'
-    'ff_shifted': True,  # shift or truncate at cutoff
-    'ff_tail_corrections': False,  # apply tail corrections
-    'ff_mixing_rule': 'Lorentz-Berthelot',  # str, Mixing rule for the forcefield
-    'ff_separate_interactions': False,  # bool, if true use only ff_framework for framework-molecule interactions
-    'ff_cutoff': 12.0,  # valid_type=Float, help='CutOff truncation for the VdW interactions (Angstrom)'
-    'temperature': 300,  # valid_type=Float, help='Temperature of the simulation'
-    'zeopp_volpo_samples': 1e5,  # valid_type=Int,help='Number of samples for VOLPO calculation (per UC volume)'
-    'zeopp_block_samples': 100,  # valid_type=Int, help='Number of samples for BLOCK calculation (per A^3)'
-    'raspa_minKh': 1e-10,
-    'raspa_verbosity': 10,  # valid_type=Int,help='Print stats every: number of cycles / raspa_verbosity'
-    'raspa_widom_cycles': 1e5,  # valid_type=Int, help='Number of widom cycles'
-    'raspa_gcmc_init_cycles': 1e3,  # valid_type=Int, help='Number of GCMC initialization cycles'
-    'raspa_gcmc_prod_cycles': 1e4,  # valid_type=Int, help='Number of GCMC production cycles'
-    'pressure_precision': 0.1,
-    'pressure_maxstep': 5,  # valid_type=Float, help='Max distance between pressure points (bar)'
-    'pressure_min': 0.001,  # valid_type=Float, help='Lower pressure to sample (bar)'
-    'pressure_max': 30
-}
-
 
 class IsothermCalcPEWorkChain(WorkChain):
     """ Compute CO2 parassitic energy (PE) after running IsothermWorkChain for CO2 and N2 at 300K."""
+
+    parameters_schema = FF_PARAMETERS_VALIDATOR.extend({
+        Required('zeopp_probe_scaling', default=1.0): NUMBER,  # scaling probe's diameter: molecular_rad * scaling
+        Required('zeopp_volpo_samples', default=int(1e5)):
+            int,  # Number of samples for VOLPO calculation (per UC volume).
+        Required('zeopp_block_samples', default=int(100)): int,  # Number of samples for BLOCK calculation (per A^3).
+        Required('raspa_verbosity', default=10): int,  # Print stats every: number of cycles / raspa_verbosity.
+        Required('raspa_widom_cycles', default=int(1e5)): int,  # Number of Widom cycles.
+        Required('raspa_gcmc_init_cycles', default=int(1e3)): int,  # Number of GCMC initialization cycles.
+        Required('raspa_gcmc_prod_cycles', default=int(1e4)): int,  # Number of GCMC production cycles.
+        Required('raspa_minKh', default=1e-10):
+            NUMBER,  # If Henry coefficient < raspa_minKh do not run the isotherm (mol/kg/Pa).
+        Required('temperature', default=300): NUMBER,  # Temperature of the simulation.
+        Required('pressure_min', default=0.001): NUMBER,  # Lower pressure to sample (bar).
+        Required('pressure_max', default=30): NUMBER,  # Upper pressure to sample (bar).
+        Required('pressure_maxstep', default=5.0): NUMBER,  # (float) Max distance between pressure points (bar).
+        Required('pressure_precision', default=0.1):
+            NUMBER,  # (float) Precision in the sampling of the isotherm: 0.1 ok, 0.05 for high resolution.
+    })
+    parameters_info = parameters_schema.schema  # shorthand for printing
 
     @classmethod
     def define(cls, spec):
@@ -45,7 +48,8 @@ class IsothermCalcPEWorkChain(WorkChain):
         spec.expose_inputs(IsothermWorkChain, exclude=['molecule', 'parameters'])
         spec.input('parameters',
                    valid_type=Dict,
-                   default=lambda: Dict(dict=ISOTHERM_PARAMETERS_DEFAULT),
+                   default=lambda: Dict(dict=cls.parameters_schema({})),
+                   validator=functools.partial(validate_dict, schema=cls.parameters_schema),
                    help='Parameters for Isotherm work chain')
 
         spec.input('pe_parameters',

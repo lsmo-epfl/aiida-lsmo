@@ -3,6 +3,7 @@
 
 import collections
 import ase
+from voluptuous import MultipleInvalid, Invalid
 from aiida.orm import Dict, CifData, StructureData
 from aiida.engine import calcfunction
 
@@ -98,3 +99,18 @@ def get_cif_from_structure(structuredata):
 def get_valid_dict(dict_node, schema):
     """Validate dictionary against schema and return Dict instance."""
     return Dict(dict=schema(dict_node.get_dict()))
+
+
+def validate_dict(dict_node, port, schema):  # pylint: disable=unused-argument
+    """Validate dictionary against schema.
+
+     To be used as validator in process input ports using functools:
+
+        validator = functools.partial(validate_dict, schema=cls.parameters_schema)
+     """
+    try:
+        schema(dict_node.get_dict())
+    except (Invalid, MultipleInvalid) as exc:
+        return str(exc)
+
+    return None

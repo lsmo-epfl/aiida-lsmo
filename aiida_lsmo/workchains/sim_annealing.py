@@ -2,13 +2,14 @@
 """Isotherm workchain"""
 
 import os
+import functools
 from voluptuous import Required
 import ase
 from aiida.plugins import CalculationFactory, DataFactory, WorkflowFactory
 from aiida.orm import Dict, Str
 from aiida.engine import calcfunction
 from aiida.engine import WorkChain, ToContext, append_, while_
-from aiida_lsmo.utils import check_resize_unit_cell, aiida_cif_merge, get_valid_dict
+from aiida_lsmo.utils import check_resize_unit_cell, aiida_cif_merge, get_valid_dict, validate_dict
 from aiida_lsmo.calcfunctions.ff_builder_module import load_yaml
 
 from .isotherm import get_molecule_dict, get_ff_parameters
@@ -132,7 +133,7 @@ class SimAnnealingWorkChain(WorkChain):
 
         spec.input('parameters',
                    valid_type=Dict,
-                   validator=lambda dict_node, port: cls.parameters_schema(dict_node.get_dict()),
+                   validator=functools.partial(validate_dict, schema=cls.parameters_schema),
                    help='Parameters for the SimAnnealing workchain: will be merged with default ones.')
 
         spec.outline(cls.setup, while_(cls.should_run_nvt)(cls.run_raspa_nvt,), cls.run_raspa_min, cls.return_results)
