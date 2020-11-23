@@ -9,7 +9,7 @@ from aiida.plugins import CalculationFactory, DataFactory, WorkflowFactory
 from aiida.orm import Dict, Str
 from aiida.engine import calcfunction
 from aiida.engine import WorkChain, ToContext, append_, while_
-from aiida_lsmo.utils import check_resize_unit_cell, aiida_cif_merge, get_valid_dict, validate_dict
+from aiida_lsmo.utils import check_resize_unit_cell, aiida_cif_merge, validate_dict
 from aiida_lsmo.calcfunctions.ff_builder_module import load_yaml
 
 from .isotherm import get_molecule_dict, get_ff_parameters
@@ -204,7 +204,11 @@ class SimAnnealingWorkChain(WorkChain):
             self.ctx.molecule = self.inputs.molecule
 
         # Get the parameters Dict, merging defaults with user settings
-        self.ctx.parameters = get_valid_dict(dict_node=self.inputs.parameters, schema=self.parameters_schema)
+        @calcfunction
+        def get_valid_dict(dict_node):
+            return Dict(dict=self.parameters_schema(dict_node.get_dict()))
+
+        self.ctx.parameters = get_valid_dict(self.inputs.parameters)
 
         # Initialize the input for raspa_base, which later will need only minor updates
         self.ctx.inp = self.exposed_inputs(RaspaBaseWorkChain, 'raspa_base')

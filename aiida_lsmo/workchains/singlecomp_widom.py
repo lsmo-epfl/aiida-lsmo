@@ -8,7 +8,7 @@ from aiida.plugins import CalculationFactory, DataFactory, WorkflowFactory
 from aiida.orm import Str, Dict
 from aiida.engine import calcfunction
 from aiida.engine import WorkChain, if_
-from aiida_lsmo.utils import get_valid_dict, check_resize_unit_cell
+from aiida_lsmo.utils import check_resize_unit_cell
 
 from .isotherm import get_molecule_dict, get_ff_parameters, get_atomic_radii, validate_dict
 from .parameters_schemas import FF_PARAMETERS_VALIDATOR, NUMBER
@@ -105,7 +105,13 @@ class SinglecompWidomWorkChain(WorkChain):
     def setup(self):
         """Initialize parameters"""
         self.ctx.sim_in_box = 'structure' not in self.inputs.keys()
-        self.ctx.parameters = get_valid_dict(dict_node=self.inputs.parameters, schema=self.parameters_schema)
+
+        # Get the parameters Dict, merging defaults with user settings
+        @calcfunction
+        def get_valid_dict(dict_node):
+            return Dict(dict=self.parameters_schema(dict_node.get_dict()))
+
+        self.ctx.parameters = get_valid_dict(self.inputs.parameters)
         if isinstance(self.inputs.molecule, Str):
             self.ctx.molecule = get_molecule_dict(self.inputs.molecule)
         elif isinstance(self.inputs.molecule, Dict):

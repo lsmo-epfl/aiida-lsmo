@@ -10,7 +10,7 @@ from aiida.plugins import CalculationFactory, DataFactory, WorkflowFactory
 from aiida.orm import Dict, SinglefileData
 from aiida.engine import calcfunction
 from aiida.engine import WorkChain, if_
-from aiida_lsmo.utils import get_valid_dict, check_resize_unit_cell, validate_dict
+from aiida_lsmo.utils import check_resize_unit_cell, validate_dict
 
 from .parameters_schemas import FF_PARAMETERS_VALIDATOR, NUMBER
 
@@ -175,7 +175,7 @@ class MulticompAdsDesWorkChain(WorkChain):
             cls.setup,
             if_(cls.should_run_zeopp)(cls.run_zeopp, cls.inspect_zeopp_calc),
             cls.run_raspa_gcmc_ads,
-            cls.run_raspa_gcmc_des,  #desorpion
+            cls.run_raspa_gcmc_des,  #desorption
             cls.return_output_parameters,
         )
 
@@ -190,7 +190,12 @@ class MulticompAdsDesWorkChain(WorkChain):
     def setup(self):
         """Initialize parameters"""
         self.ctx.sim_in_box = 'structure' not in self.inputs.keys()
-        self.ctx.parameters = get_valid_dict(dict_node=self.inputs.parameters, schema=self.parameters_schema)
+
+        @calcfunction
+        def get_valid_dict(dict_node):
+            return Dict(dict=self.parameters_schema(dict_node.get_dict()))
+
+        self.ctx.parameters = get_valid_dict(self.inputs.parameters)
         self.ctx.components = get_components_dict(self.inputs.conditions, self.ctx.parameters)
         self.ctx.ff_params = get_ff_parameters(self.ctx.components, self.ctx.parameters)
 

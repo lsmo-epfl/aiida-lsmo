@@ -10,7 +10,7 @@ from aiida.plugins import CalculationFactory, DataFactory, WorkflowFactory
 from aiida.orm import Dict, Str, List, SinglefileData
 from aiida.engine import calcfunction
 from aiida.engine import WorkChain, ToContext, append_, while_, if_
-from aiida_lsmo.utils import check_resize_unit_cell, dict_merge, get_valid_dict, validate_dict
+from aiida_lsmo.utils import check_resize_unit_cell, dict_merge, validate_dict
 from aiida_lsmo.utils.isotherm_molecules_schema import ISOTHERM_MOLECULES_SCHEMA
 from .parameters_schemas import FF_PARAMETERS_VALIDATOR
 # import sub-workchains
@@ -83,7 +83,7 @@ def choose_pressure_points(inp_param, geom, raspa_widom_out):
     """If 'presure_list' is not provide, model the isotherm as single-site langmuir and return the most important
     pressure points to evaluate for an isotherm, in a List.
     """
-    if 'pressure_list' in inp_param:
+    if 'pressure_list' in inp_param.attributes:
         pressure_points = inp_param['pressure_list']
     else:
         khenry = list(raspa_widom_out['framework_1']['components'].values())[0]['henry_coefficient_average']  #mol/kg/Pa
@@ -264,7 +264,11 @@ class IsothermWorkChain(WorkChain):
             self.ctx.molecule = self.inputs.molecule
 
         # Get the parameters Dict, merging defaults with user settings
-        self.ctx.parameters = get_valid_dict(dict_node=self.inputs.parameters, schema=self.parameters_schema)
+        @calcfunction
+        def get_valid_dict(dict_node):
+            return Dict(dict=self.parameters_schema(dict_node.get_dict()))
+
+        self.ctx.parameters = get_valid_dict(self.inputs.parameters)
 
         # Get integer temperature in context for easy reports
         self.ctx.temperature = int(round(self.ctx.parameters['temperature']))
@@ -272,7 +276,7 @@ class IsothermWorkChain(WorkChain):
         # Understand if IsothermMultiTempWorkChain is calling this work chain
         if 'geometric' in self.inputs:
             self.ctx.multitemp_mode = 'run_single_temp'
-        elif 'temperature_list' in self.ctx.parameters:
+        elif 'temperature_list' in self.ctx.parameters.attributes:
             self.ctx.multitemp_mode = 'run_geom_only'
         else:
             self.ctx.multitemp_mode = None

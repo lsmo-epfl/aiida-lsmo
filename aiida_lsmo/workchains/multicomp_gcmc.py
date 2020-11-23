@@ -10,7 +10,7 @@ from aiida.plugins import CalculationFactory, DataFactory, WorkflowFactory
 from aiida.orm import Dict, SinglefileData
 from aiida.engine import calcfunction
 from aiida.engine import WorkChain, if_
-from aiida_lsmo.utils import check_resize_unit_cell, get_valid_dict, validate_dict
+from aiida_lsmo.utils import check_resize_unit_cell, validate_dict
 
 from .parameters_schemas import FF_PARAMETERS_VALIDATOR, NUMBER
 
@@ -145,6 +145,7 @@ class MulticompGcmcWorkChain(WorkChain):
         Required('zeopp_block_samples', default=int(1e3)): int,  # Number of samples for BLOCK calculation (per A^3).
         Required('raspa_gcmc_init_cycles', default=int(1e5)): int,  # Number of GCMC initialization cycles.
         Required('raspa_gcmc_prod_cycles', default=int(1e5)): int,  # Number of GCMC production cycles.
+        Required('raspa_verbosity', default=10): int,  # Print stats every: number of cycles / raspa_verbosity.
     })
     parameters_info = parameters_schema.schema  # shorthand for printing
 
@@ -180,7 +181,13 @@ class MulticompGcmcWorkChain(WorkChain):
     def setup(self):
         """Initialize parameters"""
         self.ctx.sim_in_box = 'structure' not in self.inputs.keys()
-        self.ctx.parameters = get_valid_dict(dict_node=self.inputs.parameters, schema=self.parameters_schema)
+
+        # Get the parameters Dict, merging defaults with user settings
+        @calcfunction
+        def get_valid_dict(dict_node):
+            return Dict(dict=self.parameters_schema(dict_node.get_dict()))
+
+        self.ctx.parameters = get_valid_dict(self.inputs.parameters)
         self.ctx.components = get_components_dict(self.inputs.conditions, self.ctx.parameters)
         self.ctx.ff_params = get_ff_parameters(self.ctx.components, self.ctx.parameters)
 

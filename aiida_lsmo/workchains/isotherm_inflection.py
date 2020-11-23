@@ -8,7 +8,7 @@ from aiida.plugins import CalculationFactory, DataFactory, WorkflowFactory
 from aiida.orm import Dict, Str, List
 from aiida.engine import calcfunction
 from aiida.engine import WorkChain, ToContext, if_
-from aiida_lsmo.utils import check_resize_unit_cell, dict_merge, get_valid_dict
+from aiida_lsmo.utils import check_resize_unit_cell, dict_merge
 
 from .isotherm import (get_molecule_dict, get_atomic_radii, get_ff_parameters, get_zeopp_parameters, validate_dict,
                        get_geometric_dict)
@@ -30,7 +30,7 @@ def get_pressure_points(molecule_dict, isotparam):
     """Multiply p/p0 with p0 to have pressure points in bar if pressure_list!=None,
     or choose them based on pressure_min/max/num, to be equispaced in a Log plot.
     """
-    if 'pressure_list' in isotparam:
+    if 'pressure_list' in isotparam.attributes:
         pressure_points = [x * molecule_dict['pressure_zero'] for x in isotparam['pressure_list']]
     else:  # pressure_list==None
         exp_min = np.log10(isotparam['pressure_min'] * molecule_dict['pressure_zero'])
@@ -130,6 +130,7 @@ class IsothermInflectionWorkChain(WorkChain):
         Required('pressure_max', default=10): NUMBER,  # Upper pressure to sample (bar).
         'pressure_list': list,  # Pressure list for the isotherm (bar): if given it will skip to guess it.
         Required('pressure_num', default=20): int,  # Number of pressure points considered, eqispaced in a log plot
+        Required('box_length'): NUMBER,  # length of simulation box for simulation without framework
     })
     parameters_info = parameters_schema.schema  # shorthand for printing
 
@@ -180,7 +181,11 @@ class IsothermInflectionWorkChain(WorkChain):
             self.ctx.molecule = self.inputs.molecule
 
         # Get the parameters Dict, merging defaults with user settings
-        self.ctx.parameters = get_valid_dict(dict_node=self.inputs.parameters, schema=self.parameters_schema)
+        @calcfunction
+        def get_valid_dict(dict_node):
+            return Dict(dict=self.parameters_schema(dict_node.get_dict()))
+
+        self.ctx.parameters = get_valid_dict(self.inputs.parameters)
 
         # Get integer temperature in context for easy reports
         self.ctx.temperature = int(round(self.ctx.parameters['temperature']))
