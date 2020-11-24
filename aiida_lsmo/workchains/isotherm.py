@@ -11,7 +11,7 @@ from aiida.engine import calcfunction
 from aiida.engine import WorkChain, ToContext, append_, while_, if_
 from aiida_lsmo.utils import check_resize_unit_cell, dict_merge, validate_dict
 from aiida_lsmo.utils.isotherm_molecules_schema import ISOTHERM_MOLECULES_SCHEMA
-from .parameters_schemas import FF_PARAMETERS_VALIDATOR, Required, Any, Optional
+from .parameters_schemas import FF_PARAMETERS_VALIDATOR, Required, Optional, NUMBER
 # import sub-workchains
 RaspaBaseWorkChain = WorkflowFactory('raspa.base')  # pylint: disable=invalid-name
 
@@ -22,9 +22,6 @@ FFBuilder = CalculationFactory('lsmo.ff_builder')  # pylint: disable=invalid-nam
 # import aiida data
 CifData = DataFactory('cif')  # pylint: disable=invalid-name
 ZeoppParameters = DataFactory('zeopp.parameters')  # pylint: disable=invalid-name
-
-# Schema for isotherm parameters, including default values
-NUMBER = Any(int, float)
 
 
 # calcfunctions (in order of appearence)
