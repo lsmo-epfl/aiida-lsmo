@@ -11,7 +11,7 @@ from aiida_lsmo.utils import check_resize_unit_cell, dict_merge
 
 from .isotherm import (get_molecule_dict, get_atomic_radii, get_ff_parameters, get_zeopp_parameters, validate_dict,
                        get_geometric_dict)
-from .parameters_schemas import FF_PARAMETERS_VALIDATOR, NUMBER, Required
+from .parameters_schemas import FF_PARAMETERS_VALIDATOR, NUMBER, Required, Optional
 
 RaspaBaseWorkChain = WorkflowFactory('raspa.base')  # pylint: disable=invalid-name
 ZeoppCalculation = CalculationFactory('zeopp.network')  # pylint: disable=invalid-name
@@ -140,8 +140,9 @@ class IsothermInflectionWorkChain(WorkChain):
             NUMBER,  # TODO: MIN selected from the henry coefficient!  # pylint: disable=fixme
         Required('pressure_max', default=1.0, description='Upper pressure to sample (bar).'):
             NUMBER,
-        'pressure_list':
-            list,  # Pressure list for the isotherm (bar): if given it will skip to guess it.
+        Optional('pressure_list',
+                 description='Pressure list for the isotherm (bar): if given it will skip to guess it.'):
+            list,
         Required('pressure_num',
                  default=20,
                  description='Number of pressure points considered, eqispaced in a log plot'):

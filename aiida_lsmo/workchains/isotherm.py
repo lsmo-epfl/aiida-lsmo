@@ -11,7 +11,7 @@ from aiida.engine import calcfunction
 from aiida.engine import WorkChain, ToContext, append_, while_, if_
 from aiida_lsmo.utils import check_resize_unit_cell, dict_merge, validate_dict
 from aiida_lsmo.utils.isotherm_molecules_schema import ISOTHERM_MOLECULES_SCHEMA
-from .parameters_schemas import FF_PARAMETERS_VALIDATOR, Required, Any
+from .parameters_schemas import FF_PARAMETERS_VALIDATOR, Required, Any, Optional
 # import sub-workchains
 RaspaBaseWorkChain = WorkflowFactory('raspa.base')  # pylint: disable=invalid-name
 
@@ -208,8 +208,8 @@ class IsothermWorkChain(WorkChain):
             NUMBER,
         Required('temperature', default=300, description='Temperature of the simulation.'):
             NUMBER,
-        'temperature_list':
-            list,  # To be used by IsothermMultiTempWorkChain.
+        Optional('temperature_list', description='To be used by IsothermMultiTempWorkChain.'):
+            list,
         Required('pressure_min', default=0.001, description='Lower pressure to sample (bar).'):
             NUMBER,
         Required('pressure_max', default=10, description='Upper pressure to sample (bar).'):
@@ -220,8 +220,9 @@ class IsothermWorkChain(WorkChain):
                  default=0.1,
                  description='Precision in the sampling of the isotherm: 0.1 ok, 0.05 for high resolution.'):
             NUMBER,
-        'pressure_list':
-            list,  # Pressure list for the isotherm (bar): if given it will skip to guess it.
+        Optional('pressure_list',
+                 description='Pressure list for the isotherm (bar): if given it will skip to guess it.'):
+            list,
     })
     parameters_info = parameters_schema.schema  # shorthand for printing
 

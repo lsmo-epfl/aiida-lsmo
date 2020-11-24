@@ -33,8 +33,9 @@ class ZeoppMultistageDdecWorkChain(WorkChain):
             NUMBER, NUMBER, int
         ],
         Required('vol', default=[0.0, 0.0, 1000000], description='Geometric pore volume'): [NUMBER, NUMBER, int],
-        Required('volpo', default=[1.86, 1.86, 100000]): [NUMBER, NUMBER, int],
-        # Nitrogen probe to compute PO pore volume
+        Required('volpo', default=[1.86, 1.86, 100000], description='Nitrogen probe to compute PO pore volume'): [
+            NUMBER, NUMBER, int
+        ],
         Required('psd', default=[1.2, 1.2, 10000], description='Small probe to compute the pore size distr'): [
             NUMBER, NUMBER, int
         ],
