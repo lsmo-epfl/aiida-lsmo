@@ -4,7 +4,6 @@
 import os
 import functools
 import ruamel.yaml as yaml
-from voluptuous import Required, Any
 
 from aiida.plugins import CalculationFactory, DataFactory, WorkflowFactory
 from aiida.orm import Dict, Str, List, SinglefileData
@@ -12,7 +11,7 @@ from aiida.engine import calcfunction
 from aiida.engine import WorkChain, ToContext, append_, while_, if_
 from aiida_lsmo.utils import check_resize_unit_cell, dict_merge, validate_dict
 from aiida_lsmo.utils.isotherm_molecules_schema import ISOTHERM_MOLECULES_SCHEMA
-from .parameters_schemas import FF_PARAMETERS_VALIDATOR
+from .parameters_schemas import FF_PARAMETERS_VALIDATOR, Required, Any
 # import sub-workchains
 RaspaBaseWorkChain = WorkflowFactory('raspa.base')  # pylint: disable=invalid-name
 
@@ -80,8 +79,8 @@ def get_ff_parameters(molecule_dict, isotparam):
 
 @calcfunction
 def choose_pressure_points(inp_param, geom, raspa_widom_out):
-    """If 'presure_list' is not provide, model the isotherm as single-site langmuir and return the most important
-    pressure points to evaluate for an isotherm, in a List.
+    """If 'pressure_list' is not provided, model the isotherm as a single-site Langmuir and return a list of the most
+    important pressure points to evaluate for an isotherm.
     """
     if 'pressure_list' in inp_param.attributes:
         pressure_points = inp_param['pressure_list']
@@ -185,24 +184,44 @@ class IsothermWorkChain(WorkChain):
     """
 
     parameters_schema = FF_PARAMETERS_VALIDATOR.extend({
-        Required('zeopp_probe_scaling', default=1.0): NUMBER,  # scaling probe's diameter: molecular_rad * scaling
-        Required('zeopp_volpo_samples', default=int(1e5)):
-            int,  # Number of samples for VOLPO calculation (per UC volume).
-        Required('zeopp_block_samples', default=int(100)): int,  # Number of samples for BLOCK calculation (per A^3).
-        Required('raspa_verbosity', default=10): int,  # Print stats every: number of cycles / raspa_verbosity.
-        Required('raspa_widom_cycles', default=int(1e5)): int,  # Number of Widom cycles.
-        Required('raspa_gcmc_init_cycles', default=int(1e3)): int,  # Number of GCMC initialization cycles.
-        Required('raspa_gcmc_prod_cycles', default=int(1e4)): int,  # Number of GCMC production cycles.
-        Required('raspa_minKh', default=1e-10):
-            NUMBER,  # If Henry coefficient < raspa_minKh do not run the isotherm (mol/kg/Pa).
-        Required('temperature', default=300): NUMBER,  # Temperature of the simulation.
-        'temperature_list': list,  # To be used by IsothermMultiTempWorkChain.
-        Required('pressure_min', default=0.001): NUMBER,  # Lower pressure to sample (bar).
-        Required('pressure_max', default=10): NUMBER,  # Upper pressure to sample (bar).
-        Required('pressure_maxstep', default=5.0): NUMBER,  # (float) Max distance between pressure points (bar).
-        Required('pressure_precision', default=0.1):
-            NUMBER,  # (float) Precision in the sampling of the isotherm: 0.1 ok, 0.05 for high resolution.
-        'pressure_list': list,  # Pressure list for the isotherm (bar): if given it will skip to guess it.
+        Required('zeopp_probe_scaling', default=1.0, description="scaling probe's diameter: molecular_rad * scaling"):
+            NUMBER,
+        Required('zeopp_volpo_samples',
+                 default=int(1e5),
+                 description='Number of samples for VOLPO calculation (per UC volume).'):
+            int,
+        Required('zeopp_block_samples',
+                 default=int(100),
+                 description='Number of samples for BLOCK calculation (per A^3).'):
+            int,
+        Required('raspa_verbosity', default=10, description='Print stats every: number of cycles / raspa_verbosity.'):
+            int,
+        Required('raspa_widom_cycles', default=int(1e5), description='Number of Widom cycles.'):
+            int,
+        Required('raspa_gcmc_init_cycles', default=int(1e3), description='Number of GCMC initialization cycles.'):
+            int,
+        Required('raspa_gcmc_prod_cycles', default=int(1e4), description='Number of GCMC production cycles.'):
+            int,
+        Required('raspa_minKh',
+                 default=1e-10,
+                 description='If Henry coefficient < raspa_minKh do not run the isotherm (mol/kg/Pa).'):
+            NUMBER,
+        Required('temperature', default=300, description='Temperature of the simulation.'):
+            NUMBER,
+        'temperature_list':
+            list,  # To be used by IsothermMultiTempWorkChain.
+        Required('pressure_min', default=0.001, description='Lower pressure to sample (bar).'):
+            NUMBER,
+        Required('pressure_max', default=10, description='Upper pressure to sample (bar).'):
+            NUMBER,
+        Required('pressure_maxstep', default=5.0, description='(float) Max distance between pressure points (bar).'):
+            NUMBER,
+        Required('pressure_precision',
+                 default=0.1,
+                 description='Precision in the sampling of the isotherm: 0.1 ok, 0.05 for high resolution.'):
+            NUMBER,
+        'pressure_list':
+            list,  # Pressure list for the isotherm (bar): if given it will skip to guess it.
     })
     parameters_info = parameters_schema.schema  # shorthand for printing
 

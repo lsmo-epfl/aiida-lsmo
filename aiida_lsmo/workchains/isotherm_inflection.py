@@ -2,7 +2,6 @@
 """A work chain."""
 import functools
 import numpy as np
-from voluptuous import Required
 
 from aiida.plugins import CalculationFactory, DataFactory, WorkflowFactory
 from aiida.orm import Dict, Str, List
@@ -12,7 +11,7 @@ from aiida_lsmo.utils import check_resize_unit_cell, dict_merge
 
 from .isotherm import (get_molecule_dict, get_atomic_radii, get_ff_parameters, get_zeopp_parameters, validate_dict,
                        get_geometric_dict)
-from .parameters_schemas import FF_PARAMETERS_VALIDATOR, NUMBER
+from .parameters_schemas import FF_PARAMETERS_VALIDATOR, NUMBER, Required
 
 RaspaBaseWorkChain = WorkflowFactory('raspa.base')  # pylint: disable=invalid-name
 ZeoppCalculation = CalculationFactory('zeopp.network')  # pylint: disable=invalid-name
@@ -117,21 +116,40 @@ class IsothermInflectionWorkChain(WorkChain):
     """
 
     parameters_schema = FF_PARAMETERS_VALIDATOR.extend({
-        Required('zeopp_probe_scaling', default=1.0): NUMBER,  # scaling probe's diameter: molecular_rad * scaling
-        Required('zeopp_volpo_samples', default=int(1e5)):
-            int,  # Number of samples for VOLPO calculation (per UC volume).
-        Required('zeopp_block_samples', default=int(100)): int,  # Number of samples for BLOCK calculation (per A^3).
-        Required('raspa_verbosity', default=10): int,  # Print stats every: number of cycles / raspa_verbosity.
-        Required('raspa_widom_cycles', default=int(1e5)): int,  # Number of Widom cycles.
-        Required('raspa_gcmc_init_cycles', default=int(1e3)): int,  # Number of GCMC initialization cycles.
-        Required('raspa_gcmc_prod_cycles', default=int(1e4)): int,  # Number of GCMC production cycles.
-        Required('temperature', default=300): NUMBER,  # Temperature of the simulation.
-        Required('pressure_min', default=0.001): NUMBER,  # Lower pressure to sample (bar).
-        Required('pressure_max', default=10): NUMBER,  # Upper pressure to sample (bar).
-        'pressure_list': list,  # Pressure list for the isotherm (bar): if given it will skip to guess it.
-        Required('pressure_num', default=20): int,  # Number of pressure points considered, eqispaced in a log plot
-        Required('box_length'): NUMBER,  # length of simulation box for simulation without framework
+        Required('zeopp_probe_scaling', default=1.0, description="scaling probe's diameter: molecular_rad * scaling"):
+            NUMBER,
+        Required('zeopp_volpo_samples',
+                 default=int(1e5),
+                 description='Number of samples for VOLPO calculation (per UC volume).'):
+            int,
+        Required('zeopp_block_samples',
+                 default=int(100),
+                 description='Number of samples for BLOCK calculation (per A^3).'):
+            int,
+        Required('raspa_verbosity', default=10, description='Print stats every: number of cycles / raspa_verbosity.'):
+            int,
+        Required('raspa_widom_cycles', default=int(1e5), description='Number of Widom cycles.'):
+            int,
+        Required('raspa_gcmc_init_cycles', default=int(1e3), description='Number of GCMC initialization cycles.'):
+            int,
+        Required('raspa_gcmc_prod_cycles', default=int(1e4), description='Number of GCMC production cycles.'):
+            int,
+        Required('temperature', default=300, description='Temperature of the simulation.'):
+            NUMBER,
+        Required('pressure_min', default=0.001, description='Lower pressure to sample (bar).'):
+            NUMBER,  # TODO: MIN selected from the henry coefficient!  # pylint: disable=fixme
+        Required('pressure_max', default=1.0, description='Upper pressure to sample (bar).'):
+            NUMBER,
+        'pressure_list':
+            list,  # Pressure list for the isotherm (bar): if given it will skip to guess it.
+        Required('pressure_num',
+                 default=20,
+                 description='Number of pressure points considered, eqispaced in a log plot'):
+            int,
+        Required('box_length', description='length of simulation box for simulation without framework'):
+            NUMBER,
     })
+
     parameters_info = parameters_schema.schema  # shorthand for printing
 
     @classmethod

@@ -3,7 +3,6 @@
 import os
 import functools
 import ruamel.yaml as yaml
-from voluptuous import Required
 
 # AiiDA modules
 from aiida.plugins import CalculationFactory, DataFactory, WorkflowFactory
@@ -12,7 +11,7 @@ from aiida.engine import calcfunction
 from aiida.engine import WorkChain, if_
 from aiida_lsmo.utils import check_resize_unit_cell, validate_dict
 
-from .parameters_schemas import FF_PARAMETERS_VALIDATOR, NUMBER
+from .parameters_schemas import FF_PARAMETERS_VALIDATOR, NUMBER, Required
 
 RaspaBaseWorkChain = WorkflowFactory('raspa.base')  #pylint: disable=invalid-name
 
@@ -148,12 +147,20 @@ class MulticompAdsDesWorkChain(WorkChain):
     for a mixture of componentes and at specific temperature/pressure conditions.
     """
     parameters_schema = FF_PARAMETERS_VALIDATOR.extend({
-        Required('zeopp_probe_scaling', default=1.0): NUMBER,  # scaling probe's diameter: molecular_rad * scaling
-        Required('zeopp_block_samples', default=int(1000)): int,  # Number of samples for BLOCK calculation (per A^3).
-        Required('raspa_verbosity', default=10): int,  # Print stats every: number of cycles / raspa_verbosity.
-        Required('raspa_gcmc_init_cycles', default=int(1e3)): int,  # Number of GCMC initialization cycles.
-        Required('raspa_gcmc_prod_cycles', default=int(1e4)): int,  # Number of GCMC production cycles.
-        Required('raspa_widom_cycles', default=int(1e5)): int,  # Number of GCMC production cycles.
+        Required('zeopp_probe_scaling', default=1.0, description="scaling probe's diameter: molecular_rad * scaling"):
+            NUMBER,
+        Required('zeopp_block_samples',
+                 default=int(1000),
+                 description='Number of samples for BLOCK calculation (per A^3).'):
+            int,
+        Required('raspa_verbosity', default=10, description='Print stats every: number of cycles / raspa_verbosity.'):
+            int,
+        Required('raspa_gcmc_init_cycles', default=int(1e3), description='Number of GCMC initialization cycles.'):
+            int,
+        Required('raspa_gcmc_prod_cycles', default=int(1e4), description='Number of GCMC production cycles.'):
+            int,
+        Required('raspa_widom_cycles', default=int(1e5), description='Number of GCMC production cycles.'):
+            int,
     })
     parameters_info = parameters_schema.schema  # shorthand for printing
 

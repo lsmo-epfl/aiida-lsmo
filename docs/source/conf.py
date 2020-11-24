@@ -71,8 +71,6 @@ intersphinx_mapping = {
     'aiida_cp2k': ('https://aiida-cp2k.readthedocs.io/en/latest/', None),
 }
 
-nitpick_ignore = [('py:obj', 'module')]
-
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
 
@@ -426,4 +424,5 @@ nitpick_ignore = [
     ('py:obj', 'float'),
     ('py:obj', 'bool'),
     ('py:obj', 'Mapping'),
+    ('py:class', 'voluptuous.schema_builder.Marker'),
 ]

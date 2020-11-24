@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
 """ZeoppMultistageDdecWorkChain work chain"""
 import functools
-from voluptuous import Schema, Required
 
 from aiida.plugins import CalculationFactory, DataFactory, WorkflowFactory
 from aiida.common import AttributeDict
 from aiida.engine import WorkChain, ToContext
 from aiida_lsmo.utils import get_structure_from_cif, validate_dict
 
-from .parameters_schemas import NUMBER
+from .parameters_schemas import NUMBER, Required, Schema
 
 # import sub-workchains
 Cp2kMultistageDdecWorkChain = WorkflowFactory('lsmo.cp2k_multistage_ddec')  # pylint: disable=invalid-name
@@ -26,13 +25,19 @@ class ZeoppMultistageDdecWorkChain(WorkChain):
     """A workchain that combines: Zeopp + Cp2kMultistageWorkChain + Cp2kDdecWorkChain + Zeopp"""
 
     parameters_schema = Schema({
-        Required('ha', default='DEF'): str,  # Using high accuracy (mandatory!)
-        Required('res', default=True): bool,  # Max included, free and incl in free sphere
-        Required('sa', default=[1.86, 1.86, 100000]): [NUMBER, NUMBER, int],  # Nitrogen probe to compute surface
-        Required('vol', default=[0.0, 0.0, 1000000]): [NUMBER, NUMBER, int],  # Geometric pore volume
+        Required('ha', default='DEF', description='Using high accuracy (mandatory!)'):
+            str,
+        Required('res', default=True, description='Max included, free and incl in free sphere'):
+            bool,
+        Required('sa', default=[1.86, 1.86, 100000], description='Nitrogen probe to compute surface'): [
+            NUMBER, NUMBER, int
+        ],
+        Required('vol', default=[0.0, 0.0, 1000000], description='Geometric pore volume'): [NUMBER, NUMBER, int],
         Required('volpo', default=[1.86, 1.86, 100000]): [NUMBER, NUMBER, int],
         # Nitrogen probe to compute PO pore volume
-        Required('psd', default=[1.2, 1.2, 10000]): [NUMBER, NUMBER, int],  # Small probe to compute the pore size distr
+        Required('psd', default=[1.2, 1.2, 10000], description='Small probe to compute the pore size distr'): [
+            NUMBER, NUMBER, int
+        ],
     })
     parameters_info = parameters_schema.schema  # shorthand for printing
 

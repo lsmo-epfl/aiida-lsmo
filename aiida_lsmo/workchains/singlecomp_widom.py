@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """A work chain."""
 import functools
-from voluptuous import Required
 
 # AiiDA modules
 from aiida.plugins import CalculationFactory, DataFactory, WorkflowFactory
@@ -11,7 +10,7 @@ from aiida.engine import WorkChain, if_
 from aiida_lsmo.utils import check_resize_unit_cell
 
 from .isotherm import get_molecule_dict, get_ff_parameters, get_atomic_radii, validate_dict
-from .parameters_schemas import FF_PARAMETERS_VALIDATOR, NUMBER
+from .parameters_schemas import FF_PARAMETERS_VALIDATOR, NUMBER, Required
 
 RaspaBaseWorkChain = WorkflowFactory('raspa.base')  #pylint: disable=invalid-name
 
@@ -68,10 +67,16 @@ class SinglecompWidomWorkChain(WorkChain):
     """Computes widom insertion for a framework/box at different temperatures."""
 
     parameters_schema = FF_PARAMETERS_VALIDATOR.extend({
-        Required('zeopp_probe_scaling', default=1.0): NUMBER,  # scaling probe's diameter: molecular_rad * scaling
-        Required('zeopp_block_samples', default=int(100)): int,  # Number of samples for BLOCK calculation (per A^3).
-        Required('raspa_verbosity', default=10): int,  # Print stats every: number of cycles / raspa_verbosity.
-        Required('raspa_widom_cycles', default=int(1e5)): int,  # Number of Widom cycles.
+        Required('zeopp_probe_scaling', default=1.0, description="scaling probe's diameter: molecular_rad * scaling"):
+            NUMBER,
+        Required('zeopp_block_samples',
+                 default=int(100),
+                 description='Number of samples for BLOCK calculation (per A^3).'):
+            int,
+        Required('raspa_verbosity', default=10, description='Print stats every: number of cycles / raspa_verbosity.'):
+            int,
+        Required('raspa_widom_cycles', default=int(1e5), description='Number of Widom cycles.'):
+            int,
         Required('temperatures', default=[300, 400]): [NUMBER],
     })
     parameters_info = parameters_schema.schema  # shorthand for printing

@@ -3,7 +3,6 @@
 
 import os
 import functools
-from voluptuous import Required
 import ase
 from aiida.plugins import CalculationFactory, DataFactory, WorkflowFactory
 from aiida.orm import Dict, Str
@@ -13,7 +12,7 @@ from aiida_lsmo.utils import check_resize_unit_cell, aiida_cif_merge, validate_d
 from aiida_lsmo.calcfunctions.ff_builder_module import load_yaml
 
 from .isotherm import get_molecule_dict, get_ff_parameters
-from .parameters_schemas import FF_PARAMETERS_VALIDATOR
+from .parameters_schemas import FF_PARAMETERS_VALIDATOR, Required
 
 # import sub-workchains
 RaspaBaseWorkChain = WorkflowFactory('raspa.base')  # pylint: disable=invalid-name
@@ -33,11 +32,7 @@ def get_molecule_from_restart_file(structure_cif, molecule_folderdata, input_dic
     as you can not wrap them in the small cell.
     """
 
-    # Get number of guest molecules
-    if 'number_of_molecules' in input_dict.get_dict():
-        number_of_molecules = input_dict['number_of_molecules']
-    else:
-        number_of_molecules = 1
+    number_of_molecules = input_dict.get_dict()['number_of_molecules']
 
     # Get the non-M (non-dummy) atom types of the molecule (ASE accepts only atomic elements as "symbols")
     ff_data = load_yaml()
@@ -111,10 +106,14 @@ class SimAnnealingWorkChain(WorkChain):
     """
 
     parameters_schema = FF_PARAMETERS_VALIDATOR.extend({
-        Required('temperature_list', default=[300, 250, 200, 250, 100, 50]):
-            list,  # List of decreasing temperatures for the annealing.
-        Required('mc_steps', default=int(1e3)): int,  # Number of MC cycles.
-        Required('number_of_molecules', default=1): int  # Number of molecules loaded in the framework.
+        Required('temperature_list',
+                 default=[300, 250, 200, 250, 100, 50],
+                 description='List of decreasing temperatures for the annealing.'):
+            list,
+        Required('mc_steps', default=int(1e3), description='Number of MC cycles.'):
+            int,
+        Required('number_of_molecules', default=1, description='Number of molecules loaded in the framework.'):
+            int
     })
     parameters_info = parameters_schema.schema  # shorthand for printing
 
@@ -276,7 +275,7 @@ class SimAnnealingWorkChain(WorkChain):
         self.out(
             'loaded_molecule',
             get_molecule_from_restart_file(self.inputs.structure, self.ctx.raspa_min.outputs.retrieved,
-                                           self.inputs.parameters, self.ctx.molecule))
+                                           self.ctx.parameters, self.ctx.molecule))
         self.out('loaded_structure', aiida_cif_merge(self.inputs.structure, self.outputs['loaded_molecule']))
 
         nvt_out_dict = {}
@@ -285,7 +284,7 @@ class SimAnnealingWorkChain(WorkChain):
 
         self.out(
             'output_parameters',
-            get_output_parameters(input_dict=self.inputs.parameters,
+            get_output_parameters(input_dict=self.ctx.parameters,
                                   min_out_dict=self.ctx.raspa_min.outputs.output_parameters,
                                   **nvt_out_dict))
 
