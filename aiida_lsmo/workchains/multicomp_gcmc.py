@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """A work chain."""
 import os
+import functools
 import ruamel.yaml as yaml
 
 # AiiDA modules
@@ -8,7 +9,9 @@ from aiida.plugins import CalculationFactory, DataFactory, WorkflowFactory
 from aiida.orm import Dict, SinglefileData
 from aiida.engine import calcfunction
 from aiida.engine import WorkChain, if_
-from aiida_lsmo.utils import aiida_dict_merge, check_resize_unit_cell
+from aiida_lsmo.utils import check_resize_unit_cell, validate_dict
+
+from .parameters_schemas import FF_PARAMETERS_VALIDATOR, NUMBER, Required
 
 RaspaBaseWorkChain = WorkflowFactory('raspa.base')  #pylint: disable=invalid-name
 
@@ -19,21 +22,8 @@ ZeoppParameters = DataFactory('zeopp.parameters')  #pylint: disable=invalid-name
 ZeoppCalculation = CalculationFactory('zeopp.network')  #pylint: disable=invalid-name
 FFBuilder = CalculationFactory('lsmo.ff_builder')  # pylint: disable=invalid-name
 
-PARAMETERS_DEFAULT = {
-    'ff_framework': 'UFF',  # str, Forcefield of the structure (used also as a definition of ff.rad for zeopp)
-    'ff_shifted': False,  # bool, Shift or truncate at cutoff
-    'ff_tail_corrections': True,  # bool, Apply tail corrections
-    'ff_mixing_rule': 'Lorentz-Berthelot',  # str, Mixing rule for the forcefield
-    'ff_separate_interactions': False,  # bool, if true use only ff_framework for framework-molecule interactions
-    'ff_cutoff': 12.0,  # float, CutOff truncation for the VdW interactions (Angstrom)
-    'zeopp_probe_scaling': 1.0,  # float, scaling probe's diameter: use 0.0 for skipping block calc
-    'zeopp_block_samples': int(1000),  # int, Number of samples for BLOCK calculation (per A^3)
-    'raspa_verbosity': 10,  # int, Print stats every: number of cycles / raspa_verbosity
-    'raspa_gcmc_init_cycles': int(1e5),  # int, Number of GCMC initialization cycles
-    'raspa_gcmc_prod_cycles': int(1e5),  # int, Number of GCMC production cycles
-}
 
-
+# CalcFunctions in order of use
 @calcfunction
 def get_components_dict(conditions, parameters):
     """Construct components dict, like:
@@ -149,6 +139,22 @@ class MulticompGcmcWorkChain(WorkChain):
     for a mixture of componentes and at specific temperature/pressure conditions.
     """
 
+    parameters_schema = FF_PARAMETERS_VALIDATOR.extend({
+        Required('zeopp_probe_scaling', default=1.0, description="scaling probe's diameter: molecular_rad * scaling"):
+            NUMBER,
+        Required('zeopp_block_samples',
+                 default=int(1e3),
+                 description='Number of samples for BLOCK calculation (per A^3).'):
+            int,
+        Required('raspa_gcmc_init_cycles', default=int(1e5), description='Number of GCMC initialization cycles.'):
+            int,
+        Required('raspa_gcmc_prod_cycles', default=int(1e5), description='Number of GCMC production cycles.'):
+            int,
+        Required('raspa_verbosity', default=10, description='Print stats every: number of cycles / raspa_verbosity.'):
+            int,
+    })
+    parameters_info = parameters_schema.schema  # shorthand for printing
+
     @classmethod
     def define(cls, spec):
         super(MulticompGcmcWorkChain, cls).define(spec)
@@ -161,6 +167,7 @@ class MulticompGcmcWorkChain(WorkChain):
                    help='Composition of the mixture, list of temperature and pressure conditions.')
         spec.input('parameters',
                    valid_type=Dict,
+                   validator=functools.partial(validate_dict, schema=cls.parameters_schema),
                    help='Main parameters and settings for the calculations, to overwrite PARAMETERS_DEFAULT.')
         spec.outline(
             cls.setup,
@@ -180,7 +187,13 @@ class MulticompGcmcWorkChain(WorkChain):
     def setup(self):
         """Initialize parameters"""
         self.ctx.sim_in_box = 'structure' not in self.inputs.keys()
-        self.ctx.parameters = aiida_dict_merge(Dict(dict=PARAMETERS_DEFAULT), self.inputs.parameters)
+
+        # Get the parameters Dict, merging defaults with user settings
+        @calcfunction
+        def get_valid_dict(dict_node):
+            return Dict(dict=self.parameters_schema(dict_node.get_dict()))
+
+        self.ctx.parameters = get_valid_dict(self.inputs.parameters)
         self.ctx.components = get_components_dict(self.inputs.conditions, self.ctx.parameters)
         self.ctx.ff_params = get_ff_parameters(self.ctx.components, self.ctx.parameters)
 

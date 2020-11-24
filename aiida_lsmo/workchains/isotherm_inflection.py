@@ -1,42 +1,23 @@
 # -*- coding: utf-8 -*-
 """A work chain."""
-
+import functools
 import numpy as np
 
 from aiida.plugins import CalculationFactory, DataFactory, WorkflowFactory
 from aiida.orm import Dict, Str, List
 from aiida.engine import calcfunction
 from aiida.engine import WorkChain, ToContext, if_
-from aiida_lsmo.utils import check_resize_unit_cell, aiida_dict_merge, dict_merge
+from aiida_lsmo.utils import check_resize_unit_cell, dict_merge
 
-from .isotherm import get_molecule_dict, get_atomic_radii, get_ff_parameters, get_zeopp_parameters, get_geometric_dict
+from .isotherm import (get_molecule_dict, get_atomic_radii, get_ff_parameters, get_zeopp_parameters, validate_dict,
+                       get_geometric_dict)
+from .parameters_schemas import FF_PARAMETERS_VALIDATOR, NUMBER, Required, Optional
 
 RaspaBaseWorkChain = WorkflowFactory('raspa.base')  # pylint: disable=invalid-name
 ZeoppCalculation = CalculationFactory('zeopp.network')  # pylint: disable=invalid-name
 FFBuilder = CalculationFactory('lsmo.ff_builder')  # pylint: disable=invalid-name
 CifData = DataFactory('cif')  # pylint: disable=invalid-name
 ZeoppParameters = DataFactory('zeopp.parameters')  # pylint: disable=invalid-name
-
-PARAMETERS_DEFAULT = {
-    'ff_framework': 'UFF',  # (str) Forcefield of the structure.
-    'ff_separate_interactions': False,  # (bool) Use "separate_interactions" in the FF builder.
-    'ff_mixing_rule': 'Lorentz-Berthelot',  # (string) Choose 'Lorentz-Berthelot' or 'Jorgensen'.
-    'ff_tail_corrections': True,  # (bool) Apply tail corrections.
-    'ff_shifted': False,  # (bool) Shift or truncate the potential at cutoff.
-    'ff_cutoff': 12.0,  # (float) CutOff truncation for the VdW interactions (Angstrom).
-    'temperature': 300,  # (float) Temperature of the simulation.
-    'zeopp_probe_scaling': 1.0,  # float, scaling probe's diameter: use 0.0 for skipping block calc
-    'zeopp_volpo_samples': int(1e5),  # (int) Number of samples for VOLPO calculation (per UC volume).
-    'zeopp_block_samples': int(100),  # (int) Number of samples for BLOCK calculation (per A^3).
-    'raspa_verbosity': 10,  # (int) Print stats every: number of cycles / raspa_verbosity.
-    'raspa_widom_cycles': int(1e5),  # (int) Number of Widom cycles.
-    'raspa_gcmc_init_cycles': int(1e3),  # (int) Number of GCMC initialization cycles.
-    'raspa_gcmc_prod_cycles': int(1e4),  # (int) Number of GCMC production cycles.
-    'pressure_min': 0.001,  # (float) Min pressure in P/P0 TODO: MIN selected from the henry coefficient!
-    'pressure_max': 1.0,  # (float) Max pressure in P/P0
-    'pressure_num': 20,  # (int) Number of pressure points considered, eqispaced in a log plot
-    'pressure_list': None,  # (list) Pressure list in P/P0. If 'None' pressure points are computed from min/max/num.
-}
 
 NAVO = 6.022E+23  # molec/mol
 A3TOL = 1E-27  # L/A3
@@ -48,7 +29,7 @@ def get_pressure_points(molecule_dict, isotparam):
     """Multiply p/p0 with p0 to have pressure points in bar if pressure_list!=None,
     or choose them based on pressure_min/max/num, to be equispaced in a Log plot.
     """
-    if isotparam['pressure_list']:
+    if 'pressure_list' in isotparam.attributes:
         pressure_points = [x * molecule_dict['pressure_zero'] for x in isotparam['pressure_list']]
     else:  # pressure_list==None
         exp_min = np.log10(isotparam['pressure_min'] * molecule_dict['pressure_zero'])
@@ -134,6 +115,44 @@ class IsothermInflectionWorkChain(WorkChain):
     This workchain is useful to spot adsorption hysteresis.
     """
 
+    parameters_schema = FF_PARAMETERS_VALIDATOR.extend({
+        Required('zeopp_probe_scaling', default=1.0, description="scaling probe's diameter: molecular_rad * scaling"):
+            NUMBER,
+        Required('zeopp_volpo_samples',
+                 default=int(1e5),
+                 description='Number of samples for VOLPO calculation (per UC volume).'):
+            int,
+        Required('zeopp_block_samples',
+                 default=int(100),
+                 description='Number of samples for BLOCK calculation (per A^3).'):
+            int,
+        Required('raspa_verbosity', default=10, description='Print stats every: number of cycles / raspa_verbosity.'):
+            int,
+        Required('raspa_widom_cycles', default=int(1e5), description='Number of Widom cycles.'):
+            int,
+        Required('raspa_gcmc_init_cycles', default=int(1e3), description='Number of GCMC initialization cycles.'):
+            int,
+        Required('raspa_gcmc_prod_cycles', default=int(1e4), description='Number of GCMC production cycles.'):
+            int,
+        Required('temperature', default=300, description='Temperature of the simulation.'):
+            NUMBER,
+        Required('pressure_min', default=0.001, description='Lower pressure to sample (bar).'):
+            NUMBER,  # TODO: MIN selected from the henry coefficient!  # pylint: disable=fixme
+        Required('pressure_max', default=1.0, description='Upper pressure to sample (bar).'):
+            NUMBER,
+        Optional('pressure_list',
+                 description='Pressure list for the isotherm (bar): if given it will skip to guess it.'):
+            list,
+        Required('pressure_num',
+                 default=20,
+                 description='Number of pressure points considered, eqispaced in a log plot'):
+            int,
+        Required('box_length', description='length of simulation box for simulation without framework'):
+            NUMBER,
+    })
+
+    parameters_info = parameters_schema.schema  # shorthand for printing
+
     @classmethod
     def define(cls, spec):
         super().define(spec)
@@ -151,7 +170,8 @@ class IsothermInflectionWorkChain(WorkChain):
 
         spec.input('parameters',
                    valid_type=Dict,
-                   help='Parameters for the Isotherm workchain: will be merged with IsothermParameters_defaults.')
+                   validator=functools.partial(validate_dict, schema=cls.parameters_schema),
+                   help='Parameters for the Isotherm workchain (see workchain.schema for default values).')
 
         spec.outline(
             cls.setup,
@@ -180,7 +200,11 @@ class IsothermInflectionWorkChain(WorkChain):
             self.ctx.molecule = self.inputs.molecule
 
         # Get the parameters Dict, merging defaults with user settings
-        self.ctx.parameters = aiida_dict_merge(Dict(dict=PARAMETERS_DEFAULT), self.inputs.parameters)
+        @calcfunction
+        def get_valid_dict(dict_node):
+            return Dict(dict=self.parameters_schema(dict_node.get_dict()))
+
+        self.ctx.parameters = get_valid_dict(self.inputs.parameters)
 
         # Get integer temperature in context for easy reports
         self.ctx.temperature = int(round(self.ctx.parameters['temperature']))

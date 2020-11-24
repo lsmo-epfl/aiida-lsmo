@@ -2,14 +2,16 @@
 """Isotherm workchain"""
 
 import os
+import functools
+import ruamel.yaml as yaml
 
 from aiida.plugins import CalculationFactory, DataFactory, WorkflowFactory
 from aiida.orm import Dict, Str, List, SinglefileData
 from aiida.engine import calcfunction
 from aiida.engine import WorkChain, ToContext, append_, while_, if_
-from aiida_lsmo.utils import check_resize_unit_cell, aiida_dict_merge, dict_merge
+from aiida_lsmo.utils import check_resize_unit_cell, dict_merge, validate_dict
 from aiida_lsmo.utils.isotherm_molecules_schema import ISOTHERM_MOLECULES_SCHEMA
-
+from .parameters_schemas import FF_PARAMETERS_VALIDATOR, Required, Optional, NUMBER
 # import sub-workchains
 RaspaBaseWorkChain = WorkflowFactory('raspa.base')  # pylint: disable=invalid-name
 
@@ -21,37 +23,12 @@ FFBuilder = CalculationFactory('lsmo.ff_builder')  # pylint: disable=invalid-nam
 CifData = DataFactory('cif')  # pylint: disable=invalid-name
 ZeoppParameters = DataFactory('zeopp.parameters')  # pylint: disable=invalid-name
 
-# Deafault parameters
-ISOTHERMPARAMETERS_DEFAULT = {  #TODO: create IsothermParameters instead of Dict # pylint: disable=fixme
-    'ff_framework': 'UFF',  # (str) Forcefield of the structure.
-    'ff_separate_interactions': False,  # (bool) Use "separate_interactions" in the FF builder.
-    'ff_mixing_rule': 'Lorentz-Berthelot',  # (string) Choose 'Lorentz-Berthelot' or 'Jorgensen'.
-    'ff_tail_corrections': True,  # (bool) Apply tail corrections.
-    'ff_shifted': False,  # (bool) Shift or truncate the potential at cutoff.
-    'ff_cutoff': 12.0,  # (float) CutOff truncation for the VdW interactions (Angstrom).
-    'temperature': 300,  # (float) Temperature of the simulation.
-    'temperature_list': None,  # (list) To be used by IsothermMultiTempWorkChain.
-    'zeopp_probe_scaling': 1.0,  # float, scaling probe's diameter: molecular_rad * scaling
-    'zeopp_volpo_samples': int(1e5),  # (int) Number of samples for VOLPO calculation (per UC volume).
-    'zeopp_block_samples': int(100),  # (int) Number of samples for BLOCK calculation (per A^3).
-    'raspa_minKh': 1e-10,  # (float) If Henry coefficient < raspa_minKh do not run the isotherm (mol/kg/Pa).
-    'raspa_verbosity': 10,  # (int) Print stats every: number of cycles / raspa_verbosity.
-    'raspa_widom_cycles': int(1e5),  # (int) Number of Widom cycles.
-    'raspa_gcmc_init_cycles': int(1e3),  # (int) Number of GCMC initialization cycles.
-    'raspa_gcmc_prod_cycles': int(1e4),  # (int) Number of GCMC production cycles.
-    'pressure_list': None,  # (list) Pressure list for the isotherm (bar): if given it will skip to guess it.
-    'pressure_precision': 0.1,  # (float) Precision in the sampling of the isotherm: 0.1 ok, 0.05 for high resolution.
-    'pressure_maxstep': 5,  # (float) Max distance between pressure points (bar).
-    'pressure_min': 0.001,  # (float) Lower pressure to sample (bar).
-    'pressure_max': 10  # (float) Upper pressure to sample (bar).
-}
-
 
 # calcfunctions (in order of appearence)
 @calcfunction
 def get_molecule_dict(molecule_name):
     """Get a Dict from the isotherm_molecules.yaml"""
-    import ruamel.yaml as yaml
+
     thisdir = os.path.dirname(os.path.abspath(__file__))
     yamlfile = os.path.join(thisdir, 'isotherm_data', 'isotherm_molecules.yaml')
     with open(yamlfile, 'r') as stream:
@@ -99,10 +76,10 @@ def get_ff_parameters(molecule_dict, isotparam):
 
 @calcfunction
 def choose_pressure_points(inp_param, geom, raspa_widom_out):
-    """If 'presure_list' is not provide, model the isotherm as single-site langmuir and return the most important
-    pressure points to evaluate for an isotherm, in a List.
+    """If 'pressure_list' is not provided, model the isotherm as a single-site Langmuir and return a list of the most
+    important pressure points to evaluate for an isotherm.
     """
-    if inp_param['pressure_list']:
+    if 'pressure_list' in inp_param.attributes:
         pressure_points = inp_param['pressure_list']
     else:
         khenry = list(raspa_widom_out['framework_1']['components'].values())[0]['henry_coefficient_average']  #mol/kg/Pa
@@ -203,6 +180,49 @@ class IsothermWorkChain(WorkChain):
     it also runs a raspa widom calculation for the Henry coefficient.
     """
 
+    parameters_schema = FF_PARAMETERS_VALIDATOR.extend({
+        Required('zeopp_probe_scaling', default=1.0, description="scaling probe's diameter: molecular_rad * scaling"):
+            NUMBER,
+        Required('zeopp_volpo_samples',
+                 default=int(1e5),
+                 description='Number of samples for VOLPO calculation (per UC volume).'):
+            int,
+        Required('zeopp_block_samples',
+                 default=int(100),
+                 description='Number of samples for BLOCK calculation (per A^3).'):
+            int,
+        Required('raspa_verbosity', default=10, description='Print stats every: number of cycles / raspa_verbosity.'):
+            int,
+        Required('raspa_widom_cycles', default=int(1e5), description='Number of Widom cycles.'):
+            int,
+        Required('raspa_gcmc_init_cycles', default=int(1e3), description='Number of GCMC initialization cycles.'):
+            int,
+        Required('raspa_gcmc_prod_cycles', default=int(1e4), description='Number of GCMC production cycles.'):
+            int,
+        Required('raspa_minKh',
+                 default=1e-10,
+                 description='If Henry coefficient < raspa_minKh do not run the isotherm (mol/kg/Pa).'):
+            NUMBER,
+        Required('temperature', default=300, description='Temperature of the simulation.'):
+            NUMBER,
+        Optional('temperature_list', description='To be used by IsothermMultiTempWorkChain.'):
+            list,
+        Required('pressure_min', default=0.001, description='Lower pressure to sample (bar).'):
+            NUMBER,
+        Required('pressure_max', default=10, description='Upper pressure to sample (bar).'):
+            NUMBER,
+        Required('pressure_maxstep', default=5.0, description='(float) Max distance between pressure points (bar).'):
+            NUMBER,
+        Required('pressure_precision',
+                 default=0.1,
+                 description='Precision in the sampling of the isotherm: 0.1 ok, 0.05 for high resolution.'):
+            NUMBER,
+        Optional('pressure_list',
+                 description='Pressure list for the isotherm (bar): if given it will skip to guess it.'):
+            list,
+    })
+    parameters_info = parameters_schema.schema  # shorthand for printing
+
     @classmethod
     def define(cls, spec):
         super().define(spec)
@@ -220,7 +240,8 @@ class IsothermWorkChain(WorkChain):
 
         spec.input('parameters',
                    valid_type=Dict,
-                   help='Parameters for the Isotherm workchain: will be merged with IsothermParameters_defaults.')
+                   validator=functools.partial(validate_dict, schema=cls.parameters_schema),
+                   help='Parameters for the Isotherm workchain (see workchain.schema for default values).')
 
         spec.input('geometric',
                    valid_type=Dict,
@@ -260,7 +281,11 @@ class IsothermWorkChain(WorkChain):
             self.ctx.molecule = self.inputs.molecule
 
         # Get the parameters Dict, merging defaults with user settings
-        self.ctx.parameters = aiida_dict_merge(Dict(dict=ISOTHERMPARAMETERS_DEFAULT), self.inputs.parameters)
+        @calcfunction
+        def get_valid_dict(dict_node):
+            return Dict(dict=self.parameters_schema(dict_node.get_dict()))
+
+        self.ctx.parameters = get_valid_dict(self.inputs.parameters)
 
         # Get integer temperature in context for easy reports
         self.ctx.temperature = int(round(self.ctx.parameters['temperature']))
@@ -268,7 +293,7 @@ class IsothermWorkChain(WorkChain):
         # Understand if IsothermMultiTempWorkChain is calling this work chain
         if 'geometric' in self.inputs:
             self.ctx.multitemp_mode = 'run_single_temp'
-        elif self.ctx.parameters['temperature_list']:
+        elif 'temperature_list' in self.ctx.parameters.attributes:
             self.ctx.multitemp_mode = 'run_geom_only'
         else:
             self.ctx.multitemp_mode = None
