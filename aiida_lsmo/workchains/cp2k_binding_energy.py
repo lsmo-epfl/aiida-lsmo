@@ -133,7 +133,7 @@ class Cp2kBindingEnergyWorkChain(WorkChain):
 
         # Generate input parameters
         self.ctx.cp2k_param = deepcopy(self.ctx.protocol['settings_0'])
-        while self.inputs.starting_settings_idx < self.ctx.settings_idx:
+        while self.inputs.starting_settings_idx > self.ctx.settings_idx:
             # overwrite untill the desired starting setting are obtained
             self.ctx.settings_idx += 1
             self.ctx.settings_tag = 'settings_{}'.format(self.ctx.settings_idx)
