@@ -21,6 +21,7 @@ NetworkParameters = DataFactory('zeopp.parameters')  # pylint: disable=invalid-n
 @click.argument('zeopp_code_string')
 @click.argument('cp2k_code_string')
 @click.argument('ddec_code_string')
+@click.argument('ddec_atdens_path')
 def main(zeopp_code_string, cp2k_code_string, ddec_code_string, ddec_atdens_path):
     """Example usage:
     ATDENS_PATH='/home/daniele/Programs/aiida-database/data/chargemol_09_26_2017/atomic_densities/'

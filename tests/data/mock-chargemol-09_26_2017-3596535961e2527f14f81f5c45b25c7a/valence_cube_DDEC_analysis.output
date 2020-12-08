@@ -4,7 +4,7 @@
  ******************************************************
   
  Starting DDEC program
- 2020/11/20  23:58:51
+ 2020/12/08  17:30:51
  Copyright (c) 2014, 2015, 2016 by Thomas A. Manz and Nidia Gabaldon Limas. Rights reserved.
   
  **************** THREAD INFORMATION ******************
@@ -12,7 +12,7 @@
   
  ******************************************************
   
- /Users/leopold/Personal/Postdoc-MARVEL/repos/aiida/aiida-lsmo/examples/data/ddec/atomic_densities/                                                                                                      
+ atomic_densities/                                                                                                                                                                                       
   
  ******************** TIME CONTROL ********************
  Starting format_valence_cube_density
@@ -48,7 +48,7 @@
  The grid spacing in your electron density input file is adequate.
   
  ******************** TIME CONTROL ********************
- Finished check_grid_spacing in   0.18999999761581421      seconds
+ Finished check_grid_spacing in   0.17700000107288361      seconds
  ******************************************************
   
  Checking to see that all core electrons are accounted for:
@@ -61,12 +61,12 @@
  Finished the check for missing core electrons.
   
  ******************** TIME CONTROL ********************
- Finished add_missing_core_density in   0.26300001144409180      seconds
+ Finished add_missing_core_density in   0.23000000417232513      seconds
  ******************************************************
   
   
  ******************** TIME CONTROL ********************
- Finished format_valence_cube_density in   0.36199998855590820      seconds
+ Finished format_valence_cube_density in   0.32199999690055847      seconds
  ******************************************************
   
  ncore =        2.0000
@@ -116,7 +116,7 @@
  iter=            6
   
  ******************** TIME CONTROL ********************
- Finished core_iterator in    2.7039999961853027      seconds
+ Finished core_iterator in    2.4820001125335693      seconds
  ******************************************************
   
   
@@ -140,7 +140,7 @@
      3     1  3.698844  3.765277  3.700330  0.152194 -0.010514 -0.165385 -0.134173  0.213226  0.001743 -0.000342 -0.028350 -0.073523 -0.030752 -0.031688 -0.022679  0.054366
   
  ******************** TIME CONTROL ********************
- Finished local_multipole_moment_analysis in   0.30099999904632568      seconds
+ Finished local_multipole_moment_analysis in   0.32699999213218689      seconds
  ******************************************************
   
  Information for noniterative CM5 method will be printed now.
@@ -164,18 +164,18 @@
      -0.808691      0.410433      0.398259
   
  ******************************************************
- Finished first 2 partitioning steps in    1.5609999895095825      seconds
+ Finished first 2 partitioning steps in    1.5700000524520874      seconds
  ******************************************************
   
  normalization=       1.000000
   
  ******************************************************
- Finished conditioned number of reference ion electrons in   0.75999999046325684      seconds
+ Finished conditioned number of reference ion electrons in   0.44400000572204590      seconds
  ******************************************************
   
   
  ******************************************************
- Finished conditioned monotonic decay of reference density in    1.0000000474974513E-003 seconds
+ Finished conditioned monotonic decay of reference density in    0.0000000000000000      seconds
  ******************************************************
   
  iter = 3
@@ -183,13 +183,13 @@
            1
   
  ******************************************************
- Finished tau calculation in   0.69700002670288086      seconds
+ Finished tau calculation in   0.46299999952316284      seconds
  ******************************************************
   
  Conditioned reference density computation complete.
   
  ******************************************************
- Finished 3rd partitioning step in    1.4579999446868896      seconds
+ Finished 3rd partitioning step in   0.90700000524520874      seconds
  This is the number of second to condition the reference densities plus the calculation of tau
  ******************************************************
   
@@ -225,12 +225,12 @@
  Maximum density change:  1.124022E-03
   
  ******************************************************
- Finished charge partitioning steps 4-7 in    2.5079998970031738      seconds
+ Finished charge partitioning steps 4-7 in    1.6799999475479126      seconds
  ******************************************************
   
   
  ******************** TIME CONTROL ********************
- Finished valence_iterator in    5.5269999504089355      seconds
+ Finished valence_iterator in    4.1570000648498535      seconds
  ******************************************************
   
   
@@ -246,7 +246,7 @@
      3     1  3.698844  3.765277  3.700330  0.365537 -0.002365 -0.033087 -0.006854  0.033872  0.002355  0.001429  0.012662 -0.053747  0.030116 -0.032015  0.001974  0.030041
   
  ******************** TIME CONTROL ********************
- Finished local_multipole_moment_analysis in   0.32400000095367432      seconds
+ Finished local_multipole_moment_analysis in   0.25600001215934753      seconds
  ******************************************************
   
  Since the system is periodic, total multipole moment analysis will not be performed.
@@ -277,9 +277,9 @@
  Thomas A. Manz, "Introducing DDEC6 atomic population analysis: part 3. Comprehensive method to compute bond orders.", RSC Advances, Vol. 7 (2017) 45552-45581.
   
  Exiting Chargemol
- 2020/11/20  23:59:00
+ 2020/12/08  17:30:58
   
  ******************** TIME CONTROL ********************
- Finished chargemol in    8.9200000762939453      seconds
+ Finished chargemol in    7.2220001220703125      seconds
  ******************************************************
   

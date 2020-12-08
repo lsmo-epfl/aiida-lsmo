@@ -38,8 +38,6 @@ jobs:
       env:
         AIIDA_TEST_BACKEND: ${{ matrix.backend }}
         PYTEST_ADDOPTS: "--cov-report xml --cov-append"
-        # not used on CI but needs to coincide with the actual one to result in the same hash for the input file
-        DDEC_ATOMIC_DENSITIES_DIRECTORY: "/Users/leopold/Personal/Postdoc-MARVEL/repos/aiida/aiida-lsmo/examples/data/ddec/atomic_densities/"
       run: py.test
 
     - name: Upload coverage report

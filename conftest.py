@@ -5,7 +5,7 @@ initialise a test database and profile
 """
 import os
 import pytest
-from aiida_ddec.calculations import DENSITY_DIR_EXTRA
+from aiida_ddec.calculations import DENSITY_DIR_EXTRA, DENSITY_DIR_SYMLINK
 
 from tests import DATA_DIR
 from examples import DATA_DIR as EXAMPLES_DATA_DIR
@@ -59,7 +59,7 @@ def ddec_code(mock_code_factory):
         data_dir_abspath=DATA_DIR,
         entry_point='ddec',
         # files *not* to copy into the data directory
-        ignore_paths=('_aiidasubmit.sh', '*.cube'))
+        ignore_paths=('_aiidasubmit.sh', '*.cube', DENSITY_DIR_SYMLINK))
 
     # Set atomic density directory extra on code
     density_dir = os.environ.get(DENSITY_DIR_EXTRA)

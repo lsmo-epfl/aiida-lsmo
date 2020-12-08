@@ -14,7 +14,7 @@
     "install_requires": [
         "aiida-core~=1.0",
         "aiida-cp2k~=1.1",
-        "aiida-ddec @ git+https://github.com/ltalirz/aiida-ddec@af231026a544d5c54ab79caabd2cecbd7bf7e160#egg=aiida-ddec",
+        "aiida-ddec @ git+https://github.com/lsmo-epfl/aiida-ddec@55ef0a7a6ab6556d39ba4e66791ca130c7b6cbaf#egg=aiida-ddec",
         "aiida-zeopp~=1.0,>=1.0.3",
         "aiida-raspa~=1.1",
         "calc-pe~=1.0,>=1.0.1",
