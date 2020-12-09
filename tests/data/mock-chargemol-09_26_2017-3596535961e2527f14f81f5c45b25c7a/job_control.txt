@@ -1,0 +1,31 @@
+<net charge>
+0.0
+</net charge>
+
+<charge type>
+DDEC6
+</charge type>
+
+<compute BOs>
+.false.
+</compute BOs>
+
+<input filename>
+valence_density
+</input filename>
+
+<number of core electrons>
+8 2
+1 0
+</number of core electrons>
+
+<periodicity along A, B, and C vectors>
+.true.
+.true.
+.true.
+</periodicity along A, B, and C vectors>
+
+<atomic densities directory complete path>
+atomic_densities/
+</atomic densities directory complete path>
+

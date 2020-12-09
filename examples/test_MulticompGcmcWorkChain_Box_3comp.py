@@ -53,7 +53,9 @@ def run_multicomp_gcmc_box(raspa_code, zeopp_code):  # pylint: disable=redefined
         'raspa_gcmc_prod_cycles': 1000,  # Default: 1e4
     })
 
-    results = engine.run(builder)
+    results, node = engine.run_get_node(builder)
+
+    assert node.is_finished_ok, results
 
     params = results['output_parameters'].get_dict()
     for molecule in ['CO', 'C2H4', 'C2H6']:

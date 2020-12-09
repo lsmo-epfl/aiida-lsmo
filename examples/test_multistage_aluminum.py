@@ -72,7 +72,9 @@ def run_multistage_al(cp2k_code, al_structuredata):  # pylint: disable=redefined
         'dftd3': SinglefileData(file=str(CP2K_DIR / 'dftd3.dat')),
     }
 
-    results = engine.run(builder)
+    results, node = engine.run_get_node(builder)
+
+    assert node.is_finished_ok, results
     output_parameters = results['output_parameters'].get_dict()
     assert output_parameters['final_bandgap_spin1_au'] == pytest.approx(0, abs=1e-3)
     assert output_parameters['final_bandgap_spin2_au'] == pytest.approx(0, abs=1e-3)

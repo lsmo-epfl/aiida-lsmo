@@ -14,7 +14,7 @@
     "install_requires": [
         "aiida-core~=1.0",
         "aiida-cp2k~=1.1",
-        "aiida-ddec~=1.0.0a1",
+        "aiida-ddec~=1.0",
         "aiida-zeopp~=1.0,>=1.0.3",
         "aiida-raspa~=1.1",
         "calc-pe~=1.0,>=1.0.1",
@@ -56,7 +56,7 @@
     "extras_require": {
         "testing": [
             "pgtest~=1.3.1",
-            "aiida-testing @  git+https://github.com/ltalirz/aiida-testing@1cb17f0cc3d17f3f27ea6f92702ba1880abd03ca#egg=aiida-testing",
+            "aiida-testing @  git+https://github.com/ltalirz/aiida-testing@6b3c2ae023157e73563630aaf24d8337c348b74b#egg=aiida-testing",
             "pytest-cov~=2.7"
 
         ],

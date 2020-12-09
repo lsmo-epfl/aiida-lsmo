@@ -77,7 +77,9 @@ def run_multicomp_ads_des_hkust_1(raspa_code, zeopp_code, hkust_1_cifdata):  # p
             'raspa_gcmc_prod_cycles': 100,  # Default: 1e4
         })
 
-    results = engine.run(builder)
+    results, node = engine.run_get_node(builder)
+
+    assert node.is_finished_ok, results
 
     params = results['output_parameters'].get_dict()
 

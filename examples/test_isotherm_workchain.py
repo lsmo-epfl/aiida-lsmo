@@ -6,7 +6,7 @@ import os
 import click
 import pytest
 
-from aiida.engine import run
+from aiida import engine
 from aiida.plugins import DataFactory, WorkflowFactory
 from aiida.orm import Dict, Str
 from aiida import cmdline
@@ -63,7 +63,9 @@ def run_isotherm_mg_mof74(raspa_code, zeopp_code, mg_mof74_cifdata):  # pylint: 
             'pressure_max': 3,  # Default: 10 (bar)
         })
 
-    results = run(builder)
+    results, node = engine.run_get_node(builder)
+
+    assert node.is_finished_ok, results
 
     params = results['output_parameters'].get_dict()
 
