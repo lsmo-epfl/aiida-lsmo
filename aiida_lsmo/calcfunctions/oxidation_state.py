@@ -9,11 +9,7 @@ except ImportError as exc:
     raise ImportError("Please install the 'oximachine' extra for oxidation state prediction.") from exc
 
 # Note: This loads the model into memory
-OXIMACHINE_RUNNER = oximachinerunner.OximachineRunner()
-
-# def compute_oxidation_states(structure):
-#     """compute the oxidation states of metals using oximachine"""
-#     return OXIMACHINE_RUNNER.run_oximachine(structure)
+OXIMACHINE_RUNNER = oximachinerunner.OximachineRunner(modelname='mof')
 
 
 @calcfunction
@@ -24,4 +20,5 @@ def compute_oxidation_states(cif):
     :return: AiiDA Dict node
     """
     results_dict = OXIMACHINE_RUNNER.run_oximachine(cif.get_ase())
+    results_dict['oximachine_version'] = str(OXIMACHINE_RUNNER)
     return Dict(dict=results_dict)
