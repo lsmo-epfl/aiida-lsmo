@@ -31,7 +31,7 @@ jobs:
     - name: Install python dependencies
       run: |
         pip install --upgrade pip
-        pip install -e .[testing]
+        pip install -e .[testing,oximachine]
         reentry scan -r aiida
 
     - name: Run test suite
@@ -60,7 +60,7 @@ jobs:
     - name: Install python dependencies
       run: |
         pip install --upgrade pip
-        pip install -e .[docs]
+        pip install -e .[docs,oximachine]
         reentry scan -r aiida
     - name: Build docs
       run: cd docs && make
