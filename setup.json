@@ -69,6 +69,9 @@
             "sphinxcontrib-contentui",
             "sphinxcontrib-details-directive; python_version>='3.0'",
             "sphinx-rtd-theme"
+        ],
+        "oximachine": [
+            "oximachinerunner @  git+https://github.com/kjappelbaum/oximachinerunner@ca8092a8b247216cb98b7d308862dba184e27f1e#egg=oximachinerunner"
         ]
     }
 }
