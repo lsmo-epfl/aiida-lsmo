@@ -10,8 +10,8 @@ from aiida.orm import Dict, Int, SinglefileData, Str, StructureData
 from aiida.plugins import WorkflowFactory
 
 from aiida_lsmo.utils import HARTREE2EV, dict_merge, aiida_structure_merge
-from aiida_lsmo.utils.cp2k_utils import get_input_multiplicity, ot_has_small_bandgap
-from aiida_lsmo.utils.cp2k_utils import get_kinds_with_ghost_section, get_bsse_section
+from aiida_lsmo.utils.cp2k_utils import ot_has_small_bandgap
+from aiida_lsmo.utils.cp2k_utils import get_bsse_section, Cp2kSubsys
 from .cp2k_multistage_protocols import load_isotherm_protocol
 
 Cp2kBaseWorkChain = WorkflowFactory('cp2k.base')  # pylint: disable=invalid-name
@@ -141,8 +141,9 @@ class Cp2kBindingEnergyWorkChain(WorkChain):
                 dict_merge(self.ctx.cp2k_param, self.ctx.protocol[self.ctx.settings_tag])
             else:
                 return self.exit_codes.ERROR_MISSING_INITIAL_SETTINGS  # pylint: disable=no-member
-        dict_merge(self.ctx.cp2k_param, get_kinds_with_ghost_section(self.ctx.system, self.ctx.protocol))
-        dict_merge(self.ctx.cp2k_param, get_input_multiplicity(self.ctx.system, self.ctx.protocol))
+        subsys = Cp2kSubsys(structure=self.ctx.system, protocol=self.ctx.protocol)
+        dict_merge(self.ctx.cp2k_param, subsys.get_kinds_with_ghost_section())
+        dict_merge(self.ctx.cp2k_param, subsys.get_multiplicity_section())
         dict_merge(
             self.ctx.cp2k_param,
             {

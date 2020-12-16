@@ -8,6 +8,25 @@ __all__ = ('PROTOCOL_DIR', 'ISOTHERM_PROTOCOL_SCHEMA')
 
 PROTOCOL_DIR = Path(__file__).resolve().parent
 
+with open(PROTOCOL_DIR / 'initial_magnetization.yaml') as handle:
+    INITIAL_MAGNETIZATION = yaml.safe_load(handle)
+
+
+def get_default_magnetization(element):
+    """Return default magnetization for element
+
+    Uses magnetization corresponding to default oxidation state.
+    If there is no default oxidation state, return 0
+
+    :param element: chemical element symbol string
+    :returns:  default magnetization
+    """
+    element_data = INITIAL_MAGNETIZATION[element]
+    if element_data['default_oxidation'] is None:
+        return 0
+    return element_data['magnetization'][element_data['default_oxidation']]
+
+
 NUMBER = Any(int, float)
 ELEMENT = Any('H', 'He', 'Li', 'Be', 'B', 'C', 'N', 'O', 'F', 'Ne', 'Na', 'Mg', 'Al', 'Si', 'P', 'S', 'Cl', 'Ar', 'K',
               'Ca', 'Sc', 'Ti', 'V', 'Cr', 'Mn', 'Fe', 'Co', 'Ni', 'Cu', 'Zn', 'Ga', 'Ge', 'As', 'Se', 'Br', 'Kr', 'Rb',
@@ -20,9 +39,7 @@ SETTINGS_SCHEMA = Schema({
 ISOTHERM_PROTOCOL_SCHEMA = Schema(
     {
         'protocol_description': str,
-        'initial_magnetization': {
-            ELEMENT: int,
-        },
+        'initial_magnetization': Any('element', 'oxidation_state'),
         'basis_set': {
             ELEMENT: str,
         },

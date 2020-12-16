@@ -512,7 +512,7 @@ What it can not do:
 +---------------------------+------------------------------------------------------------------------------------------+
 | ``protocol_description``  | An user friendly description of the protocol.                                            |
 +---------------------------+------------------------------------------------------------------------------------------+
-| ``initial_magnetization`` | Dictionary of ``KIND/MAGNETIZATION`` for each element.                                   |
+| ``initial_magnetization`` | ``"element"`` for choice based on element or ``"oxidation_state"`` for choice based on oxidation state.  |
 +---------------------------+------------------------------------------------------------------------------------------+
 | ``basis_set``             | Dictionary of ``KIND/BASIS_SET`` for each element.                                       |
 +---------------------------+------------------------------------------------------------------------------------------+

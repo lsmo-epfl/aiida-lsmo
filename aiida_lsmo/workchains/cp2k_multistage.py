@@ -10,7 +10,7 @@ from aiida.orm import Dict, Int, Float, SinglefileData, Str, RemoteData, Structu
 from aiida.plugins import WorkflowFactory
 from aiida_lsmo.utils import dict_merge, HARTREE2EV
 from aiida_lsmo.utils.multiply_unitcell import check_resize_unit_cell_legacy, resize_unit_cell
-from aiida_lsmo.utils.cp2k_utils import get_input_multiplicity, get_kinds_section, ot_has_small_bandgap
+from aiida_lsmo.utils.cp2k_utils import ot_has_small_bandgap, Cp2kSubsys
 from .cp2k_multistage_protocols import load_isotherm_protocol
 
 Cp2kBaseWorkChain = WorkflowFactory('cp2k.base')  # pylint: disable=invalid-name
@@ -227,10 +227,25 @@ class Cp2kMultistageWorkChain(WorkChain):
                 dict_merge(self.ctx.cp2k_param, self.ctx.protocol[self.ctx.settings_tag])
             else:
                 return self.exit_codes.ERROR_MISSING_INITIAL_SETTINGS  # pylint: disable=no-member
-        kinds = get_kinds_section(self.ctx.structure, self.ctx.protocol)
-        dict_merge(self.ctx.cp2k_param, kinds)
-        multiplicity = get_input_multiplicity(self.ctx.structure, self.ctx.protocol)
-        dict_merge(self.ctx.cp2k_param, multiplicity)
+
+        # handle starting magnetization
+        if self.ctx.protocol['initial_magnetization'] == 'element':
+            subsys = Cp2kSubsys(structure=self.ctx.structure, protocol=self.ctx.protocol)
+        elif self.ctx.protocol['initial_magnetization'] == 'oxidation_state':
+            from aiida_lsmo.calcfunctions.oxidation_state import compute_oxidation_states
+            oxidation_states = compute_oxidation_states(self.ctx.structure)
+            subsys = Cp2kSubsys(structure=self.ctx.structure,
+                                oxidation_states=oxidation_states.get_dict(),
+                                protocol=self.ctx.protocol)
+            subsys.tag_atoms()
+            self.ctx.structure = StructureData(ase=subsys.atoms)  # update with new tags
+        else:
+            raise ValueError(
+                f"Invalid 'initial_magnetization' {self.ctx.protocol['initial_magnetization']} encountered in protocol."
+            )
+
+        dict_merge(self.ctx.cp2k_param, subsys.get_kinds_section())
+        dict_merge(self.ctx.cp2k_param, subsys.get_multiplicity_section())
         dict_merge(self.ctx.cp2k_param, self.ctx.protocol['stage_0'])
 
     def should_run_stage0(self):
