@@ -1,0 +1,1536 @@
+# 'default_oxidation' is used only if not null
+# 'magnetization' maps oxidation state to magnetization value
+H:
+  atomic_number: 1
+  magnetization:
+    1: 0
+    2: 0
+    3: 0
+    4: 0
+    5: 0
+    6: 0
+    7: 0
+    8: 0
+  default_oxidation:
+  is_metal: false
+He:
+  atomic_number: 2
+  magnetization:
+    1: 0
+    2: 0
+    3: 0
+    4: 0
+    5: 0
+    6: 0
+    7: 0
+    8: 0
+  default_oxidation:
+  is_metal: false
+Li:
+  atomic_number: 3
+  magnetization:
+    1: 0
+    2: 0
+    3: 0
+    4: 0
+    5: 0
+    6: 0
+    7: 0
+    8: 0
+  default_oxidation: 1
+  is_metal: true
+Be:
+  atomic_number: 4
+  magnetization:
+    1: 1
+    2: 0
+    3: 0
+    4: 0
+    5: 0
+    6: 0
+    7: 0
+    8: 0
+  default_oxidation: 2
+  is_metal: true
+B:
+  atomic_number: 5
+  magnetization:
+    1: 0
+    2: 0
+    3: 0
+    4: 0
+    5: 0
+    6: 0
+    7: 0
+    8: 0
+  default_oxidation:
+  is_metal: false
+C:
+  atomic_number: 6
+  magnetization:
+    1: 0
+    2: 0
+    3: 0
+    4: 0
+    5: 0
+    6: 0
+    7: 0
+    8: 0
+  default_oxidation:
+  is_metal: false
+N:
+  atomic_number: 7
+  magnetization:
+    1: 0
+    2: 0
+    3: 0
+    4: 0
+    5: 0
+    6: 0
+    7: 0
+    8: 0
+  default_oxidation:
+  is_metal: false
+O:
+  atomic_number: 8
+  magnetization:
+    1: 0
+    2: 0
+    3: 0
+    4: 0
+    5: 0
+    6: 0
+    7: 0
+    8: 0
+  default_oxidation:
+  is_metal: false
+F:
+  atomic_number: 9
+  magnetization:
+    1: 0
+    2: 0
+    3: 0
+    4: 0
+    5: 0
+    6: 0
+    7: 0
+    8: 0
+  default_oxidation:
+  is_metal: false
+Ne:
+  atomic_number: 10
+  magnetization:
+    1: 0
+    2: 0
+    3: 0
+    4: 0
+    5: 0
+    6: 0
+    7: 0
+    8: 0
+  default_oxidation:
+  is_metal: false
+Na:
+  atomic_number: 11
+  magnetization:
+    1: 0
+    2: 0
+    3: 0
+    4: 0
+    5: 0
+    6: 0
+    7: 0
+    8: 0
+  default_oxidation: 1
+  is_metal: true
+Mg:
+  atomic_number: 12
+  magnetization:
+    1: 1
+    2: 0
+    3: 0
+    4: 0
+    5: 0
+    6: 0
+    7: 0
+    8: 0
+  default_oxidation: 2
+  is_metal: true
+Al:
+  atomic_number: 13
+  magnetization:
+    1: 0
+    2: 1
+    3: 0
+    4: 0
+    5: 0
+    6: 0
+    7: 0
+    8: 0
+  default_oxidation: 3
+  is_metal: true
+Si:
+  atomic_number: 14
+  magnetization:
+    1: 0
+    2: 0
+    3: 0
+    4: 0
+    5: 0
+    6: 0
+    7: 0
+    8: 0
+  default_oxidation:
+  is_metal: false
+P:
+  atomic_number: 15
+  magnetization:
+    1: 0
+    2: 0
+    3: 0
+    4: 0
+    5: 0
+    6: 0
+    7: 0
+    8: 0
+  default_oxidation:
+  is_metal: false
+S:
+  atomic_number: 16
+  magnetization:
+    1: 0
+    2: 0
+    3: 0
+    4: 0
+    5: 0
+    6: 0
+    7: 0
+    8: 0
+  default_oxidation:
+  is_metal: false
+Cl:
+  atomic_number: 17
+  magnetization:
+    1: 0
+    2: 0
+    3: 0
+    4: 0
+    5: 0
+    6: 0
+    7: 0
+    8: 0
+  default_oxidation:
+  is_metal: false
+Ar:
+  atomic_number: 18
+  magnetization:
+    1: 0
+    2: 0
+    3: 0
+    4: 0
+    5: 0
+    6: 0
+    7: 0
+    8: 0
+  default_oxidation:
+  is_metal: false
+K:
+  atomic_number: 19
+  magnetization:
+    1: 0
+    2: 0
+    3: 0
+    4: 0
+    5: 0
+    6: 0
+    7: 0
+    8: 0
+  default_oxidation: 1
+  is_metal: true
+Ca:
+  atomic_number: 20
+  magnetization:
+    1: 1
+    2: 0
+    3: 0
+    4: 0
+    5: 0
+    6: 0
+    7: 0
+    8: 0
+  default_oxidation: 2
+  is_metal: true
+Sc:
+  atomic_number: 21
+  magnetization:
+    1: 2
+    2: 1
+    3: 0
+    4: 0
+    5: 0
+    6: 0
+    7: 0
+    8: 0
+  default_oxidation: 1
+  is_metal: true
+Ti:
+  atomic_number: 22
+  magnetization:
+    1: 3
+    2: 2
+    3: 1
+    4: 0
+    5: 0
+    6: 0
+    7: 0
+    8: 0
+  default_oxidation: 4
+  is_metal: true
+V:
+  atomic_number: 23
+  magnetization:
+    1: 4
+    2: 3
+    3: 2
+    4: 1
+    5: 0
+    6: 0
+    7: 0
+    8: 0
+  default_oxidation: 2
+  is_metal: true
+Cr:
+  atomic_number: 24
+  magnetization:
+    1: 5
+    2: 4
+    3: 3
+    4: 2
+    5: 1
+    6: 0
+    7: 0
+    8: 0
+  default_oxidation: 2
+  is_metal: true
+Mn:
+  atomic_number: 25
+  magnetization:
+    1: 4
+    2: 5
+    3: 4
+    4: 3
+    5: 2
+    6: 1
+    7: 0
+    8: 0
+  default_oxidation: 2
+  is_metal: true
+Fe:
+  atomic_number: 26
+  magnetization:
+    1: 3
+    2: 4
+    3: 5
+    4: 4
+    5: 3
+    6: 2
+    7: 1
+    8: 0
+  default_oxidation: 2
+  is_metal: true
+Co:
+  atomic_number: 27
+  magnetization:
+    1: 2
+    2: 3
+    3: 4
+    4: 5
+    5: 4
+    6: 3
+    7: 2
+    8: 1
+  default_oxidation: 2
+  is_metal: true
+Ni:
+  atomic_number: 28
+  magnetization:
+    1: 1
+    2: 2
+    3: 3
+    4: 4
+    5: 5
+    6: 4
+    7: 3
+    8: 2
+  default_oxidation: 2
+  is_metal: true
+Cu:
+  atomic_number: 29
+  magnetization:
+    1: 0
+    2: 1
+    3: 2
+    4: 3
+    5: 4
+    6: 5
+    7: 4
+    8: 3
+  default_oxidation: 2
+  is_metal: true
+Zn:
+  atomic_number: 30
+  magnetization:
+    1: 1
+    2: 0
+    3: 1
+    4: 2
+    5: 3
+    6: 4
+    7: 5
+    8: 4
+  default_oxidation: 2
+  is_metal: true
+Ga:
+  atomic_number: 31
+  magnetization:
+    1: 0
+    2: 1
+    3: 0
+    4: 1
+    5: 2
+    6: 3
+    7: 4
+    8: 5
+  default_oxidation:
+  is_metal: true
+Ge:
+  atomic_number: 32
+  magnetization:
+    1: 0
+    2: 0
+    3: 0
+    4: 0
+    5: 0
+    6: 0
+    7: 0
+    8: 0
+  default_oxidation:
+  is_metal: false
+As:
+  atomic_number: 33
+  magnetization:
+    1: 0
+    2: 0
+    3: 0
+    4: 0
+    5: 0
+    6: 0
+    7: 0
+    8: 0
+  default_oxidation:
+  is_metal: false
+Se:
+  atomic_number: 34
+  magnetization:
+    1: 0
+    2: 0
+    3: 0
+    4: 0
+    5: 0
+    6: 0
+    7: 0
+    8: 0
+  default_oxidation:
+  is_metal: false
+Br:
+  atomic_number: 35
+  magnetization:
+    1: 0
+    2: 0
+    3: 0
+    4: 0
+    5: 0
+    6: 0
+    7: 0
+    8: 0
+  default_oxidation:
+  is_metal: false
+Kr:
+  atomic_number: 36
+  magnetization:
+    1: 0
+    2: 0
+    3: 0
+    4: 0
+    5: 0
+    6: 0
+    7: 0
+    8: 0
+  default_oxidation:
+  is_metal: false
+Rb:
+  atomic_number: 37
+  magnetization:
+    1: 0
+    2: 0
+    3: 0
+    4: 0
+    5: 0
+    6: 0
+    7: 0
+    8: 0
+  default_oxidation:
+  is_metal: true
+Sr:
+  atomic_number: 38
+  magnetization:
+    1: 1
+    2: 0
+    3: 0
+    4: 0
+    5: 0
+    6: 0
+    7: 0
+    8: 0
+  default_oxidation:
+  is_metal: true
+Y:
+  atomic_number: 39
+  magnetization:
+    1: 2
+    2: 1
+    3: 0
+    4: 0
+    5: 0
+    6: 0
+    7: 0
+    8: 0
+  default_oxidation:
+  is_metal: true
+Zr:
+  atomic_number: 40
+  magnetization:
+    1: 3
+    2: 2
+    3: 1
+    4: 0
+    5: 0
+    6: 0
+    7: 0
+    8: 0
+  default_oxidation: 4
+  is_metal: true
+Nb:
+  atomic_number: 41
+  magnetization:
+    1: 4
+    2: 3
+    3: 2
+    4: 1
+    5: 0
+    6: 0
+    7: 0
+    8: 0
+  default_oxidation:
+  is_metal: true
+Mo:
+  atomic_number: 42
+  magnetization:
+    1: 5
+    2: 4
+    3: 3
+    4: 2
+    5: 1
+    6: 0
+    7: 0
+    8: 0
+  default_oxidation:
+  is_metal: true
+Tc:
+  atomic_number: 43
+  magnetization:
+    1: 4
+    2: 5
+    3: 4
+    4: 3
+    5: 2
+    6: 1
+    7: 0
+    8: 0
+  default_oxidation:
+  is_metal: true
+Ru:
+  atomic_number: 44
+  magnetization:
+    1: 3
+    2: 4
+    3: 5
+    4: 4
+    5: 3
+    6: 2
+    7: 1
+    8: 0
+  default_oxidation:
+  is_metal: true
+Rh:
+  atomic_number: 45
+  magnetization:
+    1: 2
+    2: 3
+    3: 4
+    4: 5
+    5: 4
+    6: 3
+    7: 2
+    8: 1
+  default_oxidation:
+  is_metal: true
+Pd:
+  atomic_number: 46
+  magnetization:
+    1: 1
+    2: 2
+    3: 3
+    4: 4
+    5: 5
+    6: 4
+    7: 3
+    8: 2
+  default_oxidation:
+  is_metal: true
+Ag:
+  atomic_number: 47
+  magnetization:
+    1: 0
+    2: 1
+    3: 2
+    4: 3
+    5: 4
+    6: 5
+    7: 4
+    8: 3
+  default_oxidation:
+  is_metal: true
+Cd:
+  atomic_number: 48
+  magnetization:
+    1: 1
+    2: 0
+    3: 1
+    4: 2
+    5: 3
+    6: 4
+    7: 5
+    8: 4
+  default_oxidation:
+  is_metal: true
+In:
+  atomic_number: 49
+  magnetization:
+    1: 0
+    2: 1
+    3: 0
+    4: 1
+    5: 2
+    6: 3
+    7: 4
+    8: 5
+  default_oxidation:
+  is_metal: true
+Sn:
+  atomic_number: 50
+  magnetization:
+    1: 1
+    2: 0
+    3: 1
+    4: 0
+    5: 1
+    6: 2
+    7: 3
+    8: 4
+  default_oxidation:
+  is_metal: true
+Sb:
+  atomic_number: 51
+  magnetization:
+    1: 0
+    2: 0
+    3: 0
+    4: 0
+    5: 0
+    6: 0
+    7: 0
+    8: 0
+  default_oxidation:
+  is_metal: false
+Te:
+  atomic_number: 52
+  magnetization:
+    1: 0
+    2: 0
+    3: 0
+    4: 0
+    5: 0
+    6: 0
+    7: 0
+    8: 0
+  default_oxidation:
+  is_metal: false
+I:
+  atomic_number: 53
+  magnetization:
+    1: 0
+    2: 0
+    3: 0
+    4: 0
+    5: 0
+    6: 0
+    7: 0
+    8: 0
+  default_oxidation:
+  is_metal: false
+Xe:
+  atomic_number: 54
+  magnetization:
+    1: 0
+    2: 0
+    3: 0
+    4: 0
+    5: 0
+    6: 0
+    7: 0
+    8: 0
+  default_oxidation:
+  is_metal: false
+Cs:
+  atomic_number: 55
+  magnetization:
+    1: 0
+    2: 0
+    3: 0
+    4: 0
+    5: 0
+    6: 0
+    7: 0
+    8: 0
+  default_oxidation:
+  is_metal: true
+Ba:
+  atomic_number: 56
+  magnetization:
+    1: 1
+    2: 0
+    3: 0
+    4: 0
+    5: 0
+    6: 0
+    7: 0
+    8: 0
+  default_oxidation:
+  is_metal: true
+La:
+  atomic_number: 57
+  magnetization:
+    1: 2
+    2: 1
+    3: 0
+    4: 0
+    5: 0
+    6: 0
+    7: 0
+    8: 0
+  default_oxidation:
+  is_metal: true
+Ce:
+  atomic_number: 58
+  magnetization:
+    1: 3
+    2: 2
+    3: 1
+    4: 0
+    5: 0
+    6: 0
+    7: 0
+    8: 0
+  default_oxidation:
+  is_metal: true
+Pr:
+  atomic_number: 59
+  magnetization:
+    1: 4
+    2: 3
+    3: 2
+    4: 1
+    5: 0
+    6: 0
+    7: 0
+    8: 0
+  default_oxidation:
+  is_metal: true
+Nd:
+  atomic_number: 60
+  magnetization:
+    1: 5
+    2: 4
+    3: 3
+    4: 2
+    5: 1
+    6: 0
+    7: 0
+    8: 0
+  default_oxidation:
+  is_metal: true
+Pm:
+  atomic_number: 61
+  magnetization:
+    1: 6
+    2: 5
+    3: 4
+    4: 3
+    5: 2
+    6: 1
+    7: 0
+    8: 0
+  default_oxidation:
+  is_metal: true
+Sm:
+  atomic_number: 62
+  magnetization:
+    1: 7
+    2: 6
+    3: 5
+    4: 4
+    5: 3
+    6: 2
+    7: 1
+    8: 0
+  default_oxidation:
+  is_metal: true
+Eu:
+  atomic_number: 63
+  magnetization:
+    1: 6
+    2: 7
+    3: 6
+    4: 5
+    5: 4
+    6: 3
+    7: 2
+    8: 1
+  default_oxidation:
+  is_metal: true
+Gd:
+  atomic_number: 64
+  magnetization:
+    1: 5
+    2: 6
+    3: 7
+    4: 6
+    5: 5
+    6: 4
+    7: 3
+    8: 2
+  default_oxidation:
+  is_metal: true
+Tb:
+  atomic_number: 65
+  magnetization:
+    1: 4
+    2: 5
+    3: 6
+    4: 7
+    5: 6
+    6: 5
+    7: 4
+    8: 3
+  default_oxidation:
+  is_metal: true
+Dy:
+  atomic_number: 66
+  magnetization:
+    1: 3
+    2: 4
+    3: 5
+    4: 6
+    5: 7
+    6: 6
+    7: 5
+    8: 4
+  default_oxidation:
+  is_metal: true
+Ho:
+  atomic_number: 67
+  magnetization:
+    1: 2
+    2: 3
+    3: 4
+    4: 5
+    5: 6
+    6: 7
+    7: 6
+    8: 5
+  default_oxidation:
+  is_metal: true
+Er:
+  atomic_number: 68
+  magnetization:
+    1: 1
+    2: 2
+    3: 3
+    4: 4
+    5: 5
+    6: 6
+    7: 7
+    8: 6
+  default_oxidation:
+  is_metal: true
+Tm:
+  atomic_number: 69
+  magnetization:
+    1: 0
+    2: 1
+    3: 2
+    4: 3
+    5: 4
+    6: 5
+    7: 6
+    8: 7
+  default_oxidation:
+  is_metal: true
+Yb:
+  atomic_number: 70
+  magnetization:
+    1: 1
+    2: 0
+    3: 1
+    4: 2
+    5: 3
+    6: 4
+    7: 5
+    8: 6
+  default_oxidation:
+  is_metal: true
+Lu:
+  atomic_number: 71
+  magnetization:
+    1: 2
+    2: 1
+    3: 0
+    4: 1
+    5: 2
+    6: 3
+    7: 4
+    8: 5
+  default_oxidation:
+  is_metal: true
+Hf:
+  atomic_number: 72
+  magnetization:
+    1: 3
+    2: 2
+    3: 1
+    4: 0
+    5: 1
+    6: 2
+    7: 3
+    8: 4
+  default_oxidation:
+  is_metal: true
+Ta:
+  atomic_number: 73
+  magnetization:
+    1: 4
+    2: 3
+    3: 2
+    4: 1
+    5: 0
+    6: 1
+    7: 2
+    8: 3
+  default_oxidation:
+  is_metal: true
+W:
+  atomic_number: 74
+  magnetization:
+    1: 5
+    2: 4
+    3: 3
+    4: 2
+    5: 1
+    6: 0
+    7: 1
+    8: 2
+  default_oxidation:
+  is_metal: true
+Re:
+  atomic_number: 75
+  magnetization:
+    1: 4
+    2: 5
+    3: 4
+    4: 3
+    5: 2
+    6: 1
+    7: 0
+    8: 1
+  default_oxidation:
+  is_metal: true
+Os:
+  atomic_number: 76
+  magnetization:
+    1: 3
+    2: 4
+    3: 5
+    4: 4
+    5: 3
+    6: 2
+    7: 1
+    8: 0
+  default_oxidation:
+  is_metal: true
+Ir:
+  atomic_number: 77
+  magnetization:
+    1: 2
+    2: 3
+    3: 4
+    4: 5
+    5: 4
+    6: 3
+    7: 2
+    8: 1
+  default_oxidation:
+  is_metal: true
+Pt:
+  atomic_number: 78
+  magnetization:
+    1: 1
+    2: 2
+    3: 3
+    4: 4
+    5: 5
+    6: 4
+    7: 3
+    8: 2
+  default_oxidation:
+  is_metal: true
+Au:
+  atomic_number: 79
+  magnetization:
+    1: 0
+    2: 1
+    3: 2
+    4: 3
+    5: 4
+    6: 5
+    7: 4
+    8: 3
+  default_oxidation:
+  is_metal: true
+Hg:
+  atomic_number: 80
+  magnetization:
+    1: 1
+    2: 0
+    3: 1
+    4: 2
+    5: 3
+    6: 4
+    7: 5
+    8: 4
+  default_oxidation:
+  is_metal: true
+Tl:
+  atomic_number: 81
+  magnetization:
+    1: 0
+    2: 1
+    3: 0
+    4: 1
+    5: 2
+    6: 3
+    7: 4
+    8: 5
+  default_oxidation:
+  is_metal: true
+Pb:
+  atomic_number: 82
+  magnetization:
+    1: 1
+    2: 0
+    3: 1
+    4: 0
+    5: 1
+    6: 2
+    7: 3
+    8: 4
+  default_oxidation:
+  is_metal: true
+Bi:
+  atomic_number: 83
+  magnetization:
+    1: 2
+    2: 1
+    3: 0
+    4: 1
+    5: 0
+    6: 1
+    7: 2
+    8: 3
+  default_oxidation:
+  is_metal: true
+Po:
+  atomic_number: 84
+  magnetization:
+    1: 3
+    2: 2
+    3: 1
+    4: 0
+    5: 1
+    6: 0
+    7: 1
+    8: 2
+  default_oxidation:
+  is_metal: false
+At:
+  atomic_number: 85
+  magnetization:
+    1: 2
+    2: 3
+    3: 2
+    4: 1
+    5: 0
+    6: 1
+    7: 0
+    8: 1
+  default_oxidation:
+  is_metal: true
+Rn:
+  atomic_number: 86
+  magnetization:
+    1: 0
+    2: 0
+    3: 0
+    4: 0
+    5: 0
+    6: 0
+    7: 0
+    8: 0
+  default_oxidation:
+  is_metal: false
+Fr:
+  atomic_number: 87
+  magnetization:
+    1: 0
+    2: 0
+    3: 0
+    4: 0
+    5: 0
+    6: 0
+    7: 0
+    8: 0
+  default_oxidation:
+  is_metal: true
+Ra:
+  atomic_number: 88
+  magnetization:
+    1: 1
+    2: 0
+    3: 0
+    4: 0
+    5: 0
+    6: 0
+    7: 0
+    8: 0
+  default_oxidation:
+  is_metal: true
+Ac:
+  atomic_number: 89
+  magnetization:
+    1: 2
+    2: 1
+    3: 0
+    4: 0
+    5: 0
+    6: 0
+    7: 0
+    8: 0
+  default_oxidation:
+  is_metal: true
+Th:
+  atomic_number: 90
+  magnetization:
+    1: 3
+    2: 2
+    3: 1
+    4: 0
+    5: 0
+    6: 0
+    7: 0
+    8: 0
+  default_oxidation:
+  is_metal: true
+Pa:
+  atomic_number: 91
+  magnetization:
+    1: 4
+    2: 3
+    3: 2
+    4: 1
+    5: 0
+    6: 0
+    7: 0
+    8: 0
+  default_oxidation:
+  is_metal: true
+U:
+  atomic_number: 92
+  magnetization:
+    1: 5
+    2: 4
+    3: 3
+    4: 2
+    5: 1
+    6: 0
+    7: 0
+    8: 0
+  default_oxidation:
+  is_metal: true
+Np:
+  atomic_number: 93
+  magnetization:
+    1: 6
+    2: 5
+    3: 4
+    4: 3
+    5: 2
+    6: 1
+    7: 0
+    8: 0
+  default_oxidation:
+  is_metal: true
+Pu:
+  atomic_number: 94
+  magnetization:
+    1: 7
+    2: 6
+    3: 5
+    4: 4
+    5: 3
+    6: 2
+    7: 1
+    8: 0
+  default_oxidation:
+  is_metal: true
+Am:
+  atomic_number: 95
+  magnetization:
+    1: 6
+    2: 7
+    3: 6
+    4: 5
+    5: 4
+    6: 3
+    7: 2
+    8: 1
+  default_oxidation:
+  is_metal: true
+Cm:
+  atomic_number: 96
+  magnetization:
+    1: 5
+    2: 6
+    3: 7
+    4: 6
+    5: 5
+    6: 4
+    7: 3
+    8: 2
+  default_oxidation:
+  is_metal: true
+Bk:
+  atomic_number: 97
+  magnetization:
+    1: 4
+    2: 5
+    3: 6
+    4: 7
+    5: 6
+    6: 5
+    7: 4
+    8: 3
+  default_oxidation:
+  is_metal: true
+Cf:
+  atomic_number: 98
+  magnetization:
+    1: 3
+    2: 4
+    3: 5
+    4: 6
+    5: 7
+    6: 6
+    7: 5
+    8: 4
+  default_oxidation:
+  is_metal: true
+Es:
+  atomic_number: 99
+  magnetization:
+    1: 2
+    2: 3
+    3: 4
+    4: 5
+    5: 6
+    6: 7
+    7: 6
+    8: 5
+  default_oxidation:
+  is_metal: true
+Fm:
+  atomic_number: 100
+  magnetization:
+    1: 1
+    2: 2
+    3: 3
+    4: 4
+    5: 5
+    6: 6
+    7: 7
+    8: 6
+  default_oxidation:
+  is_metal: true
+Md:
+  atomic_number: 101
+  magnetization:
+    1: 0
+    2: 1
+    3: 2
+    4: 3
+    5: 4
+    6: 5
+    7: 6
+    8: 7
+  default_oxidation:
+  is_metal: true
+'No':
+  atomic_number: 102
+  magnetization:
+    1: 1
+    2: 0
+    3: 1
+    4: 2
+    5: 3
+    6: 4
+    7: 5
+    8: 6
+  default_oxidation:
+  is_metal: true
+Lr:
+  atomic_number: 103
+  magnetization:
+    1: 2
+    2: 1
+    3: 0
+    4: 1
+    5: 2
+    6: 3
+    7: 4
+    8: 5
+  default_oxidation:
+  is_metal: true
+Rf:
+  atomic_number: 104
+  magnetization:
+    1: 3
+    2: 2
+    3: 1
+    4: 0
+    5: 1
+    6: 2
+    7: 3
+    8: 4
+  default_oxidation:
+  is_metal: true
+Db:
+  atomic_number: 105
+  magnetization:
+    1: 4
+    2: 3
+    3: 2
+    4: 1
+    5: 0
+    6: 1
+    7: 2
+    8: 3
+  default_oxidation:
+  is_metal: true
+Sg:
+  atomic_number: 106
+  magnetization:
+    1: 5
+    2: 4
+    3: 3
+    4: 2
+    5: 1
+    6: 0
+    7: 1
+    8: 2
+  default_oxidation:
+  is_metal: true
+Bh:
+  atomic_number: 107
+  magnetization:
+    1: 4
+    2: 5
+    3: 4
+    4: 3
+    5: 2
+    6: 1
+    7: 0
+    8: 1
+  default_oxidation:
+  is_metal: true
+Hs:
+  atomic_number: 108
+  magnetization:
+    1: 3
+    2: 4
+    3: 5
+    4: 4
+    5: 3
+    6: 2
+    7: 1
+    8: 0
+  default_oxidation:
+  is_metal: true
+Mt:
+  atomic_number: 109
+  magnetization:
+    1: 2
+    2: 3
+    3: 4
+    4: 5
+    5: 4
+    6: 3
+    7: 2
+    8: 1
+  default_oxidation:
+  is_metal: true
+'Ds ':
+  atomic_number: 110
+  magnetization:
+    1: 1
+    2: 2
+    3: 3
+    4: 4
+    5: 5
+    6: 4
+    7: 3
+    8: 2
+  default_oxidation:
+  is_metal: true
+'Rg ':
+  atomic_number: 111
+  magnetization:
+    1: 0
+    2: 1
+    3: 2
+    4: 3
+    5: 4
+    6: 5
+    7: 4
+    8: 3
+  default_oxidation:
+  is_metal: true
+'Cn ':
+  atomic_number: 112
+  magnetization:
+    1: 1
+    2: 0
+    3: 1
+    4: 2
+    5: 3
+    6: 4
+    7: 5
+    8: 4
+  default_oxidation:
+  is_metal: true
+Nh:
+  atomic_number: 113
+  magnetization:
+    1: 0
+    2: 1
+    3: 0
+    4: 1
+    5: 2
+    6: 3
+    7: 4
+    8: 5
+  default_oxidation:
+  is_metal: true
+Fl:
+  atomic_number: 114
+  magnetization:
+    1: 1
+    2: 0
+    3: 1
+    4: 0
+    5: 1
+    6: 2
+    7: 3
+    8: 4
+  default_oxidation:
+  is_metal: true
+Mc:
+  atomic_number: 115
+  magnetization:
+    1: 2
+    2: 1
+    3: 0
+    4: 1
+    5: 0
+    6: 1
+    7: 2
+    8: 3
+  default_oxidation:
+  is_metal: true
+Lv:
+  atomic_number: 116
+  magnetization:
+    1: 3
+    2: 2
+    3: 1
+    4: 0
+    5: 1
+    6: 0
+    7: 1
+    8: 2
+  default_oxidation:
+  is_metal: true
+Ts:
+  atomic_number: 117
+  magnetization:
+    1: 2
+    2: 3
+    3: 2
+    4: 1
+    5: 0
+    6: 1
+    7: 0
+    8: 1
+  default_oxidation:
+  is_metal: true
+Og:
+  atomic_number: 118
+  magnetization:
+    1: 0
+    2: 0
+    3: 0
+    4: 0
+    5: 0
+    6: 0
+    7: 0
+    8: 0
+  default_oxidation:
+  is_metal: false
