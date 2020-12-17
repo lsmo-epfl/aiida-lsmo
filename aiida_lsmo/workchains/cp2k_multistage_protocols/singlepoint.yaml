@@ -5,7 +5,7 @@ protocol_description: >
 
 # Defining atomic properties
 
-initial_magnetization: "element"
+initial_magnetization: "oxidation_state"
 
 basis_set:
   H: DZVP-MOLOPT-SR-GTH-q1

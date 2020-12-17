@@ -1417,7 +1417,7 @@ Mt:
     8: 1
   default_oxidation:
   is_metal: true
-'Ds ':
+Ds:
   atomic_number: 110
   magnetization:
     1: 1
@@ -1430,7 +1430,7 @@ Mt:
     8: 2
   default_oxidation:
   is_metal: true
-'Rg ':
+Rg:
   atomic_number: 111
   magnetization:
     1: 0
@@ -1443,7 +1443,7 @@ Mt:
     8: 3
   default_oxidation:
   is_metal: true
-'Cn ':
+Cn:
   atomic_number: 112
   magnetization:
     1: 1

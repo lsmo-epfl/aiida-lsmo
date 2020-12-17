@@ -3,150 +3,89 @@
 from aiida_lsmo.utils import HARTREE2EV
 
 
-class Cp2kSubsys():
-    """Class to represent CP2K subsystem.
+def get_kinds_info(atoms):
+    """Get kinds information from ASE atoms
 
-     Uses AiiDA StructureData, possibly with additional metadata such as oxidation states.
-     """
+    :param atoms: ASE atoms instance
+    :returns: list of kind_info dictionaries (keys: 'kind', 'element', 'magnetization')
+    """
+    symbols = set(atoms.get_chemical_symbols())
 
-    def __init__(self, structure, protocol, oxidation_states=None):
-        self.structure = structure
-        self.oxidation_states = oxidation_states
-        self.protocol = protocol
+    kinds_info = []
+    for symbol in symbols:
+        ats = [atom for atom in atoms if atom.symbol == symbol]
 
-        self._atoms = None
-        self._initial_magnetizations = None
-        self._kinds = None
+        tags = {}
+        for atom in ats:
+            # we assume that atoms are already tagged properly (atoms with the same tag have the same properties)
+            tags[atom.tag] = {'element': atom.symbol, 'magnetization': {atom.magmom}, 'tag': {atom.tag}}
 
-    @property
-    def atoms(self):
-        """Return ASE atoms instance"""
-        if not self._atoms:
-            self._atoms = self.structure.get_ase()
-        return self._atoms
-
-    @property
-    def initial_magnetizations(self):
-        """ Compute the initial magnetization.
-
-        By default, the initial magnetization is determined based on the element.
-        If oxidation states are provided, the guess may be improved based on those.
-        """
-        from aiida_lsmo.workchains.cp2k_multistage_protocols import INITIAL_MAGNETIZATION, get_default_magnetization
-        if not self._initial_magnetizations:
-            all_atoms = self.atoms.get_chemical_symbols()
-
-            # Use magnetization table
-            initial_magnetizations = [get_default_magnetization(element) for element in all_atoms]
-
-            if self.oxidation_states is None:
-                return initial_magnetizations
-
-            # Update selected choices, if oxidation states provided
-            for index, element, oxidation_state in zip(self.oxidation_states['metal_indices'],
-                                                       self.oxidation_states['metal_symbols'],
-                                                       self.oxidation_states['prediction']):
-                initial_magnetizations[index] = INITIAL_MAGNETIZATION[element]['magnetization'][oxidation_state]
-
-            self._initial_magnetizations = initial_magnetizations
-
-        return self._initial_magnetizations
-
-    def get_multiplicity_section(self):
-        """ Compute the total multiplicity of the structure by summing the atomic magnetizations.
-
-            multiplicity = 1 + sum_i ( natoms_i * magnetization_i ), for each atom_type i
-                         = 1 + sum_i magnetization_j, for each atomic site j
-
-        :returns: dict (for cp2k input)
-        """
-        multiplicity = 1 + sum(self.initial_magnetizations)
-        multiplicity = int(round(multiplicity))
-
-        multiplicity_dict = {'FORCE_EVAL': {'DFT': {'MULTIPLICITY': multiplicity}}}
-        if multiplicity != 1:
-            multiplicity_dict['FORCE_EVAL']['DFT']['UKS'] = True
-        return multiplicity_dict
-
-    def get_kinds_section(self):
-        """ Write the &KIND sections given the structure and the settings_dict"""
-        from aiida_lsmo.workchains.cp2k_multistage_protocols import get_default_magnetization
-
-        if not self._kinds:
-            kinds = []
-            all_atoms = set(self.atoms.get_chemical_symbols())
-            for atom in sorted(all_atoms):
-                kinds.append({
-                    '_': atom,
-                    'BASIS_SET': self.protocol['basis_set'][atom],
-                    'POTENTIAL': self.protocol['pseudopotential'][atom],
-                    'MAGNETIZATION': get_default_magnetization(atom),
-                })
+        if len(tags) == 1:
+            kind = tags[0]
+            kind['kind'] = kind['element']
+            kinds_info.append(kind)
         else:
-            kinds = [{
-                '_': k['kind'],
-                'ELEMENT': k['element'],
-                'BASIS_SET': self.protocol['basis_set'][k['element']],
-                'POTENTIAL': self.protocol['pseudopotential'][k['element']],
-                'MAGNETIZATION': k['magnetization'],
-            } for k in self._kinds]
+            for tag, kind in tags.items():
+                kind['kind'] = f"{kind['element']}{str(tag)}"
+                kinds_info.append(kind)
 
-        return {'FORCE_EVAL': {'SUBSYS': {'KIND': kinds}}}
+    return kinds_info
 
-    def tag_atoms(self):
-        """Tag atoms according to initial magnetization and store new kinds.
 
-        For each metal atom species that occurs with more than one oxidation state, add tags (starting from 1) to
-        differentiate them. Resulting kind names will be e.g. 'Cu1', 'Cu2'.
+def get_multiplicity_section(atoms):
+    """ Compute the total multiplicity of the structure by summing the atomic magnetizations.
 
-        Stores list of atom kinds in self._kinds (used by `get_kinds_section`).
-        """
-        all_atoms = self.atoms.get_chemical_symbols()
+        multiplicity = 1 + sum_i ( natoms_i * magnetization_i ), for each atom_type i
+                     = 1 + sum_i magnetization_j, for each atomic site j
 
-        n_sites = len(all_atoms)
-        symbols = sorted(set(all_atoms))
+    :param atoms: ASE atoms instance
+    :returns: dict (for cp2k input)
+    """
+    multiplicity = 1 + sum([atom.magmom for atom in atoms])
+    multiplicity = int(round(multiplicity))
 
-        # Prepare dictionary [symbol][magnetization] => tag  (tag is 0, if only single oxidation state)
-        element_magnetization_tag_map = {}
-        kinds = []
-        for symbol in symbols:
-            magnetizations = list({self.initial_magnetizations[i] for i in range(n_sites) if all_atoms[i] == symbol})
-            magnetization_tag_map = {}
+    multiplicity_dict = {'FORCE_EVAL': {'DFT': {'MULTIPLICITY': multiplicity}}}
+    if multiplicity != 1:
+        multiplicity_dict['FORCE_EVAL']['DFT']['UKS'] = True
+    return multiplicity_dict
 
-            if len(magnetizations) == 1:
-                kinds.append({'element': symbol, 'kind': symbol, 'magnetization': magnetizations[0]})
-                magnetization_tag_map[magnetizations[0]] = None
-            else:
-                for index, magnetization in enumerate(magnetizations):
-                    kinds.append({
-                        'element': symbol,
-                        'kind': f'{symbol}{str(index + 1)}',
-                        'magnetization': magnetization
-                    })
-                    magnetization_tag_map[magnetization] = index + 1  # start from 1
-            element_magnetization_tag_map[symbol] = magnetization_tag_map
-        self._kinds = kinds
 
-        # Set tags for metal atoms where needed
-        for element, magnetization, atom in zip(all_atoms, self.initial_magnetizations, self.atoms):
-            tag = element_magnetization_tag_map[element][magnetization]
-            if tag is not None:  # only tag when needed
-                atom.tag = tag
+def get_kinds_section(atoms, protocol):
+    """ Write the &KIND sections given the structure and the settings_dict"""
+    kinds_info = get_kinds_info(atoms)
 
-    def get_kinds_with_ghost_section(self):
-        """Write the &KIND sections given the structure and the settings_dict, and add also GHOST atoms"""
-        from aiida_lsmo.workchains.cp2k_multistage_protocols import get_default_magnetization
-        kinds = []
-        all_atoms = set(self.atoms.get_chemical_symbols())
-        for atom in sorted(all_atoms):
-            kinds.append({
-                '_': atom,
-                'BASIS_SET': self.protocol['basis_set'][atom],
-                'POTENTIAL': self.protocol['pseudopotential'][atom],
-                'MAGNETIZATION': get_default_magnetization(atom),
-            })
-            kinds.append({'_': atom + '_ghost', 'BASIS_SET': self.protocol['basis_set'][atom], 'GHOST': True})
-        return {'FORCE_EVAL': {'SUBSYS': {'KIND': kinds}}}
+    kinds = [{
+        '_': k['kind'],
+        'ELEMENT': k['element'],
+        'BASIS_SET': protocol['basis_set'][k['element']],
+        'POTENTIAL': protocol['pseudopotential'][k['element']],
+        'MAGNETIZATION': k['magnetization'],
+    } for k in kinds_info]
+
+    return {'FORCE_EVAL': {'SUBSYS': {'KIND': kinds}}}
+
+
+def get_kinds_with_ghost_section(atoms, protocol):
+    """Write the &KIND sections given the structure and the settings_dict, and add also GHOST atoms"""
+    kinds_info = get_kinds_info(atoms)
+
+    kinds = []
+    for kind_info in kinds_info:
+        kinds.append({
+            '_': kind_info['kind'],
+            'ELEMENT': kind_info['element'],
+            'BASIS_SET': protocol['basis_set'][kind_info['element']],
+            'POTENTIAL': protocol['pseudopotential'][kind_info['element']],
+            'MAGNETIZATION': kind_info['magnetization'],
+        })
+        kinds.append({
+            '_': kind_info['kind'],
+            'ELEMENT': kind_info['element'],
+            'BASIS_SET': protocol['basis_set'][kind_info['element']],
+            'GHOST': True
+        })
+
+    return {'FORCE_EVAL': {'SUBSYS': {'KIND': kinds}}}
 
 
 def get_bsse_section(natoms_a, natoms_b, mult_a=1, mult_b=1, charge_a=0, charge_b=0):  # pylint: disable=too-many-arguments

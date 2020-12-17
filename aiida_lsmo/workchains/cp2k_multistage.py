@@ -10,8 +10,8 @@ from aiida.orm import Dict, Int, Float, SinglefileData, Str, RemoteData, Structu
 from aiida.plugins import WorkflowFactory
 from aiida_lsmo.utils import dict_merge, HARTREE2EV
 from aiida_lsmo.utils.multiply_unitcell import check_resize_unit_cell_legacy, resize_unit_cell
-from aiida_lsmo.utils.cp2k_utils import ot_has_small_bandgap, Cp2kSubsys
-from .cp2k_multistage_protocols import load_isotherm_protocol
+from aiida_lsmo.utils.cp2k_utils import ot_has_small_bandgap, get_kinds_section, get_multiplicity_section
+from .cp2k_multistage_protocols import load_isotherm_protocol, set_initial_conditions
 
 Cp2kBaseWorkChain = WorkflowFactory('cp2k.base')  # pylint: disable=invalid-name
 
@@ -192,7 +192,7 @@ class Cp2kMultistageWorkChain(WorkChain):
 
         # Read yaml file selected as SinglefileData or chosen with the tag, and overwrite with custom modifications
         if 'protocol_yaml' in self.inputs:
-            self.ctx.protocol = load_isotherm_protocol(path=self.inputs.protocol_yaml)
+            self.ctx.protocol = load_isotherm_protocol(singlefiledata=self.inputs.protocol_yaml)
         else:
             self.ctx.protocol = load_isotherm_protocol(tag=self.inputs.protocol_tag.value)
         dict_merge(self.ctx.protocol, self.inputs.protocol_modify.get_dict())
@@ -229,23 +229,23 @@ class Cp2kMultistageWorkChain(WorkChain):
                 return self.exit_codes.ERROR_MISSING_INITIAL_SETTINGS  # pylint: disable=no-member
 
         # handle starting magnetization
-        if self.ctx.protocol['initial_magnetization'] == 'element':
-            subsys = Cp2kSubsys(structure=self.ctx.structure, protocol=self.ctx.protocol)
-        elif self.ctx.protocol['initial_magnetization'] == 'oxidation_state':
+        # TODO: this should become a calcfunction, once it is possible   # pylint: disable=fixme
+        # to transport all information (initial charges, magnetization) via StructureData
+        atoms = self.ctx.structure.get_ase()
+        if self.ctx.protocol['initial_magnetization'] == 'oxidation_state':
             from aiida_lsmo.calcfunctions.oxidation_state import compute_oxidation_states
+            self.report('Running oxidation state prediction')
             oxidation_states = compute_oxidation_states(self.ctx.structure)
-            subsys = Cp2kSubsys(structure=self.ctx.structure,
-                                oxidation_states=oxidation_states.get_dict(),
-                                protocol=self.ctx.protocol)
-            subsys.tag_atoms()
-            self.ctx.structure = StructureData(ase=subsys.atoms)  # update with new tags
+            atoms = set_initial_conditions(atoms=atoms,
+                                           initial_magnetization=self.ctx.protocol['initial_magnetization'],
+                                           oxidation_states=oxidation_states)
         else:
-            raise ValueError(
-                f"Invalid 'initial_magnetization' {self.ctx.protocol['initial_magnetization']} encountered in protocol."
-            )
+            atoms = set_initial_conditions(atoms=atoms,
+                                           initial_magnetization=self.ctx.protocol['initial_magnetization'])
+        self.ctx.structure = StructureData(ase=atoms)
 
-        dict_merge(self.ctx.cp2k_param, subsys.get_kinds_section())
-        dict_merge(self.ctx.cp2k_param, subsys.get_multiplicity_section())
+        dict_merge(self.ctx.cp2k_param, get_kinds_section(atoms=atoms, protocol=self.ctx.protocol))
+        dict_merge(self.ctx.cp2k_param, get_multiplicity_section(atoms=atoms))
         dict_merge(self.ctx.cp2k_param, self.ctx.protocol['stage_0'])
 
     def should_run_stage0(self):
