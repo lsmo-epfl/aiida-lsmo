@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Protocols for multi-stage CP2K calculations"""
 from pathlib import Path
-from voluptuous import Schema, Optional, Any, MultipleInvalid
+from voluptuous import Schema, Optional, Any, MultipleInvalid, Match
 import ruamel.yaml as yaml  # does not convert OFF to False
 
 __all__ = ('PROTOCOL_DIR', 'ISOTHERM_PROTOCOL_SCHEMA')
@@ -146,15 +146,9 @@ ISOTHERM_PROTOCOL_SCHEMA = Schema(
         },
         'bandgap_thr_ev':
             NUMBER,
-        'settings_0':
+        Match(r'settings_\d+'):
             SETTINGS_SCHEMA,
-        Optional('settings_1'):
-            SETTINGS_SCHEMA,
-        'stage_0':
-            SETTINGS_SCHEMA,
-        Optional('stage_1'):
-            SETTINGS_SCHEMA,
-        Optional('stage_2'):
+        Match(r'stage_\d+'):
             SETTINGS_SCHEMA,
     },
     required=True)
@@ -164,7 +158,8 @@ def load_isotherm_protocol(*, singlefiledata=None, tag=None):
     """Load isotherm protocol from yaml file (with validation)."""
 
     if singlefiledata is not None:
-        protocol_dict = yaml.safe_load(singlefiledata.open())
+        with singlefiledata.open() as stream:
+            protocol_dict = yaml.safe_load(stream)
     elif tag is not None:
         yaml_file = PROTOCOL_DIR / (tag + '.yaml')
         with open(yaml_file, 'r') as stream:
@@ -235,7 +230,7 @@ def set_initial_conditions(atoms, initial_magnetization, oxidation_states=None):
             atom.charge = 0
             atom.magmom = 0
 
-    elif is_valid(mode, Schema({ELEMENT: float})):
+    elif is_valid(mode, Schema({ELEMENT: NUMBER})):
         # simple format, e.g.
         # Fe: 4
         # use only those (don't try to merge with defaults)

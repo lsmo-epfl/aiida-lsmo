@@ -512,7 +512,10 @@ What it can not do:
 +---------------------------+------------------------------------------------------------------------------------------+
 | ``protocol_description``  | An user friendly description of the protocol.                                            |
 +---------------------------+------------------------------------------------------------------------------------------+
-| ``initial_magnetization`` | ``"element"`` for choice based on element or ``"oxidation_state"`` for choice based on oxidation state.  |
+| ``initial_magnetization`` | ``"element"`` for choice based on element, ``"oxidation_state"`` for choice based on     |
+|                           | predicted oxidation state, or ``"zero"`` for no initial magnetization.                   |
+|                           | To override default values, pass a dictionary element=>magnetization or a dictionary in  |
+|                           | the form of the ``initial_magnetizations.yaml``.                                         |
 +---------------------------+------------------------------------------------------------------------------------------+
 | ``basis_set``             | Dictionary of ``KIND/BASIS_SET`` for each element.                                       |
 +---------------------------+------------------------------------------------------------------------------------------+

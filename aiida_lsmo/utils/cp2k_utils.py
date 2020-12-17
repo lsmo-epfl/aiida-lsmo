@@ -79,7 +79,7 @@ def get_kinds_with_ghost_section(atoms, protocol):
             'MAGNETIZATION': kind_info['magnetization'],
         })
         kinds.append({
-            '_': kind_info['kind'],
+            '_': kind_info['kind'] + '_ghost',
             'ELEMENT': kind_info['element'],
             'BASIS_SET': protocol['basis_set'][kind_info['element']],
             'GHOST': True
