@@ -117,7 +117,7 @@ class Cp2kBindingEnergyWorkChain(WorkChain):
 
         # Read yaml file selected as SinglefileData or chosen with the tag, and overwrite with custom modifications
         if 'protocol_yaml' in self.inputs:
-            self.ctx.protocol = load_isotherm_protocol(path=self.inputs.protocol_yaml)
+            self.ctx.protocol = load_isotherm_protocol(singlefiledata=self.inputs.protocol_yaml)
         else:
             self.ctx.protocol = load_isotherm_protocol(tag=self.inputs.protocol_tag.value)
         dict_merge(self.ctx.protocol, self.inputs.protocol_modify.get_dict())
@@ -145,7 +145,7 @@ class Cp2kBindingEnergyWorkChain(WorkChain):
         # handle starting magnetization
         # TODO: this should become a calcfunction, once it is possible   # pylint: disable=fixme
         # to transport all information (initial charges, magnetization) via StructureData
-        atoms = self.ctx.structure.get_ase()
+        atoms = self.ctx.system.get_ase()
         if self.ctx.protocol['initial_magnetization'] == 'oxidation_state':
             from aiida_lsmo.calcfunctions.oxidation_state import compute_oxidation_states
             self.report('Running oxidation state prediction')
@@ -156,7 +156,7 @@ class Cp2kBindingEnergyWorkChain(WorkChain):
         else:
             atoms = set_initial_conditions(atoms=atoms,
                                            initial_magnetization=self.ctx.protocol['initial_magnetization'])
-        self.ctx.structure = StructureData(ase=atoms)
+        self.ctx.system = StructureData(ase=atoms)
 
         dict_merge(self.ctx.cp2k_param, get_kinds_section(atoms=atoms, protocol=self.ctx.protocol))
         dict_merge(self.ctx.cp2k_param, get_multiplicity_section(atoms=atoms))
