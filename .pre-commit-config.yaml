@@ -1,6 +1,7 @@
 # # Install pre-commit hooks via
 # pre-commit install
 
+repos:
 - repo: https://github.com/pre-commit/pre-commit-hooks
   rev: v2.5.0
   hooks:
