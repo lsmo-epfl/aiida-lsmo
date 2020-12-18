@@ -5,7 +5,7 @@ from copy import deepcopy
 
 from aiida.common import AttributeDict
 from aiida.engine import append_, while_, WorkChain, ToContext
-from aiida.engine import calcfunction
+from aiida.engine import calcfunction, workfunction
 from aiida.orm import Dict, Int, Float, SinglefileData, Str, RemoteData, StructureData
 from aiida.plugins import WorkflowFactory
 from aiida_lsmo.utils import dict_merge, HARTREE2EV
@@ -15,26 +15,58 @@ from .cp2k_multistage_protocols import load_isotherm_protocol, set_initial_condi
 
 Cp2kBaseWorkChain = WorkflowFactory('cp2k.base')  # pylint: disable=invalid-name
 
-# @calcfunction
-# def initial_magnetization(structure, protocol):
-#     # handle starting magnetization
-#     # TODO: this should become a calcfunction, once it is possible   # pylint: disable=fixme
-#     # to transport all information (initial charges, magnetization) via StructureData
-#     atoms = structure.get_ase()
-#     if self.ctx.protocol['initial_magnetization'] == 'oxidation_state':
-#         from aiida_lsmo.calcfunctions.oxidation_state import compute_oxidation_states
-#         self.report('Running oxidation state prediction')
-#         oxidation_states = compute_oxidation_states(self.ctx.structure)
-#         atoms = set_initial_conditions(atoms=atoms,
-#                                        initial_magnetization=self.ctx.protocol['initial_magnetization'],
-#                                        oxidation_states=oxidation_states)
-#     else:
-#         atoms = set_initial_conditions(atoms=atoms,
-#                                        initial_magnetization=self.ctx.protocol['initial_magnetization'])
-#     self.ctx.structure = StructureData(ase=atoms)
-#
-#     dict_merge(self.ctx.cp2k_param, get_kinds_section(atoms=atoms, protocol=self.ctx.protocol))
-#     dict_merge(self.ctx.cp2k_param, get_multiplicity_section(atoms=atoms))
+
+@workfunction
+def get_initial_magnetization(structure, protocol):
+    """Prepare structure with correct initial magnetization.
+
+    Returns modified structuredata (possibly with specific atomic kinds for different inital magnetizations)
+    as well as corresponding cp2k parameters dict.
+
+    :param structure: AiiDA StructureData
+    :param protocol: AiiDA Dict with appropriate cp2k parameters (kinds and multiplicity)
+
+    :returns: {'structure': StructureData, 'cp2k_param': Dict }
+    """
+    protocol_dict = protocol.get_dict()
+    if protocol_dict['initial_magnetization'] == 'oxidation_state':
+        from aiida_lsmo.calcfunctions.oxidation_state import compute_oxidation_states
+        oxidation_states = compute_oxidation_states(structure)
+        return apply_initial_magnetization(structure, protocol, oxidation_states)
+
+    return apply_initial_magnetization(structure, protocol)
+
+
+@calcfunction
+def apply_initial_magnetization(structure, protocol, oxidation_states=None):
+    """Prepare structure with correct initial magnetization.
+
+    Returns modified structuredata (possibly with specific atomic kinds for different inital magnetizations)
+    as well as corresponding cp2k parameters dict.
+
+    Note: AiiDA does not allow one calcfunction to call another, which forces this split between workfunction
+    and calcfunction.
+
+    :param structure: AiiDA StructureData
+    :param protocol: AiiDA Dict with appropriate cp2k parameters (kinds and multiplicity)
+    :param oxidation_states: Oxidation state computed with oximachine (optional)
+
+    :returns: {'structure': StructureData, 'cp2k_param': Dict }
+    """
+    atoms = structure.get_ase()
+    protocol_dict = protocol.get_dict()
+
+    if oxidation_states is not None:
+        atoms = set_initial_conditions(atoms=atoms,
+                                       initial_magnetization=protocol_dict['initial_magnetization'],
+                                       oxidation_states=oxidation_states)
+    else:
+        atoms = set_initial_conditions(atoms=atoms, initial_magnetization=protocol_dict['initial_magnetization'])
+
+    cp2k_param = get_kinds_section(atoms=atoms, protocol=protocol_dict)
+    dict_merge(cp2k_param, get_multiplicity_section(atoms=atoms))
+
+    return {'structure': StructureData(ase=atoms), 'cp2k_param': Dict(dict=cp2k_param)}
 
 
 @calcfunction
@@ -250,23 +282,9 @@ class Cp2kMultistageWorkChain(WorkChain):
                 return self.exit_codes.ERROR_MISSING_INITIAL_SETTINGS  # pylint: disable=no-member
 
         # handle starting magnetization
-        # TODO: this should become a calcfunction, once it is possible   # pylint: disable=fixme
-        # to transport all information (initial charges, magnetization) via StructureData
-        atoms = self.ctx.structure.get_ase()
-        if self.ctx.protocol['initial_magnetization'] == 'oxidation_state':
-            from aiida_lsmo.calcfunctions.oxidation_state import compute_oxidation_states
-            self.report('Running oxidation state prediction')
-            oxidation_states = compute_oxidation_states(self.ctx.structure)
-            atoms = set_initial_conditions(atoms=atoms,
-                                           initial_magnetization=self.ctx.protocol['initial_magnetization'],
-                                           oxidation_states=oxidation_states)
-        else:
-            atoms = set_initial_conditions(atoms=atoms,
-                                           initial_magnetization=self.ctx.protocol['initial_magnetization'])
-        self.ctx.structure = StructureData(ase=atoms)
-
-        dict_merge(self.ctx.cp2k_param, get_kinds_section(atoms=atoms, protocol=self.ctx.protocol))
-        dict_merge(self.ctx.cp2k_param, get_multiplicity_section(atoms=atoms))
+        results = get_initial_magnetization(self.ctx.structure, Dict(dict=self.ctx.protocol))
+        self.ctx.structure = results['structure']
+        dict_merge(self.ctx.cp2k_param, results['cp2k_param'].get_dict())
         dict_merge(self.ctx.cp2k_param, self.ctx.protocol['stage_0'])
 
     def should_run_stage0(self):

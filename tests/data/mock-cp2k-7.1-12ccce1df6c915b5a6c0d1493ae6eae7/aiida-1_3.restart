@@ -1,0 +1,251 @@
+ # Version information for this restart file 
+ # current date 2021-01-13 14:33:47.852
+ # current working dir /private/var/folders/8y/7c7qkxcx5vxb749rt3sw5sh40000gp/T/tmp0a_g26ef/be/f5/033b-65a2-401b-b890-6551e6f1cf71
+ # Program compiled at                              Thu Dec 24 12:31:26 UTC 2020
+ # Program compiled on                                   Mac-1608811933078.local
+ # Program compiled for                                      Darwin-x86-64-conda
+ # Source code revision number                                       git:e635599
+ &GLOBAL
+   PRINT_LEVEL  MEDIUM
+   PROJECT_NAME aiida
+   RUN_TYPE  BSSE
+ &END GLOBAL
+ &MOTION
+   &GEO_OPT
+     MAX_ITER  5
+   &END GEO_OPT
+   &CONSTRAINT
+     &FIXED_ATOMS
+       LIST  1..54
+     &END FIXED_ATOMS
+   &END CONSTRAINT
+   &PRINT
+     &TRAJECTORY  SILENT
+       FORMAT  DCD_ALIGNED_CELL
+       &EACH
+         MD  1
+         GEO_OPT  1
+         CELL_OPT  1
+       &END EACH
+     &END TRAJECTORY
+     &CELL  OFF
+     &END CELL
+     &VELOCITIES  OFF
+     &END VELOCITIES
+     &FORCES  OFF
+     &END FORCES
+     &STRESS  OFF
+     &END STRESS
+     &RESTART  SILENT
+       BACKUP_COPIES  0
+       &EACH
+         MD  1
+         GEO_OPT  1
+         CELL_OPT  1
+       &END EACH
+     &END RESTART
+     &RESTART_HISTORY  OFF
+     &END RESTART_HISTORY
+   &END PRINT
+ &END MOTION
+ &FORCE_EVAL
+   METHOD  QS
+   STRESS_TENSOR  ANALYTICAL
+   &DFT
+     BASIS_SET_FILE_NAME BASIS_MOLOPT
+     BASIS_SET_FILE_NAME BASIS_MOLOPT_UCL
+     POTENTIAL_FILE_NAME GTH_POTENTIALS
+     UKS  F
+     MULTIPLICITY  1
+     CHARGE  0
+     &SCF
+       MAX_ITER_LUMO  10000
+       MAX_SCF  50
+       EPS_SCF     1.0000000000000000E-04
+       SCF_GUESS  ATOMIC
+       &OT  T
+         MINIMIZER  DIIS
+         PRECONDITIONER  FULL_ALL
+       &END OT
+       &OUTER_SCF  T
+         EPS_SCF     1.0000000000000000E-04
+         MAX_SCF  5
+       &END OUTER_SCF
+       &MIXING  T
+         METHOD  DIRECT_P_MIXING
+         ALPHA     4.0000000000000002E-01
+         BETA     5.0000000000000000E-01
+       &END MIXING
+     &END SCF
+     &QS
+       EPS_DEFAULT     1.0000000000000000E-10
+       EXTRAPOLATION  ASPC
+       METHOD  GPW
+     &END QS
+     &MGRID
+       NGRIDS  4
+       CUTOFF     3.0000000000000000E+02
+       REL_CUTOFF     3.0000000000000000E+01
+     &END MGRID
+     &XC
+       DENSITY_CUTOFF     1.0000000000000000E-10
+       GRADIENT_CUTOFF     1.0000000000000000E-10
+       TAU_CUTOFF     1.0000000000000000E-10
+       &XC_FUNCTIONAL  NO_SHORTCUT
+         &PBE  T
+           PARAMETRIZATION  ORIG
+         &END PBE
+       &END XC_FUNCTIONAL
+       &VDW_POTENTIAL
+         POTENTIAL_TYPE  PAIR_POTENTIAL
+         &PAIR_POTENTIAL
+           TYPE  DFTD3(BJ)
+           PARAMETER_FILE_NAME dftd3.dat
+           REFERENCE_FUNCTIONAL PBE
+         &END PAIR_POTENTIAL
+       &END VDW_POTENTIAL
+     &END XC
+     &PRINT
+       &MO_CUBES  SILENT
+         ADD_LAST  SYMBOLIC
+         WRITE_CUBE  F
+         NLUMO  1
+         NHOMO  1
+         &EACH
+           MD  0
+           GEO_OPT  0
+           CELL_OPT  0
+         &END EACH
+       &END MO_CUBES
+       &MULLIKEN  ON
+         ADD_LAST  SYMBOLIC
+         &EACH
+           MD  0
+           GEO_OPT  0
+           CELL_OPT  0
+         &END EACH
+       &END MULLIKEN
+       &LOWDIN  OFF
+       &END LOWDIN
+       &HIRSHFELD  OFF
+       &END HIRSHFELD
+     &END PRINT
+   &END DFT
+   &BSSE
+     &FRAGMENT
+       LIST  1..54
+     &END FRAGMENT
+     &FRAGMENT
+       LIST  55..57
+     &END FRAGMENT
+     &CONFIGURATION
+       GLB_CONF  1 0
+       SUB_CONF  1 0
+       MULTIPLICITY  1
+       CHARGE  0
+     &END CONFIGURATION
+     &CONFIGURATION
+       GLB_CONF  0 1
+       SUB_CONF  0 1
+       MULTIPLICITY  1
+       CHARGE  0
+     &END CONFIGURATION
+     &CONFIGURATION
+       GLB_CONF  1 1
+       SUB_CONF  1 0
+       MULTIPLICITY  1
+       CHARGE  0
+     &END CONFIGURATION
+     &CONFIGURATION
+       GLB_CONF  1 1
+       SUB_CONF  0 1
+       MULTIPLICITY  1
+       CHARGE  0
+     &END CONFIGURATION
+     &CONFIGURATION
+       GLB_CONF  1 1
+       SUB_CONF  1 1
+       MULTIPLICITY  1
+       CHARGE  0
+     &END CONFIGURATION
+     &FRAGMENT_ENERGIES
+          -7.9214561851491533E+02
+          -3.7762147427693264E+01
+           8.2991723626474050E+02
+     &END FRAGMENT_ENERGIES
+   &END BSSE
+   &SUBSYS
+     &CELL
+       A     6.9990100000000002E+00    0.0000000000000000E+00    0.0000000000000000E+00
+       B    -2.3339675345856001E+00    1.5064165518126002E+01    0.0000000000000000E+00
+       C    -2.3333255406633002E+00   -7.5318732560933004E+00    1.3046302663032000E+01
+     &END CELL
+     &KIND C
+       BASIS_SET DZVP-MOLOPT-SR-GTH-q4
+       MAGNETIZATION     0.0000000000000000E+00
+       ELEMENT C
+       POTENTIAL GTH-PBE-q4
+       &POTENTIAL
+ 2 2
+  0.3384712400000000E+00 2 -0.8803673979999999E+01  0.1339210850000000E+01
+ 2
+  0.3025757500000000E+00 1  0.9622486650000001E+01
+  0.2915069400000000E+00 0
+         # Potential name:  GTH-PBE-Q4  for symbol:  C
+         # Potential read from the potential filename: GTH_POTENTIALS
+       &END POTENTIAL
+     &END KIND
+     &KIND H
+       BASIS_SET DZVP-MOLOPT-SR-GTH-q1
+       MAGNETIZATION     0.0000000000000000E+00
+       ELEMENT H
+       POTENTIAL GTH-PBE-q1
+       &POTENTIAL
+ 1
+  0.2000000000000000E+00 2 -0.4178900440000000E+01  0.7244633100000000E+00
+ 0
+         # Potential name:  GTH-PBE-Q1  for symbol:  H
+         # Potential read from the potential filename: GTH_POTENTIALS
+       &END POTENTIAL
+     &END KIND
+     &KIND O
+       BASIS_SET DZVP-MOLOPT-SR-GTH-q6
+       MAGNETIZATION     0.0000000000000000E+00
+       ELEMENT O
+       POTENTIAL GTH-PBE-q6
+       &POTENTIAL
+ 2 4
+  0.2445543000000000E+00 2 -0.1666721480000000E+02  0.2487311320000000E+01
+ 2
+  0.2209559200000000E+00 1  0.1833745811000000E+02
+  0.2113324700000000E+00 0
+         # Potential name:  GTH-PBE-Q6  for symbol:  O
+         # Potential read from the potential filename: GTH_POTENTIALS
+       &END POTENTIAL
+     &END KIND
+     &KIND Zn
+       BASIS_SET DZVP-MOLOPT-SR-GTH-q12
+       MAGNETIZATION     0.0000000000000000E+00
+       ELEMENT Zn
+       POTENTIAL GTH-PBE-q12
+       &POTENTIAL
+ 2 0 10
+  0.5100000000000000E+00 0
+ 3
+  0.4003164400000000E+00 3  0.1153004133000000E+02 -0.8791898150000000E+01  0.3145086440000000E+01
+  0.1646577518000000E+02 -0.8120578269999999E+01
+  0.6445509180000000E+01
+  0.5431823300000000E+00 2  0.2597195120000000E+01 -0.5942627500000000E+00
+  0.7031411700000000E+00
+  0.2509588500000000E+00 1 -0.1446695795000000E+02
+         # Potential name:  GTH-PBE-Q12  for symbol:  ZN
+         # Potential read from the potential filename: GTH_POTENTIALS
+       &END POTENTIAL
+     &END KIND
+     &TOPOLOGY
+       COORD_FILE_NAME aiida.coords.xyz
+       COORD_FILE_FORMAT  XYZ
+       NUMBER_OF_ATOMS  57
+     &END TOPOLOGY
+   &END SUBSYS
+ &END FORCE_EVAL

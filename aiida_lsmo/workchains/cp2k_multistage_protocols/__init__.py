@@ -234,7 +234,6 @@ def set_initial_conditions(atoms, initial_magnetization, oxidation_states=None):
         # simple format, e.g.
         # Fe: 4
         # use only those (don't try to merge with defaults)
-        Schema({ELEMENT: float})(mode)
         for atom in atoms:
             if atom.symbol not in mode:
                 continue
@@ -245,7 +244,6 @@ def set_initial_conditions(atoms, initial_magnetization, oxidation_states=None):
         # complex format, e.g.
         # Fe: {'default_oxidation': 2, 'magnetization': { 1: 3, 2: 4, ...} }
         # use only those (don't try to merge with defaults)
-        Schema({ELEMENT: dict})(mode)
         for atom in atoms:
             if atom.symbol not in mode:
                 continue
