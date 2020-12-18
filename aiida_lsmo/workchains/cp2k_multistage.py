@@ -15,6 +15,27 @@ from .cp2k_multistage_protocols import load_isotherm_protocol, set_initial_condi
 
 Cp2kBaseWorkChain = WorkflowFactory('cp2k.base')  # pylint: disable=invalid-name
 
+# @calcfunction
+# def initial_magnetization(structure, protocol):
+#     # handle starting magnetization
+#     # TODO: this should become a calcfunction, once it is possible   # pylint: disable=fixme
+#     # to transport all information (initial charges, magnetization) via StructureData
+#     atoms = structure.get_ase()
+#     if self.ctx.protocol['initial_magnetization'] == 'oxidation_state':
+#         from aiida_lsmo.calcfunctions.oxidation_state import compute_oxidation_states
+#         self.report('Running oxidation state prediction')
+#         oxidation_states = compute_oxidation_states(self.ctx.structure)
+#         atoms = set_initial_conditions(atoms=atoms,
+#                                        initial_magnetization=self.ctx.protocol['initial_magnetization'],
+#                                        oxidation_states=oxidation_states)
+#     else:
+#         atoms = set_initial_conditions(atoms=atoms,
+#                                        initial_magnetization=self.ctx.protocol['initial_magnetization'])
+#     self.ctx.structure = StructureData(ase=atoms)
+#
+#     dict_merge(self.ctx.cp2k_param, get_kinds_section(atoms=atoms, protocol=self.ctx.protocol))
+#     dict_merge(self.ctx.cp2k_param, get_multiplicity_section(atoms=atoms))
+
 
 @calcfunction
 def extract_results(resize, **kwargs):
