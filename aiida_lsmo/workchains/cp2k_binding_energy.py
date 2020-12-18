@@ -10,9 +10,9 @@ from aiida.orm import Dict, Int, SinglefileData, Str, StructureData
 from aiida.plugins import WorkflowFactory
 
 from aiida_lsmo.utils import HARTREE2EV, dict_merge, aiida_structure_merge
-from aiida_lsmo.utils.cp2k_utils import (ot_has_small_bandgap, get_kinds_section, get_multiplicity_section,
-                                         get_bsse_section)
-from .cp2k_multistage_protocols import load_isotherm_protocol, set_initial_conditions
+from aiida_lsmo.utils.cp2k_utils import (ot_has_small_bandgap, get_bsse_section)
+from .cp2k_multistage_protocols import load_isotherm_protocol
+from .cp2k_multistage import get_initial_magnetization
 
 Cp2kBaseWorkChain = WorkflowFactory('cp2k.base')  # pylint: disable=invalid-name
 
@@ -143,23 +143,9 @@ class Cp2kBindingEnergyWorkChain(WorkChain):
                 return self.exit_codes.ERROR_MISSING_INITIAL_SETTINGS  # pylint: disable=no-member
 
         # handle starting magnetization
-        # TODO: this should become a calcfunction, once it is possible   # pylint: disable=fixme
-        # to transport all information (initial charges, magnetization) via StructureData
-        atoms = self.ctx.system.get_ase()
-        if self.ctx.protocol['initial_magnetization'] == 'oxidation_state':
-            from aiida_lsmo.calcfunctions.oxidation_state import compute_oxidation_states
-            self.report('Running oxidation state prediction')
-            oxidation_states = compute_oxidation_states(self.ctx.structure)
-            atoms = set_initial_conditions(atoms=atoms,
-                                           initial_magnetization=self.ctx.protocol['initial_magnetization'],
-                                           oxidation_states=oxidation_states)
-        else:
-            atoms = set_initial_conditions(atoms=atoms,
-                                           initial_magnetization=self.ctx.protocol['initial_magnetization'])
-        self.ctx.system = StructureData(ase=atoms)
-
-        dict_merge(self.ctx.cp2k_param, get_kinds_section(atoms=atoms, protocol=self.ctx.protocol))
-        dict_merge(self.ctx.cp2k_param, get_multiplicity_section(atoms=atoms))
+        results = get_initial_magnetization(self.ctx.system, Dict(dict=self.ctx.protocol))
+        self.ctx.system = results['structure']
+        dict_merge(self.ctx.cp2k_param, results['cp2k_param'].get_dict())
         dict_merge(
             self.ctx.cp2k_param,
             {

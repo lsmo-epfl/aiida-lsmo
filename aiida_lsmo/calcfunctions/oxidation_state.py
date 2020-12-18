@@ -2,13 +2,8 @@
 """CalcFunction to compute the oxidation states of metals using oximachine"""
 from aiida.engine import calcfunction
 from aiida.orm import Dict
+import oximachinerunner
 
-try:
-    import oximachinerunner
-except ImportError as exc:
-    raise ImportError("Please install the 'oximachine' extra for oxidation state prediction.") from exc
-
-# Note: This loads the model into memory
 OXIMACHINE_RUNNER = oximachinerunner.OximachineRunner(modelname='mof')
 
 

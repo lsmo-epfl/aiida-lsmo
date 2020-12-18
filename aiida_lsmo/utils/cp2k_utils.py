@@ -9,7 +9,7 @@ def get_kinds_info(atoms):
     :param atoms: ASE atoms instance
     :returns: list of kind_info dictionaries (keys: 'kind', 'element', 'magnetization')
     """
-    symbols = set(atoms.get_chemical_symbols())
+    symbols = sorted(set(atoms.get_chemical_symbols()))
 
     kinds_info = []
     for symbol in symbols:

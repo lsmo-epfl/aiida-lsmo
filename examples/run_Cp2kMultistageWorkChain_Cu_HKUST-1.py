@@ -25,7 +25,7 @@ def cu_hkust1_structuredata():
     return StructureData(ase=ase.io.read(DATA_DIR / 'Cu-I-II-HKUST-1.cif'))
 
 
-def run_multistage_al(cp2k_code, cu_hkust1_structuredata):  # pylint: disable=redefined-outer-name
+def run_multistage_cu_hkust1(cp2k_code, cu_hkust1_structuredata):  # pylint: disable=redefined-outer-name
     """Run Cp2kMultistageWorkChain on Cu-HKUST-1."""
 
     # testing user change of parameters and protocol
@@ -68,8 +68,8 @@ def cli(cp2k_code):
 
     Example usage: $ ./test_multistage_aluminum.py --cp2k-code my-cp2k@myhost
     """
-    run_multistage_al(cp2k_code,
-                      cu_hkust1_structuredata=StructureData(ase=ase.io.read(DATA_DIR / 'Cu-I-II-HKUST-1.cif')))
+    run_multistage_cu_hkust1(cp2k_code,
+                             cu_hkust1_structuredata=StructureData(ase=ase.io.read(DATA_DIR / 'Cu-I-II-HKUST-1.cif')))
 
 
 if __name__ == '__main__':

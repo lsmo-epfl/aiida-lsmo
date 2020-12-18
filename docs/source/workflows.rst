@@ -509,29 +509,33 @@ What it can not do:
   `default YAML file <https://github.com/aiidateam/aiida-cp2k/tree/master/aiida_cp2k/workchains/multistage_protocols/standard.yaml>`_
   as an example. Note that the dictionary need to contain the following keys:
 
-+---------------------------+------------------------------------------------------------------------------------------+
-| ``protocol_description``  | An user friendly description of the protocol.                                            |
-+---------------------------+------------------------------------------------------------------------------------------+
-| ``initial_magnetization`` | ``"element"`` for choice based on element, ``"oxidation_state"`` for choice based on     |
-|                           | predicted oxidation state, or ``"zero"`` for no initial magnetization.                   |
-|                           | To override default values, pass a dictionary element=>magnetization or a dictionary in  |
-|                           | the form of the ``initial_magnetizations.yaml``.                                         |
-+---------------------------+------------------------------------------------------------------------------------------+
-| ``basis_set``             | Dictionary of ``KIND/BASIS_SET`` for each element.                                       |
-+---------------------------+------------------------------------------------------------------------------------------+
-| ``pseudopotential``       | Dictionary of ``KIND/POTENTIAL`` for each element.                                       |
-+---------------------------+------------------------------------------------------------------------------------------+
-| ``bandgap_thr_ev``        | Any ```stage_0`` using OT and evaluating a band gap below this threshold                 |
-|                           | will be considered as a failure.                                                         |
-+---------------------------+------------------------------------------------------------------------------------------+
-| * ``settings_0``          | Settings updated in ``stage_0`` until the SCF converges.                                 |
-| * ``settings_1``          |                                                                                          |
-| * ...                     |                                                                                          |
-+---------------------------+------------------------------------------------------------------------------------------+
-| * ``stage_0``             | CP2K settings that are updated at every stage.                                           |
-| * ``stage_1``             |                                                                                          |
-| * ...                     |                                                                                          |
-+---------------------------+------------------------------------------------------------------------------------------+
++---------------------------+---------------------------------------------------------------------------------------------+
+| ``protocol_description``  | An user friendly description of the protocol.                                               |
++---------------------------+---------------------------------------------------------------------------------------------+
+| ``initial_magnetization`` | Initial magnetization for metal atoms (affects spin multiplicity of calculation).           |
+|                           | Use ``"zero"`` for no initial magnetization, ``"element"`` for a guess based on the         |
+|                           | element, and ``"oxidation_state"`` for guess based on the oxidation state predicted for     |
+|                           | the neighborhood of the metal using the  (corresponding to maximially unpaired spins).      |
+|                           | `oximachine <https://oximachine.materialscloud.io/input_structure/>`_ (corresponding to     |
+|                           | maximially unpaired spins).                                                                 |
+|                           | You can also provide user-defined values in the form of a dictionary element=>magnetization |
+|                           | or a dictionary in the form of the ``initial_magnetizations.yaml`` file.                    |
++---------------------------+---------------------------------------------------------------------------------------------+
+| ``basis_set``             | Dictionary of ``KIND/BASIS_SET`` for each element.                                          |
++---------------------------+---------------------------------------------------------------------------------------------+
+| ``pseudopotential``       | Dictionary of ``KIND/POTENTIAL`` for each element.                                          |
++---------------------------+---------------------------------------------------------------------------------------------+
+| ``bandgap_thr_ev``        | Any ```stage_0`` using OT and evaluating a band gap below this threshold                    |
+|                           | will be considered as a failure.                                                            |
++---------------------------+---------------------------------------------------------------------------------------------+
+| * ``settings_0``          | Settings updated in ``stage_0`` until the SCF converges.                                    |
+| * ``settings_1``          |                                                                                             |
+| * ...                     |                                                                                             |
++---------------------------+---------------------------------------------------------------------------------------------+
+| * ``stage_0``             | CP2K settings that are updated at every stage.                                              |
+| * ``stage_1``             |                                                                                             |
+| * ...                     |                                                                                             |
++---------------------------+---------------------------------------------------------------------------------------------+
 
 Other keys may be add in future to introduce new functionalities to the Multistage work chain.
 
