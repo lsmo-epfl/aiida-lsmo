@@ -189,7 +189,9 @@ class IsothermAccurateWorkChain(WorkChain):
             NUMBER,
         Required('loading_higp_sigma', default=0.95, description='Sigma fraction, to consider the sytem saturated.'):
             NUMBER,
-        Required('ph0_reiteration_coeff', default=0.8, description='Coefficient for P_H0 to iterate GCMC at lower P.'):
+        Required('n_dpmax', default=0.95, description='Number of pressure points to compute the max Delta pressure.'):
+            int,
+        Required('ph0_reiteration_coeff', default=20, description='Coefficient for P_H0 to iterate GCMC at lower P.'):
             NUMBER,
     })
     parameters_info = parameters_schema.schema  # shorthand for printing
@@ -503,7 +505,7 @@ class IsothermAccurateWorkChain(WorkChain):
             self.ctx.first_iteration = False
             self.ctx.psat = self.ctx.parameters['loading_sat_sigma'] * self.ctx.geom['Estimated_saturation_loading'] /\
                                 (1-self.ctx.parameters['loading_sat_sigma'])/self.ctx.kh  #TODO: check units!
-            self.ctx.dpmax = (self.ctx.psat - self.ctx.ph0) / 20  # Comment: maybe more efficient to use the first ph0
+            self.ctx.dpmax = (self.ctx.psat - self.ctx.ph0) / self.ctx.parameters['n_dpmax']  # Comment: maybe more efficient to use the first ph0
             self.ctx.pressure_old = self.ctx.ph0
             self.ctx.pressure = self.ctx.pressure_old + self.ctx.dpmax
             return True
