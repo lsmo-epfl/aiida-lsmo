@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Isotherm workchain"""
+"""IsothermAccurate work chain."""
 
 import os
 import functools
@@ -518,7 +518,7 @@ class IsothermAccurateWorkChain(WorkChain):
             dp_computed = 2 * self.ctx.pressure / self.ctx.psat * self.ctx.geom[
                 'Estimated_saturation_loading'] / loading_derivative
             self.ctx.pressure_old = self.ctx.pressure
-            self.ctx.pressure = self.ctx.pressure_old + min(self.ctx.dpmax, dp_measured)
+            self.ctx.pressure = self.ctx.pressure_old + min(self.ctx.dpmax, dp_computed)
             if self.ctx.pressure > self.ctx.psat:
                 return False  # Reached saturation!
             else:
@@ -535,7 +535,7 @@ class IsothermAccurateWorkChain(WorkChain):
         self.ctx.inp['metadata']['call_link_label'] = 'run_raspa_gcmc_{}'.format(self.ctx.gcmc_i)
 
         # Update pressure (NOTE: need to convert from bar to Pa)
-        self.ctx.raspa_param['System']['framework_1']['ExternalPressure'] = self.ctx.ph0 * 1e5
+        self.ctx.raspa_param['System']['framework_1']['ExternalPressure'] = self.ctx.pressure * 1e5
 
         # Update parameters Dict
         self.ctx.inp['raspa']['parameters'] = Dict(dict=self.ctx.raspa_param)
