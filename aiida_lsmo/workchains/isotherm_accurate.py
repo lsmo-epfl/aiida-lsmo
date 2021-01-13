@@ -116,7 +116,7 @@ def get_output_parameters(geom_out, inp_params, widom_out=None, **gcmc_out_dict)
         if out_dict['is_kh_enough']:
 
             isotherm = {
-                #'pressure': pressures, # TODO: I need to think how to pass the pressures!
+                'pressure': [],
                 'pressure_unit': 'bar',
                 'loading_absolute_average': [],
                 'loading_absolute_dev': [],
@@ -127,8 +127,11 @@ def get_output_parameters(geom_out, inp_params, widom_out=None, **gcmc_out_dict)
             }
 
             conv_ener = 1.0 / 120.273  # K to kJ/mol
-            for i, _ in range(len(gcmc_out_dict)):  # I want to keep the order imposed with the index
-                gcmc_out = gcmc_out_dict['RaspaGCMC_{}'.format(i + 1)]['framework_1']
+            for i in range(len(gcmc_out_dict)):  # I want to keep the order imposed with the index
+                gcmc_out_param = gcmc_out_dict['RaspaGCMC_{}'.format(i)]
+                isotherm['pressure'].append(gcmc_out_param.get_extra(
+                    'Pressure (bar)'))  # Dirty trick to pass pressure values in the calcfunction
+                gcmc_out = gcmc_out_param['framework_1']
                 gcmc_out_mol = list(gcmc_out['components'].values())[0]
                 conv_load = gcmc_out_mol['conversion_factor_molec_uc_to_mol_kg']
 
@@ -141,7 +144,7 @@ def get_output_parameters(geom_out, inp_params, widom_out=None, **gcmc_out_dict)
                     else:  # when there are no particles and Raspa return Null enthalpy
                         isotherm[label].append(None)
 
-            # TODO: we could finally sort all the value by increasing pressure
+            # TODO: we could finally sort all the values by increasing pressure
 
             out_dict.update({
                 'isotherm': isotherm,
@@ -187,11 +190,11 @@ class IsothermAccurateWorkChain(WorkChain):
             list,
         Required('loading_lowp_epsilon', default=0.1, description='Epsilon for convergence of low pressure loading.'):
             NUMBER,
-        Required('loading_higp_sigma', default=0.95, description='Sigma fraction, to consider the sytem saturated.'):
+        Required('loading_highp_sigma', default=0.95, description='Sigma fraction, to consider the sytem saturated.'):
             NUMBER,
-        Required('n_dpmax', default=0.95, description='Number of pressure points to compute the max Delta pressure.'):
+        Required('n_dpmax', default=20, description='Number of pressure points to compute the max Delta pressure.'):
             int,
-        Required('ph0_reiteration_coeff', default=20, description='Coefficient for P_H0 to iterate GCMC at lower P.'):
+        Required('ph0_reiteration_coeff', default=0.8, description='Coefficient for P_H0 to iterate GCMC at lower P.'):
             NUMBER,
     })
     parameters_info = parameters_schema.schema  # shorthand for printing
@@ -462,10 +465,14 @@ class IsothermAccurateWorkChain(WorkChain):
     def _get_last_loading_molkg(self):
         """Get the GCMC loading in mol/kg from the last GCMC calculation.
         """
-        gcmc_out = self.ctx.raspa_gcmc[-1]['framework_1']
+        gcmc_out_param = self.ctx.raspa_gcmc[-1].outputs.output_parameters
+        gcmc_out = gcmc_out_param['framework_1']
         gcmc_out_mol = list(gcmc_out['components'].values())[0]
         conv_load = gcmc_out_mol['conversion_factor_molec_uc_to_mol_kg']
         load_molec_uc = gcmc_out_mol['loading_absolute_average']
+
+        # Dirty trick: attach pressure point as extra for the calcfunction get_output_parameters!
+        gcmc_out_param.set_extra('Pressure (bar)', self.ctx.pressure)
         return conv_load * load_molec_uc
 
     def should_run_another_gcmc_lowp(self):
@@ -477,13 +484,14 @@ class IsothermAccurateWorkChain(WorkChain):
         """
         if self.ctx.first_iteration:
             self.ctx.first_iteration = False
-            self.ctx.ph0 = 10000 / self.ctx.geom['POAV_A^3'] / self.ctx.geom[
+            self.ctx.ph0 = 10000 / self.ctx.geom['POAV_cm^3/g'] / self.ctx.geom[
                 'Density'] / 6.02 / self.ctx.kh  #TODO: check units!
             self.ctx.pressure = self.ctx.ph0
             return True
         else:
             self.ctx.gcmc_loading_average = self._get_last_loading_molkg()
-            loading_convergence = (gcmc_loading_average - self.ctx.kh * self.ctx.pressure) / gcmc_loading_average
+            loading_convergence = (self.ctx.gcmc_loading_average -
+                                   self.ctx.kh * self.ctx.pressure) / self.ctx.gcmc_loading_average
             if loading_convergence < self.ctx.parameters['loading_lowp_epsilon']:
                 self.ctx.first_iteration = True
                 return False  # Converged!
@@ -492,9 +500,7 @@ class IsothermAccurateWorkChain(WorkChain):
                 self.ctx.gcmc_i += 1
                 return True  # Not converged: lower P_H0 and recompute GCMC
 
-        return self.ctx.current_p_index < len(self.ctx.pressures)
-
-    def should_run_another_gcmc_higp(self):
+    def should_run_another_gcmc_highp(self):
         """Step 4: determine the pressure at which the saturation starts, Psat
         Step 5: After calculating PH and Psat, pressure values in between are generated based on the following
         sampling scheme: more pressure points are needed when the isotherm is steep compared to when the isotherm
@@ -503,11 +509,14 @@ class IsothermAccurateWorkChain(WorkChain):
         """
         if self.ctx.first_iteration:  # Proceed with first iteration
             self.ctx.first_iteration = False
-            self.ctx.psat = self.ctx.parameters['loading_sat_sigma'] * self.ctx.geom['Estimated_saturation_loading'] /\
-                                (1-self.ctx.parameters['loading_sat_sigma'])/self.ctx.kh  #TODO: check units!
-            self.ctx.dpmax = (self.ctx.psat - self.ctx.ph0) / self.ctx.parameters['n_dpmax']  # Comment: maybe more efficient to use the first ph0
+            self.ctx.psat = self.ctx.parameters['loading_highp_sigma'] * self.ctx.geom[
+                'Estimated_saturation_loading'] / (
+                    1 - self.ctx.parameters['loading_highp_sigma']) / self.ctx.kh  #TODO: check units!
+            self.ctx.dpmax = (self.ctx.psat - self.ctx.ph0
+                             ) / self.ctx.parameters['n_dpmax']  # Comment: maybe more efficient to use the first ph0
             self.ctx.pressure_old = self.ctx.ph0
             self.ctx.pressure = self.ctx.pressure_old + self.ctx.dpmax
+            self.ctx.gcmc_i += 1
             return True
         else:
             gcmc_loading_average_old = self.ctx.gcmc_loading_average
@@ -515,6 +524,7 @@ class IsothermAccurateWorkChain(WorkChain):
             loading_derivative = (self.ctx.gcmc_loading_average - gcmc_loading_average_old) / (self.ctx.pressure -
                                                                                                self.ctx.pressure_old)
             if loading_derivative < 0:  #Need to recompute GCMC. NOTE: very dangerous, as it can lead to infinite loop!
+                self.report('WARNING: recomputing same pressure point, because loading has negative derivative.')
                 del self.ctx.raspa_gcmc[-1]
                 return True
             dp_computed = 2 * self.ctx.pressure / self.ctx.psat * self.ctx.geom[
