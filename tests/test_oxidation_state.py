@@ -148,4 +148,4 @@ def test_cp2k_kinds(cu_hkust_oxidation):  # pylint: disable=redefined-outer-name
         atoms.get_chemical_symbols())) + 1, kinds_section['FORCE_EVAL']['SUBSYS']['KIND']
 
     multiplicity_section = get_multiplicity_section(atoms=atoms)
-    assert multiplicity_section['FORCE_EVAL']['DFT']['MULTIPLICITY'] == 8 * 1 + 1, multiplicity_section
+    assert multiplicity_section['FORCE_EVAL']['DFT']['MULTIPLICITY'] == 8 * 2 + 1, multiplicity_section

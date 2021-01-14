@@ -35,13 +35,13 @@ def get_kinds_info(atoms):
 def get_multiplicity_section(atoms):
     """ Compute the total multiplicity of the structure by summing the atomic magnetizations.
 
-        multiplicity = 1 + sum_i ( natoms_i * magnetization_i ), for each atom_type i
-                     = 1 + sum_i magnetization_j, for each atomic site j
+        multiplicity = 1 + 2 * sum_i ( natoms_i * magnetization_i ), for each atom_type i
+                     = 1 + 2 * sum_j magnetization_j, for each atomic site j
 
     :param atoms: ASE atoms instance
     :returns: dict (for cp2k input)
     """
-    multiplicity = 1 + sum([atom.magmom for atom in atoms])
+    multiplicity = 1 + 2 * sum([atom.magmom for atom in atoms])
     multiplicity = int(round(multiplicity))
 
     multiplicity_dict = {'FORCE_EVAL': {'DFT': {'MULTIPLICITY': multiplicity}}}
