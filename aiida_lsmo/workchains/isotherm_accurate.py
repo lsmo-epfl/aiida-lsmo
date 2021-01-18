@@ -484,14 +484,14 @@ class IsothermAccurateWorkChain(WorkChain):
         """
         if self.ctx.first_iteration:
             self.ctx.first_iteration = False
-            self.ctx.ph0 = 10000 / self.ctx.geom['POAV_cm^3/g'] / self.ctx.geom[
-                'Density'] / 6.02 / self.ctx.kh  #TODO: check units!
+            self.ctx.ph0 = 1 / self.ctx.geom['Unitcell_volume'] / self.ctx.geom[
+                'Density'] / 6.022 / self.ctx.kh / 10 # we need to multiply by the cell volume in Angstrom not the POAV and P is in bar now 
             self.ctx.pressure = self.ctx.ph0
             return True
         else:
             self.ctx.gcmc_loading_average = self._get_last_loading_molkg()
             loading_convergence = (self.ctx.gcmc_loading_average -
-                                   self.ctx.kh * self.ctx.pressure) / self.ctx.gcmc_loading_average
+                                   self.ctx.kh * self.ctx.pressure * 100000) / self.ctx.gcmc_loading_average # The pressure is multiplied by 100000 to go from bar to Pa because of Kh
             if loading_convergence < self.ctx.parameters['loading_lowp_epsilon']:
                 self.ctx.first_iteration = True
                 return False  # Converged!
@@ -511,7 +511,7 @@ class IsothermAccurateWorkChain(WorkChain):
             self.ctx.first_iteration = False
             self.ctx.psat = self.ctx.parameters['loading_highp_sigma'] * self.ctx.geom[
                 'Estimated_saturation_loading'] / (
-                    1 - self.ctx.parameters['loading_highp_sigma']) / self.ctx.kh  #TODO: check units!
+                    1 - self.ctx.parameters['loading_highp_sigma']) / self.ctx.kh / 100000 # the pressure in in bar now
             self.ctx.dpmax = (self.ctx.psat - self.ctx.ph0
                              ) / self.ctx.parameters['n_dpmax']  # Comment: maybe more efficient to use the first ph0
             self.ctx.pressure_old = self.ctx.ph0
