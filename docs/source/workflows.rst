@@ -149,7 +149,7 @@ What it can not do:
       "pressure_max": 10  # (float) Upper pressure to sample (bar).
     }
 
-Note that if the automatic pressure selection of the workchain should be skipped, the ``pressure_list`` value (list) must be provided. If a list of pressure points (bar) is defined, the other pressure inputs are neglected.
+In order to skip the automatic pressure selection of the workchain, provide a list of pressure points (bar) using the ``pressure_list`` keyword (the other pressure inputs are then neglected).
 
 Note that you can scale the probe radius to empirically account for some framework flexibility and avoid overblocking.
 Setting ``zeopp_probe_scaling`` to zero (or a small value) basically corresponds to skipping the permeability check and
