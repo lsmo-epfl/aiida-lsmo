@@ -1278,7 +1278,8 @@ Note that this work chain may run many calculations in parallel.
         "pressure_min": 0.001,  # (float) Min pressure in P/P0 TODO: MIN selected from the henry coefficient!
         "pressure_max": 1.0,  # (float) Max pressure in P/P0
         "pressure_num": 20,  # (int) Number of pressure points considered, eqispaced in a log plot
-        "pressure_list": None,  # (list) Pressure list in P/P0. If 'None' pressure points are computed from min/max/num.
+
+Note that if no ``pressure_list`` (list-)parameter is provided, pressure points are computed from min/max/num.
 
 * ``molecule`` (``Dict``), example::
 
