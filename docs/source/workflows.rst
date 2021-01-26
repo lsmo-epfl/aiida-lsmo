@@ -143,15 +143,13 @@ What it can not do:
       "raspa_widom_cycles": int(1e5),  # (int) Number of Widom cycles.
       "raspa_gcmc_init_cycles": int(1e3),  # (int) Number of GCMC initialization cycles.
       "raspa_gcmc_prod_cycles": int(1e4),  # (int) Number of GCMC production cycles.
-      "pressure_list": None,  # (list) Pressure list for the isotherm (bar): if given it will skip to guess it.
       "pressure_precision": 0.1,  # (float) Precision in the sampling of the isotherm: 0.1 ok, 0.05 for high resolution.
       "pressure_maxstep": 5,  # (float) Max distance between pressure points (bar).
       "pressure_min": 0.001,  # (float) Lower pressure to sample (bar).
       "pressure_max": 10  # (float) Upper pressure to sample (bar).
     }
 
-Note that if the ``pressure_list`` value is provided, the other pressure inputs are neglected and the automatic pressure
-selection of the work chain is skipped.
+Note that if the automatic pressure selection of the workchain should be skipped, the ``pressure_list`` value (list) must be provided. If a list of pressure points (bar) is defined, the other pressure inputs are neglected.
 
 Note that you can scale the probe radius to empirically account for some framework flexibility and avoid overblocking.
 Setting ``zeopp_probe_scaling`` to zero (or a small value) basically corresponds to skipping the permeability check and
