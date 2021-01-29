@@ -64,7 +64,7 @@ def apply_initial_magnetization(structure, protocol, oxidation_states=None):
         atoms = set_initial_conditions(atoms=atoms, initial_magnetization=protocol_dict['initial_magnetization'])
 
     cp2k_param = get_kinds_section(atoms=atoms, protocol=protocol_dict)
-    dict_merge(cp2k_param, get_multiplicity_section(atoms=atoms))
+    dict_merge(cp2k_param, get_multiplicity_section(atoms=atoms, protocol=protocol_dict))
 
     return {'structure': StructureData(ase=atoms), 'cp2k_param': Dict(dict=cp2k_param)}
 

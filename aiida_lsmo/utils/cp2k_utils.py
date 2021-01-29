@@ -32,17 +32,28 @@ def get_kinds_info(atoms):
     return kinds_info
 
 
-def get_multiplicity_section(atoms):
+def get_multiplicity_section(atoms, protocol):
     """ Compute the total multiplicity of the structure by summing the atomic magnetizations.
 
         multiplicity = 1 + sum_i ( natoms_i * magnetization_i ), for each atom_type i
                      = 1 + sum_i magnetization_j, for each atomic site j
 
     :param atoms: ASE atoms instance
+    :param protocol: protocol dict
     :returns: dict (for cp2k input)
     """
-    multiplicity = 1 + sum([atom.magmom for atom in atoms])
-    multiplicity = int(round(multiplicity))
+    if protocol['initial_magnetization'] == 'zero':
+        # base multiplicity on number of electrons
+        # (even atomic number <=> even number of valence electrons)
+        is_even = sum(atoms.get_atomic_numbers()) % 2 == 0
+        if is_even:
+            multiplicity = 1
+        else:
+            multiplicity = 2
+    else:
+        # base multiplicity on starting magnetization
+        multiplicity = 1 + sum([atom.magmom for atom in atoms])
+        multiplicity = int(round(multiplicity))
 
     multiplicity_dict = {'FORCE_EVAL': {'DFT': {'MULTIPLICITY': multiplicity}}}
     if multiplicity != 1:
