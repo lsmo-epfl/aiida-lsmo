@@ -13,11 +13,12 @@ from aiida_lsmo.workchains.cp2k_multistage_protocols import set_initial_conditio
 from aiida_lsmo.utils.cp2k_utils import get_kinds_section, get_multiplicity_section
 from . import DATA_DIR
 
-CIF_FILES = ['Fe-MOF-74.cif', 'Mg_MOF_74.cif', 'Cu-I-II-HKUST-1.cif']
+CIF_FILES = ['Fe-MOF-74.cif', 'Mg_MOF_74.cif', 'Cu-I-II-HKUST-1.cif', 'CO2.cif']
 OXIDATION_STATES = {
     'Fe-MOF-74.cif': [2, 2, 2, 2, 2, 2],
     'Mg_MOF_74.cif': [2, 2, 2, 2, 2, 2],
     'Cu-I-II-HKUST-1.cif': [1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2],
+    'CO2.cif': [],
 }
 
 

@@ -1,0 +1,13 @@
+data_image0
+loop_
+  _atom_site_label
+  _atom_site_occupancy
+  _atom_site_Cartn_x
+  _atom_site_Cartn_y
+  _atom_site_Cartn_z
+  _atom_site_thermal_displace_type
+  _atom_site_B_iso_or_equiv
+  _atom_site_type_symbol
+  C1       1.0000 0.00000  0.00000  0.00000  Biso   1.000  C
+  O1       1.0000 0.00000  0.00000  1.17866  Biso   1.000  O
+  O2       1.0000 0.00000  0.00000  -1.17866  Biso   1.000  O
