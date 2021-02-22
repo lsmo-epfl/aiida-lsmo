@@ -1,8 +1,8 @@
  # Version information for this restart file 
- # current date 2021-01-13 14:23:58.302
- # current working dir /private/var/folders/8y/7c7qkxcx5vxb749rt3sw5sh40000gp/T/tmp0a_g26ef/be/f5/033b-65a2-401b-b890-6551e6f1cf71
- # Program compiled at                              Thu Dec 24 12:31:26 UTC 2020
- # Program compiled on                                   Mac-1608811933078.local
+ # current date 2021-02-22 12:07:53.193
+ # current working dir /private/var/folders/8y/7c7qkxcx5vxb749rt3sw5sh40000gp/T/tmpufak8e_c/4f/20/ed17-8f19-41c2-acff-8ffce495445c
+ # Program compiled at                              Wed Jan 20 20:20:51 UTC 2021
+ # Program compiled on                                   Mac-1611173522785.local
  # Program compiled for                                      Darwin-x86-64-conda
  # Source code revision number                                       git:e635599
  &GLOBAL
@@ -169,8 +169,9 @@
        CHARGE  0
      &END CONFIGURATION
      &FRAGMENT_ENERGIES
-          -7.9214561851491533E+02
-          -3.7762147427693264E+01
+          -7.9214561851491885E+02
+          -3.7762147427693314E+01
+          -8.7877045691584499E-03
      &END FRAGMENT_ENERGIES
    &END BSSE
    &SUBSYS
@@ -194,6 +195,11 @@
          # Potential read from the potential filename: GTH_POTENTIALS
        &END POTENTIAL
      &END KIND
+     &KIND C_ghost
+       BASIS_SET DZVP-MOLOPT-SR-GTH-q4
+       ELEMENT C
+       GHOST  T
+     &END KIND
      &KIND H
        BASIS_SET DZVP-MOLOPT-SR-GTH-q1
        MAGNETIZATION     0.0000000000000000E+00
@@ -206,6 +212,11 @@
          # Potential name:  GTH-PBE-Q1  for symbol:  H
          # Potential read from the potential filename: GTH_POTENTIALS
        &END POTENTIAL
+     &END KIND
+     &KIND H_ghost
+       BASIS_SET DZVP-MOLOPT-SR-GTH-q1
+       ELEMENT H
+       GHOST  T
      &END KIND
      &KIND O
        BASIS_SET DZVP-MOLOPT-SR-GTH-q6
@@ -221,6 +232,11 @@
          # Potential name:  GTH-PBE-Q6  for symbol:  O
          # Potential read from the potential filename: GTH_POTENTIALS
        &END POTENTIAL
+     &END KIND
+     &KIND O_ghost
+       BASIS_SET DZVP-MOLOPT-SR-GTH-q6
+       ELEMENT O
+       GHOST  T
      &END KIND
      &KIND Zn
        BASIS_SET DZVP-MOLOPT-SR-GTH-q12
@@ -240,6 +256,11 @@
          # Potential name:  GTH-PBE-Q12  for symbol:  ZN
          # Potential read from the potential filename: GTH_POTENTIALS
        &END POTENTIAL
+     &END KIND
+     &KIND Zn_ghost
+       BASIS_SET DZVP-MOLOPT-SR-GTH-q12
+       ELEMENT Zn
+       GHOST  T
      &END KIND
      &TOPOLOGY
        COORD_FILE_NAME aiida.coords.xyz
