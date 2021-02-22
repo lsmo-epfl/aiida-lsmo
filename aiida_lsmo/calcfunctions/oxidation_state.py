@@ -14,6 +14,12 @@ def compute_oxidation_states(cif):
     :param cif:  AiiDA CifData instance
     :return: AiiDA Dict node
     """
-    results_dict = OXIMACHINE_RUNNER.run_oximachine(cif.get_ase())
+    try:
+        results_dict = OXIMACHINE_RUNNER.run_oximachine(cif.get_ase())
+    except Exception:  # pylint: disable=broad-except
+        results_dict = {
+            k: [] for k in ['metal_indices', 'metal_symbols', 'prediction', 'max_probabs', 'base_predictions']
+        }
+
     results_dict['oximachine_version'] = str(OXIMACHINE_RUNNER)
     return Dict(dict=results_dict)
