@@ -79,7 +79,8 @@ def run_binding_energy_co2_mof74(cp2k_code, zn_mof74, co2_in_mof74):  # pylint: 
     assert node.is_finished_ok, results
 
     params = results['output_parameters'].get_dict()
-    assert params['binding_energy_raw'] == pytest.approx(-24.86, abs=0.01)
+    assert params['binding_energy_raw'] == pytest.approx(-24.86, abs=0.1)
+    assert params['binding_energy_corr'] == pytest.approx(-23.07, abs=0.1)
     assert params['motion_step_info']['scf_converged'][-1]
 
 

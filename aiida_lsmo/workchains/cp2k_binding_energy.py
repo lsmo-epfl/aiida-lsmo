@@ -6,7 +6,7 @@ from copy import deepcopy
 from aiida.common import AttributeDict
 from aiida.engine import append_, while_, WorkChain, ToContext
 from aiida.engine import calcfunction
-from aiida.orm import Dict, Int, SinglefileData, Str, StructureData
+from aiida.orm import Dict, Int, SinglefileData, Str, StructureData, Bool
 from aiida.plugins import WorkflowFactory
 
 from aiida_lsmo.utils import HARTREE2EV, dict_merge, aiida_structure_merge
@@ -143,7 +143,7 @@ class Cp2kBindingEnergyWorkChain(WorkChain):
                 return self.exit_codes.ERROR_MISSING_INITIAL_SETTINGS  # pylint: disable=no-member
 
         # handle starting magnetization
-        results = get_initial_magnetization(self.ctx.system, Dict(dict=self.ctx.protocol))
+        results = get_initial_magnetization(self.ctx.system, Dict(dict=self.ctx.protocol), with_ghost_atoms=Bool(True))
         self.ctx.system = results['structure']
         dict_merge(self.ctx.cp2k_param, results['cp2k_param'].get_dict())
         dict_merge(

@@ -17,7 +17,7 @@ Cp2kBaseWorkChain = WorkflowFactory('cp2k.base')  # pylint: disable=invalid-name
 
 
 @workfunction
-def get_initial_magnetization(structure, protocol):
+def get_initial_magnetization(structure, protocol, with_ghost_atoms=None):
     """Prepare structure with correct initial magnetization.
 
     Returns modified structuredata (possibly with specific atomic kinds for different inital magnetizations)
@@ -25,6 +25,7 @@ def get_initial_magnetization(structure, protocol):
 
     :param structure: AiiDA StructureData
     :param protocol: AiiDA Dict with appropriate cp2k parameters (kinds and multiplicity)
+    :param with_ghost_atoms: if true, add ghost atoms for BSSE counterpoise correction (optional)
 
     :returns: {'structure': StructureData, 'cp2k_param': Dict }
     """
@@ -32,13 +33,13 @@ def get_initial_magnetization(structure, protocol):
     if protocol_dict['initial_magnetization'] == 'oxidation_state':
         from aiida_lsmo.calcfunctions.oxidation_state import compute_oxidation_states
         oxidation_states = compute_oxidation_states(structure)
-        return apply_initial_magnetization(structure, protocol, oxidation_states)
+        return apply_initial_magnetization(structure, protocol, oxidation_states, with_ghost_atoms=with_ghost_atoms)
 
-    return apply_initial_magnetization(structure, protocol)
+    return apply_initial_magnetization(structure, protocol, with_ghost_atoms=with_ghost_atoms)
 
 
 @calcfunction
-def apply_initial_magnetization(structure, protocol, oxidation_states=None):
+def apply_initial_magnetization(structure, protocol, oxidation_states=None, with_ghost_atoms=None):
     """Prepare structure with correct initial magnetization.
 
     Returns modified structuredata (possibly with specific atomic kinds for different inital magnetizations)
@@ -50,6 +51,7 @@ def apply_initial_magnetization(structure, protocol, oxidation_states=None):
     :param structure: AiiDA StructureData
     :param protocol: AiiDA Dict with appropriate cp2k parameters (kinds and multiplicity)
     :param oxidation_states: Oxidation state computed with oximachine (optional)
+    :param with_ghost_atoms: if true, add ghost atoms for BSSE counterpoise correction (optional)
 
     :returns: {'structure': StructureData, 'cp2k_param': Dict }
     """
@@ -63,7 +65,7 @@ def apply_initial_magnetization(structure, protocol, oxidation_states=None):
     else:
         atoms = set_initial_conditions(atoms=atoms, initial_magnetization=protocol_dict['initial_magnetization'])
 
-    cp2k_param = get_kinds_section(atoms=atoms, protocol=protocol_dict)
+    cp2k_param = get_kinds_section(atoms=atoms, protocol=protocol_dict, with_ghost_atoms=bool(with_ghost_atoms))
     dict_merge(cp2k_param, get_multiplicity_section(atoms=atoms, protocol=protocol_dict))
 
     return {'structure': StructureData(ase=atoms), 'cp2k_param': Dict(dict=cp2k_param)}

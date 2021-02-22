@@ -129,11 +129,21 @@
          MAGNETIZATION 0.0
          POTENTIAL GTH-PBE-q4
       &END KIND
+      &KIND C_ghost
+         BASIS_SET DZVP-MOLOPT-SR-GTH-q4
+         ELEMENT C
+         GHOST .TRUE.
+      &END KIND
       &KIND H
          BASIS_SET DZVP-MOLOPT-SR-GTH-q1
          ELEMENT H
          MAGNETIZATION 0.0
          POTENTIAL GTH-PBE-q1
+      &END KIND
+      &KIND H_ghost
+         BASIS_SET DZVP-MOLOPT-SR-GTH-q1
+         ELEMENT H
+         GHOST .TRUE.
       &END KIND
       &KIND O
          BASIS_SET DZVP-MOLOPT-SR-GTH-q6
@@ -141,11 +151,21 @@
          MAGNETIZATION 0.0
          POTENTIAL GTH-PBE-q6
       &END KIND
+      &KIND O_ghost
+         BASIS_SET DZVP-MOLOPT-SR-GTH-q6
+         ELEMENT O
+         GHOST .TRUE.
+      &END KIND
       &KIND Zn
          BASIS_SET DZVP-MOLOPT-SR-GTH-q12
          ELEMENT Zn
          MAGNETIZATION 0.0
          POTENTIAL GTH-PBE-q12
+      &END KIND
+      &KIND Zn_ghost
+         BASIS_SET DZVP-MOLOPT-SR-GTH-q12
+         ELEMENT Zn
+         GHOST .TRUE.
       &END KIND
       &TOPOLOGY
          COORD_FILE_FORMAT XYZ

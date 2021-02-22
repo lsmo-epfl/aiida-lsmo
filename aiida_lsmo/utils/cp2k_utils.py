@@ -61,23 +61,13 @@ def get_multiplicity_section(atoms, protocol):
     return multiplicity_dict
 
 
-def get_kinds_section(atoms, protocol):
-    """ Write the &KIND sections given the structure and the settings_dict"""
-    kinds_info = get_kinds_info(atoms)
+def get_kinds_section(atoms, protocol, with_ghost_atoms=False):
+    """ Write the &KIND sections given the structure and the settings_dict
 
-    kinds = [{
-        '_': k['kind'],
-        'ELEMENT': k['element'],
-        'BASIS_SET': protocol['basis_set'][k['element']],
-        'POTENTIAL': protocol['pseudopotential'][k['element']],
-        'MAGNETIZATION': k['magnetization'],
-    } for k in kinds_info]
-
-    return {'FORCE_EVAL': {'SUBSYS': {'KIND': kinds}}}
-
-
-def get_kinds_with_ghost_section(atoms, protocol):
-    """Write the &KIND sections given the structure and the settings_dict, and add also GHOST atoms"""
+    :param atoms: ASE atoms instance
+    :param protocol: protocol dict
+    :param with_ghost_atoms: if true, add ghost atoms for BSSE counterpoise correction (optional)
+    """
     kinds_info = get_kinds_info(atoms)
 
     kinds = []
@@ -89,12 +79,13 @@ def get_kinds_with_ghost_section(atoms, protocol):
             'POTENTIAL': protocol['pseudopotential'][kind_info['element']],
             'MAGNETIZATION': kind_info['magnetization'],
         })
-        kinds.append({
-            '_': kind_info['kind'] + '_ghost',
-            'ELEMENT': kind_info['element'],
-            'BASIS_SET': protocol['basis_set'][kind_info['element']],
-            'GHOST': True
-        })
+        if with_ghost_atoms:
+            kinds.append({
+                '_': kind_info['kind'] + '_ghost',
+                'ELEMENT': kind_info['element'],
+                'BASIS_SET': protocol['basis_set'][kind_info['element']],
+                'GHOST': True
+            })
 
     return {'FORCE_EVAL': {'SUBSYS': {'KIND': kinds}}}
 
