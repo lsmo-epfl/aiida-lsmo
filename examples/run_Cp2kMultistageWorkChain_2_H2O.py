@@ -9,6 +9,7 @@ from aiida.engine import run
 from aiida.orm import Code, Dict, StructureData, Float, Str
 from aiida.common import NotExistent
 from aiida.plugins import WorkflowFactory
+from aiida import cmdline
 
 Cp2kMultistageWorkChain = WorkflowFactory('lsmo.cp2k_multistage')  # pylint: disable=invalid-name
 
@@ -54,6 +55,7 @@ def run_multistage_h2om(cp2k_code):
 
 
 @click.command('cli')
+@cmdline.utils.decorators.with_dbenv()
 @click.argument('codelabel')
 def cli(codelabel):
     """Click interface"""

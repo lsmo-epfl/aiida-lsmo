@@ -8,7 +8,7 @@ In order to run the examples, you need
 
 The examples can be run directly from the command line. For example:
 ```
-./test_multistage_aluminum.py --cp2k-code <cp2k-code-label>
+./test_Cp2kMultistageWorkChain_Al.py --cp2k-code <cp2k-code-label>
 ```
 
  * `run_...` scripts run the workflow in the python interpreter.
