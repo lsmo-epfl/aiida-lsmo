@@ -8,6 +8,7 @@ import click
 from aiida.engine import run
 from aiida.plugins import DataFactory, WorkflowFactory
 from aiida.orm import Code, Dict, Str
+from aiida import cmdline
 
 # Workchain objects
 SimAnnealingWorkChain = WorkflowFactory('lsmo.sim_annealing')  # pylint: disable=invalid-name
@@ -17,6 +18,7 @@ CifData = DataFactory('cif')  # pylint: disable=invalid-name
 
 
 @click.command('cli')
+@cmdline.utils.decorators.with_dbenv()
 @click.argument('raspa_code_label')
 def main(raspa_code_label):
     """Prepare inputs and submit the work chain."""

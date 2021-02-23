@@ -8,6 +8,7 @@ import click
 from aiida.engine import run
 from aiida.plugins import DataFactory, WorkflowFactory
 from aiida.orm import Code, Dict
+from aiida import cmdline
 
 # Workchain objects
 IsothermCalcPEWorkChain = WorkflowFactory('lsmo.isotherm_calc_pe')  # pylint: disable=invalid-name
@@ -18,6 +19,7 @@ NetworkParameters = DataFactory('zeopp.parameters')  # pylint: disable=invalid-n
 
 
 @click.command('cli')
+@cmdline.utils.decorators.with_dbenv()
 @click.argument('raspa_code_label')
 @click.argument('zeopp_code_label')
 def main(raspa_code_label, zeopp_code_label):

@@ -6,6 +6,7 @@ import click
 from aiida.engine import run
 from aiida.plugins import DataFactory, WorkflowFactory
 from aiida.orm import Code, Str, Dict
+from aiida import cmdline
 
 # Workchain objects
 SinglecompWidomWorkChain = WorkflowFactory('lsmo.singlecomp_widom')
@@ -16,6 +17,7 @@ NetworkParameters = DataFactory('zeopp.parameters')
 
 
 @click.command('cli')
+@cmdline.utils.decorators.with_dbenv()
 @click.argument('raspa_code_label')
 @click.argument('zeopp_code_label')
 def main(raspa_code_label, zeopp_code_label):
