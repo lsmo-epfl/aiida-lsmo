@@ -1,4 +1,4 @@
-#!/usr/bin/env python  # pylint: disable=invalid-name
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """Run example Widom calculation in HKUST1 framework, using 0.7 scaling for the probe radius to compute blocks."""
 import os

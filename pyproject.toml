@@ -6,6 +6,7 @@ disable = [
     "import-outside-toplevel",
     "duplicate-code",
 ]
+module-naming-style="any"
 
 
 [tool.pytest.ini_options]

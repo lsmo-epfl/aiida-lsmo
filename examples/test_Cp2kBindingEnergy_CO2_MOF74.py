@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-# pylint: disable=invalid-name
 """ Test/example for the BindingEnergyWorkChain"""
 
 import pytest
@@ -67,11 +66,11 @@ def run_binding_energy_co2_mof74(cp2k_code, zn_mof74, co2_in_mof74):  # pylint: 
     builder.cp2k_base.cp2k.metadata.options.max_wallclock_seconds = 1 * 5 * 60
 
     # The following is not needed, if the files are available in the data directory of your CP2K executable
-    CP2K_DIR = DATA_DIR / 'cp2k'
+    cp2k_dir = DATA_DIR / 'cp2k'
     builder.cp2k_base.cp2k.file = {
-        'basis': SinglefileData(file=str(CP2K_DIR / 'BASIS_MOLOPT')),
-        'pseudo': SinglefileData(file=str(CP2K_DIR / 'GTH_POTENTIALS')),
-        'dftd3': SinglefileData(file=str(CP2K_DIR / 'dftd3.dat')),
+        'basis': SinglefileData(file=str(cp2k_dir / 'BASIS_MOLOPT')),
+        'pseudo': SinglefileData(file=str(cp2k_dir / 'GTH_POTENTIALS')),
+        'dftd3': SinglefileData(file=str(cp2k_dir / 'dftd3.dat')),
     }
 
     results, node = engine.run_get_node(builder)
