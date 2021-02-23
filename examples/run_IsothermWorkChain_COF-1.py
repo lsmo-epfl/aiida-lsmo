@@ -1,4 +1,4 @@
-#!/usr/bin/env python  # pylint: disable=invalid-name
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """Run example isotherm calculation with COF-1 framework."""
 

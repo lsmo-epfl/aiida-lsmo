@@ -1,4 +1,4 @@
-#!/usr/bin/env python  # pylint: disable=invalid-name
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """Run example 3-components GCMC in a box, at 3 different T/P conditions."""
 import click

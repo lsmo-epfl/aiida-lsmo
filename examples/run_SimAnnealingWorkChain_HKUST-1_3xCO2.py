@@ -1,4 +1,4 @@
-#!/usr/bin/env python  # pylint: disable=invalid-name
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """Run example sim annealing of 3 CO2 molecules in HKUST-1 framework."""
 

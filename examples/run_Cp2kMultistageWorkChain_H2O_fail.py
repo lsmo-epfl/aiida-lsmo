@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-""" Test/example for the Cp2kMultistageWorkChain"""  # pylint: disable=invalid-name
+""" Test/example for the Cp2kMultistageWorkChain"""
 
 import sys
 import click
