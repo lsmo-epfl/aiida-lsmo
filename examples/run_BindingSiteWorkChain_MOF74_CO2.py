@@ -7,7 +7,7 @@ import click
 
 from aiida.engine import run
 from aiida.plugins import DataFactory, WorkflowFactory
-from aiida.orm import Code, Dict, Str
+from aiida.orm import Dict, Str
 from aiida import cmdline
 
 # Workchain objects
@@ -19,9 +19,9 @@ CifData = DataFactory('cif')  # pylint: disable=invalid-name
 
 @click.command('cli')
 @cmdline.utils.decorators.with_dbenv()
-@click.argument('raspa_code_label')
-@click.argument('cp2k_code_label')
-def main(raspa_code_label, cp2k_code_label):
+@click.option('--raspa_code', type=cmdline.params.types.CodeParamType())
+@click.option('--cp2k_code', type=cmdline.params.types.CodeParamType())
+def main(raspa_code, cp2k_code):
     """Prepare inputs and submit the work chain."""
 
     print('Testing BindingSite work chain (FF + DFT) for CO2 in Zn-MOF-74 ...')
@@ -29,8 +29,8 @@ def main(raspa_code_label, cp2k_code_label):
 
     builder = BindingSiteWorkChain.get_builder()
     builder.metadata.label = 'test'
-    builder.raspa_base.raspa.code = Code.get_from_string(raspa_code_label)
-    builder.cp2k_base.cp2k.code = Code.get_from_string(cp2k_code_label)
+    builder.raspa_base.raspa.code = raspa_code
+    builder.cp2k_base.cp2k.code = cp2k_code
     builder.raspa_base.raspa.metadata.options = {
         'resources': {
             'num_machines': 1,

@@ -7,7 +7,7 @@ import click
 
 from aiida.engine import run
 from aiida.plugins import DataFactory, WorkflowFactory
-from aiida.orm import Code, Dict, Str
+from aiida.orm import Dict, Str
 from aiida import cmdline
 
 # Workchain objects
@@ -20,18 +20,15 @@ NetworkParameters = DataFactory('zeopp.parameters')  # pylint: disable=invalid-n
 
 @click.command('cli')
 @cmdline.utils.decorators.with_dbenv()
-@click.argument('zeopp_code_string')
-@click.argument('cp2k_code_string')
-@click.argument('ddec_code_string')
+@click.option('--zeopp_code', type=cmdline.params.types.CodeParamType())
+@click.option('--cp2k_code', type=cmdline.params.types.CodeParamType())
+@click.option('--ddec_code', type=cmdline.params.types.CodeParamType())
 @click.argument('ddec_atdens_path')
-def main(zeopp_code_string, cp2k_code_string, ddec_code_string, ddec_atdens_path):
+def main(zeopp_code, cp2k_code, ddec_code, ddec_atdens_path):
     """Example usage:
     ATDENS_PATH='/home/daniele/Programs/aiida-database/data/chargemol_09_26_2017/atomic_densities/'
     verdi run run_ZeoppMultistageDdecWorkChain_H2O.py zeopp@localhost cp2k@localhost ddec@localhost $ATDENS_PATH
     """
-    zeopp_code = Code.get_from_string(zeopp_code_string)
-    cp2k_code = Code.get_from_string(cp2k_code_string)
-    ddec_code = Code.get_from_string(ddec_code_string)
 
     cp2k_options = {
         'resources': {

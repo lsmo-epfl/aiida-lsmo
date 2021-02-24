@@ -1,13 +1,8 @@
 # -*- coding: utf-8 -*-
 """Parsers for the specific usage of aiida-lsmo workchains."""
 
-import io
-import os
-
 from aiida.common import OutputParsingError, NotExistent
-from aiida.engine import ExitCode
 from aiida.orm import Dict, BandsData
-from aiida.plugins import ParserFactory
 from aiida_cp2k.parsers import Cp2kBaseParser
 from .parser_functions import parse_cp2k_output_bsse, parse_cp2k_output_advanced
 
