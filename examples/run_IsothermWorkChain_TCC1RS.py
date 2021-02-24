@@ -7,7 +7,7 @@ import click
 
 from aiida.engine import run
 from aiida.plugins import DataFactory, WorkflowFactory
-from aiida.orm import Code, Dict, Str
+from aiida.orm import Dict, Str
 from aiida import cmdline
 
 # Workchain objects
@@ -20,9 +20,9 @@ NetworkParameters = DataFactory('zeopp.parameters')  # pylint: disable=invalid-n
 
 @click.command('cli')
 @cmdline.utils.decorators.with_dbenv()
-@click.argument('raspa_code_label')
-@click.argument('zeopp_code_label')
-def main(raspa_code_label, zeopp_code_label):
+@click.option('--raspa_code', type=cmdline.params.types.CodeParamType())
+@click.option('--zeopp_code', type=cmdline.params.types.CodeParamType())
+def main(raspa_code, zeopp_code):
     """Prepare inputs and submit the Isotherm workchain.
     Usage: verdi run run_isotherm_hkust1.py raspa@localhost network@localhost"""
 
@@ -30,8 +30,8 @@ def main(raspa_code_label, zeopp_code_label):
 
     builder.metadata.label = 'test'
 
-    builder.raspa_base.raspa.code = Code.get_from_string(raspa_code_label)
-    builder.zeopp.code = Code.get_from_string(zeopp_code_label)
+    builder.raspa_base.raspa.code = raspa_code
+    builder.zeopp.code = zeopp_code
 
     options = {
         'resources': {

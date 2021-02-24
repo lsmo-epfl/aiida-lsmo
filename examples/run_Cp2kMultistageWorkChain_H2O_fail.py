@@ -1,13 +1,11 @@
 # -*- coding: utf-8 -*-
 """ Test/example for the Cp2kMultistageWorkChain"""
 
-import sys
 import click
 import ase.build
 
 from aiida.engine import run
-from aiida.orm import Code, Dict, StructureData, Str, Int
-from aiida.common import NotExistent
+from aiida.orm import Dict, StructureData, Str, Int
 from aiida.plugins import WorkflowFactory
 from aiida import cmdline
 
@@ -49,15 +47,10 @@ def run_multistage_h2o_fail(cp2k_code):
 
 @click.command('cli')
 @cmdline.utils.decorators.with_dbenv()
-@click.argument('codelabel')
-def cli(codelabel):
+@click.option('--cp2k-code', type=cmdline.params.types.CodeParamType())
+def cli(cp2k_code):
     """Click interface"""
-    try:
-        code = Code.get_from_string(codelabel)
-    except NotExistent:
-        print("The code '{}' does not exist".format(codelabel))
-        sys.exit(1)
-    run_multistage_h2o_fail(code)
+    run_multistage_h2o_fail(cp2k_code)
 
 
 if __name__ == '__main__':
