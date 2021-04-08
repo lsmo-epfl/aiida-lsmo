@@ -22,7 +22,7 @@ StructureData = DataFactory('structure')  # pylint: disable=invalid-name
 
 
 class Cp2kPhonopyWorkChain(WorkChain):
-    """A workchain to compute frequencies using CP2K and Phonopy"""
+    """A workchain to compute phonon frequencies using CP2K and Phonopy"""
 
     @classmethod
     def define(cls, spec):
@@ -38,7 +38,7 @@ class Cp2kPhonopyWorkChain(WorkChain):
             cls.generate_displacements,
             cls.collect_cp2k_inputs,
             cls.run_cp2k_first,
-            while_(cls.should_run_displ)(cls.run_cp2k_displacements,),
+            while_(cls.should_run_displacement)(cls.run_cp2k_displacement,),
             cls.results,
         )
 
@@ -65,6 +65,7 @@ class Cp2kPhonopyWorkChain(WorkChain):
         #phonon.save() to investigate
 
         # List of PhonopyAtoms to list of StructureData
+        # TODO: create an ASE object first and use Structuredata(ase=uc_ase)
         self.ctx.sd_list = []
         for i, pa in enumerate([uc] + disp_ucs):  # 6N+1 in total, first is the original uc
             sd = StructureData(cell=uc.get_cell())
@@ -130,7 +131,7 @@ class Cp2kPhonopyWorkChain(WorkChain):
         running_base = self.submit(Cp2kBaseWorkChain, **self.ctx.base_inp)
         return ToContext(base_wcs=append_(running_base))
 
-    def should_run_displ(self):
+    def should_run_displacement(self):
         """Prepare the input for computing displacements, and check if all have been computed"""
         if len(self.ctx.base_wcs) == 1:  # only cp2k_first computed
             cp2k_first_calc = self.ctx.base_wcs[0]
@@ -158,8 +159,8 @@ class Cp2kPhonopyWorkChain(WorkChain):
         if len(self.ctx.base_wcs) == len(self.ctx.sd_list):  # all done
             return False
 
-    def run_cp2k_displacements(self):
-        """Run the other CP2K calculations for the displacements."""
+    def run_cp2k_displacement(self):
+        """Run the other CP2K calculations for the given structure with displacement."""
         self.ctx.base_inp['metadata'].update({
             'label': f'cp2k_displ_{self.ctx.index}',
             'call_link_label': f'run_cp2k_displ_{self.ctx.index}',
@@ -186,3 +187,5 @@ class Cp2kPhonopyWorkChain(WorkChain):
             self.ctx.phonon.save()
             # NOTE: this saves the file phonopy_params.yaml in the folder where the folder was submitted.
             #       There are no options to save to dict, but we may find an alternative.
+
+            # NOTE: if we decide to compute force constrants in this workchain, let's monitor the time if it is too expensive
