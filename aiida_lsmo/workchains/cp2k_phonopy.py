@@ -13,7 +13,7 @@ from aiida.engine import append_, while_, WorkChain, ToContext
 from aiida_lsmo.utils import aiida_dict_merge
 
 # import sub-workchains
-Cp2kBaseWorkChain = WorkflowFactory('cp2k.base')   # pylint: disable=invalid-name
+Cp2kBaseWorkChain = WorkflowFactory('cp2k.base')  # pylint: disable=invalid-name
 
 # import aiida data
 Dict = DataFactory('dict')  # pylint: disable=invalid-name
@@ -38,9 +38,7 @@ class Cp2kPhonopyWorkChain(WorkChain):
             cls.generate_displacements,
             cls.collect_cp2k_inputs,
             cls.run_cp2k_first,
-            while_(cls.should_run_displ)(
-                cls.run_cp2k_displacements,
-            ),
+            while_(cls.should_run_displ)(cls.run_cp2k_displacements,),
             cls.results,
         )
 
@@ -52,23 +50,23 @@ class Cp2kPhonopyWorkChain(WorkChain):
         # CifData to PhonopyAtoms
         ase = self.inputs.structure.get_ase()
         uc = PhonopyAtoms(symbols=ase.get_chemical_symbols(),
-                        cell=ase.get_cell(),
-                        scaled_positions=ase.get_scaled_positions()
-                        )
+                          cell=ase.get_cell(),
+                          scaled_positions=ase.get_scaled_positions())
 
         # Generate displacements
-        self.ctx.phonon = Phonopy(unitcell=uc,
-                                  supercell_matrix=None,
-                                  primitive_matrix=None,
-                                  factor=CP2KToTHz,
-                                  )
+        self.ctx.phonon = Phonopy(
+            unitcell=uc,
+            supercell_matrix=None,
+            primitive_matrix=None,
+            factor=CP2KToTHz,
+        )
         self.ctx.phonon.generate_displacements(distance=0.01)
         disp_ucs = self.ctx.phonon.supercells_with_displacements
         #phonon.save() to investigate
 
         # List of PhonopyAtoms to list of StructureData
         self.ctx.sd_list = []
-        for i, pa in enumerate([uc] + disp_ucs): # 6N+1 in total, first is the original uc
+        for i, pa in enumerate([uc] + disp_ucs):  # 6N+1 in total, first is the original uc
             sd = StructureData(cell=uc.get_cell())
             for i in range(len(uc)):
                 symbol = uc.get_chemical_symbols()[i]
@@ -80,18 +78,18 @@ class Cp2kPhonopyWorkChain(WorkChain):
         """Collect Cp2k inputs from the last CP2K calculation."""
         qb = QueryBuilder()
         qb.append(Node, filters={f'id': self.inputs.structure.pk}, tag='cif_out')
-        qb.append(Node, filters={'attributes.process_label': 'Cp2kCalculation' }, with_descendants='cif_out', tag='calc')
+        qb.append(Node, filters={'attributes.process_label': 'Cp2kCalculation'}, with_descendants='cif_out', tag='calc')
         last_cp2k_calc = qb.distinct().all()[-1][0]
 
         self.ctx.base_inp = AttributeDict(self.exposed_inputs(Cp2kBaseWorkChain, 'cp2k_base'))
-        self.ctx.base_inp['cp2k']['settings'] = Dict(dict={'additional_retrieve_list': ["aiida-forces-1_0.xyz"]})
+        self.ctx.base_inp['cp2k']['settings'] = Dict(dict={'additional_retrieve_list': ['aiida-forces-1_0.xyz']})
         self.ctx.base_inp['cp2k']['file'] = {}
-   
+
         for edge_label in last_cp2k_calc.inputs:
             if edge_label.startswith('file'):
-                edge_label_file = edge_label.split("__")[-1]
+                edge_label_file = edge_label.split('__')[-1]
                 self.ctx.base_inp['cp2k']['file'][edge_label_file] = last_cp2k_calc.inputs[edge_label]
-        
+
         param_modify = Dict(
             dict={
                 'GLOBAL': {
@@ -113,10 +111,13 @@ class Cp2kPhonopyWorkChain(WorkChain):
                         'PRINT': {
                             'E_DENSITY_CUBE': {
                                 '_': 'OFF'
-        }}}}}).store()   
+                            }
+                        }
+                    }
+                }
+            }).store()
 
         self.ctx.base_inp['cp2k']['parameters'] = aiida_dict_merge(last_cp2k_calc.inputs['parameters'], param_modify)
-
 
     def run_cp2k_first(self):
         """Run the first CP2K calculation from scratch for the original structure."""
@@ -127,40 +128,43 @@ class Cp2kPhonopyWorkChain(WorkChain):
         self.ctx.base_inp['cp2k']['structure'] = self.ctx.sd_list[0]
         self.report('Submit first cp2k')
         running_base = self.submit(Cp2kBaseWorkChain, **self.ctx.base_inp)
-        return ToContext(base_wcs=append_(running_base))  
-    
+        return ToContext(base_wcs=append_(running_base))
+
     def should_run_displ(self):
         """Prepare the input for computing displacements, and check if all have been computed"""
-        if len(self.ctx.base_wcs)==1: # only cp2k_first computed
+        if len(self.ctx.base_wcs) == 1:  # only cp2k_first computed
             cp2k_first_calc = self.ctx.base_wcs[0]
             self.ctx.base_inp['cp2k']['parent_calc_folder'] = cp2k_first_calc.outputs.remote_folder
             param_modify = Dict(
-                dict={ 
+                dict={
                     'FORCE_EVAL': {
                         'DFT': {
                             'WFN_RESTART_FILE_NAME': './parent_calc/aiida-RESTART.wfn',
                             'SCF': {
                                 'SCF_GUESS': 'ATOMIC',
-            }}}}).store()   
-            self.ctx.base_inp['cp2k']['parameters'] = aiida_dict_merge(self.ctx.base_inp['cp2k']['parameters'], param_modify)
+                            }
+                        }
+                    }
+                }).store()
+            self.ctx.base_inp['cp2k']['parameters'] = aiida_dict_merge(self.ctx.base_inp['cp2k']['parameters'],
+                                                                       param_modify)
             self.ctx.index = 1
             return True
         # if len(self.ctx.base_wcs)==5: # for testing purpose
         #     return False
-        if len(self.ctx.base_wcs)<len(self.ctx.sd_list): # still some to compute
+        if len(self.ctx.base_wcs) < len(self.ctx.sd_list):  # still some to compute
             self.ctx.index += 1
             return True
-        if len(self.ctx.base_wcs)==len(self.ctx.sd_list): # all done
-            return False     
-
+        if len(self.ctx.base_wcs) == len(self.ctx.sd_list):  # all done
+            return False
 
     def run_cp2k_displacements(self):
         """Run the other CP2K calculations for the displacements."""
         self.ctx.base_inp['metadata'].update({
             'label': f'cp2k_displ_{self.ctx.index}',
             'call_link_label': f'run_cp2k_displ_{self.ctx.index}',
-        })    
-        self.ctx.base_inp['cp2k']['structure'] = self.ctx.sd_list[self.ctx.index]   
+        })
+        self.ctx.base_inp['cp2k']['structure'] = self.ctx.sd_list[self.ctx.index]
         self.report(f'Submit displacement {self.ctx.index} of {len(self.ctx.sd_list)-1}')
         running_base = self.submit(Cp2kBaseWorkChain, **self.ctx.base_inp)
         return ToContext(base_wcs=append_(running_base))
@@ -169,21 +173,16 @@ class Cp2kPhonopyWorkChain(WorkChain):
         """Parse forces and compute frequencies."""
 
         sets_of_forces = []
-        for i, base_wc in enumerate(self.ctx.base_wcs[1:]): # exclude first
+        for i, base_wc in enumerate(self.ctx.base_wcs[1:]):  # exclude first
             cp2k_calc = base_wc.called[-1]
-            forces_path = cp2k_calc.get_retrieved_node()._repository._get_base_folder().abspath + "/aiida-forces-1_0.xyz"
+            forces_path = cp2k_calc.get_retrieved_node()._repository._get_base_folder(
+            ).abspath + '/aiida-forces-1_0.xyz'
             with open(forces_path, 'r') as f:
-                lines_to_parse=f.readlines()[4:-1]
-            forces_parsed = [ list(map(float, l.split()[3:])) for l in lines_to_parse ]
+                lines_to_parse = f.readlines()[4:-1]
+            forces_parsed = [list(map(float, l.split()[3:])) for l in lines_to_parse]
             sets_of_forces.append(forces_parsed)
 
             self.ctx.phonon.set_forces(sets_of_forces)
-            self.ctx.phonon.save() 
+            self.ctx.phonon.save()
             # NOTE: this saves the file phonopy_params.yaml in the folder where the folder was submitted.
             #       There are no options to save to dict, but we may find an alternative.
-
-
-
-
-
-    
