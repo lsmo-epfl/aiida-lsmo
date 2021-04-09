@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 """Cp2kPhonopyWorkChain workchain"""
 
+import io
 import numpy as np
 from phonopy import Phonopy
 from phonopy.structure.atoms import PhonopyAtoms
+from phonopy.interface.phonopy_yaml import PhonopyYaml
 from phonopy.units import CP2KToTHz
 
 from aiida.orm import QueryBuilder, Node
@@ -19,6 +21,7 @@ Cp2kBaseWorkChain = WorkflowFactory('cp2k.base')  # pylint: disable=invalid-name
 Dict = DataFactory('dict')  # pylint: disable=invalid-name
 CifData = DataFactory('cif')  # pylint: disable=invalid-name
 StructureData = DataFactory('structure')  # pylint: disable=invalid-name
+SinglefileData = DataFactory('singlefile')  # pylint: disable=invalid-name
 
 
 class Cp2kPhonopyWorkChain(WorkChain):
@@ -42,7 +45,10 @@ class Cp2kPhonopyWorkChain(WorkChain):
             cls.results,
         )
 
-        # Ouptuts
+        spec.output('phonopy_params',
+                    valid_type=SinglefileData,
+                    required=True,
+                    help='File phonopy_params.yaml with displacements and forces, to be loaded by Phonopy.')
 
     def generate_displacements(self):
         """Generate displacements using Phonopy"""
@@ -183,9 +189,16 @@ class Cp2kPhonopyWorkChain(WorkChain):
             forces_parsed = [list(map(float, l.split()[3:])) for l in lines_to_parse]
             sets_of_forces.append(forces_parsed)
 
-            self.ctx.phonon.set_forces(sets_of_forces)
-            self.ctx.phonon.save()
-            # NOTE: this saves the file phonopy_params.yaml in the folder where the folder was submitted.
-            #       There are no options to save to dict, but we may find an alternative.
+        self.ctx.phonon.set_forces(sets_of_forces)
 
-            # NOTE: if we decide to compute force constrants in this workchain, let's monitor the time if it is too expensive
+        # Save to SinglefileData Output
+        # NOTE: we may later find more convenient to save some Dict instead of a SinglefileData YAML
+        phpy_yaml = PhonopyYaml()
+        phpy_yaml.set_phonon_info(self.ctx.phonon)
+        phpy_yaml_bytes = bytes(str(phpy_yaml), encoding='utf-8')
+        phpy_yaml_sfd = SinglefileData(file=io.BytesIO(phpy_yaml_bytes), filename='phonopy_params.yaml')
+        phpy_yaml_sfd.store()
+        self.out('phonopy_params', phpy_yaml_sfd)
+        self.report(f'Output phonopy_params.yaml: SinglefileData<{phpy_yaml_sfd.pk}>')
+
+        # NOTE: if we decide to compute force constrants in this workchain, let's monitor the time if it is too expensive

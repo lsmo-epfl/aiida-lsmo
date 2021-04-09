@@ -49,7 +49,8 @@
             "lsmo.multicomp_ads_des = aiida_lsmo.workchains:MulticompAdsDesWorkChain",
             "lsmo.multicomp_gcmc = aiida_lsmo.workchains:MulticompGcmcWorkChain",
             "lsmo.singlecomp_widom = aiida_lsmo.workchains:SinglecompWidomWorkChain",
-            "lsmo.isotherm_inflection = aiida_lsmo.workchains:IsothermInflectionWorkChain"
+            "lsmo.isotherm_inflection = aiida_lsmo.workchains:IsothermInflectionWorkChain",
+            "lsmo.cp2k_phonopy = aiida_lsmo.workchains:Cp2kPhonopyWorkChain"
         ]
     },
     "data_files": [

@@ -1,15 +1,14 @@
 # -*- coding: utf-8 -*-
-""" Test/example for the Cp2kMultistageWorkChain"""
+""" Test/example for the Cp2kPhonopyWorkChain"""
 
 import click
 
 from aiida.engine import run
 from aiida.orm import load_node
+from aiida.plugins import WorkflowFactory
 from aiida import cmdline
 
-from aiida_lsmo.workchains.cp2k_phonopy import Cp2kPhonopyWorkChain
-# from aiida.plugins import WorkflowFactory
-# Cp2kPhonopyWorkChain = WorkflowFactory('lsmo.cp2k_phonopy')
+Cp2kPhonopyWorkChain = WorkflowFactory('lsmo.cp2k_phonopy')
 
 
 def run_cp2k_phonopy(cp2k_code, structure_pk):
