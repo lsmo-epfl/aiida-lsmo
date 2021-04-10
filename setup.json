@@ -21,7 +21,8 @@
         "ruamel.yaml~=0.16.5",
         "ase<3.20",
         "oximachinerunner~=1.4.0",
-        "pymatgen<2021"
+        "pymatgen<2021",
+        "phonopy~=2.9"
     ],
     "entry_points": {
         "aiida.calculations": [
