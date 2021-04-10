@@ -87,9 +87,11 @@ class Cp2kPhonopyWorkChain(WorkChain):
         qb.append(Node, filters={f'id': self.inputs.structure.pk}, tag='cif_out')
         qb.append(Node, filters={'attributes.process_label': 'Cp2kCalculation'}, with_descendants='cif_out', tag='calc')
         last_cp2k_calc = qb.distinct().all()[-1][0]
+        self.report(f'Found last Cp2kCalculation<{last_cp2k_calc.pk}>: using its inputs.')
 
         self.ctx.base_inp = AttributeDict(self.exposed_inputs(Cp2kBaseWorkChain, 'cp2k_base'))
         self.ctx.base_inp['cp2k']['settings'] = Dict(dict={'additional_retrieve_list': ['aiida-forces-1_0.xyz']})
+        self.ctx.base_inp['cp2k']['parent_calc_folder'] = last_cp2k_calc.outputs.remote_folder
         self.ctx.base_inp['cp2k']['file'] = {}
 
         for edge_label in last_cp2k_calc.inputs:
@@ -110,10 +112,10 @@ class Cp2kPhonopyWorkChain(WorkChain):
                         }
                     },
                     'DFT': {
+                        'WFN_RESTART_FILE_NAME': './parent_calc/aiida-RESTART.wfn',
                         'SCF': {
-                            'SCF_GUESS': 'ATOMIC',
-                            # 'OUTER_SCF': {'_': 'OFF'}, # for testing purpose
-                            # 'EPS_SCF': 1e-1,           # for testing purpose
+                            'SCF_GUESS':
+                                'RESTART',  # if parent_calc was cleared, CP2K won't find the WFN and swithc to ATOMIC
                         },
                         'PRINT': {
                             'E_DENSITY_CUBE': {
@@ -142,19 +144,6 @@ class Cp2kPhonopyWorkChain(WorkChain):
         if len(self.ctx.base_wcs) == 1:  # only cp2k_first computed
             cp2k_first_calc = self.ctx.base_wcs[0]
             self.ctx.base_inp['cp2k']['parent_calc_folder'] = cp2k_first_calc.outputs.remote_folder
-            param_modify = Dict(
-                dict={
-                    'FORCE_EVAL': {
-                        'DFT': {
-                            'WFN_RESTART_FILE_NAME': './parent_calc/aiida-RESTART.wfn',
-                            'SCF': {
-                                'SCF_GUESS': 'ATOMIC',
-                            }
-                        }
-                    }
-                }).store()
-            self.ctx.base_inp['cp2k']['parameters'] = aiida_dict_merge(self.ctx.base_inp['cp2k']['parameters'],
-                                                                       param_modify)
             self.ctx.index = 1
             return True
         # if len(self.ctx.base_wcs)==5: # for testing purpose
