@@ -33,9 +33,9 @@ class Cp2kPhonopyWorkChain(WorkChain):
         super().define(spec)
 
         spec.input('structure', valid_type=(CifData, StructureData), required=True, help='Input structure')
-        spec.expose_inputs(Cp2kBaseWorkChain,
-                           namespace='cp2k_base',
-                           exclude=['cp2k.structure', 'cp2k.parameters', 'cp2k.metadata.options.parser_name'])
+        spec.expose_inputs(Cp2kBaseWorkChain, namespace='cp2k_base',
+                           exclude=['cp2k.structure', 'cp2k.parameters'
+                                   ])  # Using the default parser: no need for lsmo.cp2k_advanced_parser
 
         spec.outline(
             cls.generate_displacements,
@@ -73,11 +73,11 @@ class Cp2kPhonopyWorkChain(WorkChain):
         # List of PhonopyAtoms to list of StructureData
         # TODO: create an ASE object first and use Structuredata(ase=uc_ase)
         self.ctx.sd_list = []
-        for i, pa in enumerate([uc] + disp_ucs):  # 6N+1 in total, first is the original uc
-            sd = StructureData(cell=uc.get_cell())
-            for i in range(len(uc)):
-                symbol = uc.get_chemical_symbols()[i]
-                position = uc.get_positions()[i]
+        for pa in [uc] + disp_ucs:  # 6N+1 in total, first is the original uc
+            sd = StructureData(cell=pa.get_cell())
+            for i in range(len(pa)):
+                symbol = pa.get_chemical_symbols()[i]
+                position = pa.get_positions()[i]
                 sd.append_atom(symbols=symbol, position=position)
             self.ctx.sd_list.append(sd)
 
@@ -101,9 +101,11 @@ class Cp2kPhonopyWorkChain(WorkChain):
 
         param_modify = Dict(
             dict={
-                'GLOBAL': {
-                    'RUN_TYPE': 'ENERGY_FORCE'
-                },
+                'GLOBAL':
+                    {  # NOTE: I'm using the default parser that gets only the final energy: I should try low verbosity and deactivate virtual orbitals'
+                        'PRINT_LEVEL': 'LOW',
+                        'RUN_TYPE': 'ENERGY_FORCE'
+                    },
                 'FORCE_EVAL': {
                     'STRESS_TENSOR': 'ANALYTICAL',
                     'PRINT': {
@@ -115,10 +117,16 @@ class Cp2kPhonopyWorkChain(WorkChain):
                         'WFN_RESTART_FILE_NAME': './parent_calc/aiida-RESTART.wfn',
                         'SCF': {
                             'SCF_GUESS':
-                                'RESTART',  # if parent_calc was cleared, CP2K won't find the WFN and swithc to ATOMIC
+                                'RESTART',  # if parent_calc was cleared, CP2K won't find the WFN and will switch to ATOMIC
                         },
                         'PRINT': {
                             'E_DENSITY_CUBE': {
+                                '_': 'OFF'
+                            },
+                            'MO_CUBES': {
+                                '_': 'OFF'
+                            },
+                            'MULLIKEN': {
                                 '_': 'OFF'
                             }
                         }
