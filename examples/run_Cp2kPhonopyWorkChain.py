@@ -14,7 +14,7 @@ Cp2kPhonopyWorkChain = WorkflowFactory('lsmo.cp2k_phonopy')
 def run_cp2k_phonopy(cp2k_code, structure_pk):
     builder = Cp2kPhonopyWorkChain.get_builder()
     builder.structure = load_node(structure_pk)
-    builder.cp2k_base.cp2k.code = Code.get_from_string('cp2k@localhost')
+    builder.cp2k_base.cp2k.code = cp2k_code
     builder.cp2k_base.cp2k.metadata.options.resources = {
         'num_machines': 1,
         'num_mpiprocs_per_machine': 1,
