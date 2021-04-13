@@ -5,23 +5,29 @@ import click
 
 from aiida.engine import run
 from aiida.orm import load_node
-from aiida.plugins import WorkflowFactory
+from aiida.plugins import WorkflowFactory, DataFactory
 from aiida import cmdline
 
 Cp2kPhonopyWorkChain = WorkflowFactory('lsmo.cp2k_phonopy')
+Str = DataFactory('str')  # pylint: disable=invalid-name
+Int = DataFactory('int')  # pylint: disable=invalid-name
 
 
 def run_cp2k_phonopy(cp2k_code, structure_pk):
-    builder = Cp2kPhonopyWorkChain.get_builder()
-    builder.structure = load_node(structure_pk)
-    builder.cp2k_base.cp2k.code = cp2k_code
-    builder.cp2k_base.cp2k.metadata.options.resources = {
-        'num_machines': 1,
-        'num_mpiprocs_per_machine': 1,
-    }
-    builder.cp2k_base.cp2k.metadata.options.max_wallclock_seconds = 1 * 3 * 60
+    for mode in ['serial', 'parallel']:
+        print(f'>>> Compute forces + 3 displacements for water - MODE: {mode}')
+        builder = Cp2kPhonopyWorkChain.get_builder()
+        builder.structure = load_node(structure_pk)
+        builder.mode = Str(mode)
+        builder.max_displacements = Int(3)  # Compute only few displacements (instead of 6N) for sake of time
+        builder.cp2k_base.cp2k.code = cp2k_code
+        builder.cp2k_base.cp2k.metadata.options.resources = {
+            'num_machines': 1,
+            'num_mpiprocs_per_machine': 1,
+        }
+        builder.cp2k_base.cp2k.metadata.options.max_wallclock_seconds = 1 * 3 * 60
 
-    run(builder)
+        run(builder)
 
 
 @click.command('cli')

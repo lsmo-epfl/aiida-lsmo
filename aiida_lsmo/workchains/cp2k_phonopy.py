@@ -3,6 +3,7 @@
 
 import io
 import numpy as np
+import ase
 from phonopy import Phonopy
 from phonopy.structure.atoms import PhonopyAtoms
 from phonopy.interface.phonopy_yaml import PhonopyYaml
@@ -11,14 +12,16 @@ from phonopy.units import CP2KToTHz
 from aiida.orm import QueryBuilder, Node
 from aiida.plugins import CalculationFactory, DataFactory, WorkflowFactory
 from aiida.common import AttributeDict
-from aiida.engine import append_, while_, WorkChain, ToContext
+from aiida.engine import append_, while_, WorkChain
 from aiida_lsmo.utils import aiida_dict_merge
 
 # import sub-workchains
 Cp2kBaseWorkChain = WorkflowFactory('cp2k.base')  # pylint: disable=invalid-name
 
 # import aiida data
-List = DataFactory('list')
+Str = DataFactory('str')  # pylint: disable=invalid-name
+Int = DataFactory('int')  # pylint: disable=invalid-name
+List = DataFactory('list')  # pylint: disable=invalid-name
 Dict = DataFactory('dict')  # pylint: disable=invalid-name
 CifData = DataFactory('cif')  # pylint: disable=invalid-name
 StructureData = DataFactory('structure')  # pylint: disable=invalid-name
@@ -34,6 +37,16 @@ class Cp2kPhonopyWorkChain(WorkChain):
         super().define(spec)
 
         spec.input('structure', valid_type=(CifData, StructureData), required=True, help='Input structure')
+        spec.input('mode',
+                   valid_type=Str,
+                   required=False,
+                   default=lambda: Str('parallel'),
+                   help='Mode of the calculation: "parallel" (default) or serial')
+        spec.input('max_displacements',
+                   valid_type=Int,
+                   required=False,
+                   default=lambda: Int(10000),
+                   help='Set a maximum number of displacements (or zero) for testing purpose.')
         spec.expose_inputs(Cp2kBaseWorkChain, namespace='cp2k_base',
                            exclude=['cp2k.structure', 'cp2k.parameters'
                                    ])  # Using the default parser: no need for lsmo.cp2k_advanced_parser
@@ -57,32 +70,35 @@ class Cp2kPhonopyWorkChain(WorkChain):
         """Generate displacements using Phonopy"""
 
         # CifData to PhonopyAtoms
-        ase = self.inputs.structure.get_ase()
-        uc = PhonopyAtoms(symbols=ase.get_chemical_symbols(),
-                          cell=ase.get_cell(),
-                          scaled_positions=ase.get_scaled_positions())
+        uc_opt_ase = self.inputs.structure.get_ase()
+        uc_opt_pa = PhonopyAtoms(symbols=uc_opt_ase.get_chemical_symbols(),
+                                 cell=uc_opt_ase.get_cell(),
+                                 scaled_positions=uc_opt_ase.get_scaled_positions())
 
         # Generate displacements
         self.ctx.phonon = Phonopy(
-            unitcell=uc,
+            unitcell=uc_opt_pa,
             supercell_matrix=None,
             primitive_matrix=None,
             factor=CP2KToTHz,
         )
         self.ctx.phonon.generate_displacements(distance=0.01)
-        disp_ucs = self.ctx.phonon.supercells_with_displacements
-        #phonon.save() to investigate
+        uc_displ_pa_list = self.ctx.phonon.supercells_with_displacements
 
         # List of PhonopyAtoms to list of StructureData
-        # TODO: create an ASE object first and use Structuredata(ase=uc_ase)
+        # The list will contain the first (input, optimized) structure plus the 6N displacements.
+        # For testing purpose one can use the input "max_displacements" to compute only some of the 6N displacements.
         self.ctx.sd_list = []
-        for pa in [uc] + disp_ucs:  # 6N+1 in total, first is the original uc
-            sd = StructureData(cell=pa.get_cell())
-            for i in range(len(pa)):
-                symbol = pa.get_chemical_symbols()[i]
-                position = pa.get_positions()[i]
-                sd.append_atom(symbols=symbol, position=position)
+        for uc_pa in [uc_opt_pa] + uc_displ_pa_list[:self.inputs.max_displacements.value]:
+            uc_ase = ase.Atoms(
+                cell=uc_pa.get_cell(),
+                symbols=uc_pa.get_chemical_symbols(),
+                positions=uc_pa.get_positions(),
+            )
+            sd = StructureData(ase=uc_ase)
+            sd.store()
             self.ctx.sd_list.append(sd)
+        self.ctx.ndisplacements = len(self.ctx.sd_list) - 1  # = s6N (unless inputs.max_displacements < 6N)
 
     def collect_cp2k_inputs(self):
         """Collect Cp2k inputs from the last CP2K calculation."""
@@ -148,40 +164,45 @@ class Cp2kPhonopyWorkChain(WorkChain):
         self.ctx.base_inp['cp2k']['structure'] = self.ctx.sd_list[0]
         self.report('Submit first cp2k')
         running_base = self.submit(Cp2kBaseWorkChain, **self.ctx.base_inp)
-        return ToContext(base_wcs=append_(running_base))
+        self.ctx.index = 0
+        self.to_context(**{f'cp2kbase_{self.ctx.index}': running_base})
 
     def should_run_displacement(self):
         """Prepare the input for computing displacements, and check if all have been computed"""
-        if len(self.ctx.base_wcs) == 1:  # only cp2k_first computed
-            cp2k_first_calc = self.ctx.base_wcs[0]
-            self.ctx.base_inp['cp2k']['parent_calc_folder'] = cp2k_first_calc.outputs.remote_folder
+        if self.ctx.index == 0:  # only cp2k_first computed
+            self.ctx.base_inp['cp2k']['parent_calc_folder'] = self.ctx.cp2kbase_0.outputs.remote_folder
             self.ctx.index = 1
             return True
-        # if len(self.ctx.base_wcs)==3: # for testing purpose
-        #     return False
-        if len(self.ctx.base_wcs) < len(self.ctx.sd_list):  # still some to compute
+        if self.ctx.index < self.ctx.ndisplacements:  # still some to compute
             self.ctx.index += 1
             return True
-        if len(self.ctx.base_wcs) == len(self.ctx.sd_list):  # all done
+        if self.ctx.index == self.ctx.ndisplacements:  # all done: this will also be tweeked after a set of parallel calcs!
             return False
 
     def run_cp2k_displacement(self):
         """Run the other CP2K calculations for the given structure with displacement."""
-        self.ctx.base_inp['metadata'].update({
-            'label': f'cp2k_displ_{self.ctx.index}',
-            'call_link_label': f'run_cp2k_displ_{self.ctx.index}',
-        })
-        self.ctx.base_inp['cp2k']['structure'] = self.ctx.sd_list[self.ctx.index]
-        self.report(f'Submit displacement {self.ctx.index} of {len(self.ctx.sd_list)-1}')
-        running_base = self.submit(Cp2kBaseWorkChain, **self.ctx.base_inp)
-        return ToContext(base_wcs=append_(running_base))
+        if self.inputs.mode == 'serial':
+            index_list = [self.ctx.index]
+        elif self.inputs.mode == 'parallel':
+            index_list = list(range(1, self.ctx.ndisplacements + 1))
+
+        for index in index_list:
+            self.ctx.index = index
+            self.ctx.base_inp['metadata'].update({
+                'label': f'cp2k_displ_{self.ctx.index}',
+                'call_link_label': f'run_cp2k_displ_{self.ctx.index}',
+            })
+            self.ctx.base_inp['cp2k']['structure'] = self.ctx.sd_list[self.ctx.index]
+            self.report(f'Submit displacement {self.ctx.index} of {len(self.ctx.sd_list)-1}')
+            running_base = self.submit(Cp2kBaseWorkChain, **self.ctx.base_inp)
+            self.to_context(**{f'cp2kbase_{self.ctx.index}': running_base})
 
     def results(self):
         """Parse forces and store them in a PhonopyYaml file."""
 
         sets_of_forces = []
-        for i, base_wc in enumerate(self.ctx.base_wcs):
-            cp2k_calc = base_wc.called[-1]
+        for i in range(0, self.ctx.ndisplacements + 1):
+            cp2k_calc = self.ctx[f'cp2kbase_{i}'].called[-1]  # Get the Cp2kCalc from Cp2kBaseWC
             forces_path = cp2k_calc.get_retrieved_node()._repository._get_base_folder(
             ).abspath + '/aiida-forces-1_0.xyz'
             with open(forces_path, 'r') as f:
