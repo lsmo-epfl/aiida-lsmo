@@ -18,6 +18,7 @@ from aiida_lsmo.utils import aiida_dict_merge
 Cp2kBaseWorkChain = WorkflowFactory('cp2k.base')  # pylint: disable=invalid-name
 
 # import aiida data
+List = DataFactory('list')
 Dict = DataFactory('dict')  # pylint: disable=invalid-name
 CifData = DataFactory('cif')  # pylint: disable=invalid-name
 StructureData = DataFactory('structure')  # pylint: disable=invalid-name
@@ -44,6 +45,8 @@ class Cp2kPhonopyWorkChain(WorkChain):
             while_(cls.should_run_displacement)(cls.run_cp2k_displacement,),
             cls.results,
         )
+
+        spec.output('initial_forces', valid_type=List, required=True, help='Forces computed on the input structure.')
 
         spec.output('phonopy_params',
                     valid_type=SinglefileData,
@@ -154,7 +157,7 @@ class Cp2kPhonopyWorkChain(WorkChain):
             self.ctx.base_inp['cp2k']['parent_calc_folder'] = cp2k_first_calc.outputs.remote_folder
             self.ctx.index = 1
             return True
-        # if len(self.ctx.base_wcs)==5: # for testing purpose
+        # if len(self.ctx.base_wcs)==3: # for testing purpose
         #     return False
         if len(self.ctx.base_wcs) < len(self.ctx.sd_list):  # still some to compute
             self.ctx.index += 1
@@ -174,10 +177,10 @@ class Cp2kPhonopyWorkChain(WorkChain):
         return ToContext(base_wcs=append_(running_base))
 
     def results(self):
-        """Parse forces and compute frequencies."""
+        """Parse forces and store them in a PhonopyYaml file."""
 
         sets_of_forces = []
-        for i, base_wc in enumerate(self.ctx.base_wcs[1:]):  # exclude first
+        for i, base_wc in enumerate(self.ctx.base_wcs):
             cp2k_calc = base_wc.called[-1]
             forces_path = cp2k_calc.get_retrieved_node()._repository._get_base_folder(
             ).abspath + '/aiida-forces-1_0.xyz'
@@ -186,10 +189,14 @@ class Cp2kPhonopyWorkChain(WorkChain):
             forces_parsed = [list(map(float, l.split()[3:])) for l in lines_to_parse]
             sets_of_forces.append(forces_parsed)
 
-        self.ctx.phonon.set_forces(sets_of_forces)
+        # Output the forces of the initial structure as a List
+        initial_forces = List(list=sets_of_forces[0])
+        initial_forces.store()
+        self.out('initial_forces', initial_forces)
+        self.report(f'Forces computed on the input structure: List<{initial_forces.pk}>')
 
-        # Save to SinglefileData Output
-        # NOTE: we may later find more convenient to save some Dict instead of a SinglefileData YAML
+        # Output the forces and displacements as a YAML SinglefileData
+        self.ctx.phonon.set_forces(sets_of_forces[1:])  # Exclude forces on the input structure
         phpy_yaml = PhonopyYaml()
         phpy_yaml.set_phonon_info(self.ctx.phonon)
         phpy_yaml_bytes = bytes(str(phpy_yaml), encoding='utf-8')
