@@ -13,11 +13,11 @@ Str = DataFactory('str')  # pylint: disable=invalid-name
 Int = DataFactory('int')  # pylint: disable=invalid-name
 
 
-def run_cp2k_phonopy(cp2k_code, structure_pk):
+def run_cp2k_phonopy(cp2k_code, cp2kcalc):
     for mode in ['serial', 'parallel']:
         print(f'>>> Compute forces + 3 displacements for water - MODE: {mode}')
         builder = Cp2kPhonopyWorkChain.get_builder()
-        builder.structure = load_node(structure_pk)
+        builder.cp2kcalc = Str(load_node(cp2kcalc).uuid)
         builder.mode = Str(mode)
         builder.max_displacements = Int(3)  # Compute only few displacements (instead of 6N) for sake of time
         builder.cp2k_base.cp2k.code = cp2k_code
@@ -33,10 +33,10 @@ def run_cp2k_phonopy(cp2k_code, structure_pk):
 @click.command('cli')
 @cmdline.utils.decorators.with_dbenv()
 @click.option('--cp2k-code', type=cmdline.params.types.CodeParamType())
-@click.option('--structure-pk')  # use the pk of a CifData/StructureData which is the descendant of a CP2K calculation
-def cli(cp2k_code, structure_pk):
+@click.option('--cp2kcalc', help='PK/UUID of a Cp2kCalc to use as reference.')
+def cli(cp2k_code, cp2kcalc):
     """Click interface"""
-    run_cp2k_phonopy(cp2k_code, structure_pk)
+    run_cp2k_phonopy(cp2k_code, cp2kcalc)
 
 
 if __name__ == '__main__':
