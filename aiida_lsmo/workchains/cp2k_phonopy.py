@@ -9,7 +9,7 @@ from phonopy.structure.atoms import PhonopyAtoms
 from phonopy.interface.phonopy_yaml import PhonopyYaml
 from phonopy.units import CP2KToTHz
 
-from aiida.orm import load_node
+from aiida.orm import QueryBuilder, Node
 from aiida.plugins import CalculationFactory, DataFactory, WorkflowFactory
 from aiida.common import AttributeDict
 from aiida.engine import append_, while_, WorkChain
@@ -36,7 +36,20 @@ class Cp2kPhonopyWorkChain(WorkChain):
         """Define workflow specification."""
         super().define(spec)
 
-        spec.input('cp2kcalc', valid_type=Str, required=True, help='UUID of the reference Cp2kCalculation.')
+        spec.input(
+            'structure',
+            valid_type=StructureData,
+            required=True,
+            help=
+            'Input structure, output of some Cp2kCalculation. It can not be a CifData because it needs to have atom tags for the oxidation states.'
+        )
+        spec.input(
+            'cp2kcalc',
+            valid_type=Str,
+            required=False,
+            help=
+            'Provide the UUID of a specific Cp2kCalc to be used as reference. If not provided the WC search for an ancestor calculation.'
+        )
         spec.input('mode',
                    valid_type=Str,
                    required=False,
@@ -68,14 +81,19 @@ class Cp2kPhonopyWorkChain(WorkChain):
 
     def collect_cp2k_inputs(self):
         """Collect Cp2k inputs from the reference CP2K calculation."""
-        ref_cp2k_calc = load_node(uuid=self.inputs.cp2kcalc.value)
+        # Use the input Cp2kCal if provided, or look for some ancestor calculation of the input structure
+        if 'cp2kcalc' in self.inputs:
+            ref_cp2k_calc = load_node(uuid=self.inputs.cp2kcalc.value)
+        else:
+            qb = QueryBuilder()
+            qb.append(Node, filters={f'id': self.inputs.structure.pk}, tag='cif_out')
+            qb.append(Node,
+                      filters={'attributes.process_label': 'Cp2kCalculation'},
+                      with_descendants='cif_out',
+                      tag='calc')
+            ref_cp2k_calc = qb.distinct().all()[-1][0]
 
-        # Search the output StructureData: if missing (ENERGY calculation) get the input structure
-        try:
-            self.ctx.uc_opt_sd = ref_cp2k_calc.outputs.output_structure
-        except:
-            self.ctx.uc_opt_sd = ref_cp2k_calc.inputs.structure
-        self.report(f'Using inputs from Cp2kCalculation<{ref_cp2k_calc.pk}>, StructureData<{self.ctx.uc_opt_sd.pk}>')
+        self.report(f'Using inputs from Cp2kCalculation<{ref_cp2k_calc.pk}>, StructureData<{self.inputs.structure.pk}>')
 
         # Collect the other inputs for Cp2kBaseWC from the ref_cp2k_calc to self.ctx.base_inp
         self.ctx.base_inp = AttributeDict(self.exposed_inputs(Cp2kBaseWorkChain, 'cp2k_base'))
@@ -128,7 +146,7 @@ class Cp2kPhonopyWorkChain(WorkChain):
         """Generate displacements using Phonopy"""
 
         # CifData to PhonopyAtoms
-        uc_opt_ase = self.ctx.uc_opt_sd.get_ase()
+        uc_opt_ase = self.inputs.structure.get_ase()
         uc_opt_pa = PhonopyAtoms(symbols=uc_opt_ase.get_chemical_symbols(),
                                  cell=uc_opt_ase.get_cell(),
                                  scaled_positions=uc_opt_ase.get_scaled_positions())
