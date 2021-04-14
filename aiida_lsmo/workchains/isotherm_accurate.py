@@ -196,6 +196,8 @@ class IsothermAccurateWorkChain(WorkChain):
             int,
         Required('ph0_reiteration_coeff', default=0.8, description='Coefficient for P_H0 to iterate GCMC at lower P.'):
             NUMBER,
+        Required('p_sat_coeff', default=1, description='Coefficient to push P_sat a little bit more to reach saturation'):
+            NUMBER,
     })
     parameters_info = parameters_schema.schema  # shorthand for printing
 
@@ -441,7 +443,7 @@ class IsothermAccurateWorkChain(WorkChain):
             'PrintEvery': self.ctx.parameters['raspa_gcmc_prod_cycles'] / self.ctx.parameters['raspa_verbosity']
         })
         param['Component'][self.ctx.molecule['name']].update({
-            'WidomProbability': 0.0,
+            'WidomProbability': 1.0,
             'TranslationProbability': 1.0,
             'ReinsertionProbability': 1.0,
             'SwapProbability': 2.0,
@@ -484,22 +486,23 @@ class IsothermAccurateWorkChain(WorkChain):
         """
         if self.ctx.first_iteration:
             self.ctx.first_iteration = False
-            self.ctx.ph0 = 1 / self.ctx.geom['Unitcell_volume'] / self.ctx.geom[
-                'Density'] / 6.022 / self.ctx.kh / 10 # we need to multiply by the cell volume in Angstrom not the POAV and P is in bar now 
+            self.ctx.ph0 = 1 / self.ctx.geom['Unitcell_volume'] / self.ctx.geom[ 'Density'] / 6.022 / self.ctx.kh / 10 
+            # we need to multiply by the cell volume in Angstrom not the POAV and P is in bar now 
             self.ctx.pressure = self.ctx.ph0
             return True
         else:
             self.ctx.gcmc_loading_average = self._get_last_loading_molkg()
             loading_convergence = (self.ctx.gcmc_loading_average -
                                    self.ctx.kh * self.ctx.pressure * 100000) / self.ctx.gcmc_loading_average # The pressure is multiplied by 100000 to go from bar to Pa because of Kh
-            if loading_convergence < self.ctx.parameters['loading_lowp_epsilon']:
+            if abs(loading_convergence) < self.ctx.parameters['loading_lowp_epsilon']:
                 self.ctx.first_iteration = True
+                if len(self.ctx.raspa_gcmc) > 1:
+                    del self.ctx.raspa_gcmc[0:-1]
                 return False  # Converged!
             else:
                 self.ctx.pressure *= self.ctx.parameters['ph0_reiteration_coeff']
-                self.ctx.gcmc_i += 1
                 return True  # Not converged: lower P_H0 and recompute GCMC
-
+    
     def should_run_another_gcmc_highp(self):
         """Step 4: determine the pressure at which the saturation starts, Psat
         Step 5: After calculating PH and Psat, pressure values in between are generated based on the following
@@ -509,33 +512,31 @@ class IsothermAccurateWorkChain(WorkChain):
         """
         if self.ctx.first_iteration:  # Proceed with first iteration
             self.ctx.first_iteration = False
-            self.ctx.psat = self.ctx.parameters['loading_highp_sigma'] * self.ctx.geom[
-                'Estimated_saturation_loading'] / (
-                    1 - self.ctx.parameters['loading_highp_sigma']) / self.ctx.kh / 100000 # the pressure in in bar now
+            self.ctx.psat = self.ctx.parameters['p_sat_coeff'] * self.ctx.parameters['loading_highp_sigma'] * self.ctx.geom['Estimated_saturation_loading'] / (1 
+                    - self.ctx.parameters['loading_highp_sigma']) / self.ctx.kh / 100000 # the pressure in in bar now
             self.ctx.dpmax = (self.ctx.psat - self.ctx.ph0
                              ) / self.ctx.parameters['n_dpmax']  # Comment: maybe more efficient to use the first ph0
-            self.ctx.pressure_old = self.ctx.ph0
-            self.ctx.pressure = self.ctx.pressure_old + self.ctx.dpmax
+            self.ctx.pressure_old = self.ctx.pressure
+            self.ctx.pressure = self.ctx.pressure_old + 10 * (self.ctx.ph0 / self.ctx.psat) * (self.ctx.geom['Estimated_saturation_loading'] / self.ctx.kh / 100000)
             self.ctx.gcmc_i += 1
             return True
         else:
             gcmc_loading_average_old = self.ctx.gcmc_loading_average
             self.ctx.gcmc_loading_average = self._get_last_loading_molkg()
-            loading_derivative = (self.ctx.gcmc_loading_average - gcmc_loading_average_old) / (self.ctx.pressure -
-                                                                                               self.ctx.pressure_old)
+            loading_derivative = (self.ctx.gcmc_loading_average - gcmc_loading_average_old) / (self.ctx.pressure - self.ctx.pressure_old)
             if loading_derivative < 0:  #Need to recompute GCMC. NOTE: very dangerous, as it can lead to infinite loop!
                 self.report('WARNING: recomputing same pressure point, because loading has negative derivative.')
+                self.ctx.gcmc_loading_average = gcmc_loading_average_old
                 del self.ctx.raspa_gcmc[-1]
                 return True
-            dp_computed = 2 * self.ctx.pressure / self.ctx.psat * self.ctx.geom[
-                'Estimated_saturation_loading'] / loading_derivative
+            dp_computed = 10 * self.ctx.pressure / self.ctx.psat * self.ctx.geom['Estimated_saturation_loading'] / loading_derivative
             self.ctx.pressure_old = self.ctx.pressure
             self.ctx.pressure = self.ctx.pressure_old + min(self.ctx.dpmax, dp_computed)
             if self.ctx.pressure > self.ctx.psat:
-                return False  # Reached saturation!
+                return False # Converged
             else:
                 self.ctx.gcmc_i += 1
-                return True  # Not converged: lower P_H0 and recompute GCMC
+                return True # Didn't converge yet
 
         return self.ctx.current_p_index < len(self.ctx.pressures)
 
