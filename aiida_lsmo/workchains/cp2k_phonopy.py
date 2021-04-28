@@ -2,17 +2,16 @@
 """Cp2kPhonopyWorkChain workchain"""
 
 import io
-import numpy as np
 import ase
 from phonopy import Phonopy
 from phonopy.structure.atoms import PhonopyAtoms
 from phonopy.interface.phonopy_yaml import PhonopyYaml
 from phonopy.units import CP2KToTHz
 
-from aiida.orm import QueryBuilder, Node
-from aiida.plugins import CalculationFactory, DataFactory, WorkflowFactory
+from aiida.orm import QueryBuilder, Node, load_node
+from aiida.plugins import DataFactory, WorkflowFactory
 from aiida.common import AttributeDict
-from aiida.engine import append_, while_, WorkChain
+from aiida.engine import while_, WorkChain
 from aiida_lsmo.utils import aiida_dict_merge
 
 # import sub-workchains
@@ -38,18 +37,14 @@ class Cp2kPhonopyWorkChain(WorkChain):
 
         spec.input(
             'structure',
-            valid_type=StructureData,
+            valid_type=StructureData,  # not a CifData because it needs to have atom tags for the oxidation states
             required=True,
-            help=
-            'Input structure, output of some Cp2kCalculation. It can not be a CifData because it needs to have atom tags for the oxidation states.'
-        )
+            help='Input structure, output of some Cp2kCalculation.')
         spec.input(
             'cp2kcalc',
             valid_type=Str,
             required=False,
-            help=
-            'Provide the UUID of a specific Cp2kCalc to be used as reference. If not provided the WC search for an ancestor calculation.'
-        )
+            help='Provide the UUID of a specific Cp2kCalc to be used. If not provided the WC search for an ancestor.')
         spec.input('mode',
                    valid_type=Str,
                    required=False,
@@ -85,13 +80,13 @@ class Cp2kPhonopyWorkChain(WorkChain):
         if 'cp2kcalc' in self.inputs:
             ref_cp2k_calc = load_node(uuid=self.inputs.cp2kcalc.value)
         else:
-            qb = QueryBuilder()
-            qb.append(Node, filters={f'id': self.inputs.structure.pk}, tag='cif_out')
-            qb.append(Node,
-                      filters={'attributes.process_label': 'Cp2kCalculation'},
-                      with_descendants='cif_out',
-                      tag='calc')
-            ref_cp2k_calc = qb.distinct().all()[-1][0]
+            qb_cp2k_calc = QueryBuilder()
+            qb_cp2k_calc.append(Node, filters={'id': self.inputs.structure.pk}, tag='cif_out')
+            qb_cp2k_calc.append(Node,
+                                filters={'attributes.process_label': 'Cp2kCalculation'},
+                                with_descendants='cif_out',
+                                tag='calc')
+            ref_cp2k_calc = qb_cp2k_calc.distinct().all()[-1][0]
 
         self.report(f'Using inputs from Cp2kCalculation<{ref_cp2k_calc.pk}>, StructureData<{self.inputs.structure.pk}>')
 
@@ -107,11 +102,10 @@ class Cp2kPhonopyWorkChain(WorkChain):
 
         param_modify = Dict(
             dict={
-                'GLOBAL':
-                    {  # NOTE: I'm using the default parser that gets only the final energy: I should try low verbosity and deactivate virtual orbitals'
-                        'PRINT_LEVEL': 'LOW',
-                        'RUN_TYPE': 'ENERGY_FORCE'
-                    },
+                'GLOBAL': {  # NOTE: I'm using the default parser that gets only the final energy: lowering verbosity
+                    'PRINT_LEVEL': 'LOW',
+                    'RUN_TYPE': 'ENERGY_FORCE'
+                },
                 'FORCE_EVAL': {
                     'STRESS_TENSOR': 'ANALYTICAL',
                     'PRINT': {
@@ -123,7 +117,7 @@ class Cp2kPhonopyWorkChain(WorkChain):
                         'WFN_RESTART_FILE_NAME': './parent_calc/aiida-RESTART.wfn',
                         'SCF': {
                             'SCF_GUESS':
-                                'RESTART',  # if parent_calc was cleared, CP2K won't find the WFN and will switch to ATOMIC
+                                'RESTART',  # if parent_calc was cleared, CP2K won't find the WFN and will set ATOMIC
                         },
                         'PRINT': {
                             'E_DENSITY_CUBE': {
@@ -172,9 +166,9 @@ class Cp2kPhonopyWorkChain(WorkChain):
                 tags=uc_opt_ase.get_tags(),  # Important for atoms of the same element with different oxidation state
                 positions=uc_pa.get_positions(),  # Different for each displacement
             )
-            sd = StructureData(ase=uc_ase)
-            sd.store()
-            self.ctx.sd_list.append(sd)
+            uc_sd = StructureData(ase=uc_ase)
+            uc_sd.store()
+            self.ctx.sd_list.append(uc_sd)
         self.ctx.ndisplacements = len(self.ctx.sd_list) - 1  # = s6N (unless inputs.max_displacements < 6N)
 
     def run_cp2k_first(self):
@@ -198,8 +192,8 @@ class Cp2kPhonopyWorkChain(WorkChain):
         if self.ctx.index < self.ctx.ndisplacements:  # still some to compute
             self.ctx.index += 1
             return True
-        if self.ctx.index == self.ctx.ndisplacements:  # all done: this will also be tweeked after a set of parallel calcs!
-            return False
+        # if self.ctx.index == self.ctx.ndisplacements:  # all done: this will also be tweeked after parallel calcs!
+        return False
 
     def run_cp2k_displacement(self):
         """Run the other CP2K calculations for the given structure with displacement."""
@@ -225,10 +219,10 @@ class Cp2kPhonopyWorkChain(WorkChain):
         sets_of_forces = []
         for i in range(0, self.ctx.ndisplacements + 1):
             cp2k_calc = self.ctx[f'cp2kbase_{i}'].called[-1]  # Get the Cp2kCalc from Cp2kBaseWC
-            forces_path = cp2k_calc.get_retrieved_node()._repository._get_base_folder(
+            forces_path = cp2k_calc.get_retrieved_node()._repository._get_base_folder(  # pylint: disable=protected-access
             ).abspath + '/aiida-forces-1_0.xyz'
-            with open(forces_path, 'r') as f:
-                lines_to_parse = f.readlines()[4:-1]
+            with open(forces_path, 'r') as forces_file:
+                lines_to_parse = forces_file.readlines()[4:-1]
             forces_parsed = [list(map(float, l.split()[3:])) for l in lines_to_parse]
             sets_of_forces.append(forces_parsed)
 
@@ -247,5 +241,3 @@ class Cp2kPhonopyWorkChain(WorkChain):
         phpy_yaml_sfd.store()
         self.out('phonopy_params', phpy_yaml_sfd)
         self.report(f'Output phonopy_params.yaml: SinglefileData<{phpy_yaml_sfd.pk}>')
-
-        # NOTE: if we decide to compute force constrants in this workchain, let's monitor the time if it is too expensive
