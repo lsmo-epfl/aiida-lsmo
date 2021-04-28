@@ -1397,3 +1397,37 @@ Note that if no ``pressure_list`` (list-)parameter is provided, pressure points 
         "temperature": 87,
         "temperature_unit": "K"
     }
+
+CP2K Phonopy work chain
+++++++++++++++++++++++++++++
+
+The :py:class:`~aiida_lsmo.workchains.cp2k_phonphy.Cp2kPhonopyWorkChain` computes the displacements and the forces that
+are needed to compute the phonons of a structure. The final output is the SingleFile ``phonopy_params.yaml`` which contains
+all these info and can be loaded using the [Phonopy API](https://phonopy.github.io/phonopy/phonopy-module.html#shortcut-to-load-input-files-phonopy-load).
+Note that, to keep the design of the work chain simple, the final outputs are created within the work chain, and have
+therefore broken provenance with respect to the structure and the calculations.
+
+**Inputs details**
+
+* ``structure`` (``StructureData``, NOTE this is not a ``CifData``) is the system to investigate.
+
+* ``cp2kcalc`` (``Str``), allows to specify the UUID of the ``Cp2kCalcuation`` to be used as reference for the wave
+  function and settings. If not specified, the work chain will look for the last ``Cp2kCalcuation`` ancestor of the StructureData.
+  The reasoning behind requiring a previous calcualtions, is that, for computing phonons, one needs to have done before
+  a pretty accurate optimization, and to use exactly the same settings to compute the forces for the displacements.
+
+* ``mode`` (``Str``), to specify ``serial`` (default) or ``parallel``, how the CP2K ``ENERGY_FORCE`` calculations will
+  be performed. Note that the number of calculations are 6 times the number of the atoms, which can spread a large
+  number of simultaneous sub-jobs or a very long chain of calculations to wait for.
+
+* ``max_displacements`` (``Int``), for debug purpose, specify a max number of displacements, to test the work chain.
+
+**Outputs details**
+
+* ``initial_forces`` (``List``) provides the force values for the initial structure, to check that the forces are low
+  enough to perform a meaningful phonons calculation.
+
+* ``phonopy_params`` (``SinglefileData``), YAML file containing the displacements and the relative forces, to be loaded
+  by the [Phonopy API](https://phonopy.github.io/phonopy/phonopy-module.html#shortcut-to-load-input-files-phonopy-load).
+  Note, because of a possible bug you may still need to specify explicitly that you are using CP2K units, i.e.,
+  ``phonon = phonopy.load("phonopy_params.yaml",factor=CP2KToTHz)``.
