@@ -1403,7 +1403,7 @@ CP2K Phonopy work chain
 
 The :py:class:`~aiida_lsmo.workchains.cp2k_phonphy.Cp2kPhonopyWorkChain` computes the displacements and the forces that
 are needed to compute the phonons of a structure. The final output is the SingleFile ``phonopy_params.yaml`` which contains
-all these info and can be loaded using the [Phonopy API](https://phonopy.github.io/phonopy/phonopy-module.html#shortcut-to-load-input-files-phonopy-load).
+all these info and can be loaded using the `Phonopy API <https://phonopy.github.io/phonopy/phonopy-module.html#shortcut-to-load-input-files-phonopy-load>`_ .
 Note that, to keep the design of the work chain simple, the final outputs are created within the work chain, and have
 therefore broken provenance with respect to the structure and the calculations.
 
@@ -1428,6 +1428,6 @@ therefore broken provenance with respect to the structure and the calculations.
   enough to perform a meaningful phonons calculation.
 
 * ``phonopy_params`` (``SinglefileData``), YAML file containing the displacements and the relative forces, to be loaded
-  by the [Phonopy API](https://phonopy.github.io/phonopy/phonopy-module.html#shortcut-to-load-input-files-phonopy-load).
+  by the `Phonopy API <https://phonopy.github.io/phonopy/phonopy-module.html#shortcut-to-load-input-files-phonopy-load>`_ .
   Note, because of a possible bug you may still need to specify explicitly that you are using CP2K units, i.e.,
   ``phonon = phonopy.load("phonopy_params.yaml",factor=CP2KToTHz)``.
