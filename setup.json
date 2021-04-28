@@ -20,7 +20,8 @@
         "calc-pe~=1.0,>=1.0.1",
         "ruamel.yaml~=0.16.5",
         "ase<3.20",
-        "oximachinerunner~=1.3.0"
+        "oximachinerunner~=1.4.0",
+        "pymatgen<2021"
     ],
     "entry_points": {
         "aiida.calculations": [
