@@ -14,6 +14,7 @@ Int = DataFactory('int')  # pylint: disable=invalid-name
 
 
 def run_cp2k_phonopy(cp2k_code, structure_pk):
+    """Test the workchain in both serial and parallel mode"""
     for mode in ['serial', 'parallel']:
         print(f'>>> Compute forces + 3 displacements for water - MODE: {mode}')
         builder = Cp2kPhonopyWorkChain.get_builder()
