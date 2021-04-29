@@ -51,6 +51,7 @@ jobs:
       env:
         PYTEST_ADDOPTS: "--cov-report xml --cov-append"
       run: py.test
+      continue-on-error: ${{ matrix.aiida-version == 'develop' }}  # allow failures against develop
 
     - name: Upload coverage report
       if: github.repository == 'lsmo-epfl/aiida-lsmo'
