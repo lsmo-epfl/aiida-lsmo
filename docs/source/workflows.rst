@@ -1401,7 +1401,7 @@ Note that if no ``pressure_list`` (list-)parameter is provided, pressure points 
 CP2K Phonopy work chain
 ++++++++++++++++++++++++++++
 
-The :py:class:`~aiida_lsmo.workchains.cp2k_phonophy.Cp2kPhonopyWorkChain` computes the displacements and the forces that
+The :py:class:`~aiida_lsmo.workchains.cp2k_phonopy.Cp2kPhonopyWorkChain` computes the displacements and the forces that
 are needed to compute the phonons of a structure. The final output is the SingleFile ``phonopy_params.yaml`` which contains
 all these info and can be loaded using the `Phonopy API <https://phonopy.github.io/phonopy/phonopy-module.html#shortcut-to-load-input-files-phonopy-load>`_ .
 Note that, to keep the design of the work chain simple, the final outputs are created within the work chain, and have
