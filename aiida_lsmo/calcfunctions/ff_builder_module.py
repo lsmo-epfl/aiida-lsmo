@@ -83,7 +83,8 @@ def append_cif_molecule(ff_data, mol_cif):
                 'use-framework-ff',
             'pseudo_atom': [
                 'yes', atom.symbol, atom.symbol, 0,
-                float(atom.mass), 0.0, 0.0, 1.0, 1.0, 0, 0, 'relative', 0
+                float(atom.mass),
+                float(atom.charge), 0.0, 1.0, 1.0, 0, 0, 'relative', 0
             ]
         }
         ff_data[mol_name][ff_name]['atomic_positions'].append([at_label, float(atom.x), float(atom.y), float(atom.z)])
