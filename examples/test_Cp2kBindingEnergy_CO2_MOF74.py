@@ -67,7 +67,7 @@ def run_binding_energy_co2_mof74(cp2k_code, zn_mof74, co2_in_mof74):  # pylint: 
         'num_mpiprocs_per_machine': 1,  # increase this to 4 in order to speed up the calculation
     }
     builder.cp2k_base.cp2k.metadata.options.withmpi = False  # comment this for parallel cp2k executable
-    builder.cp2k_base.cp2k.metadata.options.max_wallclock_seconds = 1 * 5 * 60
+    builder.cp2k_base.cp2k.metadata.options.max_wallclock_seconds = 1 * 60 * 60
 
     # The following is not needed, if the files are available in the data directory of your CP2K executable
     cp2k_dir = DATA_DIR / 'cp2k'
