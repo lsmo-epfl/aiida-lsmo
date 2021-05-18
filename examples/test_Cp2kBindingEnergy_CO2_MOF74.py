@@ -10,7 +10,10 @@ from aiida.plugins import DataFactory, WorkflowFactory
 from aiida import cmdline
 from aiida import engine
 from aiida.orm import Dict, StructureData, Str, SinglefileData
-from . import DATA_DIR
+from pathlib import Path
+
+THIS_DIR = Path(__file__).resolve().parent
+DATA_DIR = THIS_DIR / 'data'
 
 # Workchain objects
 BindingEnergyWorkChain = WorkflowFactory('lsmo.cp2k_binding_energy')
