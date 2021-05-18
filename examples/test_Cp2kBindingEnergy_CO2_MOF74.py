@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 """ Test/example for the BindingEnergyWorkChain"""
 
+from pathlib import Path
 import pytest
 import click
 import ase.build
@@ -10,7 +11,6 @@ from aiida.plugins import DataFactory, WorkflowFactory
 from aiida import cmdline
 from aiida import engine
 from aiida.orm import Dict, StructureData, Str, SinglefileData
-from pathlib import Path
 
 THIS_DIR = Path(__file__).resolve().parent
 DATA_DIR = THIS_DIR / 'data'
