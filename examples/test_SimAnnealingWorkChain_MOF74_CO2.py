@@ -68,7 +68,7 @@ def cli(raspa_code):
 
     Help: $ ./test_SimAnnealingWorkChain_MOF74_CO2.py --help
     """
-    with open(os.path.join(DATA_DIR, 'Zn-MOF-74.cif.cif'), 'rb') as handle:
+    with open(os.path.join(DATA_DIR, 'Zn-MOF-74.cif'), 'rb') as handle:
         cif = CifData(file=handle)
 
     run_sim_annealing_zn_mof74(raspa_code, cif)
