@@ -229,6 +229,24 @@ framework:
       Yb_: [lennard-jones, 114.7458, 2.989]
       Zn_: [lennard-jones, 27.67992, 4.04468]
       Zr_: [lennard-jones, 34.7257, 2.7832]
+  ZEO:
+    description: >-
+      General purpose zeolite forcefield as used in Raspa GeneralZeolites.
+      Si and O are from TraPPE-zeo (10.1021/jp4074224) which is tuned for all-silica zeolites and assuming charges of
+      +1.25 for Si and -0.75 for O. Al parameters are taken as the same as Si.
+      Lennard-Jones parameters for the cations are taken from UFF. For Ca we preferred DREIDING because the epsilon is
+      more consistent with the others (15.09 vs 119.78 of UFF).
+    atom_types:
+      Al_: [lennard-jones, 22.0, 2.30] # TraPPE-zeo (extrapolated from Si)
+      Si_: [lennard-jones, 22.0, 2.30] # TraPPE-zeo
+      O_: [lennard-jones, 53.0, 3.30]  # TraPPE-zeo
+      Ca_: [lennard-jones, 25.16356, 3.09320] # DREIDING
+      Na_: [lennard-jones, 15.0981, 2.6576] # UFF
+      Mg_: [lennard-jones, 55.8631, 2.6914] # UFF
+      Li_: [lennard-jones, 12.5818, 2.1836] # UFF
+      C_: [lennard-jones, 47.86110, 3.47299] # DREIDING
+      N_: [lennard-jones, 38.95320, 3.26256] # DREIDING
+      H_: [lennard-jones, 7.64972, 2.84642] # DREIDING
 
 # Molecules parameters: ff_paremeters[molecule][force_field]
 # pseudo_atom list: print, as, chem, oxidation, mass, charge, polarization, B-factor, radii, connectivity, anisotropic, anisotropic-type, tinker-type
