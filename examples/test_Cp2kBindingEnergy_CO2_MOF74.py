@@ -93,7 +93,7 @@ def run_binding_energy_co2_mof74(cp2k_code, zn_mof74, co2_in_mof74):  # pylint: 
 def cli(cp2k_code):
     """Run example.
 
-    Example usage: $ ./test_multistage_aluminum.py --cp2k-code my-cp2k@myhost
+    Example usage: $ ./test_Cp2kBindingEnergy_CO2_MOF74.py --cp2k-code my-cp2k@myhost
     """
     run_binding_energy_co2_mof74(cp2k_code,
                                  zn_mof74=StructureData(ase=ase.io.read(DATA_DIR / 'Zn-MOF-74.cif')),

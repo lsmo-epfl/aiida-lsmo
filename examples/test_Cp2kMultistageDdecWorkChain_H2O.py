@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 """Test/example for the DdecMultistageDdec WorkChain."""
 
+from pathlib import Path
 import click
 import ase.build
 
@@ -9,7 +10,9 @@ from aiida.plugins import DataFactory, WorkflowFactory
 from aiida import cmdline
 from aiida import engine
 from aiida.orm import Dict, StructureData, Str, SinglefileData
-from . import DATA_DIR
+
+THIS_DIR = Path(__file__).resolve().parent
+DATA_DIR = THIS_DIR / 'data'
 
 # Workchain object
 MultistageDdecWorkChain = WorkflowFactory('lsmo.cp2k_multistage_ddec')  # pylint: disable=invalid-name
