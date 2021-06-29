@@ -822,11 +822,11 @@ O2:
     pc: 5043000
     af: 0.0222
   TraPPE:
-    description: TraPPE parameters for nitrogen, reported in Potoff2001 (10.1002/aic.690470719). Used in Moghadam2018 (10.1038/s41467-018-03892-8) for screening MOFs.
+    description: TraPPE parameters for oxygen, reported in Potoff2001 (10.1002/aic.690470719). Used in Moghadam2018 (10.1038/s41467-018-03892-8) for screening MOFs.
     atom_types:
       O_o2:
         force_field: [lennard-jones, 49.0, 3.02]
-        pseudo_atom: [yes, N, N, 0, 15.999, -0.113, 0.0, 1.0, 1.0, 0, 0, relative, 0]
+        pseudo_atom: [yes, O, O, 0, 15.999, -0.113, 0.0, 1.0, 1.0, 0, 0, relative, 0]
       M_o2:
         force_field: [none]
         pseudo_atom: [no, M, M, 0, 0.0, 0.226, 0.0, 1.0, 1.0, 0, 0, relative, 0]
