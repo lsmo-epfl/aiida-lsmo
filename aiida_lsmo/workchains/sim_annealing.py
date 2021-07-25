@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Isotherm workchain"""
+"""Simulated Annealing workchain"""
 
 import os
 import functools
@@ -26,7 +26,7 @@ CifData = DataFactory('cif')  # pylint: disable=invalid-name
 
 # calcfunctions (in order of appearence)
 @calcfunction
-def get_molecule_from_restart_file(structure_cif, molecule_folderdata, input_dict, molecule_dict):
+def get_molecule_from_restart_file(structure_cif, molecule_folderdata, input_dict, molecule_dict):  # pylint: disable=too-many-locals
     """Get a CifData file having the cell of the initial (unexpanded) structure and the geometry of the loaded molecule.
     TODO: this is source of error if there are more than one molecule AND the cell has been expanded,
     as you can not wrap them in the small cell.
@@ -34,26 +34,30 @@ def get_molecule_from_restart_file(structure_cif, molecule_folderdata, input_dic
 
     number_of_molecules = input_dict.get_dict()['number_of_molecules']
 
-    # Get the non-M (non-dummy) atom types of the molecule (ASE accepts only atomic elements as "symbols")
-    ff_data = load_yaml()
-    ff_data_molecule = ff_data[molecule_dict['name']][molecule_dict['forcefield']]
-    symbols = [x[0].split('_')[0] for x in ff_data_molecule['atomic_positions']]
-    symbols = [x for x in symbols if x != 'M']
-    symbols *= number_of_molecules
-
-    # Get the coordinates of the molecule in the extended uni cell
-    restart_fname = molecule_folderdata._repository.list_object_names(os.path.join('Restart', 'System_0'))[0]  # pylint: disable=protected-access
-    restart_abs_path = os.path.join(
-        molecule_folderdata._repository._get_base_folder().abspath,  # pylint: disable=protected-access
-        'Restart',
-        'System_0',
-        restart_fname)
+    # Get the coordinates of the molecule from restart-file in the extended unit cell
+    restart_fname = molecule_folderdata.list_object_names(os.path.join('Restart', 'System_0'))[0]  # pylint: disable=protected-access
+    fobj = molecule_folderdata.get_object_content(os.path.join('Restart', 'System_0', restart_fname))  # pylint: disable=protected-access
 
     positions = []
-    with open(restart_abs_path, 'r') as fobj:
-        for line in fobj:
-            if 'Adsorbate-atom-position:' in line:
-                positions.append(line.split()[3:6])
+    newline = fobj.splitlines()
+    for line in newline:
+        if 'Adsorbate-atom-position:' in line:
+            positions.append(line.split()[3:6])
+
+    # Get the non-M (non-dummy) atom types of the molecule and locate dummies
+    # ASE accepts only atomic elements as "symbols"
+    ff_data = load_yaml()
+    ff_data_molecule = ff_data[molecule_dict['name']][molecule_dict['forcefield']]
+    symbolsff = [x[0].split('_')[0] for x in ff_data_molecule['atomic_positions']]
+
+    symbols = []
+    for idx, sym in enumerate(symbolsff):
+        if sym != 'M':
+            symbols.append(sym)
+        else:
+            positions.pop(idx)
+
+    symbols *= number_of_molecules
 
     # Get the cell, combine the ASE object and return the CifData
     cell = structure_cif.get_ase().get_cell()
