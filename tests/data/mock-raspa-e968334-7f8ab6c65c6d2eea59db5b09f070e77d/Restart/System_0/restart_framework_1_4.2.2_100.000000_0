@@ -1,0 +1,67 @@
+Cell info:
+========================================================================
+number-of-unit-cells: 4 2 2
+unit-cell-vector-a:     6.999010000000     0.000000000000     0.000000000000
+unit-cell-vector-b:    -2.333967534586    15.064165518126     0.000000000000
+unit-cell-vector-c:    -2.333325540663    -7.531873256093    13.046302663032
+
+cell-vector-a:    27.996040000000     0.000000000000     0.000000000000
+cell-vector-b:    -4.667935069171    30.128331036252     0.000000000000
+cell-vector-c:    -4.666651081327   -15.063746512187    26.092605326064
+
+cell-lengths:     6.999010000000    15.243900000000    15.244000000000
+cell-angles:   117.699000000000    98.804600000001    98.807100000000
+
+
+Maximum changes for MC-moves:
+========================================================================
+Maximum-volume-change: 0.006250
+Maximum-Gibbs-volume-change: 0.025000
+Maximum-box-shape-change: 0.100000 0.100000 0.100000, 0.100000 0.100000 0.100000, 0.100000 0.100000 0.100000
+
+
+Acceptance targets for MC-moves:
+========================================================================
+Target-volume-change: 0.500000
+Target-box-shape-change: 0.500000
+Target-Gibbs-volume-change: 0.500000
+
+
+Components: 1 (Adsorbates 1, Cations 0)
+========================================================================
+Component 0 (O2)
+	Fractional-molecule-id component 0: -1
+	Lambda-factors component 0:  0.000000 0.000000 0.000000
+	Number-of-biasing-factors component 0: 21
+	Biasing-factors component 0:  0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000
+	Maximum-CF-Lambda-change component 0: 0.500000
+	Maximum-CBCF-Lambda-change component 0: 0.500000
+
+	Maximum-translation-change component 0: 1.000000,0.531818,0.560000
+	Maximum-translation-in-plane-change component 0: 0.000000,0.000000,0.000000
+	Maximum-rotation-change component 0: 0.934998 0.327249 0.799943
+
+Reactions: 0
+
+Component: 0     Adsorbate    1 molecules of O2
+------------------------------------------------------------------------
+Adsorbate-atom-position: 0 0    -0.672458705655    11.398099885043    15.657341988496
+Adsorbate-atom-position: 0 1    -0.141666558530    11.518259217488    15.921626742835
+Adsorbate-atom-position: 0 2     0.389125588596    11.638418549933    16.185911497174
+Adsorbate-atom-velocity: 0 0     0.115146146209    -2.738041310789    -0.753670890894
+Adsorbate-atom-velocity: 0 1     0.575973415621    -2.475757126256    -1.798450749647
+Adsorbate-atom-velocity: 0 2     1.036800685032    -2.213472941724    -2.843230608400
+Adsorbate-atom-force:    0 0    17.703305076162   -24.594327336586   184.125011312396
+Adsorbate-atom-force:    0 1   -92.784121208656   -30.434271178312    -2.058010792218
+Adsorbate-atom-force:    0 2   116.448268007271    -4.068543921669    46.744967250552
+Adsorbate-atom-charge:   0 0    -0.113000000000
+Adsorbate-atom-charge:   0 1     0.226000000000
+Adsorbate-atom-charge:   0 2    -0.113000000000
+Adsorbate-atom-scaling:  0 0     1.000000000000
+Adsorbate-atom-scaling:  0 1     1.000000000000
+Adsorbate-atom-scaling:  0 2     1.000000000000
+Adsorbate-atom-fixed:    0 0       0 0 0
+Adsorbate-atom-fixed:    0 1       0 0 0
+Adsorbate-atom-fixed:    0 2       0 0 0
+
+
