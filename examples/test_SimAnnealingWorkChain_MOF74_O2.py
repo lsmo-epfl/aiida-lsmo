@@ -54,8 +54,8 @@ def run_sim_annealing_zn_mof74(raspa_code, zn_mof74_cifdata):  # pylint: disable
     results, node = engine.run_get_node(builder)
 
     assert node.is_finished_ok, results
-    # params = results['output_parameters'].get_dict()
-    # assert params['energy_host/ads_tot_final'][-1] == pytest.approx(-36, abs=5)
+    params = results['output_parameters'].get_dict()
+    assert params['energy_host/ads_tot_final'][-1] == pytest.approx(-16, abs=3)
 
 
 @click.command()
