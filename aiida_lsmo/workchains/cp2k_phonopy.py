@@ -95,10 +95,9 @@ class Cp2kPhonopyWorkChain(WorkChain):
         self.ctx.base_inp['cp2k']['settings'] = Dict(dict={'additional_retrieve_list': ['aiida-forces-1_0.xyz']})
         self.ctx.base_inp['cp2k']['parent_calc_folder'] = ref_cp2k_calc.outputs.remote_folder
         self.ctx.base_inp['cp2k']['file'] = {}
-        for edge_label in ref_cp2k_calc.inputs:
-            if edge_label.startswith('file'):
-                edge_label_file = edge_label.split('__')[-1]
-                self.ctx.base_inp['cp2k']['file'][edge_label_file] = ref_cp2k_calc.inputs[edge_label]
+        if 'file' in ref_cp2k_calc.inputs:
+            for edge_label, file_node in ref_cp2k_calc.inputs.file.items():
+                self.ctx.base_inp['cp2k']['file'][edge_label] = file_node
 
         param_modify = Dict(
             dict={
