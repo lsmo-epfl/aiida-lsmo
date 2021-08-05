@@ -35,37 +35,19 @@ def get_molecule_from_restart_file(structure_cif, molecule_folderdata, input_dic
     number_of_molecules = input_dict.get_dict()['number_of_molecules']
 
     # Get the atom types of the molecule (ASE accepts only atomic elements as "symbols")
-    ff_data = load_yaml()
-    ff_data_molecule = ff_data[molecule_dict['name']][molecule_dict['forcefield']]
+    ff_data_molecule = load_yaml()[molecule_dict['name']][molecule_dict['forcefield']]
     symbolsff = [x[0].split('_')[0] for x in ff_data_molecule['atomic_positions']]
 
-    # Locate non-dummy atoms in ff
-    symbols = []
-    symbolsidx = []
-    for idx, sym in enumerate(symbolsff):
-        if sym != 'M':
-            symbols.append(sym)  # non-dummy atoms
-            symbolsidx.append(idx)  # indices of non-dummy atoms
-
-    # Extend list of atom positions (if more than 1 molecule)
-    atomsidx = []
-    for mol in range(number_of_molecules):
-        atomsidx.extend([element + mol * len(symbolsff) for element in symbolsidx])
+    symbolsff *= number_of_molecules
 
     # Get the coordinates of the molecule from restart-file in the extended unit cell
     restart_fname = molecule_folderdata.list_object_names(os.path.join('Restart', 'System_0'))[0]  # pylint: disable=protected-access
     fobj = molecule_folderdata.get_object_content(os.path.join('Restart', 'System_0', restart_fname))  # pylint: disable=protected-access
-
-    posidx = int(-1)
-    positions = []
-    newline = fobj.splitlines()
-    for line in newline:
-        if 'Adsorbate-atom-position:' in line:
-            posidx += 1
-            if posidx in atomsidx:
-                positions.append(line.split()[3:6])
-
-    symbols *= number_of_molecules
+    lines_positions = [line.split()[3:6] for line in fobj.splitlines() if 'Adsorbate-atom-position:' in line]
+    symbols_positions = list(zip(symbolsff, lines_positions))
+    symbols_positions = [(name, position) for name, position in symbols_positions if name != 'M'
+                        ]  # Removing dummy atoms.
+    symbols, positions = list(zip(*symbols_positions))
 
     # Get the cell, combine the ASE object and return the CifData
     cell = structure_cif.get_ase().get_cell()
