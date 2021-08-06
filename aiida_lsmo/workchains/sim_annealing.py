@@ -26,7 +26,7 @@ CifData = DataFactory('cif')  # pylint: disable=invalid-name
 
 # calcfunctions (in order of appearence)
 @calcfunction
-def get_molecule_from_restart_file(structure_cif, molecule_folderdata, input_dict, molecule_dict):  # pylint: disable=too-many-locals
+def get_molecule_from_restart_file(structure_cif, molecule_folderdata, input_dict, molecule_dict):
     """Get a CifData file having the cell of the initial (unexpanded) structure and the geometry of the loaded molecule.
     TODO: this is source of error if there are more than one molecule AND the cell has been expanded,
     as you can not wrap them in the small cell.
@@ -34,7 +34,7 @@ def get_molecule_from_restart_file(structure_cif, molecule_folderdata, input_dic
 
     number_of_molecules = input_dict.get_dict()['number_of_molecules']
 
-    # Get the atom types of the molecule (ASE accepts only atomic elements as "symbols")
+    # Get the atom types of the molecule (ASE accepts only atomic eilements as "symbols")
     ff_data_molecule = load_yaml()[molecule_dict['name']][molecule_dict['forcefield']]
     symbolsff = [x[0].split('_')[0] for x in ff_data_molecule['atomic_positions']]
 
