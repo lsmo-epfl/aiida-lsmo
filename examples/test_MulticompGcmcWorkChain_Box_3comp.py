@@ -61,6 +61,8 @@ def run_multicomp_gcmc_box(raspa_code, zeopp_code):  # pylint: disable=redefined
     for molecule in ['CO', 'C2H4', 'C2H6']:
         assert molecule in params['loading_absolute_average']
 
+    assert params['enthalpy_of_adsorption_average'] is not None
+
 
 @click.command()
 @cmdline.utils.decorators.with_dbenv()
