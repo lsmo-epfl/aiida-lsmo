@@ -6,7 +6,7 @@ import click
 
 from aiida.engine import run
 from aiida.plugins import DataFactory, WorkflowFactory
-from aiida.orm import Str, Dict, load_node
+from aiida.orm import Dict, load_node
 from aiida import cmdline
 
 # Workchain objects

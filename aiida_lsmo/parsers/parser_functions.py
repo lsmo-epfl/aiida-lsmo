@@ -61,7 +61,7 @@ def parse_cp2k_output_advanced(fstring):  # pylint: disable=too-many-locals, too
 
     result_dict = {'exceeded_walltime': False}
     result_dict['warnings'] = []
-    line_is = None
+    n_spin_channels = None
     energy = None
     bohr2ang = 0.529177208590000
 
@@ -112,14 +112,9 @@ def parse_cp2k_output_advanced(fstring):  # pylint: disable=too-many-locals, too
             result_dict['smear_method'] = line.split()[-1]
 
         if re.search(r'subspace spin', line):
-            if int(line.split()[-1]) == 1:
-                line_is = 'eigen_spin1_au'
-                if 'eigen_spin1_au' not in result_dict.keys():
-                    result_dict['eigen_spin1_au'] = []
-            elif int(line.split()[-1]) == 2:
-                line_is = 'eigen_spin2_au'
-                if 'eigen_spin2_au' not in result_dict.keys():
-                    result_dict['eigen_spin2_au'] = []
+
+            n_spin_channels = int(line.split()[-1])
+            result_dict.setdefault(f'eigen_spin{n_spin_channels}_au', [])
             continue
 
         # Parse warnings
@@ -133,15 +128,14 @@ def parse_cp2k_output_advanced(fstring):  # pylint: disable=too-many-locals, too
             result_dict['warnings'].append('LBFGS converged with specific criteria')
 
         # If a tag has been detected, now read the following line knowing what they are
-        if line_is is not None:
+        if n_spin_channels in [1, 2]:
             # Read eigenvalues as 4-columns row, then convert to float
-            if line_is in ['eigen_spin1_au', 'eigen_spin2_au']:
-                if re.search(r'-------------', line) or re.search(r'Reached convergence', line):
-                    continue
-                if line.split() and len(line.split()) <= 4:
-                    result_dict[line_is] += [float(x) for x in line.split()]
-                else:
-                    line_is = None
+            if re.search(r'-------------', line) or re.search(r'eached convergence', line):
+                continue
+            if line.split() and len(line.split()) <= 4:
+                result_dict[f'eigen_spin{n_spin_channels}_au'] += [float(x) for x in line.split()]
+            else:
+                n_spin_channels = None
 
         ####################################################################
         #  THIS SECTION PARSES THE PROPERTIES AT GOE_OPT/CELL_OPT/MD STEP  #
