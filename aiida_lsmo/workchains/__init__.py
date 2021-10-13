@@ -16,3 +16,4 @@ from .multicomp_gcmc import MulticompGcmcWorkChain
 from .singlecomp_widom import SinglecompWidomWorkChain
 from .isotherm_inflection import IsothermInflectionWorkChain
 from .cp2k_phonopy import Cp2kPhonopyWorkChain
+from .isotherm_accurate import IsothermAccurateWorkChain

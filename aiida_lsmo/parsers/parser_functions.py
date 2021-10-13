@@ -54,7 +54,9 @@ def parse_cp2k_output_bsse(fstring):
 
 
 def parse_cp2k_output_advanced(fstring):  # pylint: disable=too-many-locals, too-many-statements, too-many-branches
-    """Parse CP2K output into a dictionary (ADVANCED: more info parsed @ PRINT_LEVEL MEDIUM)"""
+    """Parse CP2K output into a dictionary (ADVANCED: more info parsed @ PRINT_LEVEL MEDIUM).
+    Tested for CP2K 5.1, 8.1, and calculations: ENERGY, GEO_OPT, CELL_OPT, MD NVT, MD NPT_F.
+    """
     lines = fstring.splitlines()
 
     result_dict = {'exceeded_walltime': False}
@@ -64,6 +66,9 @@ def parse_cp2k_output_advanced(fstring):  # pylint: disable=too-many-locals, too
     bohr2ang = 0.529177208590000
 
     for i_line, line in enumerate(lines):
+        if line.startswith(' CP2K| version string:'):
+            cp2k_version = float(line.split()[5])
+            result_dict['cp2k_version'] = cp2k_version
         if line.startswith(' ENERGY| '):
             energy = float(line.split()[8])
             result_dict['energy'] = energy
@@ -73,7 +78,7 @@ def parse_cp2k_output_advanced(fstring):  # pylint: disable=too-many-locals, too
         if 'exceeded requested execution time' in line:
             result_dict['exceeded_walltime'] = True
         if 'KPOINTS| Band Structure Calculation' in line:
-            kpoints, labels, bands = _parse_bands(lines, i_line)
+            kpoints, labels, bands = _parse_bands(lines, i_line, cp2k_version)
             result_dict['kpoint_data'] = {
                 'kpoints': kpoints,
                 'labels': labels,
@@ -83,9 +88,9 @@ def parse_cp2k_output_advanced(fstring):  # pylint: disable=too-many-locals, too
         if line.startswith(' GLOBAL| Run type'):
             result_dict['run_type'] = line.split()[-1]
 
-        if line.startswith(' MD| Ensemble Type'):
+        if line.startswith(' MD| Ensemble Type') or line.startswith(' MD_PAR| Ensemble type'):  # CP2K 5.1 and 8.1
             result_dict['run_type'] += '-'
-            result_dict['run_type'] += line.split()[-1]  #e.g., 'MD-NPT_F'
+            result_dict['run_type'] += line.split()[-1]  #e.g., 'MD-NVT' or 'MD-NPT_F'
 
         if line.startswith(' DFT| ') and 'dft_type' not in result_dict.keys():
             result_dict['dft_type'] = line.split()[-1]  # RKS, UKS or ROKS
@@ -238,24 +243,24 @@ def parse_cp2k_output_advanced(fstring):  # pylint: disable=too-many-locals, too
                 if re.search(r'PRESSURE \[bar\]', line):
                     pressure = float(data[3])
                     print_now = True
-            if result_dict['run_type'] == 'MD-NPT_F':
-                if re.search(r'^ STEP NUMBER', line):
-                    step = int(data[3])
-                if re.search(r'^ INITIAL PRESSURE\[bar\]', line):
-                    pressure = float(data[3])
+            if result_dict['run_type'] == 'MD-NPT_F':  # The two matches are tested for CP2K 5.1 and 8.1
+                if re.search(r'^ STEP NUMBER', line) or re.search(r'^ MD\| Step number', line):
+                    step = int(data[-1])
+                if re.search(r'^ INITIAL PRESSURE\[bar\]', line) or re.search(r'^ MD_INI\| Pressure', line):
+                    pressure = float(data[-1])
                     print_now = True
-                if re.search(r'^ PRESSURE \[bar\]', line):
-                    pressure = float(data[3])
-                if re.search(r'^ VOLUME\[bohr\^3\]', line):
-                    cell_vol = float(data[3]) * (bohr2ang**3)
-                if re.search(r'^ CELL LNTHS\[bohr\]', line):
-                    cell_a = float(data[3]) * bohr2ang
-                    cell_b = float(data[4]) * bohr2ang
-                    cell_c = float(data[5]) * bohr2ang
-                if re.search(r'^ CELL ANGLS\[deg\]', line):
-                    cell_alp = float(data[3])
-                    cell_bet = float(data[4])
-                    cell_gam = float(data[5])
+                if re.search(r'^ PRESSURE \[bar\]', line) or re.search(r'^ MD\| Pressure', line):
+                    pressure = float(data[-2])  # Note: -2 is the instantaneous, -1 the average
+                if re.search(r'^ VOLUME\[bohr\^3\]', line) or re.search(r'^ MD\| Cell volume \[bohr\^3\]', line):
+                    cell_vol = float(data[-2]) * (bohr2ang**3)
+                if re.search(r'^ CELL LNTHS\[bohr\]', line) or re.search(r'^ MD\| Cell lengths \[bohr\]', line):
+                    cell_a = float(data[-3]) * bohr2ang
+                    cell_b = float(data[-2]) * bohr2ang
+                    cell_c = float(data[-1]) * bohr2ang
+                if re.search(r'^ CELL ANGLS\[deg\]', line) or re.search(r'^ MD\| Cell angles \[deg\]', line):
+                    cell_alp = float(data[-3])
+                    cell_bet = float(data[-2])
+                    cell_gam = float(data[-1])
                     print_now = True
 
             if print_now and energy is not None:

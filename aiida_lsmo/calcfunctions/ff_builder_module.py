@@ -46,6 +46,51 @@ def load_yaml():
     return ff_data
 
 
+def get_ase_charges(cifdata):
+    """Given a CifData, get an ASE object with charges."""
+    charges_list = []
+    for line in cifdata.get_content().split('\n'):  # QUITE FRAGILE, but should always work well with aiida-ddec CIFs
+        line_split = line.split()
+        if len(line_split) == 6:
+            charges_list.append(float(line_split[-1]))
+    ase_atoms = cifdata.get_ase()  # It does not get the charges: need to parse and add them.
+    ase_atoms.set_initial_charges(charges=charges_list)
+    ase_atoms.center(vacuum=0.1)  # move the molecule closer to the origin (it was in the center of the box for CP2K)
+    return ase_atoms
+
+
+def append_cif_molecule(ff_data, mol_cif):
+    """Append the FF parameters generated from the CifData, to the ff_loaded from the yaml"""
+    mol_ase = get_ase_charges(mol_cif)
+    mol_name, ff_name = 'MOL', 'on-the-fly'
+    ff_data[mol_name] = {
+        'critical_constants': {
+            'tc': 999.99,
+            'pc': 9999999,
+            'af': 9.9,
+        },
+        ff_name: {
+            'description': 'Force field generated on-the-fly with standard LJ parameters, and DFT geometry and charges',
+            'atom_types': {},
+            'atomic_positions': []
+        }
+    }
+
+    for atom in mol_ase:
+        at_label = f'{atom.symbol}_{atom.index}'
+        ff_data[mol_name][ff_name]['atom_types'][at_label] = {
+            'force_field':
+                'use-framework-ff',
+            'pseudo_atom': [
+                'yes', atom.symbol, atom.symbol, 0,
+                float(atom.mass),
+                float(atom.charge), 0.0, 1.0, 1.0, 0, 0, 'relative', 0
+            ]
+        }
+        ff_data[mol_name][ff_name]['atomic_positions'].append([at_label, float(atom.x), float(atom.y), float(atom.z)])
+    return ff_data
+
+
 def string_to_singlefiledata(string, filename):
     """Convert a string to a SinglefileData."""
     tempdir = tempfile.mkdtemp(prefix='aiida_ff-builder_')
@@ -77,6 +122,8 @@ def render_ff_mixing_def(ff_data, params):
             if 'force_field_mix' in val:
                 ff_mix_found = True
                 ff_pot = val['force_field_mix']
+            elif val['force_field'] == 'use-framework-ff':
+                continue
             else:
                 ff_pot = val['force_field']
             # In case of "separate_interactions" write the ff only if none particle
@@ -211,7 +258,7 @@ def render_molecule_def(ff_data, params, molecule_name):
 
 
 @calcfunction
-def ff_builder(params):
+def ff_builder(params, cif_molecule=None):
     """AiiDA calcfunction to assemble force filed parameters into SinglefileData for Raspa."""
 
     # PARAMS_EXAMPLE = Dict( dict = {
@@ -227,6 +274,8 @@ def ff_builder(params):
     # })
 
     ff_data = load_yaml()
+    if cif_molecule:
+        ff_data = append_cif_molecule(ff_data, cif_molecule)
     out_dict = {}
     out_dict['ff_mixing_def'], ff_mix_found = render_ff_mixing_def(ff_data, params)
     out_dict['ff_def'] = render_ff_def(ff_data, params, ff_mix_found)

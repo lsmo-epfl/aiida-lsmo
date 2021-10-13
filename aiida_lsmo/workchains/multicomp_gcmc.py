@@ -110,16 +110,15 @@ def get_output_parameters(inp_conditions, components, **all_out_dicts):  #pylint
 
     for i, _ in enumerate(inp_conditions['temp_press']):
         gcmc_out = all_out_dicts[f'RaspaGCMC_{i}'][key_system]  # can be framework_1 or box_1
+        for label in ['enthalpy_of_adsorption_average', 'enthalpy_of_adsorption_dev']:
+            out_dict[label] = conv_ener * gcmc_out['general'][label]
         for comp_dict in components.get_dict().values():
             comp = comp_dict['name']
             out_dict['composition'][comp] = comp_dict['molfraction']
             key_conv_load = 'conversion_factor_molec_uc_to_mol_kg' \
                             if key_system == 'framework_1' else 'conversion_factor_molec_uc_to_cm3stp_cm3'
             conv_load = gcmc_out['components'][comp][key_conv_load]
-            for label in [
-                    'loading_absolute_average', 'loading_absolute_dev', 'enthalpy_of_adsorption_average',
-                    'enthalpy_of_adsorption_dev'
-            ]:
+            for label in ['loading_absolute_average', 'loading_absolute_dev']:
                 if label not in out_dict:
                     out_dict[label] = {}
                 if comp not in out_dict[label]:

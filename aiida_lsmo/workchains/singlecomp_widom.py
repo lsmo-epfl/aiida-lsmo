@@ -89,7 +89,7 @@ class SinglecompWidomWorkChain(WorkChain):
         spec.expose_inputs(RaspaBaseWorkChain, namespace='raspa_base', exclude=['raspa.structure', 'raspa.parameters'])
         spec.input('structure', valid_type=CifData, required=False, help='Adsorbent framework CIF or None for a box.')
         spec.input('molecule',
-                   valid_type=(Str, Dict),
+                   valid_type=(Str, Dict, CifData),
                    help='Adsorbate molecule: settings to be read from the yaml.' +
                    'Advanced: input a Dict for non-standard settings.')
         spec.input('parameters',
@@ -119,8 +119,21 @@ class SinglecompWidomWorkChain(WorkChain):
         self.ctx.parameters = get_valid_dict(self.inputs.parameters)
         if isinstance(self.inputs.molecule, Str):
             self.ctx.molecule = get_molecule_dict(self.inputs.molecule)
+            self.ctx.cif_molecule = None
         elif isinstance(self.inputs.molecule, Dict):
             self.ctx.molecule = self.inputs.molecule
+            self.ctx.cif_molecule = None
+        elif isinstance(self.inputs.molecule, CifData):
+            self.ctx.molecule = Dict(
+                dict={
+                    'name': 'MOL',
+                    'forcefield': 'on-the-fly',
+                    'molsatdens': 99.9,  # experm @Tb
+                    'proberad': 9.9,  # sigma/2
+                    'singlebead': False,
+                    'charged': True,
+                }).store()
+            self.ctx.cif_molecule = self.inputs.molecule
         self.ctx.ff_params = get_ff_parameters(self.ctx.molecule, self.ctx.parameters)
 
     def should_run_zeopp(self):
@@ -148,7 +161,7 @@ class SinglecompWidomWorkChain(WorkChain):
     def _get_widom_inputs(self):
         """Generate Raspa input parameters from scratch, for a Widom calculation."""
         self.ctx.raspa_inputs = self.exposed_inputs(RaspaBaseWorkChain, 'raspa_base')
-        self.ctx.raspa_inputs['raspa']['file'] = FFBuilder(self.ctx.ff_params)
+        self.ctx.raspa_inputs['raspa']['file'] = FFBuilder(self.ctx.ff_params, cif_molecule=self.ctx.cif_molecule)
         self.ctx.raspa_inputs['raspa']['block_pocket'] = {}
         verbosity = self.ctx.parameters['raspa_widom_cycles'] / self.ctx.parameters['raspa_verbosity']
         self.ctx.raspa_param = {

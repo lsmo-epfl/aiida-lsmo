@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 """Run example sim annealing of CO2 in Zn-MOF-74 framework."""
 
+from pathlib import Path
 import os
 import click
 import pytest
@@ -11,7 +12,8 @@ from aiida.plugins import DataFactory, WorkflowFactory
 from aiida.orm import Dict, Str
 from aiida import cmdline
 
-from . import DATA_DIR
+THIS_DIR = Path(__file__).resolve().parent
+DATA_DIR = THIS_DIR / 'data'
 
 # Workchain objects
 SimAnnealingWorkChain = WorkflowFactory('lsmo.sim_annealing')  # pylint: disable=invalid-name
@@ -66,7 +68,7 @@ def cli(raspa_code):
 
     Help: $ ./test_SimAnnealingWorkChain_MOF74_CO2.py --help
     """
-    with open(os.path.join(DATA_DIR, 'Zn-MOF-74.cif.cif'), 'rb') as handle:
+    with open(os.path.join(DATA_DIR, 'Zn-MOF-74.cif'), 'rb') as handle:
         cif = CifData(file=handle)
 
     run_sim_annealing_zn_mof74(raspa_code, cif)

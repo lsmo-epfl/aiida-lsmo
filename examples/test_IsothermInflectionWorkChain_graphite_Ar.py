@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 """Run example IsothermInflection for Ar in Graphite."""
 
+from pathlib import Path
 import os
 import click
 import pytest
@@ -11,7 +12,8 @@ from aiida.plugins import DataFactory, WorkflowFactory
 from aiida.orm import Dict
 from aiida import cmdline
 
-from . import DATA_DIR
+THIS_DIR = Path(__file__).resolve().parent
+DATA_DIR = THIS_DIR / 'data'
 
 # Workchain objects
 IsothermInflectionWorkChain = WorkflowFactory('lsmo.isotherm_inflection')

@@ -10,7 +10,7 @@ Installation
 
 Use the following commands to install the plugin::
 
-    git clone https://github.com/yakutovicha/aiida-lsmo .
+    git clone https://github.com/lsmo-epfl/aiida-lsmo .
     cd aiida-lsmo
     pip install -e .
 

@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 """Run Cp2kMultistageWorkChain workchain on Aluminum."""
 
+from pathlib import Path
 import pytest
 import click
 import ase.build
@@ -10,7 +11,9 @@ from aiida.plugins import DataFactory, WorkflowFactory
 from aiida import cmdline
 from aiida import engine
 from aiida.orm import Dict, StructureData, Str, Int, SinglefileData
-from . import DATA_DIR
+
+THIS_DIR = Path(__file__).resolve().parent
+DATA_DIR = THIS_DIR / 'data'
 
 # Workchain objects
 Cp2kMultistageWorkChain = WorkflowFactory('lsmo.cp2k_multistage')
@@ -87,7 +90,7 @@ def run_multistage_al(cp2k_code, al_structuredata):  # pylint: disable=redefined
 def cli(cp2k_code):
     """Run example.
 
-    Example usage: $ ./test_multistage_aluminum.py --cp2k-code my-cp2k@myhost
+    Example usage: $ ./test_Cp2kMultistageWorkChain_Al.py --cp2k-code my-cp2k@myhost
     """
     run_multistage_al(cp2k_code, al_structuredata=StructureData(ase=ase.io.read(DATA_DIR / 'Al.cif')))
 
