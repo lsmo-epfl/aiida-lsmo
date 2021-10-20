@@ -7,7 +7,7 @@ import os
 import click
 import pytest
 
-#from aiida import engine
+from aiida import engine
 from aiida.plugins import DataFactory, WorkflowFactory
 from aiida.orm import Dict  #, Str
 from aiida import cmdline
@@ -45,6 +45,14 @@ def run_sim_annealing_zn_mof74(raspa_code, zn_mof74_cifdata):  # pylint: disable
         'max_wallclock_seconds': 1 * 60 * 60,
     }
     builder.structure = zn_mof74_cifdata
+    #builder.molecule = Str('co2')
+    #builder.molecule = Dict(dict={
+    #     'name': 'CO2',
+    #     'forcefield': 'TraPPE',
+    #     'proberad': 1.525,
+    #     'singlebead': False,
+    #     'charged': True,
+    # })
     builder.molecule = Dict(dict={
         'name': 'DMA',
         'forcefield': 'BOYD',
@@ -56,12 +64,12 @@ def run_sim_annealing_zn_mof74(raspa_code, zn_mof74_cifdata):  # pylint: disable
         dict={
             'ff_framework': 'UFF',  # (str) Forcefield of the structure.
             'mc_steps': int(10),  # (int) Number of MC cycles.
-            'reinsertion_probability': float(0.0),
-            'randomtranslation_probability': float(1.0),
+            #'reinsertion_probability': float(0.0),
+            #'randomtranslation_probability': float(1.0),
         })
 
+    results, node = engine.run_get_node(builder)
 
-#    results, node = engine.run_get_node(builder)
 
 #   assert node.is_finished_ok, results
 #   params = results['output_parameters'].get_dict()

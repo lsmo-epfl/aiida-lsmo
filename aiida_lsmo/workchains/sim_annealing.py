@@ -12,7 +12,7 @@ from aiida_lsmo.utils import check_resize_unit_cell, aiida_cif_merge, validate_d
 from aiida_lsmo.calcfunctions.ff_builder_module import load_yaml
 
 from .isotherm import get_molecule_dict, get_ff_parameters
-from .parameters_schemas import FF_PARAMETERS_VALIDATOR, Required
+from .parameters_schemas import FF_PARAMETERS_VALIDATOR, Required, Optional
 
 # import sub-workchains
 RaspaBaseWorkChain = WorkflowFactory('raspa.base')  # pylint: disable=invalid-name
@@ -108,11 +108,11 @@ class SimAnnealingWorkChain(WorkChain):
             int,
         Required('number_of_molecules', default=1, description='Number of molecules loaded in the framework.'):
             int,
-        Required('reinsertion_probability',
+        Optional('reinsertion_probability',
                  default=float(1.0),
                  description='Relative probability to perform a reinsertion move.'):
             float,
-        Required('randomtranslation_probability',
+        Optional('randomtranslation_probability',
                  default=float(0.0),
                  description='Relative probability to perform a random translation move.'):
             float
@@ -205,12 +205,13 @@ class SimAnnealingWorkChain(WorkChain):
         elif isinstance(self.inputs.molecule, Dict):
             self.ctx.molecule = self.inputs.molecule
 
-        # Get the parameters Dict, merging defaults with user settings
-        @calcfunction
-        def get_valid_dict(dict_node):
-            return Dict(dict=self.parameters_schema(dict_node.get_dict()))
+        ## Get the parameters Dict, merging defaults with user settings
+        #@calcfunction
+        #def get_valid_dict(dict_node):
+        #    return Dict(dict=self.parameters_schema(dict_node.get_dict()))
+        #self.ctx.parameters = get_valid_dict(self.inputs.parameters)
 
-        self.ctx.parameters = get_valid_dict(self.inputs.parameters)
+        self.ctx.parameters = Dict(dict=self.parameters_schema(self.inputs.parameters.get_dict()))
 
         # Initialize the input for raspa_base, which later will need only minor updates
         self.ctx.inp = self.exposed_inputs(RaspaBaseWorkChain, 'raspa_base')
