@@ -107,7 +107,15 @@ class SimAnnealingWorkChain(WorkChain):
         Required('mc_steps', default=int(1e3), description='Number of MC cycles.'):
             int,
         Required('number_of_molecules', default=1, description='Number of molecules loaded in the framework.'):
-            int
+            int,
+        Required('reinsertion_probability',
+                 default=float(1.0),
+                 description='Relative probability to perform a reinsertion move.'):
+            float,
+        Required('randomtranslation_probability',
+                 default=float(0.0),
+                 description='Relative probability to perform a random translation move.'):
+            float
     })
     parameters_info = parameters_schema.schema  # shorthand for printing
 
@@ -165,7 +173,8 @@ class SimAnnealingWorkChain(WorkChain):
                 self.ctx.molecule['name']: {
                     'MoleculeDefinition': 'Local',
                     'TranslationProbability': 1.0,
-                    'ReinsertionProbability': 1.0,
+                    'ReinsertionProbability': self.ctx.parameters['reinsertion_probability'],
+                    'RandomTranslationProbability': self.ctx.parameters['randomtranslation_probability'],
                     'CreateNumberOfMolecules': self.ctx.parameters['number_of_molecules'],
                 },
             },
