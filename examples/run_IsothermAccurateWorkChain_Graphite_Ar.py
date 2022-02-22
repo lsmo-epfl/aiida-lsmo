@@ -7,7 +7,7 @@ import click
 
 from aiida.engine import run
 from aiida.plugins import DataFactory, WorkflowFactory
-from aiida.orm import Code, Dict, Str
+from aiida.orm import Code, Dict
 
 # Workchain objects
 IsothermAccurateWorkChain = WorkflowFactory('lsmo.isotherm_accurate')  # pylint: disable=invalid-name

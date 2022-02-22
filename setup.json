@@ -13,7 +13,7 @@
     "include_package_data": true,
     "install_requires": [
         "aiida-core~=1.0",
-        "aiida-cp2k~=1.1",
+        "aiida-cp2k~=1.4",
         "aiida-ddec~=1.0",
         "aiida-zeopp~=1.0,>=1.0.3",
         "aiida-raspa~=1.1",
@@ -22,7 +22,8 @@
         "ase<3.20",
         "oximachinerunner~=1.4.0",
         "pymatgen<2021",
-        "phonopy~=2.9"
+        "phonopy~=2.9",
+        "markupsafe<2.1"
     ],
     "entry_points": {
         "aiida.calculations": [
