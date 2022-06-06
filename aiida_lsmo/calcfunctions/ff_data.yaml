@@ -329,7 +329,7 @@ H2S:
         pseudo_atom: [yes, H, H, 0, 1.0, 0.21, 0.0, 1.0, 1.00, 0, 0, relative, 0]
       M_h2s:
         force_field: [none]
-        pseudo_atom: [no, M, M, 0, 0, 0.21, 0.0, 1.0, 1.00, 0, 0, relative, 0]
+        pseudo_atom: [no, M, M, 0, 0, -0.42, 0.0, 1.0, 1.00, 0, 0, relative, 0]
     atomic_positions:
     - [S_h2s, 0, 0, 0]
     - [M_h2s, 0, 0, 0.3]
