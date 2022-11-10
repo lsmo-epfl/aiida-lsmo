@@ -1,3 +1,86 @@
+[build-system]
+requires = ["flit_core >=3.2,<4"]
+build-backend = "flit_core.buildapi"
+
+[tool.flit.module]
+name = "aiida_lsmo"
+
+[project]
+name = "aiida-lsmo"
+dynamic = ["version", "description"]
+authors = [
+    {name = "Aliaksandr Yakutovich", email = "aliaksandr.yakutovich@epfl.ch"},
+    {name = "Daniele Ongari"},
+    {name = "Leopold Talirz"},
+]
+readme = "README.md"
+license = {file = "LICENSE"}
+classifiers = [
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+]
+dependencies = [
+    "aiida-core~=1.0",
+    "aiida-cp2k~=1.4",
+    "aiida-ddec~=1.0",
+    "aiida-zeopp~=1.0,>=1.0.3",
+    "aiida-raspa~=1.1",
+    "calc-pe~=1.0,>=1.0.1",
+    "ruamel.yaml~=0.16.5",
+    "ase<3.20",
+    "oximachinerunner~=1.4.0",
+    "pymatgen<2021",
+    "phonopy~=2.9",
+    "markupsafe<2.1",
+]
+
+[project.urls]
+Homepage = "https://github.com/lsmo-epfl/aiida-lsmo"
+
+[project.optional-dependencies]
+testing = [
+    "pgtest~=1.3.1",
+    "aiida-testing @  git+https://github.com/ltalirz/aiida-testing@6b3c2ae023157e73563630aaf24d8337c348b74b", # egg=aiida-testing
+    "pytest-cov~=2.7",
+]
+pre-commit = ["pre-commit~=2.2", "pylint~=2.6.0"]
+docs = [
+    "sphinx",
+    "sphinxcontrib-contentui",
+    "sphinxcontrib-details-directive; python_version>='3.0'",
+    "sphinx-rtd-theme",
+]
+
+[project.entry-points."aiida.calculations"]
+"lsmo.ff_builder" = "aiida_lsmo.calcfunctions:ff_builder"
+"lsmo.calc_ch4_working_cap" = "aiida_lsmo.calcfunctions:calc_ch4_working_cap"
+"lsmo.calc_h2_working_cap" = "aiida_lsmo.calcfunctions:calc_h2_working_cap"
+"lsmo.calc_o2_working_cap" = "aiida_lsmo.calcfunctions:calc_o2_working_cap"
+"lsmo.calc_selectivity" = "aiida_lsmo.calcfunctions:calc_selectivity"
+
+[project.entry-points."aiida.parsers"]
+"lsmo.cp2k_bsse_parser" = "aiida_lsmo.parsers:Cp2kBsseParser"
+"lsmo.cp2k_advanced_parser" = "aiida_lsmo.parsers:Cp2kAdvancedParser"
+
+[project.entry-points."aiida.workflows"]
+"lsmo.binding_site" = "aiida_lsmo.workchains:BindingSiteWorkChain"
+"lsmo.cp2k_binding_energy" = "aiida_lsmo.workchains.cp2k_binding_energy:Cp2kBindingEnergyWorkChain"
+"lsmo.cp2k_multistage" = "aiida_lsmo.workchains:Cp2kMultistageWorkChain"
+"lsmo.cp2k_multistage_ddec" = "aiida_lsmo.workchains:Cp2kMultistageDdecWorkChain"
+"lsmo.isotherm" = "aiida_lsmo.workchains:IsothermWorkChain"
+"lsmo.isotherm_multi_temp" = "aiida_lsmo.workchains:IsothermMultiTempWorkChain"
+"lsmo.isotherm_calc_pe" = "aiida_lsmo.workchains:IsothermCalcPEWorkChain"
+"lsmo.zeopp_multistage_ddec" = "aiida_lsmo.workchains:ZeoppMultistageDdecWorkChain"
+"lsmo.sim_annealing" = "aiida_lsmo.workchains.sim_annealing:SimAnnealingWorkChain"
+"lsmo.nanoporous_screening_1" = "aiida_lsmo.workchains:NanoporousScreening1WorkChain"
+"lsmo.multicomp_ads_des" = "aiida_lsmo.workchains:MulticompAdsDesWorkChain"
+"lsmo.multicomp_gcmc" = "aiida_lsmo.workchains:MulticompGcmcWorkChain"
+"lsmo.singlecomp_widom" = "aiida_lsmo.workchains:SinglecompWidomWorkChain"
+"lsmo.isotherm_inflection" = "aiida_lsmo.workchains:IsothermInflectionWorkChain"
+"lsmo.cp2k_phonopy" = "aiida_lsmo.workchains:Cp2kPhonopyWorkChain"
+"lsmo.isotherm_accurate" = "aiida_lsmo.workchains:IsothermAccurateWorkChain"
+
 [tool.pylint.format]
 max-line-length = 120
 
@@ -25,3 +108,16 @@ filterwarnings = [
     "ignore::DeprecationWarning:reentry:",
     "ignore::DeprecationWarning:babel:",
 ]
+
+
+[tool.tox]
+legacy_tox_ini = """
+[tox]
+envlist = py38
+isolated_build = true
+
+[testenv:py{38,39,310,311}]
+extras = testing
+commands_pre = reentry scan -r aiida
+commands = pytest {posargs}
+"""
