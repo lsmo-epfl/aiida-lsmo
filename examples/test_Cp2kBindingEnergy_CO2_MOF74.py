@@ -60,6 +60,9 @@ def run_binding_energy_co2_mof74(cp2k_code, zn_mof74, co2_in_mof74):  # pylint: 
                 'MAX_ITER': 5
             }
         },
+        'GLOBAL': { # Add if you are using version > 7.1
+                'PREFERRED_DIAG_LIBRARY': 'SL'
+        },
     })
     builder.cp2k_base.cp2k.code = cp2k_code
     builder.cp2k_base.cp2k.metadata.options.resources = {

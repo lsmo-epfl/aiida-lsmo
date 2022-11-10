@@ -22,12 +22,18 @@ def run_multistage_h2o_fail(cp2k_code):
     atoms.center(vacuum=2.0)
     structure = StructureData(ase=atoms)
 
-    parameters = Dict(dict={'FORCE_EVAL': {
-        'DFT': {
-            'UKS': True,
-            'MULTIPLICITY': 666,
-        }
-    }})
+    parameters = Dict(
+        dict={
+            'FORCE_EVAL': {
+                'DFT': {
+                    'UKS': True,
+                    'MULTIPLICITY': 666,
+                },
+                'GLOBAL': {  # Add if you are using version > 7.1
+                    'PREFERRED_DIAG_LIBRARY': 'SL'
+                },
+            },
+        })
 
     # Construct process builder
     builder = Cp2kMultistageWorkChain.get_builder()

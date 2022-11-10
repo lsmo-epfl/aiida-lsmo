@@ -35,7 +35,19 @@ def run_multistage_al(cp2k_code, al_structuredata):  # pylint: disable=redefined
     print('EXPECTED: the OT (settings_0) will converge to a negative bandgap, then use SMEARING (settings_1)')
 
     # testing user change of parameters and protocol
-    parameters = Dict(dict={'FORCE_EVAL': {'DFT': {'MGRID': {'CUTOFF': 250,}}}})
+    parameters = Dict(
+        dict={
+            'FORCE_EVAL': {
+                'DFT': {
+                    'MGRID': {
+                        'CUTOFF': 250,
+                    },
+                },
+            },
+            'GLOBAL': {
+                'PREFERRED_DIAG_LIBRARY': 'SL'
+            },  # add if you are using version > 7.1})
+        })
     protocol_mod = Dict(dict={
         'initial_magnetization': {
             'Al': 0

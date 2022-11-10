@@ -29,7 +29,19 @@ def run_multistage_cu_hkust1(cp2k_code, cu_hkust1_structuredata):  # pylint: dis
     """Run Cp2kMultistageWorkChain on Cu-HKUST-1."""
 
     # testing user change of parameters and protocol
-    parameters = Dict(dict={'FORCE_EVAL': {'DFT': {'MGRID': {'CUTOFF': 250,}}}})
+    parameters = Dict(
+        dict={
+            'FORCE_EVAL': {
+                'DFT': {
+                    'MGRID': {
+                        'CUTOFF': 250,
+                    },
+                },
+            },
+            'GLOBAL': {  # Add if you are using version > 7.1
+                'PREFERRED_DIAG_LIBRARY': 'SL'
+            },
+        })
 
     # Construct process builder
     builder = Cp2kMultistageWorkChain.get_builder()
