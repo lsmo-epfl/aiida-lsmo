@@ -1,8 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
-aiida_lsmo
-
-AiiDA workflows for the LSMO laboratory at EPFL
-"""
+"""AiiDA workflows for the LSMO laboratory at EPFL"""
 
 __version__ = '1.0.0'
