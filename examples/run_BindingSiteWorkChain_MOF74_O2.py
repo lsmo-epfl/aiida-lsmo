@@ -70,6 +70,9 @@ def main(raspa_code, cp2k_code):
                 'MAX_ITER': 5
             }
         },
+        'GLOBAL': { # Add if you are using version > 7.1
+                'PREFERRED_DIAG_LIBRARY': 'SL'
+        },
     })
     builder.starting_settings_idx = int(1)
 

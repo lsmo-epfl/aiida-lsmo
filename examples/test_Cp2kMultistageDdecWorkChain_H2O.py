@@ -47,6 +47,11 @@ def run_cp2k_multistage_ddec_h2o(cp2k_code, ddec_code):  # pylint: disable=redef
         'pseudo': SinglefileData(file=str(cp2k_dir / 'GTH_POTENTIALS')),
         'dftd3': SinglefileData(file=str(cp2k_dir / 'dftd3.dat')),
     }
+    builder.cp2k_base.cp2k.parameters = Dict(dict={
+        'GLOBAL': {
+            'PREFERRED_DIAG_LIBRARY': 'SL'
+        },
+    })  # add if you are using version > 7.1
 
     builder.ddec.code = ddec_code
     builder.ddec.parameters = Dict(

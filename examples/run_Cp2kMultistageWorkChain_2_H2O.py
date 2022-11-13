@@ -26,13 +26,19 @@ def run_multistage_h2om(cp2k_code):
     structure = StructureData(ase=atoms)
 
     protocol_mod = Dict(dict={'settings_0': {'FORCE_EVAL': {'DFT': {'MGRID': {'CUTOFF': 300,}}}}})
-    parameters = Dict(dict={'FORCE_EVAL': {
-        'DFT': {
-            'UKS': True,
-            'MULTIPLICITY': 3,
-            'CHARGE': -2,
-        }
-    }})
+    parameters = Dict(
+        dict={
+            'FORCE_EVAL': {
+                'DFT': {
+                    'UKS': True,
+                    'MULTIPLICITY': 3,
+                    'CHARGE': -2,
+                },
+            },
+            'GLOBAL': {  # Add if you are using version > 7.1
+                'PREFERRED_DIAG_LIBRARY': 'SL'
+            },
+        })
 
     # Construct process builder
     builder = Cp2kMultistageWorkChain.get_builder()

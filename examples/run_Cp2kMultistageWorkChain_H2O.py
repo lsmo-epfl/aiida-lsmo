@@ -5,7 +5,7 @@ import click
 import ase.build
 
 from aiida.engine import run
-from aiida.orm import StructureData, Str
+from aiida.orm import Dict, StructureData, Str
 from aiida.plugins import WorkflowFactory
 from aiida import cmdline
 
@@ -32,6 +32,11 @@ def run_multistage_h2o(cp2k_code):
         'num_mpiprocs_per_machine': 1,
     }
     builder.cp2k_base.cp2k.metadata.options.max_wallclock_seconds = 1 * 3 * 60
+    builder.cp2k_base.cp2k.parameters = Dict(dict={
+        'GLOBAL': {
+            'PREFERRED_DIAG_LIBRARY': 'SL'
+        },
+    })  # add if you are using version > 7.1
 
     run(builder)
 
