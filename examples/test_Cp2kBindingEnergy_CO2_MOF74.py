@@ -10,7 +10,7 @@ import ase.build
 from aiida.plugins import DataFactory, WorkflowFactory
 from aiida import cmdline
 from aiida import engine
-from aiida.orm import Dict, StructureData, Str, SinglefileData, WorkChainNode
+from aiida.orm import Dict, StructureData, Str, SinglefileData, WorkChainNode, CalcJobNode
 
 THIS_DIR = Path(__file__).resolve().parent
 DATA_DIR = THIS_DIR / 'data'
@@ -83,7 +83,15 @@ def run_binding_energy_co2_mof74(cp2k_code, zn_mof74, co2_in_mof74):  # pylint: 
     print(node.attributes)
 
     for called in node.called_descendants:
+        print()
         print(called.attributes)
+        if isinstance(called, CalcJobNode):
+            wdir = Path(called.get_remote_workdir())
+            print('Remote work directory:', wdir)
+            if wdir.exists():
+                print([str(p.relative_to(wdir)) for p in wdir.glob('**/*')])
+            else:
+                print('Remote work directory does not exist')
 
     raise
 
