@@ -79,6 +79,8 @@ def run_binding_energy_co2_mof74(cp2k_code, zn_mof74, co2_in_mof74):  # pylint: 
 
     results, node = engine.run_get_node(builder)
 
+    print(node.attributes)
+
     assert node.is_finished_ok, results
 
     params = results['output_parameters'].get_dict()
