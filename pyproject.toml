@@ -103,6 +103,7 @@ python_functions = "test_* run_*"
 python_files = "test_*.py"
 
 filterwarnings = [
+    "ignore::DeprecationWarning:.*:",
     "ignore::DeprecationWarning:frozendict:",
     "ignore::DeprecationWarning:sqlalchemy_utils:",
     "ignore::DeprecationWarning:reentry:",

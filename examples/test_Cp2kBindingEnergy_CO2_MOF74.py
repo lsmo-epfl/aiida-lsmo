@@ -10,7 +10,7 @@ import ase.build
 from aiida.plugins import DataFactory, WorkflowFactory
 from aiida import cmdline
 from aiida import engine
-from aiida.orm import Dict, StructureData, Str, SinglefileData
+from aiida.orm import Dict, StructureData, Str, SinglefileData, WorkChainNode
 
 THIS_DIR = Path(__file__).resolve().parent
 DATA_DIR = THIS_DIR / 'data'
@@ -77,9 +77,15 @@ def run_binding_energy_co2_mof74(cp2k_code, zn_mof74, co2_in_mof74):  # pylint: 
         'dftd3': SinglefileData(file=str(cp2k_dir / 'dftd3.dat')),
     }
 
+    node: WorkChainNode
     results, node = engine.run_get_node(builder)
 
     print(node.attributes)
+
+    for called in node.called_descendants:
+        print(called.attributes)
+
+    raise
 
     assert node.is_finished_ok, results
 
