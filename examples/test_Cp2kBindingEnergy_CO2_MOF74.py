@@ -90,6 +90,9 @@ def run_binding_energy_co2_mof74(cp2k_code, zn_mof74, co2_in_mof74):  # pylint: 
             print('Remote work directory:', wdir)
             if wdir.exists():
                 print([str(p.relative_to(wdir)) for p in wdir.glob('**/*')])
+                if wdir.joinpath('aiida.inp').exists():
+                    print("aiida.inp:")
+                    print(wdir.joinpath('aiida.inp').read_text())
             else:
                 print('Remote work directory does not exist')
 
