@@ -6,7 +6,7 @@ import click
 import ase.build
 
 from aiida.engine import run
-from aiida.orm import StructureData, SinglefileData
+from aiida.orm import Dict, StructureData, SinglefileData
 from aiida.plugins import WorkflowFactory
 from aiida import cmdline
 
@@ -29,13 +29,18 @@ def run_multistage_h2o_testfile(cp2k_code):
     builder = Cp2kMultistageWorkChain.get_builder()
     builder.structure = structure
     builder.protocol_yaml = SinglefileData(
-        file=os.path.abspath(os.path.join(thisdir, '..', 'data', 'test_multistage_protocol.yaml')))
+        file=os.path.abspath(os.path.join(thisdir, 'data', 'test_multistage_protocol.yaml')))
     builder.cp2k_base.cp2k.code = cp2k_code
     builder.cp2k_base.cp2k.metadata.options.resources = {
         'num_machines': 1,
         'num_mpiprocs_per_machine': 1,
     }
     builder.cp2k_base.cp2k.metadata.options.max_wallclock_seconds = 1 * 3 * 60
+    builder.cp2k_base.cp2k.parameters = Dict(dict={
+        'GLOBAL': {
+            'PREFERRED_DIAG_LIBRARY': 'SL'
+        },
+    })
 
     run(builder)
 
