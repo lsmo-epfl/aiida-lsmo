@@ -229,13 +229,13 @@ def parse_cp2k_output_advanced(fstring):  # pylint: disable=too-many-locals, too
                 if re.search(r'Internal Pressure', line):
                     pressure = float(data[4])
             if result_dict['run_type'] == 'MD-NVT':
-                if re.search(r'STEP NUMBER', line):
-                    step = int(data[3])
-                if re.search(r'INITIAL PRESSURE\[bar\]', line):
-                    pressure = float(data[3])
+                if re.search(r'STEP NUMBER', line) or re.search(r'MD\| Step number', line):
+                    step = int(data[-1])
+                if re.search(r'INITIAL PRESSURE\[bar\]', line) or re.search(r'MD_INI\| Pressure', line):
+                    pressure = float(data[-1])
                     print_now = True
-                if re.search(r'PRESSURE \[bar\]', line):
-                    pressure = float(data[3])
+                if re.search(r'PRESSURE \[bar\]', line) or re.search(r'MD\| Pressure', line):
+                    pressure = float(data[-2])
                     print_now = True
             if result_dict['run_type'] == 'MD-NPT_F':  # The two matches are tested for CP2K 5.1 and 8.1
                 if re.search(r'^ STEP NUMBER', line) or re.search(r'^ MD\| Step number', line):
