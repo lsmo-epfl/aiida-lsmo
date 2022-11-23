@@ -1020,3 +1020,63 @@ Xe:
         pseudo_atom: [yes, Xe, Xe, 0, 131.29, 0.0, 0.0, 1.0, 1.0, 0, 0, relative, 0]
     atomic_positions:
     - [Xe_gas 0, 0, 0]
+
+DMA:
+  critical_constants:
+    tc: 710.35
+    pc: 5712000
+    af: 0.227
+  BOYDCM5:
+    description: Dispersion parameters from https://doi.org/10.1038/s41467-019-09486-2, CM5 charges
+    atom_types:
+      N1_dma:
+        force_field: [lennard-jones, 38.9492, 3.263]
+        pseudo_atom: [yes, N, N, 0, 14.0067, -0.4285, 0.0, 1.0, 0.7, 0, 0, relative, 0]
+      C1_dma:
+        force_field: [lennard-jones, 47.8562, 3.473]
+        pseudo_atom: [yes, C, C, 0, 12.00, -0.0885, 0.0, 1.0, 1.0, 0, 0, relative, 0]
+      H1_dma:
+        force_field: [lennard-jones, 7.6489, 2.846]
+        pseudo_atom: [yes, H, H, 0, 1.01, 0.1429, 0.0, 1.0, 1.0, 0, 0, relative, 0]
+      H2_dma:
+        force_field: [lennard-jones, 7.6489, 2.846]
+        pseudo_atom: [yes, H, H, 0, 1.01, 0.3741, 0.0, 1.0, 1.0, 0, 0, relative, 0]
+    atomic_positions:
+    - [N1_dma, 0.00000, 0.54187, 0.00000]
+    - [C1_dma, 1.26604, -0.27620, 0.00000]
+    - [C1_dma, -1.26604, -0.27620, 0.00000]
+    - [H1_dma, 1.27256, -0.90337, 0.89907]
+    - [H1_dma, 2.12803, 0.40147, 0.00000]
+    - [H1_dma, 1.27256, -0.90336, -0.89907]
+    - [H1_dma, -2.12803, 0.40146, -0.00004]
+    - [H1_dma, -1.27252, -0.90340, -0.89905]
+    - [H1_dma, -1.27256, -0.90334, 0.89909]
+    - [H2_dma, 0.00000, 1.16590, -0.82196]
+    - [H2_dma, 0.00000, 1.16589, 0.82197]
+  BOYDDDEC:
+    description: Dispersion parameters from https://doi.org/10.1038/s41467-019-09486-2, DDEC charges
+    atom_types:
+      N1_dma:
+        force_field: [lennard-jones, 38.9492, 3.263]
+        pseudo_atom: [yes, N, N, 0, 14.0067, -0.0670, 0.0, 1.0, 0.7, 0, 0, relative, 0]
+      C1_dma:
+        force_field: [lennard-jones, 47.8562, 3.473]
+        pseudo_atom: [yes, C, C, 0, 12.00, -0.2592, 0.0, 1.0, 1.0, 0, 0, relative, 0]
+      H1_dma:
+        force_field: [lennard-jones, 7.6489, 2.846]
+        pseudo_atom: [yes, H, H, 0, 1.01, 0.1624, 0.0, 1.0, 1.0, 0, 0, relative, 0]
+      H2_dma:
+        force_field: [lennard-jones, 7.6489, 2.846]
+        pseudo_atom: [yes, H, H, 0, 1.01, 0.3055, 0.0, 1.0, 1.0, 0, 0, relative, 0]
+    atomic_positions:
+    - [N1_dma, 0.0000, 0.0000, 0.0000]
+    - [C1_dma, -1.2645, -0.8099, 0.0000]
+    - [C1_dma, 1.2645, -0.8098, 0.0000]
+    - [H1_dma, -1.2787, -1.4431, 0.9054]
+    - [H1_dma, -2.1330, -0.1266, -0.0009]
+    - [H1_dma, -1.2778, -1.4450, -0.9040]
+    - [H1_dma, 2.1330, -0.1267, -0.0009]
+    - [H1_dma, 1.2786, -1.4433, 0.9053]
+    - [H1_dma, 1.2777, -1.4451, -0.9040]
+    - [H2_dma, 0.0000, 0.6334, 0.8221]
+    - [H2_dma, -0.0000, 0.6315, -0.8235]
