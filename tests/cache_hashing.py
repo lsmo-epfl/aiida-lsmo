@@ -6,6 +6,7 @@ from aiida_testing.mock_code import InputHasher
 
 
 class CustomInputHasher(InputHasher):
+    """Custom hasher for AiiDA code input files."""
 
     def __call__(self, cwd: Path) -> str:
         """Return a hash of the input files in the given directory."""
