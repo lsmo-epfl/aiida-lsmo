@@ -8,9 +8,8 @@ import pytest
 from aiida_ddec.calculations import DENSITY_DIR_EXTRA, DENSITY_DIR_SYMLINK
 
 from tests import DATA_DIR
+from tests.cache_hashing import CustomInputHasher
 from examples import DATA_DIR as EXAMPLES_DATA_DIR
-
-pytest_plugins = ['aiida.manage.tests.pytest_fixtures', 'aiida_testing.mock_code']  # pylint: disable=invalid-name
 
 
 @pytest.fixture(scope='function', autouse=True)
@@ -25,6 +24,7 @@ def cp2k_code(mock_code_factory):
         label='cp2k-7.1',
         data_dir_abspath=DATA_DIR,
         entry_point='cp2k',
+        hasher=CustomInputHasher,
         # files *not* to copy into the data directory
         ignore_paths=('_aiidasubmit.sh', 'BASIS_MOLOPT', 'GTH_POTENTIALS', 'dftd3.dat', '*.bak*'))
 
