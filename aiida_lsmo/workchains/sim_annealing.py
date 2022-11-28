@@ -36,15 +36,17 @@ def get_molecule_from_restart_file(structure_cif, molecule_folderdata, input_dic
 
     # Get the atom types of the molecule (ASE accepts only atomic eilements as "symbols")
     ff_data_molecule = load_yaml()[molecule_dict['name']][molecule_dict['forcefield']]
-    symbolsff = [x[0].split('_')[0] for x in ff_data_molecule['atomic_positions']]
+    symbolsff = [x[0] for x in ff_data_molecule['atomic_positions']]
 
     symbolsff *= number_of_molecules
+    chem = [ff_data_molecule['atom_types'][atom]['pseudo_atom'][2] for atom in symbolsff]
 
     # Get the coordinates of the molecule from restart-file in the extended unit cell
-    restart_fname = molecule_folderdata.list_object_names(os.path.join('Restart', 'System_0'))[0]  # pylint: disable=protected-access
-    fobj = molecule_folderdata.get_object_content(os.path.join('Restart', 'System_0', restart_fname))  # pylint: disable=protected-access
+    fobj = molecule_folderdata.get_object_content(
+        os.path.join('Restart', 'System_0',
+                     molecule_folderdata.list_object_names(os.path.join('Restart', 'System_0'))[0]))  # pylint: disable=protected-access
     lines_positions = [line.split()[3:6] for line in fobj.splitlines() if 'Adsorbate-atom-position:' in line]
-    symbols_positions = list(zip(symbolsff, lines_positions))
+    symbols_positions = list(zip(chem, lines_positions))
     symbols_positions = [(name, position) for name, position in symbols_positions if name != 'M'
                         ]  # Removing dummy atoms.
     symbols, positions = list(zip(*symbols_positions))
