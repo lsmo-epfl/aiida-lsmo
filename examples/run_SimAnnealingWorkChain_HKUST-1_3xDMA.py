@@ -46,7 +46,9 @@ def main(raspa_code):
             'ff_framework': 'UFF',  # (str) Forcefield of the structure.
             'temperature_list': [300, 150],  # (list) List of decreasing temperatures for the annealing.
             'mc_steps': int(10),  # (int) Number of MC cycles.
-            'number_of_molecules': 3  # (int) Number of molecules loaded in the framework.
+            'number_of_molecules': 1  # (int) Number of molecules loaded in the framework.
+            # 'reinsertion_probability': float(0.0),
+            # 'randomtranslation_probability': float(1.0),
         })
 
     run(builder)
