@@ -1,0 +1,67 @@
+Cell info:
+========================================================================
+number-of-unit-cells: 4 2 2
+unit-cell-vector-a:     6.999010000000     0.000000000000     0.000000000000
+unit-cell-vector-b:    -2.333967534586    15.064165518126     0.000000000000
+unit-cell-vector-c:    -2.333325540663    -7.531873256093    13.046302663032
+
+cell-vector-a:    27.996040000000     0.000000000000     0.000000000000
+cell-vector-b:    -4.667935069171    30.128331036252     0.000000000000
+cell-vector-c:    -4.666651081327   -15.063746512187    26.092605326064
+
+cell-lengths:     6.999010000000    15.243900000000    15.244000000000
+cell-angles:   117.699000000000    98.804600000001    98.807100000000
+
+
+Maximum changes for MC-moves:
+========================================================================
+Maximum-volume-change: 0.006250
+Maximum-Gibbs-volume-change: 0.025000
+Maximum-box-shape-change: 0.100000 0.100000 0.100000, 0.100000 0.100000 0.100000, 0.100000 0.100000 0.100000
+
+
+Acceptance targets for MC-moves:
+========================================================================
+Target-volume-change: 0.500000
+Target-box-shape-change: 0.500000
+Target-Gibbs-volume-change: 0.500000
+
+
+Components: 1 (Adsorbates 1, Cations 0)
+========================================================================
+Component 0 (CO2)
+	Fractional-molecule-id component 0: -1
+	Lambda-factors component 0:  0.000000 0.000000 0.000000
+	Number-of-biasing-factors component 0: 21
+	Biasing-factors component 0:  0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000
+	Maximum-CF-Lambda-change component 0: 0.500000
+	Maximum-CBCF-Lambda-change component 0: 0.500000
+
+	Maximum-translation-change component 0: 0.458824,0.325000,0.433333
+	Maximum-translation-in-plane-change component 0: 0.000000,0.000000,0.000000
+	Maximum-rotation-change component 0: 0.981748 0.654498 0.727221
+
+Reactions: 0
+
+Component: 0     Adsorbate    1 molecules of CO2
+------------------------------------------------------------------------
+Adsorbate-atom-position: 0 0     1.611099146455    11.836812094394     9.991387897672
+Adsorbate-atom-position: 0 1     2.433949612908    11.026099531430    10.097511646709
+Adsorbate-atom-position: 0 2     3.256800079362    10.215386968466    10.203635395746
+Adsorbate-atom-velocity: 0 0    -1.393695854634    -1.781711140704    -1.330575463929
+Adsorbate-atom-velocity: 0 1    -0.480107283900    -0.769735195661    -0.683455181134
+Adsorbate-atom-velocity: 0 2     0.433481286834     0.242240749381    -0.036334898340
+Adsorbate-atom-force:    0 0   276.366242289988  1816.076165697753  -330.230360199740
+Adsorbate-atom-force:    0 1  1109.843489314156 -1687.264717095832    95.249499406895
+Adsorbate-atom-force:    0 2  -274.578586956751   332.744327183420  -144.766247509881
+Adsorbate-atom-charge:   0 0    -0.350000000000
+Adsorbate-atom-charge:   0 1     0.700000000000
+Adsorbate-atom-charge:   0 2    -0.350000000000
+Adsorbate-atom-scaling:  0 0     1.000000000000
+Adsorbate-atom-scaling:  0 1     1.000000000000
+Adsorbate-atom-scaling:  0 2     1.000000000000
+Adsorbate-atom-fixed:    0 0       0 0 0
+Adsorbate-atom-fixed:    0 1       0 0 0
+Adsorbate-atom-fixed:    0 2       0 0 0
+
+
