@@ -16,7 +16,7 @@ from .parameters_schemas import FF_PARAMETERS_VALIDATOR, NUMBER, Required, Optio
 RaspaBaseWorkChain = WorkflowFactory('raspa.base')  # pylint: disable=invalid-name
 ZeoppCalculation = CalculationFactory('zeopp.network')  # pylint: disable=invalid-name
 FFBuilder = CalculationFactory('lsmo.ff_builder')  # pylint: disable=invalid-name
-CifData = DataFactory('cif')  # pylint: disable=invalid-name
+CifData = DataFactory('core.cif')  # pylint: disable=invalid-name
 ZeoppParameters = DataFactory('zeopp.parameters')  # pylint: disable=invalid-name
 
 NAVO = 6.022E+23  # molec/mol
@@ -36,7 +36,7 @@ def get_pressure_points(molecule_dict, isotparam):
         exp_max = np.log10(isotparam['pressure_max'] * molecule_dict['pressure_zero'])
         exp_list = np.linspace(exp_min, exp_max, isotparam['pressure_num'])
         pressure_points = [10**x for x in exp_list]
-    return List(list=pressure_points)
+    return List(pressure_points)
 
 
 @calcfunction
@@ -106,7 +106,7 @@ def get_output_parameters(inp_params, pressures, geom_out, widom_out, **gcmc_dic
 
         out_dict['isotherm'] = isotherm
 
-    return Dict(dict=out_dict)
+    return Dict(out_dict)
 
 
 class IsothermInflectionWorkChain(WorkChain):
@@ -202,7 +202,7 @@ class IsothermInflectionWorkChain(WorkChain):
         # Get the parameters Dict, merging defaults with user settings
         @calcfunction
         def get_valid_dict(dict_node):
-            return Dict(dict=self.parameters_schema(dict_node.get_dict()))
+            return Dict(self.parameters_schema(dict_node.get_dict()))
 
         self.ctx.parameters = get_valid_dict(self.inputs.parameters)
 
@@ -366,7 +366,7 @@ class IsothermInflectionWorkChain(WorkChain):
             self.ctx.inp['raspa']['block_pocket'] = {'block_file': self.ctx.zeopp.outputs.block}
 
         self.ctx.raspa_param = self._get_widom_param()
-        self.ctx.inp['raspa']['parameters'] = Dict(dict=self.ctx.raspa_param)
+        self.ctx.inp['raspa']['parameters'] = Dict(self.ctx.raspa_param)
 
         # Generate the force field with the ff_builder
         ff_params = get_ff_parameters(self.ctx.molecule, self.ctx.parameters)
@@ -386,7 +386,7 @@ class IsothermInflectionWorkChain(WorkChain):
 
         nmolecules = int(0.90 * self._get_saturation_molecules())
         self.ctx.raspa_param = self._update_param_for_gcmc(number_of_molecules=nmolecules, swap_prob=0.01)
-        self.ctx.inp['raspa']['parameters'] = Dict(dict=self.ctx.raspa_param)
+        self.ctx.inp['raspa']['parameters'] = Dict(self.ctx.raspa_param)
 
         running = self.submit(RaspaBaseWorkChain, **self.ctx.inp)
 
@@ -413,7 +413,7 @@ class IsothermInflectionWorkChain(WorkChain):
                 self.ctx.raspa_param['System']['framework_1']['ExternalPressure'] = self.ctx.pressures[i] * 1e5
 
                 # Update parameters Dict
-                self.ctx.inp['raspa']['parameters'] = Dict(dict=self.ctx.raspa_param)
+                self.ctx.inp['raspa']['parameters'] = Dict(self.ctx.raspa_param)
 
                 if inp == 'dil':
                     pass

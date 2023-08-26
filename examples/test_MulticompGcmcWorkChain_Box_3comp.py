@@ -12,7 +12,7 @@ from aiida import cmdline
 MulticompGcmcWorkChain = WorkflowFactory('lsmo.multicomp_gcmc')  # pylint: disable=invalid-name
 
 # Data objects
-CifData = DataFactory('cif')  # pylint: disable=invalid-name
+CifData = DataFactory('core.cif')  # pylint: disable=invalid-name
 
 
 def run_multicomp_gcmc_box(raspa_code, zeopp_code):  # pylint: disable=redefined-outer-name
@@ -35,7 +35,7 @@ def run_multicomp_gcmc_box(raspa_code, zeopp_code):  # pylint: disable=redefined
     }
     builder.raspa_base.raspa.metadata.options = options
     builder.zeopp.metadata.options = options
-    builder.conditions = Dict(dict={
+    builder.conditions = Dict({
         'molfraction': {
             'co': 0.2,
             'ethene': 0.3,
@@ -48,7 +48,7 @@ def run_multicomp_gcmc_box(raspa_code, zeopp_code):  # pylint: disable=redefined
         ]
     })
 
-    builder.parameters = Dict(dict={
+    builder.parameters = Dict({
         'raspa_gcmc_init_cycles': 1000,  # Default: 1e3
         'raspa_gcmc_prod_cycles': 1000,  # Default: 1e4
     })

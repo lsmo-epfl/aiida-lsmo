@@ -12,7 +12,7 @@ from aiida.orm import Code, Dict, Str
 ZeoppMultistageDdecWorkChain = WorkflowFactory('lsmo.zeopp_multistage_ddec')  # pylint: disable=invalid-name
 
 #Data objects
-CifData = DataFactory('cif')  # pylint: disable=invalid-name
+CifData = DataFactory('core.cif')  # pylint: disable=invalid-name
 NetworkParameters = DataFactory('zeopp.parameters')  # pylint: disable=invalid-name
 
 print('NOTE: this test will perform a real-case calculation on Fidis, taking a couple of hours!')
@@ -46,7 +46,7 @@ zeopp_options = {
 }
 
 ddec_params = Dict(
-    dict={
+    {
         'net charge':
             0.0,
         'charge type':

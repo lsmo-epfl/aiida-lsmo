@@ -11,8 +11,8 @@ THIS_DIR = Path(__file__).resolve().parent
 DATA_DIR = THIS_DIR / 'data'
 
 # Data objects
-CifData = DataFactory('cif')  # pylint: disable=invalid-name
-FolderData = DataFactory('folder')
+CifData = DataFactory('core.cif')  # pylint: disable=invalid-name
+FolderData = DataFactory('core.folder')
 
 
 def test_get_molecule_from_restart_file():
@@ -23,9 +23,9 @@ def test_get_molecule_from_restart_file():
 
     molecule_folderdata = FolderData(tree=(DATA_DIR / 'RASPA_3N2_in_HKUST1'))
 
-    input_dict = Dict(dict={'number_of_molecules': int(3)})
+    input_dict = Dict({'number_of_molecules': int(3)})
 
-    molecule_dict = Dict(dict={'name': 'N2', 'forcefield': 'TraPPE'})
+    molecule_dict = Dict({'name': 'N2', 'forcefield': 'TraPPE'})
 
     cif_out = get_molecule_from_restart_file(structure_cif, molecule_folderdata, input_dict, molecule_dict)
 

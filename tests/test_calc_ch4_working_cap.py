@@ -13,7 +13,7 @@ calc_ch4_working_cap = CalculationFactory('lsmo.calc_ch4_working_cap')
 def test_calc_ch4_working_cap():
     """Test extraction of working capacity data from IsothermWorkChain output dictionary."""
     OUTPUT_PARAMETERS = Dict(
-        dict={
+        {
             'Density': 0.440527,
             'Density_unit': 'g/cm^3',
             'Estimated_saturation_loading': 41.985376,

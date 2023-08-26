@@ -36,7 +36,7 @@ def get_output_parameters(**cp2k_out_dict):
         if key in cp2k_out_dict['bsse'].get_dict():  # "binding_energy_dispersion" may miss
             output_dict[key] = cp2k_out_dict['bsse'][key]
 
-    return Dict(dict=output_dict)
+    return Dict(output_dict)
 
 
 @calcfunction
@@ -185,7 +185,7 @@ class Cp2kBindingEnergyWorkChain(WorkChain):
         if 'parameters' in self.exposed_inputs(Cp2kBaseWorkChain, 'cp2k_base')['cp2k']:
             dict_merge(self.ctx.cp2k_param,
                        self.exposed_inputs(Cp2kBaseWorkChain, 'cp2k_base')['cp2k']['parameters'].get_dict())
-        self.ctx.base_inp['cp2k']['parameters'] = Dict(dict=self.ctx.cp2k_param)
+        self.ctx.base_inp['cp2k']['parameters'] = Dict(self.ctx.cp2k_param)
         self.ctx.base_inp['metadata'].update({'label': 'geo_opt_molecule', 'call_link_label': 'run_geo_opt_molecule'})
         self.ctx.base_inp['cp2k']['metadata'].update({'label': 'GEO_OPT'})
         self.ctx.base_inp['cp2k']['metadata']['options']['parser_name'] = 'lsmo.cp2k_advanced_parser'
@@ -250,7 +250,7 @@ class Cp2kBindingEnergyWorkChain(WorkChain):
         if 'parameters' in self.exposed_inputs(Cp2kBaseWorkChain, 'cp2k_base')['cp2k']:
             dict_merge(self.ctx.cp2k_param,
                        self.exposed_inputs(Cp2kBaseWorkChain, 'cp2k_base')['cp2k']['parameters'].get_dict())
-        self.ctx.base_inp['cp2k']['parameters'] = Dict(dict=self.ctx.cp2k_param)
+        self.ctx.base_inp['cp2k']['parameters'] = Dict(self.ctx.cp2k_param)
         self.ctx.base_inp['cp2k']['structure'] = self.ctx.stages[-1].outputs.output_structure
         self.ctx.base_inp['metadata'].update({'label': 'bsse', 'call_link_label': 'run_bsse'})
         self.ctx.base_inp['cp2k']['metadata'].update({'label': 'BSSE'})

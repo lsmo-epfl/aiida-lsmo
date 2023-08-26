@@ -18,13 +18,13 @@ from aiida_lsmo.utils import aiida_dict_merge
 Cp2kBaseWorkChain = WorkflowFactory('cp2k.base')  # pylint: disable=invalid-name
 
 # import aiida data
-Str = DataFactory('str')  # pylint: disable=invalid-name
-Int = DataFactory('int')  # pylint: disable=invalid-name
-List = DataFactory('list')  # pylint: disable=invalid-name
-Dict = DataFactory('dict')  # pylint: disable=invalid-name
-CifData = DataFactory('cif')  # pylint: disable=invalid-name
-StructureData = DataFactory('structure')  # pylint: disable=invalid-name
-SinglefileData = DataFactory('singlefile')  # pylint: disable=invalid-name
+Str = DataFactory('core.str')  # pylint: disable=invalid-name
+Int = DataFactory('core.int')  # pylint: disable=invalid-name
+List = DataFactory('core.list')  # pylint: disable=invalid-name
+Dict = DataFactory('core.dict')  # pylint: disable=invalid-name
+CifData = DataFactory('core.cif')  # pylint: disable=invalid-name
+StructureData = DataFactory('core.structure')  # pylint: disable=invalid-name
+SinglefileData = DataFactory('core.singlefile')  # pylint: disable=invalid-name
 
 
 class Cp2kPhonopyWorkChain(WorkChain):
@@ -92,7 +92,7 @@ class Cp2kPhonopyWorkChain(WorkChain):
 
         # Collect the other inputs for Cp2kBaseWC from the ref_cp2k_calc to self.ctx.base_inp
         self.ctx.base_inp = AttributeDict(self.exposed_inputs(Cp2kBaseWorkChain, 'cp2k_base'))
-        self.ctx.base_inp['cp2k']['settings'] = Dict(dict={'additional_retrieve_list': ['aiida-forces-1_0.xyz']})
+        self.ctx.base_inp['cp2k']['settings'] = Dict({'additional_retrieve_list': ['aiida-forces-1_0.xyz']})
         self.ctx.base_inp['cp2k']['parent_calc_folder'] = ref_cp2k_calc.outputs.remote_folder
         self.ctx.base_inp['cp2k']['file'] = {}
         if 'file' in ref_cp2k_calc.inputs:
@@ -226,7 +226,7 @@ class Cp2kPhonopyWorkChain(WorkChain):
             sets_of_forces.append(forces_parsed)
 
         # Output the forces of the initial structure as a List
-        initial_forces = List(list=sets_of_forces[0])
+        initial_forces = List(sets_of_forces[0])
         initial_forces.store()
         self.out('initial_forces', initial_forces)
         self.report(f'Forces computed on the input structure: List<{initial_forces.pk}>')

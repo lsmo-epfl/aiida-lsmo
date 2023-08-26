@@ -14,7 +14,7 @@ from .parameters_schemas import FF_PARAMETERS_VALIDATOR, NUMBER, Required
 IsothermWorkChain = WorkflowFactory('lsmo.isotherm')  #pylint: disable=invalid-name
 
 # import aiida data
-CifData = DataFactory('cif')  #pylint: disable=invalid-name
+CifData = DataFactory('core.cif')  #pylint: disable=invalid-name
 
 
 class IsothermCalcPEWorkChain(WorkChain):

@@ -19,7 +19,7 @@ DATA_DIR = THIS_DIR / 'data'
 IsothermInflectionWorkChain = WorkflowFactory('lsmo.isotherm_inflection')
 
 # Data objects
-CifData = DataFactory('cif')
+CifData = DataFactory('core.cif')
 NetworkParameters = DataFactory('zeopp.parameters')
 
 
@@ -56,7 +56,7 @@ def run_isotherm_inflection_ar_graphite(raspa_code, zeopp_code, graphite_20a):  
     builder.structure = graphite_20a
 
     builder.molecule = Dict(
-        dict={
+        {
             'name': 'Ar',
             'forcefield': 'HIRSCHFELDER',
             'ff_cutoff': 8,
@@ -68,7 +68,7 @@ def run_isotherm_inflection_ar_graphite(raspa_code, zeopp_code, graphite_20a):  
         })
 
     builder.parameters = Dict(
-        dict={
+        {
             'ff_framework': 'DREIDING',
             'temperature': 87,  # T_sat Ar
             'ff_cutoff': 8.0,  # NOTE: Low to have cheap testing

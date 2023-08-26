@@ -9,8 +9,8 @@ from aiida.plugins import WorkflowFactory, DataFactory
 from aiida import cmdline
 
 Cp2kPhonopyWorkChain = WorkflowFactory('lsmo.cp2k_phonopy')
-Str = DataFactory('str')  # pylint: disable=invalid-name
-Int = DataFactory('int')  # pylint: disable=invalid-name
+Str = DataFactory('core.str')  # pylint: disable=invalid-name
+Int = DataFactory('core.int')  # pylint: disable=invalid-name
 
 
 def run_cp2k_phonopy(cp2k_code, structure_pk):

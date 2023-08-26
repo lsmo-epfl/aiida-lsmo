@@ -12,7 +12,7 @@ FFBuilder = CalculationFactory('lsmo.ff_builder')
 def test_ff_builder():
     """Test force-field builder"""
     ff_parameters = Dict(
-        dict={
+        {
             'ff_framework': 'UFF',
             'ff_molecules': {
                 'CO2': 'TraPPE',

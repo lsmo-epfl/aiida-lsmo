@@ -14,7 +14,7 @@ from aiida import cmdline
 IsothermWorkChain = WorkflowFactory('lsmo.isotherm')  # pylint: disable=invalid-name
 
 # Data objects
-CifData = DataFactory('cif')  # pylint: disable=invalid-name
+CifData = DataFactory('core.cif')  # pylint: disable=invalid-name
 NetworkParameters = DataFactory('zeopp.parameters')  # pylint: disable=invalid-name
 
 
@@ -48,7 +48,7 @@ def main(raspa_code, zeopp_code):
     builder.structure = CifData(file=os.path.abspath('data/HKUST-1.cif'), label='HKUST-1')
     builder.molecule = Str('co2')
     builder.parameters = Dict(
-        dict={
+        {
             'ff_framework': 'UFF',  # Default: UFF
             'temperature': 400,  # (K) Note: higher temperature will have less adsorbate and it is faster
             'zeopp_probe_scaling': 0.8,

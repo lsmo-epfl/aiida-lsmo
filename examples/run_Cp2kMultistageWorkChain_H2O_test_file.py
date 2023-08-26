@@ -36,7 +36,7 @@ def run_multistage_h2o_testfile(cp2k_code):
         'num_mpiprocs_per_machine': 1,
     }
     builder.cp2k_base.cp2k.metadata.options.max_wallclock_seconds = 1 * 3 * 60
-    builder.cp2k_base.cp2k.parameters = Dict(dict={
+    builder.cp2k_base.cp2k.parameters = Dict({
         'GLOBAL': {
             'PREFERRED_DIAG_LIBRARY': 'SL'
         },

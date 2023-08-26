@@ -18,7 +18,7 @@ DATA_DIR = THIS_DIR / 'data'
 MultistageDdecWorkChain = WorkflowFactory('lsmo.cp2k_multistage_ddec')  # pylint: disable=invalid-name
 
 # Data objects
-StructureData = DataFactory('structure')  # pylint: disable=invalid-name
+StructureData = DataFactory('core.structure')  # pylint: disable=invalid-name
 
 
 def run_cp2k_multistage_ddec_h2o(cp2k_code, ddec_code):  # pylint: disable=redefined-outer-name
@@ -50,7 +50,7 @@ def run_cp2k_multistage_ddec_h2o(cp2k_code, ddec_code):  # pylint: disable=redef
 
     builder.ddec.code = ddec_code
     builder.ddec.parameters = Dict(
-        dict={
+        {
             'net charge': 0.0,
             'charge type': 'DDEC6',
             'periodicity along A, B, and C vectors': [True, True, True],

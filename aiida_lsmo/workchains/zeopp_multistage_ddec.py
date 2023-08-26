@@ -17,7 +17,7 @@ DdecCalculation = CalculationFactory('ddec')  # pylint: disable=invalid-name
 ZeoppCalculation = CalculationFactory('zeopp.network')  # pylint: disable=invalid-name
 
 # import aiida data
-CifData = DataFactory('cif')  # pylint: disable=invalid-name
+CifData = DataFactory('core.cif')  # pylint: disable=invalid-name
 NetworkParameters = DataFactory('zeopp.parameters')  # pylint: disable=invalid-name
 
 

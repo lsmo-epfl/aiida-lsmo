@@ -14,7 +14,7 @@ from aiida import cmdline
 SimAnnealingWorkChain = WorkflowFactory('lsmo.sim_annealing')  # pylint: disable=invalid-name
 
 # Data objects
-CifData = DataFactory('cif')  # pylint: disable=invalid-name
+CifData = DataFactory('core.cif')  # pylint: disable=invalid-name
 
 
 @click.command('cli')
@@ -34,7 +34,7 @@ def main(raspa_code):
         'max_wallclock_seconds': 1 * 60 * 60,
     }
     builder.structure = CifData(file=os.path.abspath('data/HKUST-1.cif'), label='HKUST-1')
-    builder.molecule = Dict(dict={
+    builder.molecule = Dict({
         'name': 'DMA',
         'forcefield': 'BOYDDDEC',
         'proberad': 1.7365,
@@ -42,7 +42,7 @@ def main(raspa_code):
         'charged': True,
     })
     builder.parameters = Dict(
-        dict={
+        {
             'ff_framework': 'UFF',  # (str) Forcefield of the structure.
             'temperature_list': [300, 150],  # (list) List of decreasing temperatures for the annealing.
             'mc_steps': int(10),  # (int) Number of MC cycles.

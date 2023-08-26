@@ -16,7 +16,7 @@ from .parameters_schemas import FF_PARAMETERS_VALIDATOR, NUMBER, Required
 RaspaBaseWorkChain = WorkflowFactory('raspa.base')  #pylint: disable=invalid-name
 
 # Defining DataFactory, CalculationFactory and default parameters
-CifData = DataFactory('cif')  #pylint: disable=invalid-name
+CifData = DataFactory('core.cif')  #pylint: disable=invalid-name
 ZeoppParameters = DataFactory('zeopp.parameters')  #pylint: disable=invalid-name
 
 ZeoppCalculation = CalculationFactory('zeopp.network')  #pylint: disable=invalid-name
@@ -48,7 +48,7 @@ def get_components_dict(conditions, parameters):
             'ha': 'DEF',
             'block': [probe_rad * parameters['zeopp_probe_scaling'], parameters['zeopp_block_samples']],
         }
-    return Dict(dict=components_dict)
+    return Dict(components_dict)
 
 
 @calcfunction
@@ -65,7 +65,7 @@ def get_ff_parameters(components, isotparams):
     for value in components.get_dict().values():
         ff = value['forcefield']  #pylint: disable=invalid-name
         ff_params['ff_molecules'][value['name']] = ff
-    return Dict(dict=ff_params)
+    return Dict(ff_params)
 
 
 @calcfunction
@@ -130,7 +130,7 @@ def get_output_parameters(inp_conditions, components, **all_out_dicts):  #pylint
                         gcmc_out['components'][comp][label] = 0
                     out_dict[label][comp] = conv_ener * gcmc_out['components'][comp][label]
 
-    return Dict(dict=out_dict)
+    return Dict(out_dict)
 
 
 class MulticompGcmcWorkChain(WorkChain):
@@ -190,7 +190,7 @@ class MulticompGcmcWorkChain(WorkChain):
         # Get the parameters Dict, merging defaults with user settings
         @calcfunction
         def get_valid_dict(dict_node):
-            return Dict(dict=self.parameters_schema(dict_node.get_dict()))
+            return Dict(self.parameters_schema(dict_node.get_dict()))
 
         self.ctx.parameters = get_valid_dict(self.inputs.parameters)
         self.ctx.components = get_components_dict(self.inputs.conditions, self.ctx.parameters)
@@ -299,7 +299,7 @@ class MulticompGcmcWorkChain(WorkChain):
             system_key = list(self.ctx.raspa_param['System'].keys())[0]
             self.ctx.raspa_param['System'][system_key]['ExternalTemperature'] = temp  #K
             self.ctx.raspa_param['System'][system_key]['ExternalPressure'] = press * 1e5  # Pa
-            self.ctx.raspa_inputs['raspa']['parameters'] = Dict(dict=self.ctx.raspa_param)
+            self.ctx.raspa_inputs['raspa']['parameters'] = Dict(self.ctx.raspa_param)
             running = self.submit(RaspaBaseWorkChain, **self.ctx.raspa_inputs)
             self.report('Running Raspa GCMC #{} @ {} K, {} bar'.format(i, temp, press))
             self.to_context(**{gcmc_label: running})

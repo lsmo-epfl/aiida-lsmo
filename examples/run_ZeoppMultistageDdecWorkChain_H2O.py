@@ -14,7 +14,7 @@ from aiida import cmdline
 ZeoppMultistageDdecWorkChain = WorkflowFactory('lsmo.zeopp_multistage_ddec')  # pylint: disable=invalid-name
 
 #Data objects
-CifData = DataFactory('cif')  # pylint: disable=invalid-name
+CifData = DataFactory('core.cif')  # pylint: disable=invalid-name
 NetworkParameters = DataFactory('zeopp.parameters')  # pylint: disable=invalid-name
 
 
@@ -55,7 +55,7 @@ def main(zeopp_code, cp2k_code, ddec_code, ddec_atdens_path):
     }
 
     ddec_params = Dict(
-        dict={
+        {
             'net charge': 0.0,
             'charge type': 'DDEC6',
             'periodicity along A, B, and C vectors': [True, True, True],

@@ -25,8 +25,8 @@ def run_multistage_h2om(cp2k_code):
     atoms.center(vacuum=2.0)
     structure = StructureData(ase=atoms)
 
-    protocol_mod = Dict(dict={'settings_0': {'FORCE_EVAL': {'DFT': {'MGRID': {'CUTOFF': 300,}}}}})
-    parameters = Dict(dict={'FORCE_EVAL': {
+    protocol_mod = Dict({'settings_0': {'FORCE_EVAL': {'DFT': {'MGRID': {'CUTOFF': 300,}}}}})
+    parameters = Dict({'FORCE_EVAL': {
         'DFT': {
             'UKS': True,
             'MULTIPLICITY': 3,

@@ -21,7 +21,7 @@ RaspaBaseWorkChain = WorkflowFactory('raspa.base')  # pylint: disable=invalid-na
 FFBuilder = CalculationFactory('lsmo.ff_builder')  # pylint: disable=invalid-name
 
 # import aiida data
-CifData = DataFactory('cif')  # pylint: disable=invalid-name
+CifData = DataFactory('core.cif')  # pylint: disable=invalid-name
 
 
 # calcfunctions (in order of appearence)
@@ -93,7 +93,7 @@ def get_output_parameters(input_dict, min_out_dict, **nvt_out_dict):
     for key in key_list:
         out_dict[key].append(min_out_dict['framework_1']['general'][key])
 
-    return Dict(dict=out_dict)
+    return Dict(out_dict)
 
 
 class SimAnnealingWorkChain(WorkChain):
@@ -201,7 +201,7 @@ class SimAnnealingWorkChain(WorkChain):
         # Get the parameters Dict, merging defaults with user settings
         @calcfunction
         def get_valid_dict(dict_node):
-            return Dict(dict=self.parameters_schema(dict_node.get_dict()))
+            return Dict(self.parameters_schema(dict_node.get_dict()))
 
         self.ctx.parameters = get_valid_dict(self.inputs.parameters)
 
@@ -231,7 +231,7 @@ class SimAnnealingWorkChain(WorkChain):
         if self.ctx.count > 0:
             self.ctx.inp['raspa']['retrieved_parent_folder'] = self.ctx.raspa_nvt[self.ctx.count - 1].outputs.retrieved
 
-        self.ctx.inp['raspa']['parameters'] = Dict(dict=self.ctx.raspa_param)
+        self.ctx.inp['raspa']['parameters'] = Dict(self.ctx.raspa_param)
         self.ctx.inp['metadata']['label'] = 'RaspaNVT_{}'.format(self.ctx.count + 1)
         self.ctx.inp['metadata']['call_link_label'] = 'run_raspa_nvt_{}'.format(self.ctx.count + 1)
 
@@ -255,7 +255,7 @@ class SimAnnealingWorkChain(WorkChain):
             'RMSGradientTolerance': 1e-6,
             'MaxGradientTolerance': 1e-6,
         })
-        self.ctx.inp['raspa']['parameters'] = Dict(dict=self.ctx.raspa_param)
+        self.ctx.inp['raspa']['parameters'] = Dict(self.ctx.raspa_param)
         self.ctx.inp['raspa']['retrieved_parent_folder'] = self.ctx.raspa_nvt[self.ctx.count - 1].outputs.retrieved
         self.ctx.inp['metadata']['label'] = 'RaspaMin'
         self.ctx.inp['metadata']['call_link_label'] = 'run_raspa_min'

@@ -16,7 +16,7 @@ from .parameters_schemas import FF_PARAMETERS_VALIDATOR, NUMBER, Required
 RaspaBaseWorkChain = WorkflowFactory('raspa.base')  #pylint: disable=invalid-name
 
 # Defining DataFactory, CalculationFactory and default parameters
-CifData = DataFactory('cif')  #pylint: disable=invalid-name
+CifData = DataFactory('core.cif')  #pylint: disable=invalid-name
 ZeoppParameters = DataFactory('zeopp.parameters')  #pylint: disable=invalid-name
 
 ZeoppCalculation = CalculationFactory('zeopp.network')  #pylint: disable=invalid-name
@@ -47,7 +47,7 @@ def get_components_dict(conditions, parameters):
             'ha': 'DEF',
             'block': [probe_rad * parameters['zeopp_probe_scaling'], parameters['zeopp_block_samples']],
         }
-    return Dict(dict=components_dict)
+    return Dict(components_dict)
 
 
 @calcfunction
@@ -64,7 +64,7 @@ def get_ff_parameters(components, isotparams):
     for value in components.get_dict().values():
         ff = value['forcefield']  #pylint: disable=invalid-name
         ff_params['ff_molecules'][value['name']] = ff
-    return Dict(dict=ff_params)
+    return Dict(ff_params)
 
 
 @calcfunction
@@ -83,7 +83,7 @@ def get_geometric_output(zeopp_out):
     """Return the geometric_output Dict from Zeopp results, including is_porous"""
     geometric_output = zeopp_out.get_dict()
     geometric_output.update({'is_porous': geometric_output['POAV_A^3'] > 0.000})
-    return Dict(dict=geometric_output)
+    return Dict(geometric_output)
 
 
 @calcfunction
@@ -139,7 +139,7 @@ def get_output_parameters(inp_conditions, components, **all_out_dicts):  #pylint
         work_cap = out_dict['loading_absolute_average'][comp][0] - out_dict['loading_absolute_average'][comp][1]
         out_dict['working_capacity'][comp] = work_cap
 
-    return Dict(dict=out_dict)
+    return Dict(out_dict)
 
 
 class MulticompAdsDesWorkChain(WorkChain):
@@ -200,7 +200,7 @@ class MulticompAdsDesWorkChain(WorkChain):
 
         @calcfunction
         def get_valid_dict(dict_node):
-            return Dict(dict=self.parameters_schema(dict_node.get_dict()))
+            return Dict(self.parameters_schema(dict_node.get_dict()))
 
         self.ctx.parameters = get_valid_dict(self.inputs.parameters)
         self.ctx.components = get_components_dict(self.inputs.conditions, self.ctx.parameters)
@@ -328,7 +328,7 @@ class MulticompAdsDesWorkChain(WorkChain):
         gcmc_label = 'RaspaGCMC_Ads'
         self.ctx.raspa_inputs['metadata']['label'] = gcmc_label
         self.ctx.raspa_inputs['metadata']['call_link_label'] = 'run_raspa_gcmc_ads'
-        self.ctx.raspa_inputs['raspa']['parameters'] = Dict(dict=self.ctx.raspa_param)
+        self.ctx.raspa_inputs['raspa']['parameters'] = Dict(self.ctx.raspa_param)
         running = self.submit(RaspaBaseWorkChain, **self.ctx.raspa_inputs)
         self.report('Running Raspa GCMC @ Adsorption conditions')
         self.to_context(**{gcmc_label: running})
@@ -339,7 +339,7 @@ class MulticompAdsDesWorkChain(WorkChain):
         gcmc_label = 'RaspaGCMC_Des'
         self.ctx.raspa_inputs['metadata']['label'] = gcmc_label
         self.ctx.raspa_inputs['metadata']['call_link_label'] = 'run_raspa_gcmc_des'
-        self.ctx.raspa_inputs['raspa']['parameters'] = Dict(dict=self.ctx.raspa_param)
+        self.ctx.raspa_inputs['raspa']['parameters'] = Dict(self.ctx.raspa_param)
         running = self.submit(RaspaBaseWorkChain, **self.ctx.raspa_inputs)
         self.report('Running Raspa GCMC @ Desorption conditions')
         self.to_context(**{gcmc_label: running})

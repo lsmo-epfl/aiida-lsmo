@@ -19,7 +19,7 @@ DATA_DIR = THIS_DIR / 'data'
 Cp2kMultistageWorkChain = WorkflowFactory('lsmo.cp2k_multistage')
 
 # Data objects
-StructureData = DataFactory('structure')
+StructureData = DataFactory('core.structure')
 
 
 @pytest.fixture(scope='function')
@@ -35,8 +35,8 @@ def run_multistage_al(cp2k_code, al_structuredata):  # pylint: disable=redefined
     print('EXPECTED: the OT (settings_0) will converge to a negative bandgap, then use SMEARING (settings_1)')
 
     # testing user change of parameters and protocol
-    parameters = Dict(dict={'FORCE_EVAL': {'DFT': {'MGRID': {'CUTOFF': 250,}}}})
-    protocol_mod = Dict(dict={
+    parameters = Dict({'FORCE_EVAL': {'DFT': {'MGRID': {'CUTOFF': 250,}}}})
+    protocol_mod = Dict({
         'initial_magnetization': {
             'Al': 0
         },
