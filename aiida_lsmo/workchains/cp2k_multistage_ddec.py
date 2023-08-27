@@ -14,8 +14,8 @@ Cp2kDdecWorkChain = WorkflowFactory('ddec.cp2k_ddec')  # pylint: disable=invalid
 DdecCalculation = CalculationFactory('ddec')  # pylint: disable=invalid-name
 
 # import aiida data
-Dict = DataFactory('dict')  # pylint: disable=invalid-name
-CifData = DataFactory('cif')  # pylint: disable=invalid-name
+Dict = DataFactory('core.dict')  # pylint: disable=invalid-name
+CifData = DataFactory('core.cif')  # pylint: disable=invalid-name
 
 
 class Cp2kMultistageDdecWorkChain(WorkChain):
@@ -50,7 +50,7 @@ class Cp2kMultistageDdecWorkChain(WorkChain):
         cp2k_ddec_inputs = AttributeDict(self.exposed_inputs(Cp2kDdecWorkChain))
         cp2k_ddec_inputs['cp2k_base'] = self.exposed_inputs(Cp2kMultistageWorkChain)['cp2k_base']
         cp2k_params_modify = Dict(
-            dict={
+            {
                 'FORCE_EVAL': {
                     'DFT': {
                         'WFN_RESTART_FILE_NAME': './parent_calc/aiida-RESTART.wfn',

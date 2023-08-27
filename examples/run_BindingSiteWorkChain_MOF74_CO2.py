@@ -14,7 +14,7 @@ from aiida import cmdline
 BindingSiteWorkChain = WorkflowFactory('lsmo.binding_site')  # pylint: disable=invalid-name
 
 # Data objects
-CifData = DataFactory('cif')  # pylint: disable=invalid-name
+CifData = DataFactory('core.cif')  # pylint: disable=invalid-name
 
 
 @click.command('cli')
@@ -48,13 +48,13 @@ def main(raspa_code, cp2k_code):
     builder.structure = CifData(file=os.path.abspath('data/Zn-MOF-74.cif'), label='Zn-MOF-74')
     builder.molecule = Str('co2')
     builder.parameters = Dict(
-        dict={
+        {
             'ff_framework': 'UFF',  # (str) Forcefield of the structure.
             'mc_steps': int(10),  # (int) Number of MC cycles.
             'temperature_list': [300, 150],
         })
     builder.protocol_tag = Str('test')
-    builder.cp2k_base.cp2k.parameters = Dict(dict={ # Lowering CP2K default setting for a faster test calculation
+    builder.cp2k_base.cp2k.parameters = Dict({ # Lowering CP2K default setting for a faster test calculation
         'FORCE_EVAL': {
             'DFT': {
                 'SCF': {

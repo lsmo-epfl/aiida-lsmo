@@ -19,7 +19,7 @@ DATA_DIR = THIS_DIR / 'data'
 BindingEnergyWorkChain = WorkflowFactory('lsmo.cp2k_binding_energy')
 
 # Data objects
-StructureData = DataFactory('structure')
+StructureData = DataFactory('core.structure')
 
 
 @pytest.fixture(scope='function')
@@ -44,7 +44,7 @@ def run_binding_energy_co2_mof74(cp2k_code, zn_mof74, co2_in_mof74):  # pylint: 
     builder.structure = zn_mof74
     builder.molecule = co2_in_mof74
     builder.protocol_tag = Str('test')
-    builder.cp2k_base.cp2k.parameters = Dict(dict={ # Lowering CP2K default setting for a faster test calculation
+    builder.cp2k_base.cp2k.parameters = Dict({ # Lowering CP2K default setting for a faster test calculation
         'FORCE_EVAL': {
             'DFT': {
                 'SCF': {

@@ -20,7 +20,7 @@ ZeoppCalculation = CalculationFactory('zeopp.network')  # pylint: disable=invali
 FFBuilder = CalculationFactory('lsmo.ff_builder')  # pylint: disable=invalid-name
 
 # import aiida data
-CifData = DataFactory('cif')  # pylint: disable=invalid-name
+CifData = DataFactory('core.cif')  # pylint: disable=invalid-name
 ZeoppParameters = DataFactory('zeopp.parameters')  # pylint: disable=invalid-name
 
 
@@ -35,7 +35,7 @@ def get_molecule_dict(molecule_name):
         yaml_dict = yaml.safe_load(stream)
         ISOTHERM_MOLECULES_SCHEMA(yaml_dict)
     molecule_dict = yaml_dict[molecule_name.value]
-    return Dict(dict=molecule_dict)
+    return Dict(molecule_dict)
 
 
 @calcfunction
@@ -71,7 +71,7 @@ def get_ff_parameters(molecule_dict, isotparam):
     ff_params['tail_corrections'] = isotparam['ff_tail_corrections']
     ff_params['mixing_rule'] = isotparam['ff_mixing_rule']
     ff_params['separate_interactions'] = isotparam['ff_separate_interactions']
-    return Dict(dict=ff_params)
+    return Dict(ff_params)
 
 
 @calcfunction
@@ -83,7 +83,7 @@ def get_geometric_dict(zeopp_out, molecule):
         'Estimated_saturation_loading_unit': 'mol/kg',
         'is_porous': geometric_dict['POAV_A^3'] > 0.000
     })
-    return Dict(dict=geometric_dict)
+    return Dict(geometric_dict)
 
 
 @calcfunction
@@ -153,7 +153,7 @@ def get_output_parameters(geom_out, inp_params, widom_out=None, **gcmc_out_dict)
                 'conversion_factor_molec_uc_to_mol_kg': gcmc_out_mol['conversion_factor_molec_uc_to_mol_kg'],
             })
 
-    return Dict(dict=out_dict)
+    return Dict(out_dict)
 
 
 class IsothermAccurateWorkChain(WorkChain):
@@ -266,7 +266,7 @@ class IsothermAccurateWorkChain(WorkChain):
         # Get the parameters Dict, merging defaults with user settings
         @calcfunction
         def get_valid_dict(dict_node):
-            return Dict(dict=self.parameters_schema(dict_node.get_dict()))
+            return Dict(self.parameters_schema(dict_node.get_dict()))
 
         self.ctx.parameters = get_valid_dict(self.inputs.parameters)
 
@@ -405,7 +405,7 @@ class IsothermAccurateWorkChain(WorkChain):
             self.ctx.inp['raspa']['block_pocket'] = {'block_file': self.ctx.zeopp.outputs.block}
 
         self.ctx.raspa_param = self._get_widom_param()
-        self.ctx.inp['raspa']['parameters'] = Dict(dict=self.ctx.raspa_param)
+        self.ctx.inp['raspa']['parameters'] = Dict(self.ctx.raspa_param)
 
         # Generate the force field with the ff_builder
         ff_params = get_ff_parameters(self.ctx.molecule, self.ctx.parameters)
@@ -557,7 +557,7 @@ class IsothermAccurateWorkChain(WorkChain):
         self.ctx.raspa_param['System']['framework_1']['ExternalPressure'] = self.ctx.pressure * 1e5
 
         # Update parameters Dict
-        self.ctx.inp['raspa']['parameters'] = Dict(dict=self.ctx.raspa_param)
+        self.ctx.inp['raspa']['parameters'] = Dict(self.ctx.raspa_param)
 
         # Update restart (if present, i.e., if current_p_index>0)
         if 'raspa_gcmc' in self.ctx:

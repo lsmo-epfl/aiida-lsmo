@@ -12,7 +12,7 @@ from aiida import cmdline
 SinglecompWidomWorkChain = WorkflowFactory('lsmo.singlecomp_widom')
 
 # Data objects
-CifData = DataFactory('cif')
+CifData = DataFactory('core.cif')
 NetworkParameters = DataFactory('zeopp.parameters')
 
 
@@ -43,7 +43,7 @@ def main(raspa_code, zeopp_code):
     builder.zeopp.metadata.options = options
     builder.molecule = Str('h2o')  # it does not make much sense with a rigid molecule!
 
-    builder.parameters = Dict(dict={
+    builder.parameters = Dict({
         'zeopp_block_samples': 10,  # Default: 100
         'raspa_widom_cycles': 100,  # Default: 1e5
         'temperatures': [200, 300]

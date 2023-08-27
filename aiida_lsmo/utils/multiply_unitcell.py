@@ -60,7 +60,7 @@ def check_resize_unit_cell_legacy(struct, threshold):  #pylint: disable=too-many
         'ny': int(ceil(thr / perpwidth[1])),
         'nz': int(ceil(thr / perpwidth[2]))
     }
-    return Dict(dict=resize)
+    return Dict(resize)
 
 
 @calcfunction

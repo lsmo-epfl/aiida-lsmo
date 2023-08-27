@@ -16,7 +16,7 @@ def get_parameters_singletemp(i, parameters):
     parameters_singletemp = parameters.get_dict()
     parameters_singletemp['temperature'] = parameters_singletemp['temperature_list'][i]
     del parameters_singletemp['temperature_list']
-    return Dict(dict=parameters_singletemp)
+    return Dict(parameters_singletemp)
 
 
 @calcfunction
@@ -48,7 +48,7 @@ def get_output_parameters(geom_dict, **isotherm_dict):
         for label in single_temp_labels:
             out_dict[label] = isotherm_out_i[label]
 
-    return Dict(dict=out_dict)
+    return Dict(out_dict)
 
 
 class IsothermMultiTempWorkChain(WorkChain):

@@ -22,4 +22,4 @@ def compute_oxidation_states(cif):
         }
 
     results_dict['oximachine_version'] = str(OXIMACHINE_RUNNER)
-    return Dict(dict=results_dict)
+    return Dict(results_dict)

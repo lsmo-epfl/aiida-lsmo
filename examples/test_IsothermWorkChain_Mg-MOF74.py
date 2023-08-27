@@ -19,7 +19,7 @@ DATA_DIR = THIS_DIR / 'data'
 IsothermWorkChain = WorkflowFactory('lsmo.isotherm')
 
 # Data objects
-CifData = DataFactory('cif')
+CifData = DataFactory('core.cif')
 NetworkParameters = DataFactory('zeopp.parameters')
 
 
@@ -53,7 +53,7 @@ def run_isotherm_mg_mof74(raspa_code, zeopp_code, mg_mof74_cifdata):  # pylint: 
     builder.structure = mg_mof74_cifdata
     builder.molecule = Str('co2')
     builder.parameters = Dict(
-        dict={
+        {
             'ff_framework': 'UFF',  # Default: UFF
             'temperature': 400,  # (K) Note: higher temperature will have less adsorbate and it is faster
             'zeopp_volpo_samples': 1000,  # Default: 1e5 *NOTE: default is good for standard real-case!

@@ -22,7 +22,7 @@ def run_multistage_h2o_fail(cp2k_code):
     atoms.center(vacuum=2.0)
     structure = StructureData(ase=atoms)
 
-    parameters = Dict(dict={'FORCE_EVAL': {
+    parameters = Dict({'FORCE_EVAL': {
         'DFT': {
             'UKS': True,
             'MULTIPLICITY': 666,

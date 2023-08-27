@@ -68,7 +68,7 @@ def apply_initial_magnetization(structure, protocol, oxidation_states=None, with
     cp2k_param = get_kinds_section(atoms=atoms, protocol=protocol_dict, with_ghost_atoms=bool(with_ghost_atoms))
     dict_merge(cp2k_param, get_multiplicity_section(atoms=atoms, protocol=protocol_dict))
 
-    return {'structure': StructureData(ase=atoms), 'cp2k_param': Dict(dict=cp2k_param)}
+    return {'structure': StructureData(ase=atoms), 'cp2k_param': Dict(cp2k_param)}
 
 
 @calcfunction
@@ -137,7 +137,7 @@ def extract_results(resize, **kwargs):
     output_dict['final_bandgap_spin1_au'] = kwarg['bandgap_spin1_au']
     output_dict['final_bandgap_spin2_au'] = kwarg['bandgap_spin2_au']
 
-    return Dict(dict=output_dict)
+    return Dict(output_dict)
 
 
 class Cp2kMultistageWorkChain(WorkChain):

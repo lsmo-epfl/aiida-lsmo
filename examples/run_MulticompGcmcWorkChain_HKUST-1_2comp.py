@@ -13,9 +13,9 @@ from aiida import cmdline
 MulticompGcmcWorkChain = WorkflowFactory('lsmo.multicomp_gcmc')  # pylint: disable=invalid-name
 
 # Data objects
-CifData = DataFactory('cif')  # pylint: disable=invalid-name
+CifData = DataFactory('core.cif')  # pylint: disable=invalid-name
 NetworkParameters = DataFactory('zeopp.parameters')  # pylint: disable=invalid-name
-SinglefileData = DataFactory('singlefile')
+SinglefileData = DataFactory('core.singlefile')
 
 
 @click.command('cli')
@@ -44,7 +44,7 @@ def main(raspa_code, zeopp_code):
     builder.raspa_base.raspa.metadata.options = options
     builder.zeopp.metadata.options = options
     builder.structure = CifData(file=os.path.abspath('data/HKUST-1.cif'), label='HKUST-1')
-    builder.conditions = Dict(dict={
+    builder.conditions = Dict({
         'molfraction': {
             'xenon': 0.2,
             'krypton': 0.8,
@@ -57,7 +57,7 @@ def main(raspa_code, zeopp_code):
     })
 
     builder.parameters = Dict(
-        dict={
+        {
             'zeopp_probe_scaling': 0.95,
             'zeopp_block_samples': 10,  # Default: 100
             'raspa_gcmc_init_cycles': 100,  # Default: 1e3

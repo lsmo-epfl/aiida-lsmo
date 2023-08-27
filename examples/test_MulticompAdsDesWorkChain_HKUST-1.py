@@ -19,9 +19,9 @@ DATA_DIR = THIS_DIR / 'data'
 MulticompAdsDesWorkChain = WorkflowFactory('lsmo.multicomp_ads_des')  # pylint: disable=invalid-name
 
 # Data objects
-CifData = DataFactory('cif')  # pylint: disable=invalid-name
+CifData = DataFactory('core.cif')  # pylint: disable=invalid-name
 NetworkParameters = DataFactory('zeopp.parameters')  # pylint: disable=invalid-name
-SinglefileData = DataFactory('singlefile')
+SinglefileData = DataFactory('core.singlefile')
 
 
 @pytest.fixture(scope='function')
@@ -55,7 +55,7 @@ def run_multicomp_ads_des_hkust_1(raspa_code, zeopp_code, hkust_1_cifdata):  # p
     builder.zeopp.metadata.options = options
     builder.structure = hkust_1_cifdata
     builder.conditions = Dict(
-        dict={
+        {
             'molfraction': {
                 'xenon': 0.2,
                 'krypton': 0.8
@@ -71,7 +71,7 @@ def run_multicomp_ads_des_hkust_1(raspa_code, zeopp_code, hkust_1_cifdata):  # p
         })
 
     builder.parameters = Dict(
-        dict={
+        {
             'zeopp_probe_scaling': 0.9,  # Default: 1.0
             'zeopp_block_samples': 10,  # Default: 100
             'raspa_widom_cycles': 100,  # Default: 1e5
@@ -86,8 +86,10 @@ def run_multicomp_ads_des_hkust_1(raspa_code, zeopp_code, hkust_1_cifdata):  # p
     params = results['output_parameters'].get_dict()
 
     # checking results
-    assert params['loading_absolute_average']['Kr'][1] == pytest.approx(0.02, abs=0.02)
-    assert params['loading_absolute_average']['Xe'][1] == pytest.approx(0.74, abs=0.2)
+    assert params['loading_absolute_average']['Kr'][1] == pytest.approx(0.02, abs=0.02), \
+        params['loading_absolute_average']['Kr'][1] 
+    assert params['loading_absolute_average']['Xe'][1] == pytest.approx(0.74, abs=0.2), \
+        params['loading_absolute_average']['Xe'][1]
 
 
 @click.command()

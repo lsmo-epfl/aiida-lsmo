@@ -14,7 +14,7 @@ from aiida import cmdline
 IsothermCalcPEWorkChain = WorkflowFactory('lsmo.isotherm_calc_pe')  # pylint: disable=invalid-name
 
 # Data objects
-CifData = DataFactory('cif')  # pylint: disable=invalid-name
+CifData = DataFactory('core.cif')  # pylint: disable=invalid-name
 NetworkParameters = DataFactory('zeopp.parameters')  # pylint: disable=invalid-name
 
 
@@ -49,7 +49,7 @@ def main(raspa_code, zeopp_code):
     # NOTE1: parameters are chosen for speed purpose. Use the default to be consistent to 10.1021/acscentsci.9b00619
     # NOTE2: calc_pe can fail due to this raw sampling of the isotherm. It happens in the ca. 20% of the cases.
     builder.parameters = Dict(
-        dict={
+        {
             'ff_framework': 'UFF',
             'temperature': 400,
             'zeopp_volpo_samples': 1000,

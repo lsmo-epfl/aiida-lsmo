@@ -10,8 +10,8 @@ SimAnnealingWorkChain = WorkflowFactory('lsmo.sim_annealing')  # pylint: disable
 Cp2kBindingEnergyWorkChain = WorkflowFactory('lsmo.cp2k_binding_energy')  # pylint: disable=invalid-name
 
 # import aiida data
-StructureData = DataFactory('structure')  # pylint: disable=invalid-name
-CifData = DataFactory('cif')  # pylint: disable=invalid-name
+StructureData = DataFactory('core.structure')  # pylint: disable=invalid-name
+CifData = DataFactory('core.cif')  # pylint: disable=invalid-name
 
 
 class BindingSiteWorkChain(WorkChain):

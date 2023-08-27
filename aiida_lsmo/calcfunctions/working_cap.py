@@ -59,7 +59,7 @@ def calc_ch4_working_cap(isot_dict):
             'wc_65bar_fraction': wc_65bar_fract,
             'wc_65bar_fraction_unit': '-',
         })
-    return Dict(dict=out_dict)
+    return Dict(out_dict)
 
 
 @calcfunction
@@ -112,7 +112,7 @@ def calc_h2_working_cap(isotmt_dict):  # pylint: disable=too-many-locals
                     'case-{}_{}_dev'.format(case, unit): sqrt(load_dev**2 + disc_dev**2) * conv
                 })
 
-    return Dict(dict=out_dict)
+    return Dict(out_dict)
 
 
 @calcfunction
@@ -161,4 +161,4 @@ def calc_o2_working_cap(isot_dict):
             'wc_140bar_fraction': wc_140bar_fract,
             'wc_140bar_fraction_unit': '-',
         })
-    return Dict(dict=out_dict)
+    return Dict(out_dict)

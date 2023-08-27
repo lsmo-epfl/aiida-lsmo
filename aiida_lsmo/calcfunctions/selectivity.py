@@ -25,4 +25,4 @@ def calc_selectivity(isot_dict_a, isot_dict_b):
         out_dict['selectivity_dev'] = out_dict['selectivity_average'] * sqrt(
             (isot_dict_a['henry_coefficient_dev'] / isot_dict_a['henry_coefficient_average']) +
             (isot_dict_b['henry_coefficient_dev'] / isot_dict_b['henry_coefficient_average']))
-    return Dict(dict=out_dict)
+    return Dict(out_dict)

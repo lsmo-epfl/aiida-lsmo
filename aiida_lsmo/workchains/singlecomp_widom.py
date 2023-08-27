@@ -15,7 +15,7 @@ from .parameters_schemas import FF_PARAMETERS_VALIDATOR, NUMBER, Required
 RaspaBaseWorkChain = WorkflowFactory('raspa.base')  #pylint: disable=invalid-name
 
 # Defining DataFactory, CalculationFactory and default parameters
-CifData = DataFactory('cif')  #pylint: disable=invalid-name
+CifData = DataFactory('core.cif')  #pylint: disable=invalid-name
 ZeoppParameters = DataFactory('zeopp.parameters')  #pylint: disable=invalid-name
 
 ZeoppCalculation = CalculationFactory('zeopp.network')  #pylint: disable=invalid-name
@@ -60,7 +60,7 @@ def get_output_parameters(inp_parameters, **all_out_dicts):
             comp_key = list(output_widom[system_key]['components'].keys())[0]
             out_dict[key].append(output_widom[system_key]['components'][comp_key][key])
 
-    return Dict(dict=out_dict)
+    return Dict(out_dict)
 
 
 class SinglecompWidomWorkChain(WorkChain):
@@ -114,7 +114,7 @@ class SinglecompWidomWorkChain(WorkChain):
         # Get the parameters Dict, merging defaults with user settings
         @calcfunction
         def get_valid_dict(dict_node):
-            return Dict(dict=self.parameters_schema(dict_node.get_dict()))
+            return Dict(self.parameters_schema(dict_node.get_dict()))
 
         self.ctx.parameters = get_valid_dict(self.inputs.parameters)
         if isinstance(self.inputs.molecule, Str):
@@ -219,7 +219,7 @@ class SinglecompWidomWorkChain(WorkChain):
             self.ctx.raspa_inputs['metadata']['call_link_label'] = f'run_{widom_label}'
             system_key = list(self.ctx.raspa_param['System'].keys())[0]
             self.ctx.raspa_param['System'][system_key]['ExternalTemperature'] = temp
-            self.ctx.raspa_inputs['raspa']['parameters'] = Dict(dict=self.ctx.raspa_param)
+            self.ctx.raspa_inputs['raspa']['parameters'] = Dict(self.ctx.raspa_param)
             running = self.submit(RaspaBaseWorkChain, **self.ctx.raspa_inputs)
             self.report(f"Running Raspa Widom @ {temp}K for the Henry coefficient of <{self.ctx.molecule['name']}>")
             self.to_context(**{widom_label: running})

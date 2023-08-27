@@ -26,7 +26,7 @@ def calc_co2_parasitic_energy(isot_co2, isot_n2, pe_parameters):
     from calc_pe import mainPE
 
     if not isot_co2['is_porous'] or not isot_n2['is_porous']:
-        return Dict(dict={'is_porous': False})
+        return Dict({'is_porous': False})
 
     bar2pa = 1e5  # convert pressure from bar to Pa
     gcm2kgm = 1000  # convert density from g/cm3 to kg/m3
@@ -53,4 +53,4 @@ def calc_co2_parasitic_energy(isot_co2, isot_n2, pe_parameters):
     )
     pe_dict['is_porous'] = True
 
-    return Dict(dict=pe_dict)
+    return Dict(pe_dict)

@@ -17,22 +17,20 @@ readme = "README.md"
 license = {file = "LICENSE"}
 classifiers = [
     "License :: OSI Approved :: MIT License",
-    "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
 ]
 dependencies = [
-    "aiida-core~=1.0",
-    "aiida-cp2k~=1.4",
-    "aiida-ddec~=1.0",
-    "aiida-zeopp~=1.0,>=1.0.3",
-    "aiida-raspa~=1.1",
+    'aiida_core[atomic_tools]~=2.3',
+    "aiida-cp2k~=2.0",
+    "aiida-ddec~=2.0",
+    "aiida-zeopp~=2.0",
+    "aiida-raspa~=2.0",
     "calc-pe~=1.0,>=1.0.1",
-    "ruamel.yaml~=0.16.5",
-    "ase<3.20",
-    "oximachinerunner~=1.4.0",
-    "pymatgen<2021",
+    'oximachinerunner @ git+https://github.com/mpougin/oximachinerunner.git@update-packaging',
     "phonopy~=2.9",
-    "markupsafe<2.1",
 ]
 
 [project.urls]

@@ -13,7 +13,7 @@ from aiida.orm import Code, Dict
 IsothermAccurateWorkChain = WorkflowFactory('lsmo.isotherm_accurate')  # pylint: disable=invalid-name
 
 # Data objects
-CifData = DataFactory('cif')  # pylint: disable=invalid-name
+CifData = DataFactory('core.cif')  # pylint: disable=invalid-name
 NetworkParameters = DataFactory('zeopp.parameters')  # pylint: disable=invalid-name
 
 
@@ -45,7 +45,7 @@ def main(raspa_code_label, zeopp_code_label):
 
     builder.structure = CifData(file=os.path.abspath('data/Graphite_7A.cif'), label='Graphite_7A')
     builder.molecule = Dict(
-        dict={
+        {
             'name': 'Ar',
             'forcefield': 'HIRSCHFELDER',
             'molsatdens': 35.4,
@@ -55,7 +55,7 @@ def main(raspa_code_label, zeopp_code_label):
         })
 
     builder.parameters = Dict(
-        dict={
+        {
             'ff_framework': 'UFF',  # Default: UFF
             'ff_cutoff': 10,  # To speed up
             'temperature': 400,  # (K) Note: higher temperature will have less adsorbate and it is faster

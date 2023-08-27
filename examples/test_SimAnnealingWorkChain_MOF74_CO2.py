@@ -19,7 +19,7 @@ DATA_DIR = THIS_DIR / 'data'
 SimAnnealingWorkChain = WorkflowFactory('lsmo.sim_annealing')  # pylint: disable=invalid-name
 
 # Data objects
-CifData = DataFactory('cif')  # pylint: disable=invalid-name
+CifData = DataFactory('core.cif')  # pylint: disable=invalid-name
 
 
 @pytest.fixture(scope='function')
@@ -46,7 +46,7 @@ def run_sim_annealing_zn_mof74(raspa_code, zn_mof74_cifdata):  # pylint: disable
     }
     builder.structure = zn_mof74_cifdata
     builder.molecule = Str('co2')
-    builder.parameters = Dict(dict={
+    builder.parameters = Dict({
         'ff_framework': 'UFF',  # (str) Forcefield of the structure.
         'mc_steps': int(10),  # (int) Number of MC cycles.
     })
