@@ -4,6 +4,7 @@
 import os
 import functools
 import ruamel.yaml as yaml
+import scipy.stats
 
 from aiida.plugins import CalculationFactory, DataFactory, WorkflowFactory
 from aiida.orm import Dict, Str, SinglefileData
@@ -540,8 +541,25 @@ class IsothermAccurateWorkChain(WorkChain):
         self.ctx.pressure_old = self.ctx.pressure
         self.ctx.pressure = self.ctx.pressure_old + min(self.ctx.dpmax, dp_computed)
 
-        if self.ctx.pressure > self.ctx.psat:
-            return False  # Converged
+        if self.ctx.gcmc_loading_average > 0.5 * self.ctx.geom['Estimated_saturation_loading']:
+            # Compute slope of straight line
+            preg1 = list(self.ctx.raspa_gcmc[-3].outputs.output_parameters['framework_1']['components'].values())[0]['partial_pressure']/100000
+            preg2 = list(self.ctx.raspa_gcmc[-2].outputs.output_parameters['framework_1']['components'].values())[0]['partial_pressure']/100000
+            preg3 = list(self.ctx.raspa_gcmc[-1].outputs.output_parameters['framework_1']['components'].values())[0]['partial_pressure']/100000
+            conv1 = list(self.ctx.raspa_gcmc[-3].outputs.output_parameters['framework_1']['components'].values())[0]['conversion_factor_molec_uc_to_mol_kg']
+            conv2 = list(self.ctx.raspa_gcmc[-2].outputs.output_parameters['framework_1']['components'].values())[0]['conversion_factor_molec_uc_to_mol_kg']
+            conv3 = list(self.ctx.raspa_gcmc[-1].outputs.output_parameters['framework_1']['components'].values())[0]['conversion_factor_molec_uc_to_mol_kg']
+            load1 = list(self.ctx.raspa_gcmc[-3].outputs.output_parameters['framework_1']['components'].values())[0]['loading_absolute_average']
+            load2 = list(self.ctx.raspa_gcmc[-2].outputs.output_parameters['framework_1']['components'].values())[0]['loading_absolute_average']
+            load3 = list(self.ctx.raspa_gcmc[-1].outputs.output_parameters['framework_1']['components'].values())[0]['loading_absolute_average']
+
+            slope = scipy.stats.linregress([preg1, preg2, preg3], [conv1*load1, conv2*load2, conv3*load3])[0]
+            inter = scipy.stats.linregress([preg1, preg2, preg3], [conv1*load1, conv2*load2, conv3*load3])[1]
+
+            self.ctx.pressure = (self.ctx.geom['Estimated_saturation_loading'] - inter)/slope
+            self.ctx.gcmc_1 += 1
+            self.ctx.gcmc_loading_average = self._get_last_loading_molkg()
+            return False # Converged
 
         self.ctx.gcmc_i += 1
         return True  # Didn't converge yet
